@@ -1,0 +1,383 @@
+#!/usr/bin/env python3
+"""
+Critical Path Method (CPM) Analysis
+
+This script analyzes a project network using the Critical Path Method (CPM).
+It calculates early/late start/finish times, slack (float), and identifies the critical path.
+The program reads activity data from a CSV file.
+"""
+
+import networkx as nx
+import matplotlib.pyplot as plt
+from tabulate import tabulate
+from collections import defaultdict
+import csv
+import argparse
+import sys
+
+def load_activities_from_csv(csv_file):
+    """
+    Load activities from a CSV file.
+    
+    Expected CSV format:
+    id,duration,predecessors
+    A,3,
+    B,4,
+    C,2,A
+    ...
+    
+    Args:
+        csv_file: Path to the CSV file
+        
+    Returns:
+        List of dictionaries with activity data
+    """
+    activities = []
+    
+    try:
+        with open(csv_file, 'r', newline='') as file:
+            reader = csv.DictReader(file)
+            
+            for row in reader:
+                # Convert duration to integer
+                try:
+                    duration = int(row['duration'])
+                except ValueError:
+                    print(f"Error: Duration for activity {row['id']} must be a number")
+                    sys.exit(1)
+                
+                # Process predecessors (comma-separated list)
+                predecessors = []
+                if row['predecessors'] and row['predecessors'].strip():
+                    predecessors = [p.strip() for p in row['predecessors'].split(',')]
+                
+                activities.append({
+                    'id': row['id'],
+                    'duration': duration,
+                    'predecessors': predecessors
+                })
+    
+    except FileNotFoundError:
+        print(f"Error: File '{csv_file}' not found")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error reading CSV file: {e}")
+        sys.exit(1)
+    
+    # Verify that the first activity is 'A'
+    if not activities or activities[0]['id'] != 'A':
+        print("Error: The first activity must have ID 'A'")
+        sys.exit(1)
+    
+    return activities
+
+def build_network(activities):
+    """
+    Build a directed graph network from activity data.
+    
+    Args:
+        activities: List of dictionaries with activity data (id, duration, predecessors)
+    
+    Returns:
+        A NetworkX DiGraph object
+    """
+    # Create directed graph
+    G = nx.DiGraph()
+    
+    # Add all activities as nodes with duration attribute
+    for activity in activities:
+        G.add_node(activity['id'], duration=activity['duration'])
+    
+    # Add edges based on predecessor relationships
+    for activity in activities:
+        if 'predecessors' in activity and activity['predecessors']:
+            for predecessor in activity['predecessors']:
+                G.add_edge(predecessor, activity['id'])
+    
+    return G
+
+def forward_pass(G):
+    """
+    Perform forward pass to calculate Early Start (ES) and Early Finish (EF).
+    
+    Args:
+        G: NetworkX DiGraph with activities
+    
+    Returns:
+        Updated graph with ES and EF attributes
+    """
+    # Find activities with no predecessors
+    start_activities = [node for node in G.nodes() if G.in_degree(node) == 0]
+    
+    # Initialize early times
+    nx.set_node_attributes(G, 0, 'ES')
+    nx.set_node_attributes(G, 0, 'EF')
+    
+    # Process nodes in topological order
+    for node in nx.topological_sort(G):
+        duration = G.nodes[node]['duration']
+        
+        # For start activities, ES = 0
+        if node in start_activities:
+            G.nodes[node]['ES'] = 0
+        # For others, ES = max EF of predecessors
+        else:
+            pred_ef = [G.nodes[pred]['EF'] for pred in G.predecessors(node)]
+            G.nodes[node]['ES'] = max(pred_ef) if pred_ef else 0
+        
+        # EF = ES + duration
+        G.nodes[node]['EF'] = G.nodes[node]['ES'] + duration
+    
+    return G
+
+def backward_pass(G):
+    """
+    Perform backward pass to calculate Late Start (LS) and Late Finish (LF).
+    
+    Args:
+        G: NetworkX DiGraph with activities having ES and EF attributes
+    
+    Returns:
+        Updated graph with LS and LF attributes
+    """
+    # Find activities with no successors (end activities)
+    end_activities = [node for node in G.nodes() if G.out_degree(node) == 0]
+    
+    # Initialize late times - set all LF to the maximum EF (project duration)
+    project_duration = max([G.nodes[node]['EF'] for node in G.nodes()])
+    nx.set_node_attributes(G, project_duration, 'LF')
+    nx.set_node_attributes(G, project_duration, 'LS')
+    
+    # Process nodes in reverse topological order
+    for node in reversed(list(nx.topological_sort(G))):
+        duration = G.nodes[node]['duration']
+        
+        # For end activities, LF = project duration
+        if node in end_activities:
+            G.nodes[node]['LF'] = project_duration
+        # For others, LF = min LS of successors
+        else:
+            succ_ls = [G.nodes[succ]['LS'] for succ in G.successors(node)]
+            G.nodes[node]['LF'] = min(succ_ls) if succ_ls else project_duration
+        
+        # LS = LF - duration
+        G.nodes[node]['LS'] = G.nodes[node]['LF'] - duration
+    
+    return G
+
+def calculate_float(G):
+    """
+    Calculate float (slack) for each activity.
+    
+    Args:
+        G: NetworkX DiGraph with ES, EF, LS, LF attributes
+    
+    Returns:
+        Updated graph with float attribute
+    """
+    for node in G.nodes():
+        # Total Float = LS - ES or LF - EF (they are the same)
+        G.nodes[node]['float'] = G.nodes[node]['LS'] - G.nodes[node]['ES']
+    
+    return G
+
+def identify_critical_path(G):
+    """
+    Identify the critical path (activities with zero float).
+    
+    Args:
+        G: NetworkX DiGraph with float attributes
+    
+    Returns:
+        List of activities on the critical path
+    """
+    critical_activities = [node for node in G.nodes() if G.nodes[node]['float'] == 0]
+    
+    # Create a subgraph of only critical activities
+    critical_subgraph = G.subgraph(critical_activities)
+    
+    # Find all paths from start to end nodes in the critical subgraph
+    critical_paths = []
+    start_nodes = [node for node in critical_subgraph.nodes() if critical_subgraph.in_degree(node) == 0]
+    end_nodes = [node for node in critical_subgraph.nodes() if critical_subgraph.out_degree(node) == 0]
+    
+    for start in start_nodes:
+        for end in end_nodes:
+            try:
+                paths = list(nx.all_simple_paths(critical_subgraph, start, end))
+                critical_paths.extend(paths)
+            except nx.NetworkXNoPath:
+                pass
+    
+    return critical_paths, critical_activities
+
+def visualize_network(G, critical_activities=None):
+    """
+    Visualize the project network with critical path highlighted and detailed node information.
+    
+    Args:
+        G: NetworkX DiGraph
+        critical_activities: List of activities on the critical path
+    """
+    if critical_activities is None:
+        critical_activities = []
+    
+    # Create a custom positioning with 'A' on the left side
+    pos = {}
+    
+    # Get topological generations (layers of nodes)
+    generations = list(nx.topological_generations(G))
+    
+    # Set x-coordinates by generation and y-coordinates to spread nodes vertically
+    for i, gen in enumerate(generations):
+        for j, node in enumerate(sorted(gen)):
+            # Ensure 'A' is placed first in the first layer
+            if i == 0 and 'A' in gen:
+                if node == 'A':
+                    pos[node] = (i, 0)
+                else:
+                    pos[node] = (i, j+1 if j >= gen.index('A') else j)
+            else:
+                pos[node] = (i, j)
+    
+    plt.figure(figsize=(12, 8))
+    
+    # Draw edges
+    nx.draw_networkx_edges(G, pos, arrows=True, arrowsize=15)
+    
+    # Create node labels for main node text
+    node_labels = {}
+    for node in G.nodes():
+        node_labels[node] = node
+    
+    # Define node colors based on critical path
+    node_colors = ['red' if node in critical_activities else 'lightblue' for node in G.nodes()]
+    
+    # Draw nodes with rectangular shape
+    for node in G.nodes():
+        x, y = pos[node]
+        is_critical = node in critical_activities
+        color = 'red' if is_critical else 'lightblue'
+        
+        # Draw rectangle for the node
+        rect = plt.Rectangle((x-0.4, y-0.3), 0.8, 0.6, 
+                           fill=True, color=color, alpha=0.7,
+                           edgecolor='black', linewidth=2)
+        plt.gca().add_patch(rect)
+        
+        # Draw dividing lines to create a 6-cell grid
+        # Horizontal divider
+        plt.plot([x-0.4, x+0.4], [y, y], color='black', linewidth=1)
+        
+        # Vertical dividers for top row
+        plt.plot([x-0.13, x-0.13], [y, y+0.3], color='black', linewidth=1)
+        plt.plot([x+0.13, x+0.13], [y, y+0.3], color='black', linewidth=1)
+        
+        # Vertical dividers for bottom row
+        plt.plot([x-0.13, x-0.13], [y, y-0.3], color='black', linewidth=1)
+        plt.plot([x+0.13, x+0.13], [y, y-0.3], color='black', linewidth=1)
+        
+        # Add text in each cell
+        # Top row
+        plt.text(x-0.27, y+0.15, node, horizontalalignment='center', verticalalignment='center', fontsize=9)
+        plt.text(x, y+0.15, str(G.nodes[node]['ES']), horizontalalignment='center', verticalalignment='center', fontsize=9)
+        plt.text(x+0.27, y+0.15, str(G.nodes[node]['EF']), horizontalalignment='center', verticalalignment='center', fontsize=9)
+        
+        # Bottom row
+        plt.text(x-0.27, y-0.15, str(G.nodes[node]['duration']), horizontalalignment='center', verticalalignment='center', fontsize=9)
+        plt.text(x, y-0.15, str(G.nodes[node]['LS']), horizontalalignment='center', verticalalignment='center', fontsize=9)
+        plt.text(x+0.27, y-0.15, str(G.nodes[node]['LF']), horizontalalignment='center', verticalalignment='center', fontsize=9)
+    
+    # Add legend for critical path
+    critical_patch = plt.Rectangle((0, 0), 1, 1, fill=True, color='red', alpha=0.7)
+    normal_patch = plt.Rectangle((0, 0), 1, 1, fill=True, color='lightblue', alpha=0.7)
+    plt.legend([critical_patch, normal_patch], ['Critical Path', 'Normal Activity'], loc='upper right')
+    
+    # Add legend for node format
+    plt.figtext(0.01, 0.01, "Node Format:", fontsize=9)
+    plt.figtext(0.12, 0.01, "ID | ES | EF\nDur | LS | LF", fontsize=9)
+    
+    plt.title("Project Network Diagram (Critical Path in Red)")
+    plt.axis('off')
+    plt.tight_layout()
+    plt.show()
+
+def display_results(G, critical_paths):
+    """
+    Display the CPM analysis results in a formatted table.
+    
+    Args:
+        G: NetworkX DiGraph with all attributes
+        critical_paths: List of paths representing critical paths
+    """
+    # Prepare data for tabulation
+    table_data = []
+    for node in G.nodes():
+        table_data.append([
+            node,
+            G.nodes[node]['duration'],
+            G.nodes[node]['ES'],
+            G.nodes[node]['EF'],
+            G.nodes[node]['LS'],
+            G.nodes[node]['LF'],
+            G.nodes[node]['float'],
+            "Yes" if G.nodes[node]['float'] == 0 else "No"
+        ])
+    
+    headers = ["Activity", "Duration", "ES", "EF", "LS", "LF", "Float", "Critical?"]
+    print("\nCPM Analysis Results:")
+    print(tabulate(table_data, headers=headers, tablefmt="grid"))
+    
+    # Display critical path(s)
+    print("\nCritical Path(s):")
+    for i, path in enumerate(critical_paths):
+        print(f"Path {i+1}: {' -> '.join(path)}")
+    
+    # Calculate project duration
+    project_duration = max([G.nodes[node]['EF'] for node in G.nodes()])
+    print(f"\nProject Duration: {project_duration} time units")
+
+def main():
+    # Set up command line arguments
+    parser = argparse.ArgumentParser(description='Critical Path Method (CPM) Analysis')
+    parser.add_argument('csv_file', nargs='?', help='Path to the CSV file containing project activities')
+    parser.add_argument('--no-visual', action='store_true', help='Skip network visualization')
+    args = parser.parse_args()
+    
+    print("Critical Path Method (CPM) Analysis")
+    print("==================================")
+    
+    # Get CSV file path from command line or prompt user
+    csv_file = args.csv_file
+    if not csv_file:
+        csv_file = input("Enter the path to your CSV file: ")
+    
+    # Load activities from CSV
+    activities = load_activities_from_csv(csv_file)
+    
+    if not activities:
+        print("No activities found in the CSV file. Exiting.")
+        sys.exit(1)
+    
+    # Build the network
+    G = build_network(activities)
+    
+    # Perform CPM calculations
+    G = forward_pass(G)
+    G = backward_pass(G)
+    G = calculate_float(G)
+    
+    # Identify critical path
+    critical_paths, critical_activities = identify_critical_path(G)
+    
+    # Display results
+    display_results(G, critical_paths)
+    
+    # Visualize network (unless --no-visual flag is set)
+    if not args.no_visual:
+        visualize_network(G, critical_activities)
+    
+    return G, critical_paths, critical_activities
+
+if __name__ == "__main__":
+    main()
