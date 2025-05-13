@@ -92,7 +92,20 @@ def build_network(activities):
     for activity in activities:
         if 'predecessors' in activity and activity['predecessors']:
             for predecessor in activity['predecessors']:
-                G.add_edge(predecessor, activity['id'])
+                # Check if predecessor exists in the graph
+                if predecessor in G:
+                    G.add_edge(predecessor, activity['id'])
+                else:
+                    print(f"Warning: Predecessor '{predecessor}' for activity '{activity['id']}' not found in activity list")
+    
+    # Verify that all nodes have at least one edge (except start nodes)
+    # This ensures no node is disconnected from the network
+    start_nodes = [node for node in G.nodes() if G.in_degree(node) == 0]
+    for node in G.nodes():
+        if node not in start_nodes and G.in_degree(node) == 0:
+            print(f"Warning: Activity '{node}' has no predecessors but is not a start activity")
+        if G.out_degree(node) == 0 and node != list(G.nodes())[-1]:
+            print(f"Warning: Activity '{node}' is not connected to any successor activities")
     
     return G
 
@@ -222,71 +235,87 @@ def visualize_network(G, critical_activities=None):
     if critical_activities is None:
         critical_activities = []
     
-    # Create a custom positioning with 'A' on the left side
+    # Create a custom positioning with 'A' on the left side and centered vertically
     pos = {}
     
     # Get topological generations (layers of nodes)
     generations = list(nx.topological_generations(G))
     
+    # Count total nodes to center 'A' vertically
+    total_nodes = sum(len(gen) for gen in generations)
+    
     # Set x-coordinates by generation and y-coordinates to spread nodes vertically
     for i, gen in enumerate(generations):
-        for j, node in enumerate(sorted(gen)):
-            # Ensure 'A' is placed first in the first layer
-            if i == 0 and 'A' in gen:
+        # Sort nodes within generation to make visualization more predictable
+        sorted_gen = sorted(gen)
+        
+        # Calculate vertical positions
+        if i == 0 and 'A' in gen:
+            # Place 'A' in the middle vertically for the first layer
+            middle_pos = 0
+            for j, node in enumerate(sorted_gen):
                 if node == 'A':
-                    pos[node] = (i, 0)
+                    pos[node] = (0, middle_pos)  # A is at far left (x=0)
                 else:
-                    pos[node] = (i, j+1 if j >= gen.index('A') else j)
-            else:
-                pos[node] = (i, j)
+                    # Position other nodes in first layer above or below A
+                    y_pos = middle_pos + (j+1) if j >= sorted_gen.index('A') else middle_pos - (sorted_gen.index('A')-j)
+                    pos[node] = (0, y_pos)
+        else:
+            # Position nodes in other layers
+            for j, node in enumerate(sorted_gen):
+                pos[node] = (i, j - len(sorted_gen)/2 + 0.5)  # Center nodes vertically
     
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(14, 10))
     
-    # Draw edges
-    nx.draw_networkx_edges(G, pos, arrows=True, arrowsize=15)
+    # Draw edges with proper arrowheads
+    nx.draw_networkx_edges(G, pos, arrows=True, arrowsize=15, node_size=1000)
     
-    # Create node labels for main node text
-    node_labels = {}
-    for node in G.nodes():
-        node_labels[node] = node
+    # Node size parameters
+    width = 0.6
+    height = 0.5
     
-    # Define node colors based on critical path
-    node_colors = ['red' if node in critical_activities else 'lightblue' for node in G.nodes()]
-    
-    # Draw nodes with rectangular shape
+    # Draw nodes with rectangular shape and rounded corners
     for node in G.nodes():
         x, y = pos[node]
         is_critical = node in critical_activities
         color = 'red' if is_critical else 'lightblue'
         
-        # Draw rectangle for the node
-        rect = plt.Rectangle((x-0.4, y-0.3), 0.8, 0.6, 
+        # Draw rounded rectangle for the node
+        rect = plt.Rectangle((x-width/2, y-height/2), width, height, 
                            fill=True, color=color, alpha=0.7,
-                           edgecolor='black', linewidth=2)
+                           edgecolor='black', linewidth=1.5,
+                           capstyle='round', joinstyle='round',
+                           zorder=2)
         plt.gca().add_patch(rect)
         
         # Draw dividing lines to create a 6-cell grid
         # Horizontal divider
-        plt.plot([x-0.4, x+0.4], [y, y], color='black', linewidth=1)
+        plt.plot([x-width/2, x+width/2], [y, y], color='black', linewidth=0.8, zorder=3)
         
         # Vertical dividers for top row
-        plt.plot([x-0.13, x-0.13], [y, y+0.3], color='black', linewidth=1)
-        plt.plot([x+0.13, x+0.13], [y, y+0.3], color='black', linewidth=1)
+        plt.plot([x-width/6, x-width/6], [y, y+height/2], color='black', linewidth=0.8, zorder=3)
+        plt.plot([x+width/6, x+width/6], [y, y+height/2], color='black', linewidth=0.8, zorder=3)
         
         # Vertical dividers for bottom row
-        plt.plot([x-0.13, x-0.13], [y, y-0.3], color='black', linewidth=1)
-        plt.plot([x+0.13, x+0.13], [y, y-0.3], color='black', linewidth=1)
+        plt.plot([x-width/6, x-width/6], [y, y-height/2], color='black', linewidth=0.8, zorder=3)
+        plt.plot([x+width/6, x+width/6], [y, y-height/2], color='black', linewidth=0.8, zorder=3)
         
         # Add text in each cell
         # Top row
-        plt.text(x-0.27, y+0.15, node, horizontalalignment='center', verticalalignment='center', fontsize=9)
-        plt.text(x, y+0.15, str(G.nodes[node]['ES']), horizontalalignment='center', verticalalignment='center', fontsize=9)
-        plt.text(x+0.27, y+0.15, str(G.nodes[node]['EF']), horizontalalignment='center', verticalalignment='center', fontsize=9)
+        plt.text(x-width/3, y+height/4, node, horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
+        plt.text(x, y+height/4, str(G.nodes[node]['ES']), horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
+        plt.text(x+width/3, y+height/4, str(G.nodes[node]['EF']), horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
         
         # Bottom row
-        plt.text(x-0.27, y-0.15, str(G.nodes[node]['duration']), horizontalalignment='center', verticalalignment='center', fontsize=9)
-        plt.text(x, y-0.15, str(G.nodes[node]['LS']), horizontalalignment='center', verticalalignment='center', fontsize=9)
-        plt.text(x+0.27, y-0.15, str(G.nodes[node]['LF']), horizontalalignment='center', verticalalignment='center', fontsize=9)
+        plt.text(x-width/3, y-height/4, str(G.nodes[node]['duration']), horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
+        plt.text(x, y-height/4, str(G.nodes[node]['LS']), horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
+        plt.text(x+width/3, y-height/4, str(G.nodes[node]['LF']), horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
+        
+        # Add slack below node
+        plt.text(x, y-height/2-0.15, f"Slack: {G.nodes[node]['float']}", 
+                horizontalalignment='center', verticalalignment='top', 
+                fontsize=8, color='darkblue' if G.nodes[node]['float'] > 0 else 'darkred',
+                zorder=4)
     
     # Add legend for critical path
     critical_patch = plt.Rectangle((0, 0), 1, 1, fill=True, color='red', alpha=0.7)
