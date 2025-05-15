@@ -227,22 +227,51 @@ def identify_critical_path(G):
 def visualize_network(G, critical_activities=None):
     """
     Visualize the project network with critical path highlighted and detailed node information.
+    Nodes have a semicircle on the left side attached to a square, similar to the provided image.
     
     Args:
         G: NetworkX DiGraph
         critical_activities: List of activities on the critical path
     """
+    import matplotlib.patches as mpatches
+    from matplotlib.path import Path
+    import matplotlib.pyplot as plt
+    import networkx as nx
+    
     if critical_activities is None:
         critical_activities = []
     
-    # Create a custom positioning with 'A' on the left side and centered vertically
+    # Create a custom positioning with 'A' alone on the left side and centered vertically
     pos = {}
     
     # Get topological generations (layers of nodes)
     generations = list(nx.topological_generations(G))
     
-    # Count total nodes to center 'A' vertically
-    total_nodes = sum(len(gen) for gen in generations)
+    # Position 'A' node alone in its generation
+    first_gen = generations[0]
+    remaining_nodes = []
+    
+    # Restructure generations to ensure 'A' is alone in the first generation
+    # If 'A' exists in the first generation
+    if 'A' in first_gen:
+        # Keep 'A' in the first generation and move others to the second
+        new_generations = [[]]
+        for node in first_gen:
+            if node == 'A':
+                new_generations[0].append(node)
+            else:
+                # Create a separate layer for other nodes from first generation
+                remaining_nodes.append(node)
+        
+        # Add remaining nodes from first generation to a new second generation
+        if remaining_nodes:
+            new_generations.append(remaining_nodes)
+        
+        # Add the rest of the generations
+        for i in range(1, len(generations)):
+            new_generations.append(generations[i])
+        
+        generations = new_generations
     
     # Set x-coordinates by generation and y-coordinates to spread nodes vertically
     for i, gen in enumerate(generations):
@@ -252,85 +281,122 @@ def visualize_network(G, critical_activities=None):
         # Calculate vertical positions
         if i == 0 and 'A' in gen:
             # Place 'A' in the middle vertically for the first layer
-            middle_pos = 0
-            for j, node in enumerate(sorted_gen):
-                if node == 'A':
-                    pos[node] = (0, middle_pos)  # A is at far left (x=0)
-                else:
-                    # Position other nodes in first layer above or below A
-                    y_pos = middle_pos + (j+1) if j >= sorted_gen.index('A') else middle_pos - (sorted_gen.index('A')-j)
-                    pos[node] = (0, y_pos)
+            pos['A'] = (0, 0)  # A is at far left (x=0) and centered (y=0)
         else:
             # Position nodes in other layers
             for j, node in enumerate(sorted_gen):
-                pos[node] = (i, j - len(sorted_gen)/2 + 0.5)  # Center nodes vertically
+                y_pos = j - len(sorted_gen)/2 + 0.5  # Center nodes vertically
+                pos[node] = (i, y_pos)
     
     plt.figure(figsize=(14, 10))
     
-    # Draw edges with proper arrowheads
-    nx.draw_networkx_edges(G, pos, arrows=True, arrowsize=15, node_size=1000)
+    # Draw edges with proper arrowheads and inclined lines
+    for u, v in G.edges():
+        # Get node positions
+        x1, y1 = pos[u]
+        x2, y2 = pos[v]
+        
+        # Draw arrow with curved edge
+        plt.annotate("", 
+                    xy=(x2, y2), xycoords='data',
+                    xytext=(x1, y1), textcoords='data',
+                    arrowprops=dict(arrowstyle="->", color="black", 
+                                    connectionstyle="arc3,rad=0.1",
+                                    lw=1.5))
     
     # Node size parameters
-    width = 0.6
-    height = 0.5
+    width = 0.5
+    height = width*2/3
     
-    # Draw nodes with rectangular shape and rounded corners
+    # Draw nodes with semicircle on left side and square on right side
     for node in G.nodes():
         x, y = pos[node]
         is_critical = node in critical_activities
         color = 'red' if is_critical else 'lightblue'
         
-        # Draw rounded rectangle for the node
-        rect = plt.Rectangle((x-width/2, y-height/2), width, height, 
-                           fill=True, color=color, alpha=0.7,
-                           edgecolor='black', linewidth=1.5,
-                           capstyle='round', joinstyle='round',
-                           zorder=2)
-        plt.gca().add_patch(rect)
+        # Calculate dimensions
+        # The left third will be a semicircle, the right two-thirds will be a square
+        semicircle_width = width/3
+        square_width = width * 2/3
         
-        # Draw dividing lines to create a 6-cell grid
-        # Horizontal divider
-        plt.plot([x-width/2, x+width/2], [y, y], color='black', linewidth=0.8, zorder=3)
+        # Draw semicircle on left side
+        semicircle = mpatches.Wedge(
+            (x - square_width/2, y), 
+            semicircle_width,  # radius
+            90, 270,  # angles for left-facing semicircle
+            width=0,
+            fill=True,
+            color=color, 
+            alpha=0.7,
+            edgecolor='black', 
+            linewidth=1.5, 
+            zorder=2
+        )
+        plt.gca().add_patch(semicircle)
         
-        # Vertical dividers for top row
-        plt.plot([x-width/6, x-width/6], [y, y+height/2], color='black', linewidth=0.8, zorder=3)
-        plt.plot([x+width/6, x+width/6], [y, y+height/2], color='black', linewidth=0.8, zorder=3)
+        # Draw square on right side
+        square = plt.Rectangle(
+            (x - square_width/2, y - height/2),  # Position square to connect with semicircle
+            square_width, 
+            height,
+            fill=True, 
+            color=color, 
+            alpha=0.7,
+            edgecolor='black', 
+            linewidth=1.5, 
+            zorder=2
+        )
+        plt.gca().add_patch(square)
         
-        # Vertical dividers for bottom row
-        plt.plot([x-width/6, x-width/6], [y, y-height/2], color='black', linewidth=0.8, zorder=3)
-        plt.plot([x+width/6, x+width/6], [y, y-height/2], color='black', linewidth=0.8, zorder=3)
+        # Draw horizontal and vertical grid lines for the cells
+        
+        # Draw horizontal divider across entire shape
+        plt.plot([x - square_width/2 - semicircle_width, x + square_width/2], [y, y], 
+                color='black', linewidth=0.8, zorder=3)
+        
+        # Draw vertical divider between semicircle and square
+        plt.plot([x - square_width/2, x - square_width/2], [y - height/2, y + height/2], 
+                color='black', linewidth=0.8, zorder=3)
+        
+        # Draw vertical divider in square section
+        plt.plot([x, x], [y - height/2, y + height/2], 
+                color='black', linewidth=0.8, zorder=3)
         
         # Add text in each cell
         # Top row
-        plt.text(x-width/3, y+height/4, node, horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
-        plt.text(x, y+height/4, str(G.nodes[node]['ES']), horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
-        plt.text(x+width/3, y+height/4, str(G.nodes[node]['EF']), horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
+        plt.text(x - square_width/2 - semicircle_width/2, y + height/4, node, 
+                horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
+        plt.text(x - square_width/4, y + height/4, str(G.nodes[node]['ES']), 
+                horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
+        plt.text(x + square_width/4, y + height/4, str(G.nodes[node]['EF']), 
+                horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
         
         # Bottom row
-        plt.text(x-width/3, y-height/4, str(G.nodes[node]['duration']), horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
-        plt.text(x, y-height/4, str(G.nodes[node]['LS']), horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
-        plt.text(x+width/3, y-height/4, str(G.nodes[node]['LF']), horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
+        plt.text(x - square_width/2 - semicircle_width/2, y - height/4, str(G.nodes[node]['duration']), 
+                horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
+        plt.text(x - square_width/4, y - height/4, str(G.nodes[node]['LS']), 
+                horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
+        plt.text(x + square_width/4, y - height/4, str(G.nodes[node]['LF']), 
+                horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
         
         # Add slack below node
-        plt.text(x, y-height/2-0.15, f"Slack: {G.nodes[node]['float']}", 
+        plt.text(x, y - height/2 - 0.15, f"Slack: {G.nodes[node]['float']}", 
                 horizontalalignment='center', verticalalignment='top', 
                 fontsize=8, color='darkblue' if G.nodes[node]['float'] > 0 else 'darkred',
                 zorder=4)
-    
-    # Add legend for critical path
-    critical_patch = plt.Rectangle((0, 0), 1, 1, fill=True, color='red', alpha=0.7)
-    normal_patch = plt.Rectangle((0, 0), 1, 1, fill=True, color='lightblue', alpha=0.7)
-    plt.legend([critical_patch, normal_patch], ['Critical Path', 'Normal Activity'], loc='upper right')
-    
-    # Add legend for node format
-    plt.figtext(0.01, 0.01, "Node Format:", fontsize=9)
-    plt.figtext(0.12, 0.01, "ID | ES | EF\nDur | LS | LF", fontsize=9)
-    
-    plt.title("Project Network Diagram (Critical Path in Red)")
+        
+    # Remove axis ticks and labels
     plt.axis('off')
+    
+    # Create legend for critical path
+    if critical_activities:
+        critical_patch = mpatches.Patch(color='red', alpha=0.7, label='Critical Path')
+        normal_patch = mpatches.Patch(color='lightblue', alpha=0.7, label='Normal Activity')
+        plt.legend(handles=[critical_patch, normal_patch], loc='upper right')
+    
     plt.tight_layout()
     plt.show()
-
+        
 def display_results(G, critical_paths):
     """
     Display the CPM analysis results in a formatted table.
