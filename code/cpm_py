@@ -288,105 +288,123 @@ def visualize_network(G, critical_activities=None):
                 y_pos = j - len(sorted_gen)/2 + 0.5  # Center nodes vertically
                 pos[node] = (i, y_pos)
     
-    plt.figure(figsize=(14, 10))
+    plt.figure(figsize=(10, 8))
     
     # Draw edges with proper arrowheads and inclined lines
+    # Calculate dimensions first to use in arrow positioning
+    
+    # Node size parameters
+    # The left third will be a semicircle, the right two-thirds will be a square
+    width = 0.3
+    height = width*2/3
+    semicircle_width = width/3
+    square_width = width*2/3
+    
     for u, v in G.edges():
         # Get node positions
         x1, y1 = pos[u]
         x2, y2 = pos[v]
         
+        # Calculate the actual starting and ending points
+        # Start from far right of source node
+        start_x = x1 + width/2 - semicircle_width/2
+        start_y = y1  # Centered vertically
+        
+        # End at far left of target node
+        # Since the left edge is a semicircle, we need to calculate where the semicircle starts
+        # square_width = width * 2/3
+        end_x = x2 - square_width/2 - semicircle_width  # Left edge of the semicircle
+        end_y = y2  # Centered vertically
+        
         # Draw arrow with curved edge
         plt.annotate("", 
-                    xy=(x2, y2), xycoords='data',
-                    xytext=(x1, y1), textcoords='data',
+                    xy=(end_x, end_y), xycoords='data',
+                    xytext=(start_x, start_y), textcoords='data',
                     arrowprops=dict(arrowstyle="->", color="black", 
                                     connectionstyle="arc3,rad=0.1",
                                     lw=1.5))
     
-    # Node size parameters
-    width = 0.5
-    height = width*2/3
+    # # Node size parameters
+    # width = 0.2
+    # height = width*2/3
     
     # Draw nodes with semicircle on left side and square on right side
     for node in G.nodes():
         x, y = pos[node]
         is_critical = node in critical_activities
         color = 'red' if is_critical else 'lightblue'
-        
+
         # Calculate dimensions
         # The left third will be a semicircle, the right two-thirds will be a square
-        semicircle_width = width/3
-        square_width = width * 2/3
+        # semicircle_width = width / 3
         
+
         # Draw semicircle on left side
         semicircle = mpatches.Wedge(
-            (x - square_width/2, y), 
+            (x - square_width / 2, y),
             semicircle_width,  # radius
             90, 270,  # angles for left-facing semicircle
-            width=0,
             fill=True,
-            color=color, 
+            color=color,
             alpha=0.7,
-            edgecolor='black', 
-            linewidth=1.5, 
-            zorder=2
+            edgecolor='black',
+            linewidth=1.4,
+            zorder=3  # Ensure nodes appear above arrows
         )
         plt.gca().add_patch(semicircle)
-        
+
         # Draw square on right side
         square = plt.Rectangle(
-            (x - square_width/2, y - height/2),  # Position square to connect with semicircle
-            square_width, 
+            (x - square_width / 2, y - height / 2),  # Position square to connect with semicircle
+            square_width,
             height,
-            fill=True, 
-            color=color, 
+            fill=True,
+            color=color,
             alpha=0.7,
-            edgecolor='black', 
-            linewidth=1.5, 
-            zorder=2
+            edgecolor='black',
+            linewidth=1.5,
+            zorder=3  # Ensure nodes appear above arrows
         )
         plt.gca().add_patch(square)
-        
+
         # Draw horizontal and vertical grid lines for the cells
         
+
         # Draw horizontal divider across entire shape
-        plt.plot([x - square_width/2 - semicircle_width, x + square_width/2], [y, y], 
-                color='black', linewidth=0.8, zorder=3)
-        
+        plt.plot([x - square_width / 2 - semicircle_width, x + square_width / 2], [y, y],
+                 color='black', linewidth=0.8, zorder=4)
+
         # Draw vertical divider between semicircle and square
-        plt.plot([x - square_width/2, x - square_width/2], [y - height/2, y + height/2], 
-                color='black', linewidth=0.8, zorder=3)
-        
+        plt.plot([x - square_width / 2, x - square_width / 2], [y - height / 2, y + height / 2],
+                 color='black', linewidth=0.8, zorder=5)
+
         # Draw vertical divider in square section
-        plt.plot([x, x], [y - height/2, y + height/2], 
-                color='black', linewidth=0.8, zorder=3)
-        
+        plt.plot([x, x], [y - height / 2, y + height / 2],
+                 color='black', linewidth=0.8, zorder=4)
+
         # Add text in each cell
         # Top row
-        plt.text(x - square_width/2 - semicircle_width/2, y + height/4, node, 
-                horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
-        plt.text(x - square_width/4, y + height/4, str(G.nodes[node]['ES']), 
-                horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
-        plt.text(x + square_width/4, y + height/4, str(G.nodes[node]['EF']), 
-                horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
-        
+        plt.text(x - square_width / 2 - semicircle_width / 2, y + height / 4, node,
+             horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+        plt.text(x - square_width / 4, y + height / 4, str(G.nodes[node]['ES']),
+             horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+        plt.text(x + square_width / 4, y + height / 4, str(G.nodes[node]['EF']),
+             horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+
         # Bottom row
-        plt.text(x - square_width/2 - semicircle_width/2, y - height/4, str(G.nodes[node]['duration']), 
-                horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
-        plt.text(x - square_width/4, y - height/4, str(G.nodes[node]['LS']), 
-                horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
-        plt.text(x + square_width/4, y - height/4, str(G.nodes[node]['LF']), 
-                horizontalalignment='center', verticalalignment='center', fontsize=9, zorder=4)
-        
+        plt.text(x - square_width / 2 - semicircle_width / 2, y - height / 4, str(G.nodes[node]['duration']),
+             horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+        plt.text(x - square_width / 4, y - height / 4, str(G.nodes[node]['LS']),
+             horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+        plt.text(x + square_width / 4, y - height / 4, str(G.nodes[node]['LF']),
+             horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+
         # Add slack below node
-        plt.text(x, y - height/2 - 0.15, f"Slack: {G.nodes[node]['float']}", 
-                horizontalalignment='center', verticalalignment='top', 
-                fontsize=8, color='darkblue' if G.nodes[node]['float'] > 0 else 'darkred',
-                zorder=4)
-        
-    # Remove axis ticks and labels
-    plt.axis('off')
+        plt.text(x, y - height / 2 - 0.05, f"Slack: {G.nodes[node]['float']}",
+                 horizontalalignment='center', verticalalignment='top',
+                 fontsize=8, color='darkblue' if G.nodes[node]['float'] > 0 else 'darkred',
+                 zorder=5)
+    
     
     # Create legend for critical path
     if critical_activities:
@@ -394,9 +412,166 @@ def visualize_network(G, critical_activities=None):
         normal_patch = mpatches.Patch(color='lightblue', alpha=0.7, label='Normal Activity')
         plt.legend(handles=[critical_patch, normal_patch], loc='upper right')
     
+    # Add legend for node format
+    plt.figtext(0.01, 0.01, "Node Format:", fontsize=9)
+    plt.figtext(0.12, 0.01, "ID | ES | EF\nDur | LS | LF", fontsize=9)
+    
+    plt.title("Project Network Diagram")
+    plt.axis('off')
     plt.tight_layout()
     plt.show()
+
+def generate_gantt_chart(G, critical_activities=None, title="Project Gantt Chart", 
+                        show_slack=True, figsize=(12, 8), show_plot=True):
+    """
+    Generate a Gantt chart from a NetworkX graph with CPM calculations.
+    
+    Args:
+        G: NetworkX DiGraph with nodes containing CPM attributes (ES, EF, LS, LF, duration, float)
+        critical_activities: List of critical activity IDs (optional - will be calculated if not provided)
+        title: Title for the Gantt chart (default: "Project Gantt Chart")
+        show_slack: Whether to show slack/float as lighter bars (default: True)
+        figsize: Figure size as (width, height) tuple (default: (12, 8))
+        show_plot: Whether to display the plot immediately (default: True)
+    
+    Returns:
+        matplotlib figure and axis objects for further customization if needed
+    """
+    import matplotlib.pyplot as plt
+    import matplotlib.patches as mpatches
+    import numpy as np
+    
+    # Enable interactive mode for better window handling
+    plt.ion()
+    
+    # Extract activity data from the graph
+    activities = []
+    for node in G.nodes():
+        node_data = G.nodes[node]
+        activities.append({
+            'id': node,
+            'duration': node_data.get('duration', 0),
+            'early_start': node_data.get('ES', 0),
+            'early_finish': node_data.get('EF', 0),
+            'late_start': node_data.get('LS', 0),
+            'late_finish': node_data.get('LF', 0),
+            'float': node_data.get('float', 0)
+        })
+    
+    # If critical activities not provided, identify them (activities with zero float)
+    if critical_activities is None:
+        critical_activities = [activity['id'] for activity in activities if activity['float'] == 0]
+    
+    # Sort activities by early start time for better visualization
+    activities.sort(key=lambda x: x['early_start'])
+    
+    # Create the figure and axis
+    fig =plt.figure(figsize=(10,8))
+    ax = plt.gca()
+
+    # Define colors (matching the CPM network diagram colors)
+    critical_color = 'red'
+    normal_color = 'lightblue'
+    slack_color = 'lightgrey'
+    
+    # Calculate project duration for x-axis limits
+    project_duration = max([activity['late_finish'] for activity in activities])
+    
+    # Track y-positions for each activity
+    y_pos = np.arange(len(activities))
+    
+    # Create bars for each activity
+    activity_labels = []
+    for i, activity in enumerate(activities):
+        activity_id = activity['id']
+        early_start = activity['early_start']
+        early_finish = activity['early_finish']
+        late_start = activity['late_start']
+        late_finish = activity['late_finish']
+        duration = activity['duration']
+        float_time = activity['float']
         
+        # Determine if activity is critical
+        is_critical = activity_id in critical_activities
+        bar_color = critical_color if is_critical else normal_color
+        
+        # Draw the main activity bar (early start to early finish)
+        main_bar = ax.barh(y_pos[i], duration, left=early_start, 
+                        color=bar_color, alpha=0.7, height=0.6,
+                        edgecolor='black', linewidth=0.8)
+        
+        # Draw slack bar if activity has float and show_slack is True
+        if show_slack and float_time > 0:
+            slack_bar = ax.barh(y_pos[i], float_time, left=early_finish,
+                            color=slack_color, alpha=0.5, height=0.6,
+                            edgecolor='gray', linewidth=0.5, linestyle='--')
+        
+        # Add activity labels with duration and float information
+        activity_labels.append(f"{activity_id}\n(D:{duration}, F:{float_time})")
+        
+        # Add text inside the main bar showing the activity ID
+        bar_center_x = early_start + duration / 2
+        ax.text(bar_center_x, y_pos[i], activity_id, 
+            ha='center', va='center', fontweight='bold', fontsize=10)
+        
+        # Add early start and early finish times above the bar
+        ax.text(early_start, y_pos[i] + 0.35, f"{early_start}", 
+            ha='center', va='bottom', fontsize=8, color='darkgreen')
+        ax.text(early_finish, y_pos[i] + 0.35, f"{early_finish}", 
+            ha='center', va='bottom', fontsize=8, color='darkgreen')
+        
+        # Add late start and late finish times below the bar (only if different from early times)
+        if late_start != early_start or late_finish != early_finish:
+            ax.text(late_start, y_pos[i] - 0.35, f"({late_start})", 
+            ha='center', va='top', fontsize=8, color='darkred', alpha=0.7)
+            ax.text(late_finish, y_pos[i] - 0.35, f"({late_finish})", 
+            ha='center', va='top', fontsize=8, color='darkred', alpha=0.7)
+    
+    # Customize the chart
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(activity_labels)
+    ax.set_xlabel('Time Units', fontsize=12)
+    ax.set_ylabel('Activities', fontsize=12)
+    ax.set_title(title, fontsize=14, fontweight='bold')
+    
+    # Set x-axis limits with some padding
+    ax.set_xlim(-0.5, project_duration + 0.5)
+    
+    # Add grid for better readability
+    ax.grid(True, axis='x', alpha=0.3, linestyle='-', linewidth=0.5)
+    ax.grid(True, axis='y', alpha=0.2, linestyle='-', linewidth=0.5)
+    
+    # Create legend
+    legend_elements = [
+        mpatches.Patch(color=critical_color, alpha=0.7, label='Critical Activities'),
+        mpatches.Patch(color=normal_color, alpha=0.7, label='Non-Critical Activities'),
+        mpatches.Patch(color=slack_color, alpha=0.5, label='Available Slack/Float')
+    ]
+    
+    # if show_slack:
+    #     legend_elements.append(
+    #         mpatches.Patch(color=slack_color, alpha=0.5, label='Available Slack/Float')
+    #     )
+    
+    ax.legend(handles=legend_elements, loc='lower right')
+    
+    # Add time scale information
+    time_ticks = range(0, int(project_duration) + 1, max(1, int(project_duration // 10)))
+    ax.set_xticks(time_ticks)
+    
+    # Add annotations explaining the time format
+    fig.text(0.02, 0.02, "Green numbers: Early Start/Finish\nRed numbers: Late Start/Finish (when different)", 
+            fontsize=9, verticalalignment='bottom')
+    
+    # Tight layout for better appearance
+    plt.tight_layout()
+    
+    plt.show(block=True)
+    
+    return fig, ax
+
+
+
 def display_results(G, critical_paths):
     """
     Display the CPM analysis results in a formatted table.
@@ -472,7 +647,17 @@ def main():
     if not args.no_visual:
         visualize_network(G, critical_activities)
     
+    
+    # Generate Gantt chart
+    print("Generating Gantt Chart...")
+    project_duration = max([G.nodes[node]['EF'] for node in G.nodes()])
+    generate_gantt_chart(G, critical_activities, 
+                            title=f"Project Gantt Chart - Duration: {project_duration} units")
+    
+    
     return G, critical_paths, critical_activities
+
 
 if __name__ == "__main__":
     main()
+
