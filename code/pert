@@ -1,0 +1,812 @@
+#!/usr/bin/env python3
+"""
+PERT and CPM Analysis
+
+This script performs Program Evaluation and Review Technique (PERT) and Critical Path Method (CPM) analysis.
+It reads activity data from a CSV file with optimistic, most likely, and pessimistic time estimates.
+The program first performs CPM using most likely times, then PERT analysis with expected times.
+"""
+
+import networkx as nx
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from tabulate import tabulate
+from collections import defaultdict
+import pandas as pd
+import numpy as np
+from scipy.stats import norm
+import csv
+import sys
+import os
+
+def get_csv_file_path():
+    """
+    Prompt the user to input the CSV file path and validate it exists.
+    
+    Returns:
+        str: Valid path to the CSV file
+    """
+    while True:
+        csv_file = input("Enter the path to your CSV file: ").strip()
+        if os.path.exists(csv_file):
+            return csv_file
+        else:
+            print(f"Error: File '{csv_file}' not found. Please try again.")
+
+def load_pert_activities_from_csv(csv_file):
+    """
+    Load activities from a CSV file for PERT analysis.
+    
+    Expected CSV format:
+    id,predecessors,optimistic,most_likely,pessimistic
+    A,,2,3,5
+    B,,3,4,6
+    C,A,1,2,4
+    ...
+    
+    Args:
+        csv_file: Path to the CSV file
+        
+    Returns:
+        List of dictionaries with activity data including PERT times
+    """
+    activities = []
+    
+    try:
+        # Read CSV file
+        df = pd.read_csv(csv_file)
+        
+        # Check required columns
+        required_columns = ['id', 'predecessors', 'optimistic', 'most_likely', 'pessimistic']
+        for col in required_columns:
+            if col not in df.columns:
+                print(f"Error: Required column '{col}' not found in CSV file")
+                sys.exit(1)
+        
+        for _, row in df.iterrows():
+            # Convert time estimates to numbers
+            try:
+                optimistic = float(row['optimistic'])
+                most_likely = float(row['most_likely'])
+                pessimistic = float(row['pessimistic'])
+            except ValueError:
+                print(f"Error: Time estimates for activity {row['id']} must be numbers")
+                sys.exit(1)
+            
+            # Validate time estimates
+            if not (optimistic <= most_likely <= pessimistic):
+                print(f"Error: Invalid time estimates for activity {row['id']}")
+                print("Optimistic <= Most Likely <= Pessimistic is required")
+                sys.exit(1)
+            
+            # Process predecessors (allow empty/NaN)
+        predecessors_raw = row.get('predecessors', '')
+        if pd.isna(predecessors_raw) or str(predecessors_raw).strip().lower() in ('', 'nan', 'none'):
+            predecessors = []
+        else:
+            predecessors = [p.strip() for p in str(predecessors_raw).split(',') if p.strip()]
+            
+            activities.append({
+                'id': str(row['id']).strip(),
+                'predecessors': predecessors,
+                'optimistic': optimistic,
+                'most_likely': most_likely,
+                'pessimistic': pessimistic
+            })
+    
+    except FileNotFoundError:
+        print(f"Error: File '{csv_file}' not found")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error reading CSV file: {e}")
+        sys.exit(1)
+    
+    return activities
+
+def build_network_from_activities(activities, duration_type='most_likely'):
+    """
+    Build a directed graph network from activity data.
+    
+    Args:
+        activities: List of dictionaries with activity data
+        duration_type: 'most_likely' or 'expected' for the duration to use
+    
+    Returns:
+        A NetworkX DiGraph object
+    """
+    G = nx.DiGraph()
+    
+    # Add all activities as nodes with duration attribute
+    for activity in activities:
+        if duration_type == 'most_likely':
+            duration = activity['most_likely']
+        elif duration_type == 'expected':
+            duration = activity.get('expected_time', activity['most_likely'])
+        else:
+            duration = activity[duration_type]
+        
+        G.add_node(activity['id'], duration=duration)
+        
+        # Add PERT-specific attributes if available
+        for attr in ['optimistic', 'most_likely', 'pessimistic', 'expected_time', 'variance']:
+            if attr in activity:
+                G.nodes[activity['id']][attr] = activity[attr]
+    
+    # Add edges based on predecessor relationships
+    for activity in activities:
+        for predecessor in activity['predecessors']:
+            if predecessor in G:
+                G.add_edge(predecessor, activity['id'])
+            else:
+                print(f"Warning: Predecessor '{predecessor}' for activity '{activity['id']}' not found")
+    
+    return G
+
+def calculate_pert_estimates(activities):
+    """
+    Calculate PERT estimates for each activity.
+    
+    Args:
+        activities: List of activity dictionaries with O, M, P times
+    
+    Returns:
+        Updated activities list with expected_time and variance
+    """
+    for activity in activities:
+        O = activity['optimistic']
+        M = activity['most_likely']
+        P = activity['pessimistic']
+        
+        # Calculate expected time: TE = (O + 4M + P) / 6
+        activity['expected_time'] = (O + 4*M + P) / 6
+        
+        # Calculate variance: Var = ((P - O) / 6)^2
+        activity['variance'] = ((P - O) / 6) ** 2
+    
+    return activities
+
+def forward_pass(G):
+    """
+    Perform forward pass to calculate Early Start (ES) and Early Finish (EF).
+    
+    Args:
+        G: NetworkX DiGraph with activities
+    
+    Returns:
+        Updated graph with ES and EF attributes
+    """
+    # Check for cycles before proceeding
+    if not nx.is_directed_acyclic_graph(G):
+        print("Error: The project network contains a cycle!")
+        print("This indicates a circular dependency between activities.")
+        
+        # Try to find and report the cycle
+        try:
+            cycle = nx.find_cycle(G, orientation='original')
+            cycle_activities = [edge[0] for edge in cycle] + [cycle[-1][1]]
+            print(f"Cycle detected: {' -> '.join(cycle_activities)}")
+        except nx.NetworkXNoCycle:
+            print("Could not identify the specific cycle.")
+        
+        raise nx.NetworkXUnfeasible("Graph contains a cycle")
+    
+    # Find activities with no predecessors
+    start_activities = [node for node in G.nodes() if G.in_degree(node) == 0]
+    
+    if not start_activities:
+        raise nx.NetworkXUnfeasible("No start activities found (all activities have predecessors)")
+    
+    # Initialize early times
+    nx.set_node_attributes(G, 0, 'ES')
+    nx.set_node_attributes(G, 0, 'EF')
+    
+    # Process nodes in topological order
+    try:
+        topo_order = list(nx.topological_sort(G))
+    except nx.NetworkXUnfeasible as e:
+        raise nx.NetworkXUnfeasible(f"Cannot perform topological sort: {e}")
+    
+    for node in topo_order:
+        duration = G.nodes[node]['duration']
+        
+        # For start activities, ES = 0
+        if node in start_activities:
+            G.nodes[node]['ES'] = 0
+        # For others, ES = max EF of predecessors
+        else:
+            pred_ef = [G.nodes[pred]['EF'] for pred in G.predecessors(node)]
+            G.nodes[node]['ES'] = max(pred_ef) if pred_ef else 0
+        
+        # EF = ES + duration
+        G.nodes[node]['EF'] = G.nodes[node]['ES'] + duration
+    
+    return G
+def backward_pass(G):
+    """
+    Perform backward pass to calculate Late Start (LS) and Late Finish (LF).
+    
+    Args:
+        G: NetworkX DiGraph with activities having ES and EF attributes
+    
+    Returns:
+        Updated graph with LS and LF attributes
+    """
+    # Find activities with no successors (end activities)
+    end_activities = [node for node in G.nodes() if G.out_degree(node) == 0]
+    
+    # Initialize late times - set all LF to the maximum EF (project duration)
+    project_duration = max([G.nodes[node]['EF'] for node in G.nodes()])
+    nx.set_node_attributes(G, project_duration, 'LF')
+    nx.set_node_attributes(G, project_duration, 'LS')
+    
+    # Process nodes in reverse topological order
+    for node in reversed(list(nx.topological_sort(G))):
+        duration = G.nodes[node]['duration']
+        
+        # For end activities, LF = project duration
+        if node in end_activities:
+            G.nodes[node]['LF'] = project_duration
+        # For others, LF = min LS of successors
+        else:
+            succ_ls = [G.nodes[succ]['LS'] for succ in G.successors(node)]
+            G.nodes[node]['LF'] = min(succ_ls) if succ_ls else project_duration
+        
+        # LS = LF - duration
+        G.nodes[node]['LS'] = G.nodes[node]['LF'] - duration
+    
+    return G
+
+def calculate_float(G):
+    """
+    Calculate float (slack) for each activity.
+    
+    Args:
+        G: NetworkX DiGraph with ES, EF, LS, LF attributes
+    
+    Returns:
+        Updated graph with float attribute
+    """
+    for node in G.nodes():
+        # Total Float = LS - ES or LF - EF (they are the same)
+        G.nodes[node]['float'] = G.nodes[node]['LS'] - G.nodes[node]['ES']
+    
+    return G
+
+def identify_critical_path(G):
+    """
+    Identify the critical path (activities with zero float).
+    
+    Args:
+        G: NetworkX DiGraph with float attributes
+    
+    Returns:
+        Tuple of (critical_paths, critical_activities)
+    """
+    critical_activities = [node for node in G.nodes() if G.nodes[node]['float'] == 0]
+    
+    # Create a subgraph of only critical activities
+    critical_subgraph = G.subgraph(critical_activities)
+    
+    # Find all paths from start to end nodes in the critical subgraph
+    critical_paths = []
+    start_nodes = [node for node in critical_subgraph.nodes() if critical_subgraph.in_degree(node) == 0]
+    end_nodes = [node for node in critical_subgraph.nodes() if critical_subgraph.out_degree(node) == 0]
+    
+    for start in start_nodes:
+        for end in end_nodes:
+            try:
+                paths = list(nx.all_simple_paths(critical_subgraph, start, end))
+                critical_paths.extend(paths)
+            except nx.NetworkXNoPath:
+                pass
+    
+    return critical_paths, critical_activities
+
+def visualize_network(G, critical_activities=None, title="Project Network Diagram"):
+    """
+    Visualize the project network with critical path highlighted and detailed node information.
+    Updated to show PERT information in nodes.
+    
+    Args:
+        G: NetworkX DiGraph
+        critical_activities: List of activities on the critical path
+        title: Title for the diagram
+    """
+    if critical_activities is None:
+        critical_activities = []
+    
+    # Create positioning
+    pos = {}
+    generations = list(nx.topological_generations(G))
+    
+    # Position nodes
+    for i, gen in enumerate(generations):
+        sorted_gen = sorted(gen)
+        for j, node in enumerate(sorted_gen):
+            y_pos = j - len(sorted_gen)/2 + 0.5
+            pos[node] = (i, y_pos)
+    
+    plt.figure(figsize=(12, 8))
+    
+    # Node size parameters
+    width = 0.35
+    height = width * 2/3
+    semicircle_width = width/3
+    square_width = width * 2/3
+    
+    # Draw edges
+    for u, v in G.edges():
+        x1, y1 = pos[u]
+        x2, y2 = pos[v]
+        
+        start_x = x1 + width/2 - semicircle_width/2
+        start_y = y1
+        end_x = x2 - square_width/2 - semicircle_width
+        end_y = y2
+        
+        plt.annotate("", 
+                    xy=(end_x, end_y), xycoords='data',
+                    xytext=(start_x, start_y), textcoords='data',
+                    arrowprops=dict(arrowstyle="->", color="black", 
+                                    connectionstyle="arc3,rad=0.1",
+                                    lw=1.5))
+    
+    # Draw nodes
+    for node in G.nodes():
+        x, y = pos[node]
+        is_critical = node in critical_activities
+        color = 'red' if is_critical else 'lightblue'
+        
+        # Draw semicircle on left side
+        semicircle = mpatches.Wedge(
+            (x - square_width / 2, y),
+            semicircle_width,
+            90, 270,
+            fill=True,
+            color=color,
+            alpha=0.7,
+            edgecolor='black',
+            linewidth=1.4,
+            zorder=3
+        )
+        plt.gca().add_patch(semicircle)
+        
+        # Draw square on right side
+        square = plt.Rectangle(
+            (x - square_width / 2, y - height / 2),
+            square_width,
+            height,
+            fill=True,
+            color=color,
+            alpha=0.7,
+            edgecolor='black',
+            linewidth=1.5,
+            zorder=3
+        )
+        plt.gca().add_patch(square)
+        
+        # Draw grid lines
+        plt.plot([x - square_width / 2 - semicircle_width, x + square_width / 2], [y, y],
+                 color='black', linewidth=0.8, zorder=4)
+        plt.plot([x - square_width / 2, x - square_width / 2], [y - height / 2, y + height / 2],
+                 color='black', linewidth=0.8, zorder=5)
+        plt.plot([x, x], [y - height / 2, y + height / 2],
+                 color='black', linewidth=0.8, zorder=4)
+        
+        # Add text in each cell
+        # Top row: ID, ES, EF
+        plt.text(x - square_width / 2 - semicircle_width / 2, y + height / 4, node,
+                horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+        plt.text(x - square_width / 4, y + height / 4, str(G.nodes[node]['ES']),
+                horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+        plt.text(x + square_width / 4, y + height / 4, str(G.nodes[node]['EF']),
+                horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+        
+        # Bottom row: Duration, LS, LF
+        plt.text(x - square_width / 2 - semicircle_width / 2, y - height / 4, 
+                f"{G.nodes[node]['duration']:.1f}",
+                horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+        plt.text(x - square_width / 4, y - height / 4, str(G.nodes[node]['LS']),
+                horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+        plt.text(x + square_width / 4, y - height / 4, str(G.nodes[node]['LF']),
+                horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+        
+        # Add slack below node
+        plt.text(x, y - height / 2 - 0.05, f"Slack: {G.nodes[node]['float']:.1f}",
+                horizontalalignment='center', verticalalignment='top',
+                fontsize=8, color='darkblue' if G.nodes[node]['float'] > 0 else 'darkred',
+                zorder=5)
+    
+    # Create legend
+    if critical_activities:
+        critical_patch = mpatches.Patch(color='red', alpha=0.7, label='Critical Path')
+        normal_patch = mpatches.Patch(color='lightblue', alpha=0.7, label='Normal Activity')
+        plt.legend(handles=[critical_patch, normal_patch], loc='upper right')
+    
+    # Add legend for node format
+    plt.figtext(0.01, 0.01, "Node Format:", fontsize=9)
+    plt.figtext(0.12, 0.01, "ID | ES | EF\nDur | LS | LF", fontsize=9)
+    
+    plt.title(title)
+    plt.axis('off')
+    plt.tight_layout()
+    plt.show()
+
+def generate_gantt_chart(G, critical_activities=None, title="Project Gantt Chart", 
+                        show_slack=True, figsize=(12, 8)):
+    """
+    Generate a Gantt chart from a NetworkX graph with CPM calculations.
+    
+    Args:
+        G: NetworkX DiGraph with nodes containing CPM attributes
+        critical_activities: List of critical activity IDs
+        title: Title for the Gantt chart
+        show_slack: Whether to show slack/float as lighter bars
+        figsize: Figure size as (width, height) tuple
+    """
+    # Extract activity data from the graph
+    activities = []
+    for node in G.nodes():
+        node_data = G.nodes[node]
+        activities.append({
+            'id': node,
+            'duration': node_data.get('duration', 0),
+            'early_start': node_data.get('ES', 0),
+            'early_finish': node_data.get('EF', 0),
+            'late_start': node_data.get('LS', 0),
+            'late_finish': node_data.get('LF', 0),
+            'float': node_data.get('float', 0)
+        })
+    
+    # If critical activities not provided, identify them
+    if critical_activities is None:
+        critical_activities = [activity['id'] for activity in activities if activity['float'] == 0]
+    
+    # Sort activities by early start time
+    activities.sort(key=lambda x: x['early_start'])
+    
+    # Create the figure and axis
+    fig, ax = plt.subplots(figsize=figsize)
+    
+    # Define colors
+    critical_color = 'red'
+    normal_color = 'lightblue'
+    slack_color = 'lightgrey'
+    
+    # Calculate project duration
+    project_duration = max([activity['late_finish'] for activity in activities])
+    
+    # Track y-positions for each activity
+    y_pos = np.arange(len(activities))
+    
+    # Create bars for each activity
+    activity_labels = []
+    for i, activity in enumerate(activities):
+        activity_id = activity['id']
+        early_start = activity['early_start']
+        early_finish = activity['early_finish']
+        late_start = activity['late_start']
+        late_finish = activity['late_finish']
+        duration = activity['duration']
+        float_time = activity['float']
+        
+        # Determine if activity is critical
+        is_critical = activity_id in critical_activities
+        bar_color = critical_color if is_critical else normal_color
+        
+        # Draw the main activity bar
+        main_bar = ax.barh(y_pos[i], duration, left=early_start, 
+                        color=bar_color, alpha=0.7, height=0.6,
+                        edgecolor='black', linewidth=0.8)
+        
+        # Draw slack bar if activity has float
+        if show_slack and float_time > 0:
+            slack_bar = ax.barh(y_pos[i], float_time, left=early_finish,
+                            color=slack_color, alpha=0.5, height=0.6,
+                            edgecolor='gray', linewidth=0.5, linestyle='--')
+        
+        # Add activity labels
+        activity_labels.append(f"{activity_id}\n(D:{duration:.1f}, F:{float_time:.1f})")
+        
+        # Add text inside the main bar
+        bar_center_x = early_start + duration / 2
+        ax.text(bar_center_x, y_pos[i], activity_id, 
+            ha='center', va='center', fontweight='bold', fontsize=10)
+        
+        # Add early start and early finish times
+        ax.text(early_start, y_pos[i] + 0.35, f"{early_start:.1f}", 
+            ha='center', va='bottom', fontsize=8, color='darkgreen')
+        ax.text(early_finish, y_pos[i] + 0.35, f"{early_finish:.1f}", 
+            ha='center', va='bottom', fontsize=8, color='darkgreen')
+        
+        # Add late start and late finish times if different
+        if late_start != early_start or late_finish != early_finish:
+            ax.text(late_start, y_pos[i] - 0.35, f"({late_start:.1f})", 
+            ha='center', va='top', fontsize=8, color='darkred', alpha=0.7)
+            ax.text(late_finish, y_pos[i] - 0.35, f"({late_finish:.1f})", 
+            ha='center', va='top', fontsize=8, color='darkred', alpha=0.7)
+    
+    # Customize the chart
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(activity_labels)
+    ax.set_xlabel('Time Units', fontsize=12)
+    ax.set_ylabel('Activities', fontsize=12)
+    ax.set_title(title, fontsize=14, fontweight='bold')
+    
+    # Set x-axis limits
+    ax.set_xlim(-0.5, project_duration + 0.5)
+    
+    # Add grid
+    ax.grid(True, axis='x', alpha=0.3, linestyle='-', linewidth=0.5)
+    ax.grid(True, axis='y', alpha=0.2, linestyle='-', linewidth=0.5)
+    
+    # Create legend
+    legend_elements = [
+        mpatches.Patch(color=critical_color, alpha=0.7, label='Critical Activities'),
+        mpatches.Patch(color=normal_color, alpha=0.7, label='Non-Critical Activities')
+    ]
+    
+    if show_slack:
+        legend_elements.append(
+            mpatches.Patch(color=slack_color, alpha=0.5, label='Available Slack/Float')
+        )
+    
+    ax.legend(handles=legend_elements, loc='lower right')
+    
+    # Add time scale
+    time_ticks = range(0, int(project_duration) + 1, max(1, int(project_duration // 10)))
+    ax.set_xticks(time_ticks)
+    
+    # Add annotations
+    fig.text(0.02, 0.02, "Green numbers: Early Start/Finish\nRed numbers: Late Start/Finish (when different)", 
+            fontsize=9, verticalalignment='bottom')
+    
+    plt.tight_layout()
+    plt.show()
+    
+    return fig, ax
+
+def display_results(G, critical_paths, analysis_type="CPM"):
+    """
+    Display analysis results in a formatted table.
+    
+    Args:
+        G: NetworkX DiGraph with all attributes
+        critical_paths: List of paths representing critical paths
+        analysis_type: "CPM" or "PERT" for the table title
+    """
+    # Prepare data for tabulation
+    table_data = []
+    for node in G.nodes():
+        node_data = G.nodes[node]
+        
+        # Show expected time if available (PERT), otherwise duration
+        duration_display = f"{node_data.get('expected_time', node_data['duration']):.2f}"
+        if 'expected_time' in node_data:
+            duration_display += f" (σ²={node_data.get('variance', 0):.3f})"
+        
+        table_data.append([
+            node,
+            duration_display,
+            f"{node_data['ES']:.1f}",
+            f"{node_data['EF']:.1f}",
+            f"{node_data['LS']:.1f}",
+            f"{node_data['LF']:.1f}",
+            f"{node_data['float']:.1f}",
+            "Yes" if node_data['float'] == 0 else "No"
+        ])
+    
+    duration_header = "Expected Time (Variance)" if analysis_type == "PERT" else "Duration"
+    headers = ["Activity", duration_header, "ES", "EF", "LS", "LF", "Float", "Critical?"]
+    
+    print(f"\n{analysis_type} Analysis Results:")
+    print(tabulate(table_data, headers=headers, tablefmt="grid"))
+    
+    # Display critical path(s)
+    print("\nCritical Path(s):")
+    for i, path in enumerate(critical_paths):
+        path_str = ' -> '.join(path)
+        print(f"Path {i+1}: {path_str}")
+    
+    # Calculate project duration
+    project_duration = max([G.nodes[node]['EF'] for node in G.nodes()])
+    print(f"\nProject Duration: {project_duration:.2f} time units")
+    
+    return project_duration
+
+def calculate_project_variance(G, critical_activities):
+    """
+    Calculate total project variance based on critical path activities.
+    
+    Args:
+        G: NetworkX DiGraph with variance attributes
+        critical_activities: List of critical activities
+    
+    Returns:
+        Total project variance
+    """
+    total_variance = 0
+    for activity in critical_activities:
+        if 'variance' in G.nodes[activity]:
+            total_variance += G.nodes[activity]['variance']
+    
+    return total_variance
+
+def probability_analysis_menu(expected_duration, total_variance):
+    """
+    Interactive menu for probability analysis using normal distribution.
+    
+    Args:
+        expected_duration: Expected project duration
+        total_variance: Total project variance
+    """
+    std_deviation = np.sqrt(total_variance)
+    
+    while True:
+        print("\n" + "="*50)
+        print("PERT Probability Analysis")
+        print("="*50)
+        print(f"Expected Project Duration: {expected_duration:.2f} time units")
+        print(f"Standard Deviation: {std_deviation:.3f} time units")
+        print("\nChoose an option:")
+        print("1. Find time required for a given completion percentage")
+        print("2. Find completion percentage for a given time")
+        print("3. Exit")
+        
+        choice = input("\nEnter your choice (1-3): ").strip()
+        
+        if choice == '1':
+            try:
+                probability = float(input("Enter completion probability (0-1, e.g., 0.9 for 90%): "))
+                if 0 < probability < 1:
+                    # Find Z-score for given probability
+                    z_score = norm.ppf(probability)
+                    # Calculate time: T = μ + Z*σ
+                    completion_time = expected_duration + z_score * std_deviation
+                    print(f"\nResult:")
+                    print(f"Probability of completion: {probability*100:.1f}%")
+                    print(f"Required time: {completion_time:.2f} time units")
+                    print(f"Z-score: {z_score:.3f}")
+                else:
+                    print("Error: Probability must be between 0 and 1")
+            except ValueError:
+                print("Error: Please enter a valid number")
+        
+        elif choice == '2':
+            try:
+                target_time = float(input("Enter target completion time: "))
+                # Calculate Z-score: Z = (T - μ) / σ
+                z_score = (target_time - expected_duration) / std_deviation
+                # Find probability for given Z-score
+                probability = norm.cdf(z_score)
+                print(f"\nResult:")
+                print(f"Target time: {target_time:.2f} time units")
+                print(f"Completion probability: {probability*100:.2f}%")
+                print(f"Z-score: {z_score:.3f}")
+            except ValueError:
+                print("Error: Please enter a valid number")
+        
+        elif choice == '3':
+            print("Exiting probability analysis.")
+            break
+        
+        else:
+            print("Error: Please enter 1, 2, or 3")
+
+def main():
+    """
+    Main function to orchestrate the PERT and CPM analysis.
+    """
+    print("PERT and CPM Analysis Tool")
+    print("="*50)
+    
+    # Get CSV file path from user
+    csv_file = get_csv_file_path()
+    
+    # Load activities from CSV
+    print("Loading activities from CSV...")
+    activities = load_pert_activities_from_csv(csv_file)
+    
+    if not activities:
+        print("No activities found in the CSV file. Exiting.")
+        sys.exit(1)
+    
+    print(f"Loaded {len(activities)} activities.")
+    
+    # Debug: Print loaded activities
+    print("\nLoaded Activities:")
+    for activity in activities:
+        preds = activity['predecessors'] if activity['predecessors'] else ['None']
+        print(f"Activity {activity['id']}: Predecessors = {preds}")
+    
+    # Step 1: Initial CPM using Most Likely times
+    print("\n1. Performing initial CPM analysis using Most Likely times...")
+    
+    try:
+        # Build network with most likely times
+        G_cmp = build_network_from_activities(activities, 'most_likely')
+        
+        # Debug: Print graph structure
+        print(f"\nGraph has {G_cmp.number_of_nodes()} nodes and {G_cmp.number_of_edges()} edges")
+        print("Edges in graph:")
+        for edge in G_cmp.edges():
+            print(f"  {edge[0]} -> {edge[1]}")
+        
+        # Perform CPM calculations
+        G_cmp = forward_pass(G_cmp)
+        G_cmp = backward_pass(G_cmp)
+        G_cmp = calculate_float(G_cmp)
+        
+        # Identify initial critical path
+        critical_paths_cmp, critical_activities_cmp = identify_critical_path(G_cmp)
+        
+        # Display CPM results
+        cmp_duration = display_results(G_cmp, critical_paths_cmp, "Initial CPM")
+        
+        # Visualize initial CPM network
+        print("Displaying initial CPM network diagram...")
+        visualize_network(G_cmp, critical_activities_cmp, "Initial CPM Network (Most Likely Times)")
+        
+        # Generate Gantt chart for CPM
+        print("Generating CPM Gantt chart...")
+        generate_gantt_chart(G_cmp, critical_activities_cmp, "CPM Gantt Chart (Most Likely Times)")
+        
+    except nx.NetworkXUnfeasible as e:
+        print(f"\nCannot proceed with CPM analysis: {e}")
+        print("\nPlease check your CSV file for:")
+        print("1. Circular dependencies between activities")
+        print("2. Activities that reference non-existent predecessors")
+        print("3. Incorrect predecessor relationships")
+        sys.exit(1)
+    
+    # Step 2: PERT Analysis
+    print("\n2. Performing PERT analysis...")
+    
+    try:
+        # Calculate PERT estimates
+        activities = calculate_pert_estimates(activities)
+        
+        # Build network with expected times
+        G_pert = build_network_from_activities(activities, 'expected')
+        
+        # Add variance information to nodes
+        for activity in activities:
+            G_pert.nodes[activity['id']]['variance'] = activity['variance']
+            G_pert.nodes[activity['id']]['expected_time'] = activity['expected_time']
+        
+        # Perform PERT CPM calculations
+        G_pert = forward_pass(G_pert)
+        G_pert = backward_pass(G_pert)
+        G_pert = calculate_float(G_pert)
+        
+        # Identify PERT critical path
+        critical_paths_pert, critical_activities_pert = identify_critical_path(G_pert)
+        
+        # Calculate total project variance
+        total_variance = calculate_project_variance(G_pert, critical_activities_pert)
+        
+        # Display PERT results
+        pert_duration = display_results(G_pert, critical_paths_pert, "PERT")
+        print(f"Total Project Variance: {total_variance:.4f}")
+        print(f"Project Standard Deviation: {np.sqrt(total_variance):.3f}")
+        
+        # Visualize PERT network
+        print("Displaying PERT network diagram...")
+        visualize_network(G_pert, critical_activities_pert, "PERT Network (Expected Times)")
+        
+        # Generate Gantt chart for PERT
+        print("Generating PERT Gantt chart...")
+        generate_gantt_chart(G_pert, critical_activities_pert, "PERT Gantt Chart (Expected Times)")
+        
+        # Step 3: Probability analysis
+        print("\n3. Starting probability analysis...")
+        probability_analysis_menu(pert_duration, total_variance)
+        
+    except nx.NetworkXUnfeasible as e:
+        print(f"\nCannot proceed with PERT analysis: {e}")
+    
+    print("\nAnalysis complete!")
+
+
+if __name__ == "__main__":
+    main()
