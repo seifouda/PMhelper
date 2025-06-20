@@ -1,0 +1,861 @@
+#!/usr/bin/env python3
+"""
+Critical Path Method (CPM) Analysis Desktop Application
+
+A simple desktop application with GUI for analyzing project networks using CPM.
+Users can input activities via a table interface or load from CSV.
+"""
+
+import tkinter as tk
+from tkinter import ttk, filedialog, messagebox, scrolledtext
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import networkx as nx
+import matplotlib.patches as mpatches
+from tabulate import tabulate
+import csv
+import io
+import sys
+from collections import defaultdict
+import numpy as np
+
+
+class CPMAnalyzer:
+    """Core CPM analysis functionality"""
+    
+    def __init__(self):
+        self.G = None
+        self.critical_paths = []
+        self.critical_activities = []
+    
+    def load_activities_from_data(self, activities_data):
+        """Load activities from list of dictionaries"""
+        activities = []
+        
+        for row in activities_data:
+            # Convert duration to integer
+            try:
+                duration = int(row['duration'])
+            except (ValueError, KeyError):
+                raise ValueError(f"Duration for activity {row.get('id', 'Unknown')} must be a number")
+            
+            # Process predecessors (comma-separated list)
+            predecessors = []
+            if row.get('predecessors') and str(row['predecessors']).strip():
+                predecessors = [p.strip() for p in str(row['predecessors']).split(',')]
+            
+            # Get activity name
+            activity_name = row.get('activity', '').strip()
+            
+            activities.append({
+                'id': row['id'],
+                'activity': activity_name,
+                'duration': duration,
+                'predecessors': predecessors
+            })
+        
+        return activities
+    
+    def build_network(self, activities):
+        """Build a directed graph network from activity data"""
+        # Create directed graph
+        G = nx.DiGraph()
+        
+        # Add all activities as nodes with duration attribute
+        for activity in activities:
+            G.add_node(
+                activity['id'],
+                duration=activity['duration'],
+                activity=activity.get('activity', '')
+            )
+        
+        # Add edges based on predecessor relationships
+        for activity in activities:
+            if 'predecessors' in activity and activity['predecessors']:
+                for predecessor in activity['predecessors']:
+                    if predecessor in G:
+                        G.add_edge(predecessor, activity['id'])
+        
+        # Add START node and connect it to nodes with no predecessors
+        start_nodes = [node for node in G.nodes() if G.in_degree(node) == 0]
+        if start_nodes:
+            G.add_node('START', duration=0, activity='Start')
+            for node in start_nodes:
+                G.add_edge('START', node)
+        
+        # Add END node and connect nodes with no successors to it
+        end_nodes = [node for node in G.nodes() if G.out_degree(node) == 0 and node != 'START']
+        if end_nodes:
+            G.add_node('END', duration=0, activity='End')
+            for node in end_nodes:
+                G.add_edge(node, 'END')
+        
+        return G
+    
+    def forward_pass(self, G):
+        """Perform forward pass to calculate Early Start (ES) and Early Finish (EF)"""
+        start_activities = [node for node in G.nodes() if G.in_degree(node) == 0]
+        
+        nx.set_node_attributes(G, 0, 'ES')
+        nx.set_node_attributes(G, 0, 'EF')
+        
+        for node in nx.topological_sort(G):
+            duration = G.nodes[node]['duration']
+            
+            if node in start_activities:
+                G.nodes[node]['ES'] = 0
+            else:
+                pred_ef = [G.nodes[pred]['EF'] for pred in G.predecessors(node)]
+                G.nodes[node]['ES'] = max(pred_ef) if pred_ef else 0
+            
+            G.nodes[node]['EF'] = G.nodes[node]['ES'] + duration
+        
+        return G
+    
+    def backward_pass(self, G):
+        """Perform backward pass to calculate Late Start (LS) and Late Finish (LF)"""
+        end_activities = [node for node in G.nodes() if G.out_degree(node) == 0]
+        
+        project_duration = max([G.nodes[node]['EF'] for node in G.nodes()])
+        nx.set_node_attributes(G, project_duration, 'LF')
+        nx.set_node_attributes(G, project_duration, 'LS')
+        
+        for node in reversed(list(nx.topological_sort(G))):
+            duration = G.nodes[node]['duration']
+            
+            if node in end_activities:
+                G.nodes[node]['LF'] = project_duration
+            else:
+                succ_ls = [G.nodes[succ]['LS'] for succ in G.successors(node)]
+                G.nodes[node]['LF'] = min(succ_ls) if succ_ls else project_duration
+            
+            G.nodes[node]['LS'] = G.nodes[node]['LF'] - duration
+        
+        return G
+    
+    def calculate_float(self, G):
+        """Calculate float (slack) for each activity"""
+        for node in G.nodes():
+            G.nodes[node]['float'] = G.nodes[node]['LS'] - G.nodes[node]['ES']
+        return G
+    
+    def identify_critical_path(self, G):
+        """Identify the critical path (activities with zero float)"""
+        critical_activities = [node for node in G.nodes() if G.nodes[node]['float'] == 0]
+        critical_subgraph = G.subgraph(critical_activities)
+        
+        start_nodes = [node for node in critical_subgraph.nodes() if critical_subgraph.in_degree(node) == 0]
+        end_nodes = [node for node in critical_subgraph.nodes() if critical_subgraph.out_degree(node) == 0]
+        
+        longest_path = []
+        max_length = 0
+        
+        for start in start_nodes:
+            for end in end_nodes:
+                try:
+                    paths = list(nx.all_simple_paths(critical_subgraph, start, end))
+                    for path in paths:
+                        if len(path) > max_length:
+                            max_length = len(path)
+                            longest_path = path
+                except nx.NetworkXNoPath:
+                    pass
+        
+        return [longest_path] if longest_path else [critical_activities], critical_activities
+    
+    def analyze(self, activities_data):
+        """Perform complete CPM analysis"""
+        activities = self.load_activities_from_data(activities_data)
+        self.G = self.build_network(activities)
+        self.G = self.forward_pass(self.G)
+        self.G = self.backward_pass(self.G)
+        self.G = self.calculate_float(self.G)
+        self.critical_paths, self.critical_activities = self.identify_critical_path(self.G)
+        
+        return self.G, self.critical_paths, self.critical_activities
+
+
+class CPMDesktopApp:
+    """Main desktop application class"""
+    
+    def __init__(self, root):
+        self.root = root
+        self.root.title("CPM Analysis Tool")
+        self.root.geometry("1200x800")
+        
+        # Initialize CPM analyzer
+        self.analyzer = CPMAnalyzer()
+        
+        # Create GUI
+        self.create_widgets()
+        
+        # Initialize with sample data
+        self.load_sample_data()
+    
+    def create_widgets(self):
+        """Create the main GUI widgets"""
+        # Create main frame
+        main_frame = ttk.Frame(self.root)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        # Create notebook for tabs
+        self.notebook = ttk.Notebook(main_frame)
+        self.notebook.pack(fill=tk.BOTH, expand=True)
+        
+        # Input tab
+        self.create_input_tab()
+        
+        # Results tab
+        self.create_results_tab()
+        
+        # Network diagram tab
+        self.create_network_tab()
+        
+        # Critical Path Analysis tab
+        self.create_critical_path_tab()
+        
+        # Gantt chart tab
+        self.create_gantt_tab()
+    
+    def create_input_tab(self):
+        """Create the input tab for activity data"""
+        input_frame = ttk.Frame(self.notebook)
+        self.notebook.add(input_frame, text="Input Activities")
+        
+        # Buttons frame
+        button_frame = ttk.Frame(input_frame)
+        button_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        ttk.Button(button_frame, text="Load from CSV", command=self.load_csv).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Button(button_frame, text="Add Row", command=self.add_row).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Button(button_frame, text="Delete Row", command=self.delete_row).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Button(button_frame, text="Clear All", command=self.clear_all).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Button(button_frame, text="Analyze", command=self.analyze_project).pack(side=tk.RIGHT)
+        
+        # Create treeview for activity input
+        columns = ("ID", "Activity Name", "Duration", "Predecessors")
+        self.tree = ttk.Treeview(input_frame, columns=columns, show="headings", height=15)
+        
+        # Define column headings and widths
+        for col in columns:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, width=150)
+        
+        # Add scrollbars
+        v_scrollbar = ttk.Scrollbar(input_frame, orient=tk.VERTICAL, command=self.tree.yview)
+        h_scrollbar = ttk.Scrollbar(input_frame, orient=tk.HORIZONTAL, command=self.tree.xview)
+        self.tree.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
+        
+        # Pack treeview and scrollbars
+        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+        
+        # Double-click to edit
+        self.tree.bind("<Double-1>", self.edit_item)
+    
+    def create_results_tab(self):
+        """Create the results tab for displaying analysis results"""
+        results_frame = ttk.Frame(self.notebook)
+        self.notebook.add(results_frame, text="Analysis Results")
+        
+        # Create text widget for results
+        self.results_text = scrolledtext.ScrolledText(results_frame, font=("Courier", 10))
+        self.results_text.pack(fill=tk.BOTH, expand=True)
+    
+    def create_network_tab(self):
+        """Create the network diagram tab"""
+        network_frame = ttk.Frame(self.notebook)
+        self.notebook.add(network_frame, text="Network Diagram")
+        
+        # Create matplotlib figure
+        self.fig_network = plt.Figure(figsize=(12, 8))
+        self.canvas_network = FigureCanvasTkAgg(self.fig_network, network_frame)
+        self.canvas_network.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+    
+    def create_critical_path_tab(self):
+        """Create the critical path analysis tab"""
+        critical_path_frame = ttk.Frame(self.notebook)
+        self.notebook.add(critical_path_frame, text="Critical Path Analysis")
+        
+        # Create matplotlib figure for critical path visualization
+        self.fig_critical_path = plt.Figure(figsize=(18, 12))
+        self.canvas_critical_path = FigureCanvasTkAgg(self.fig_critical_path, critical_path_frame)
+        self.canvas_critical_path.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+    
+    def create_gantt_tab(self):
+        """Create the Gantt chart tab"""
+        gantt_frame = ttk.Frame(self.notebook)
+        self.notebook.add(gantt_frame, text="Gantt Chart")
+        
+        # Create matplotlib figure
+        self.fig_gantt = plt.Figure(figsize=(18, 12))
+        self.canvas_gantt = FigureCanvasTkAgg(self.fig_gantt, gantt_frame)
+        self.canvas_gantt.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+    
+    def load_sample_data(self):
+        """Load sample project data"""
+        sample_data = [
+            ("A", "Design Phase", "5", ""),
+            ("B", "Requirements Analysis", "3", ""),
+            ("C", "Architecture Design", "4", "A,B"),
+            ("D", "Database Design", "2", "B"),
+            ("E", "Frontend Development", "6", "C"),
+            ("F", "Backend Development", "8", "C,D"),
+            ("G", "Testing", "3", "E,F"),
+            ("H", "Deployment", "2", "G")
+        ]
+        
+        for item in sample_data:
+            self.tree.insert("", tk.END, values=item)
+    
+    def load_csv(self):
+        """Load activities from CSV file"""
+        file_path = filedialog.askopenfilename(
+            title="Select CSV file",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
+        )
+        
+        if file_path:
+            try:
+                # Clear existing data
+                self.clear_all()
+                
+                # Load CSV data
+                with open(file_path, 'r', newline='') as file:
+                    reader = csv.DictReader(file)
+                    for row in reader:
+                        activity_name = row.get('activity', '').strip()
+                        predecessors = row.get('predecessors', '').strip()
+                        
+                        self.tree.insert("", tk.END, values=(
+                            row['id'],
+                            activity_name,
+                            row['duration'],
+                            predecessors
+                        ))
+                
+                messagebox.showinfo("Success", "CSV file loaded successfully!")
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to load CSV file: {str(e)}")
+    
+    def add_row(self):
+        """Add a new empty row"""
+        self.tree.insert("", tk.END, values=("", "", "", ""))
+    
+    def delete_row(self):
+        """Delete selected row"""
+        selected = self.tree.selection()
+        if selected:
+            for item in selected:
+                self.tree.delete(item)
+        else:
+            messagebox.showwarning("Warning", "Please select a row to delete.")
+    
+    def clear_all(self):
+        """Clear all data"""
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+    
+    def edit_item(self, event):
+        """Edit selected item in place"""
+        item = self.tree.selection()[0]
+        column = self.tree.identify_column(event.x)
+        
+        # Get column index
+        col_index = int(column.replace('#', '')) - 1
+        col_names = ["ID", "Activity Name", "Duration", "Predecessors"]
+        
+        # Get current value
+        current_values = list(self.tree.item(item, 'values'))
+        current_value = current_values[col_index] if col_index < len(current_values) else ""
+        
+        # Create entry widget for editing
+        bbox = self.tree.bbox(item, column)
+        if bbox:
+            entry = tk.Entry(self.tree)
+            entry.place(x=bbox[0], y=bbox[1], width=bbox[2], height=bbox[3])
+            entry.insert(0, current_value)
+            entry.select_range(0, tk.END)
+            entry.focus()
+            
+            def save_edit(event=None):
+                new_value = entry.get()
+                current_values[col_index] = new_value
+                self.tree.item(item, values=current_values)
+                entry.destroy()
+            
+            def cancel_edit(event=None):
+                entry.destroy()
+            
+            entry.bind("<Return>", save_edit)
+            entry.bind("<Escape>", cancel_edit)
+            entry.bind("<FocusOut>", save_edit)
+    
+    def get_activities_data(self):
+        """Get activities data from the treeview"""
+        activities_data = []
+        for item in self.tree.get_children():
+            values = self.tree.item(item, 'values')
+            if values and values[0]:  # Must have an ID
+                activities_data.append({
+                    'id': values[0],
+                    'activity': values[1] if len(values) > 1 else '',
+                    'duration': values[2] if len(values) > 2 else '0',
+                    'predecessors': values[3] if len(values) > 3 else ''
+                })
+        return activities_data
+    
+    def analyze_project(self):
+        """Analyze the project using CPM"""
+        try:
+            activities_data = self.get_activities_data()
+            
+            if not activities_data:
+                messagebox.showwarning("Warning", "Please enter some activities to analyze.")
+                return
+            
+            # Perform CPM analysis
+            G, critical_paths, critical_activities = self.analyzer.analyze(activities_data)
+            
+            # Display results
+            self.display_results(G, critical_paths)
+            
+            # Generate network diagram
+            self.generate_network_diagram(G, critical_activities)
+            
+            # Generate critical path visualization
+            self.visualize_critical_path_network(G, critical_activities)
+            
+            # Generate Gantt chart
+            self.generate_gantt_chart(G, critical_activities)
+            
+            # Switch to results tab
+            self.notebook.select(1)
+            
+            messagebox.showinfo("Success", "Analysis completed successfully!")
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Analysis failed: {str(e)}")
+    
+    def display_results(self, G, critical_paths):
+        """Display analysis results in the results tab"""
+        # Clear previous results
+        self.results_text.delete(1.0, tk.END)
+        
+        # Prepare data for tabulation
+        table_data = []
+        for node in G.nodes():
+            if node not in ['START', 'END']:  # Skip START and END nodes
+                table_data.append([
+                    node,
+                    G.nodes[node]['duration'],
+                    G.nodes[node]['ES'],
+                    G.nodes[node]['EF'],
+                    G.nodes[node]['LS'],
+                    G.nodes[node]['LF'],
+                    G.nodes[node]['float'],
+                    "Yes" if G.nodes[node]['float'] == 0 else "No"
+                ])
+        
+        headers = ["Activity", "Duration", "ES", "EF", "LS", "LF", "Float", "Critical?"]
+        results_table = tabulate(table_data, headers=headers, tablefmt="grid")
+        
+        # Display results
+        results_text = "CPM ANALYSIS RESULTS\n"
+        results_text += "=" * 50 + "\n\n"
+        results_text += results_table + "\n\n"
+        
+        # Display critical path(s)
+        results_text += "CRITICAL PATH(S):\n"
+        results_text += "-" * 20 + "\n"
+        for i, path in enumerate(critical_paths):
+            # Filter out START and END from path display
+            display_path = [node for node in path if node not in ['START', 'END']]
+            results_text += f"Path {i+1}: {' -> '.join(display_path)}\n"
+        
+        # Calculate project duration
+        project_duration = max([G.nodes[node]['EF'] for node in G.nodes()])
+        results_text += f"\nPROJECT DURATION: {project_duration} time units\n"
+        
+        self.results_text.insert(1.0, results_text)
+    
+    def generate_network_diagram(self, G, critical_activities):
+        """Generate network diagram"""
+        self.fig_network.clear()
+        ax = self.fig_network.add_subplot(111)
+        
+        # Create hierarchical layout
+        pos = {}
+        generations = list(nx.topological_generations(G))
+        
+        for i, gen in enumerate(generations):
+            sorted_gen = sorted(gen)
+            for j, node in enumerate(sorted_gen):
+                y_pos = (j - len(sorted_gen) / 2 + 0.5) * 4
+                pos[node] = (i * 3, y_pos)
+        
+        # Node parameters
+        node_radius = 0.4
+        
+        # Draw edges
+        for u, v in G.edges():
+            x1, y1 = pos[u]
+            x2, y2 = pos[v]
+            
+            dx = x2 - x1
+            dy = y2 - y1
+            distance = (dx ** 2 + dy ** 2) ** 0.5
+            
+            if distance > 0:
+                dx_norm = dx / distance
+                dy_norm = dy / distance
+                
+                start_x = x1 + node_radius * dx_norm
+                start_y = y1 + node_radius * dy_norm
+                end_x = x2 - node_radius * dx_norm
+                end_y = y2 - node_radius * dy_norm
+                
+                ax.annotate("", xy=(end_x, end_y), xytext=(start_x, start_y),
+                           arrowprops=dict(arrowstyle="->", color="black", lw=1.5))
+        
+        # Draw nodes
+        for node in G.nodes():
+            x, y = pos[node]
+            
+            if node == 'START':
+                color = 'lightgreen'
+            elif node == 'END':
+                color = 'orange'
+            elif node in critical_activities:
+                color = 'red'
+            else:
+                color = 'lightblue'
+            
+            circle = plt.Circle((x, y), node_radius, fill=True, color=color, alpha=0.7,
+                               edgecolor='black', linewidth=1.5)
+            ax.add_patch(circle)
+            
+            if node in ['START', 'END']:
+                display_text = 'Start' if node == 'START' else 'End'
+                ax.text(x, y, display_text, ha='center', va='center',
+                       fontsize=10, fontweight='bold')
+            else:
+                ax.plot([x - node_radius, x + node_radius], [y, y],
+                       color='black', linewidth=1.2)
+                ax.text(x, y + node_radius / 2, node, ha='center', va='center',
+                       fontsize=10, fontweight='bold')
+                ax.text(x, y - node_radius / 2, str(G.nodes[node]['duration']),
+                       ha='center', va='center', fontsize=9)
+        
+        ax.set_title("Project Network Diagram")
+        ax.axis('equal')
+        ax.axis('off')
+        
+        self.canvas_network.draw()
+    
+    def generate_gantt_chart(self, G, critical_activities):
+        """Generate Gantt chart"""
+        self.fig_gantt.clear()
+        ax = self.fig_gantt.add_subplot(111)
+        
+        # Extract activity data
+        activities = []
+        for node in G.nodes():
+            if node not in ['START', 'END']:
+                node_data = G.nodes[node]
+                activities.append({
+                    'id': node,
+                    'duration': node_data.get('duration', 0),
+                    'early_start': node_data.get('ES', 0),
+                    'early_finish': node_data.get('EF', 0),
+                    'late_start': node_data.get('LS', 0),
+                    'late_finish': node_data.get('LF', 0),
+                    'float': node_data.get('float', 0)
+                })
+        
+        # Sort activities by early start time
+        activities.sort(key=lambda x: (x['early_start'], x['id']))
+        
+        # Colors
+        critical_color = 'red'
+        normal_color = 'lightblue'
+        slack_color = 'lightgrey'
+        
+        # Calculate project duration
+        project_duration = max([activity['late_finish'] for activity in activities])
+        
+        # Y positions
+        y_pos = np.arange(len(activities))
+        y_pos = y_pos[::-1]
+        
+        # Create bars
+        activity_labels = []
+        for i, activity in enumerate(activities):
+            activity_id = activity['id']
+            early_start = activity['early_start']
+            early_finish = activity['early_finish']
+            duration = activity['duration']
+            float_time = activity['float']
+            
+            is_critical = activity_id in critical_activities
+            bar_color = critical_color if is_critical else normal_color
+            
+            # Main activity bar
+            ax.barh(y_pos[i], duration, left=early_start, 
+                   color=bar_color, alpha=0.7, height=0.6,
+                   edgecolor='black', linewidth=0.8)
+            
+            # Slack bar
+            if float_time > 0:
+                ax.barh(y_pos[i], float_time, left=early_finish,
+                       color=slack_color, alpha=0.5, height=0.6,
+                       edgecolor='gray', linewidth=0.5, linestyle='--')
+            
+            activity_labels.append(activity_id)
+            
+            # Add text
+            bar_center_x = early_start + duration / 2
+            ax.text(bar_center_x, y_pos[i], activity_id, 
+                   ha='center', va='center', fontweight='bold', fontsize=10)
+            
+            # Early start/finish times
+            ax.text(early_start - 0.1, y_pos[i], f"{early_start}", 
+                   ha='right', va='center', fontsize=9, color='darkgreen', fontweight='bold')
+            ax.text(early_finish + 0.1, y_pos[i], f"{early_finish}", 
+                   ha='left', va='center', fontsize=9, color='darkgreen', fontweight='bold')
+        
+        # Customize chart
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(activity_labels)
+        ax.set_xlabel('Time Units')
+        ax.set_ylabel('Activities')
+        ax.set_title('Project Gantt Chart')
+        ax.set_xlim(-0.5, project_duration + 0.5)
+        ax.grid(True, axis='x', alpha=0.3)
+        
+        # Legend
+        legend_elements = [
+            mpatches.Patch(color=critical_color, alpha=0.7, label='Critical Activities'),
+            mpatches.Patch(color=normal_color, alpha=0.7, label='Non-Critical Activities'),
+            mpatches.Patch(color=slack_color, alpha=0.5, label='Available Slack/Float')
+        ]
+        ax.legend(handles=legend_elements, loc='lower left')
+        
+        self.canvas_gantt.draw()
+
+    def visualize_critical_path_network(self, G, critical_activities=None):
+        """
+        Visualize the project network with critical path highlighted and detailed node information.
+        Nodes have a semicircle on the left side attached to a square, similar to the provided image.
+        
+        Args:
+            G: NetworkX DiGraph
+            critical_activities: List of activities on the critical path
+        """
+        if critical_activities is None:
+            critical_activities = []
+        
+        # Clear the figure
+        self.fig_critical_path.clear()
+        ax = self.fig_critical_path.add_subplot(111)
+        
+        # Create a custom positioning
+        pos = {}
+        
+        # Get topological generations (layers of nodes)
+        generations = list(nx.topological_generations(G))
+        
+        # Set x-coordinates by generation and y-coordinates to spread nodes vertically
+        for i, gen in enumerate(generations):
+            # Sort nodes within generation to make visualization more predictable
+            sorted_gen = sorted(gen)
+            
+            # Calculate vertical positions
+            for j, node in enumerate(sorted_gen):
+                y_pos = (j - len(sorted_gen) /2 + 0.5) * 3  # Center nodes vertically
+                pos[node] = (i * 2 , y_pos)  # Increase spacing between generations
+        
+        # Node size parameters
+        # The left third will be a semicircle, the right two-thirds will be a square
+        width = 0.8
+        height = width*2/3
+        semicircle_width = width/3
+        square_width = width*2/3
+        node_radius = 0.3
+        
+        # Draw edges with proper arrowheads
+        for u, v in G.edges():
+            # Get node positions
+            x1, y1 = pos[u]
+            x2, y2 = pos[v]
+            
+            # Calculate starting and ending points based on node type
+            if u in ['START', 'END']:
+                # For START/END nodes (circles), start from edge of circle
+                dx = x2 - x1
+                dy = y2 - y1
+                distance = (dx ** 2 + dy ** 2) ** 0.5
+                if distance > 0:
+                    dx_norm = dx / distance
+                    dy_norm = dy / distance
+                    start_x = x1 + node_radius * dx_norm
+                    start_y = y1 + node_radius * dy_norm
+                else:
+                    start_x = x1
+                    start_y = y1
+            else:
+                # For regular nodes, start from far right
+                start_x = x1 + width/2 - semicircle_width/2
+                start_y = y1
+            
+            if v in ['START', 'END']:
+                # For START/END nodes (circles), end at edge of circle
+                dx = x2 - x1
+                dy = y2 - y1
+                distance = (dx ** 2 + dy ** 2) ** 0.5
+                if distance > 0:
+                    dx_norm = dx / distance
+                    dy_norm = dy / distance
+                    end_x = x2 - node_radius * dx_norm
+                    end_y = y2 - node_radius * dy_norm
+                else:
+                    end_x = x2
+                    end_y = y2
+            else:
+                # For regular nodes, end at far left
+                end_x = x2 - square_width/2 - semicircle_width
+                end_y = y2
+
+            # Draw straight arrow 
+            ax.annotate("",
+                        xy=(end_x, end_y), xycoords='data',
+                        xytext=(start_x, start_y), textcoords='data',
+                        arrowprops=dict(arrowstyle="->", color="black", lw=1.5))
+        
+        # Draw nodes with semicircle on left side and square on right side
+        for node in G.nodes():
+            x, y = pos[node]
+            is_critical = node in critical_activities
+            color = 'red' if is_critical else 'lightblue'
+
+            # Special colors for START and END nodes
+            if node == 'START':
+                color = 'lightgreen'
+            elif node == 'END':
+                color = 'orange'
+                
+            # Special handling for START and END nodes
+            if node in ['START', 'END']:
+                # Draw simple circle for START/END nodes
+                circle = plt.Circle((x, y), node_radius,
+                                fill=True, color=color, alpha=0.7,
+                                edgecolor='black', linewidth=1.5, zorder=3)
+                ax.add_patch(circle)
+                
+                # Add only the text "Start" or "End"
+                display_text = 'Start' if node == 'START' else 'End'
+                ax.text(x, y, display_text,
+                        horizontalalignment='center', verticalalignment='center',
+                        fontsize=9, fontweight='bold', zorder=5)
+            else:
+                # Draw semicircle on left side
+                semicircle = mpatches.Wedge(
+                    (x - square_width / 2, y),
+                    semicircle_width,  # radius
+                    90, 270,  # angles for left-facing semicircle
+                    fill=True,
+                    color=color,
+                    alpha=0.7,
+                    edgecolor='black',
+                    linewidth=1.4,
+                    zorder=3  # Ensure nodes appear above arrows
+                )
+                ax.add_patch(semicircle)
+
+                # Draw square on right side
+                square = plt.Rectangle(
+                    (x - square_width / 2, y - height / 2),  # Position square to connect with semicircle
+                    square_width,
+                    height,
+                    fill=True,
+                    color=color,
+                    alpha=0.7,
+                    edgecolor='black',
+                    linewidth=1.5,
+                    zorder=3  # Ensure nodes appear above arrows
+                )
+                ax.add_patch(square)
+
+                # Draw horizontal and vertical grid lines for the cells
+                # Draw horizontal divider across entire shape
+                ax.plot([x - square_width / 2 - semicircle_width, x + square_width / 2], [y, y],
+                        color='black', linewidth=0.8, zorder=4)
+
+                # Draw vertical divider between semicircle and square
+                ax.plot([x - square_width / 2, x - square_width / 2], [y - height / 2, y + height / 2],
+                        color='black', linewidth=0.8, zorder=5)
+
+                # Draw vertical divider in square section
+                ax.plot([x, x], [y - height / 2, y + height / 2],
+                    color='black', linewidth=0.8, zorder=4)
+
+                # Add text in each cell
+                # Top row
+                ax.text(x - square_width / 2 - semicircle_width / 2, y + height / 4, node,
+                    horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+                ax.text(x - square_width / 4, y + height / 4, str(G.nodes[node]['ES']),
+                    horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+                ax.text(x + square_width / 4, y + height / 4, str(G.nodes[node]['EF']),
+                    horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+
+                # Bottom row
+                ax.text(x - square_width / 2 - semicircle_width / 2, y - height / 4, str(G.nodes[node]['duration']),
+                    horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+                ax.text(x - square_width / 4, y - height / 4, str(G.nodes[node]['LS']),
+                    horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+                ax.text(x + square_width / 4, y - height / 4, str(G.nodes[node]['LF']),
+                    horizontalalignment='center', verticalalignment='center', fontsize=7, zorder=5)
+
+                # Add slack below node
+                ax.text(x, y - height / 2 - 0.05, f"Slack: {G.nodes[node]['float']}",
+                        horizontalalignment='center', verticalalignment='top',
+                        fontsize=8, color='darkblue' if G.nodes[node]['float'] > 0 else 'darkred',
+                        zorder=5)
+                
+                # Add activity name above node
+                activity_name = G.nodes[node].get('activity', '')
+                if activity_name and activity_name not in ['Start', 'End']:
+                    ax.text(x, y + height / 2 + 0.1, activity_name,
+                        horizontalalignment='center', verticalalignment='bottom',
+                        fontsize=8, color='purple', fontweight='bold', zorder=5)
+        
+        # Create legend for critical path
+        legend_elements = [
+            mpatches.Patch(color='lightgreen', alpha=0.7, label='START Node'),
+            mpatches.Patch(color='orange', alpha=0.7, label='END Node'),
+            mpatches.Patch(color='red', alpha=0.7, label='Critical Path'),
+            mpatches.Patch(color='lightblue', alpha=0.7, label='Normal Activity')
+        ]
+        ax.legend(handles=legend_elements, loc='upper right')
+        
+        # Add legend for node format
+        self.fig_critical_path.text(0.01, 0.01, "Node Format:", fontsize=9)
+        self.fig_critical_path.text(0.12, 0.01, "ID | ES | EF\nDur | LS | LF", fontsize=9)
+        
+        ax.set_title("Critical Path Network Diagram")
+        ax.axis('off')
+        
+        # Draw the canvas
+        self.canvas_critical_path.draw()
+
+def main():
+    """Main function to run the application"""
+    root = tk.Tk()
+    app = CPMDesktopApp(root)
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
