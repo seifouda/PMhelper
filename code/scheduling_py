@@ -1,0 +1,638 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from typing import Dict, List, Tuple, Optional
+import warnings
+warnings.filterwarnings('ignore')
+
+class MultiPriorityScheduler:
+    """
+    Multi-priority scheduling system using contradictory scheduling heuristics.
+    Implements flexible rule-based priority scoring for project task scheduling.
+    """
+    
+    def __init__(self, df: pd.DataFrame):
+        """
+        Initialize the scheduler with project data.
+        
+        Args:
+            df: DataFrame containing task data with columns:
+                - Task_ID, Duration, Predecessors, Earliest_Start, Earliest_Finish,
+                - Latest_Start, Latest_Finish, Float, Immediate_Successors,
+                - Total_Successors, Resource_Demand, Cumulative_Resource_Demand, GRPW
+        """
+        self.df = df.copy()
+        
+        # Map CSV column names to expected internal names
+        column_mapping = {
+            'Activity': 'Task_ID',
+            'ES': 'Earliest_Start',
+            'EF': 'Earliest_Finish', 
+            'LS': 'Latest_Start',
+            'LF': 'Latest_Finish',
+            'Cumulative_Demand': 'Cumulative_Resource_Demand'
+        }
+        
+        # Rename columns to match internal expectations
+        self.df = self.df.rename(columns=column_mapping)
+        
+        self.scheduled_tasks = set()
+        self.schedule_results = []
+        self.priority_rules = {
+            'processing_time': ['Longest Processing Time (LPT)', 'Shortest Processing Time (SPT)'],
+            'earliest_start': ['Latest Earliest Start', 'Earliest Earliest Start'],
+            'latest_start': ['Latest Latest Start', 'Earliest Latest Start'],
+            'float': ['Most Critical (Least Float)', 'Least Critical (Most Float)'],
+            'successors': ['Most Successors', 'Fewest Successors'],
+            'resource_demand': ['Highest Resource Demand', 'Lowest Resource Demand'],
+            'grpw': ['Highest GRPW', 'Lowest GRPW']
+        }
+        
+    def get_user_weights(self) -> Dict[str, Dict[str, float]]:
+        """
+        Collect weight preferences from user for each priority rule pair.
+        
+        Returns:
+            Dictionary of weights for each rule pair
+        """
+        print("=== Multi-Priority Scheduling System ===")
+        print("Configure priority rule weights (0-100 for each side, must sum to 100)")
+        print("Press Enter for default 50-50 split\n")
+        
+        weights = {}
+        
+        for rule_key, (rule1, rule2) in self.priority_rules.items():
+            print(f"\n{rule_key.replace('_', ' ').title()} Priority:")
+            print(f"  A) {rule1}")
+            print(f"  B) {rule2}")
+            
+            while True:
+                try:
+                    weight_input = input(f"Enter weight for A (0-100, default 50): ").strip()
+                    
+                    if not weight_input:
+                        weight_a = 50.0
+                    else:
+                        weight_a = float(weight_input)
+                        
+                    if not (0 <= weight_a <= 100):
+                        print("Weight must be between 0 and 100. Please try again.")
+                        continue
+                        
+                    weight_b = 100.0 - weight_a
+                    
+                    weights[rule_key] = {
+                        'side_a': weight_a / 100.0,  # Normalize to 0-1
+                        'side_b': weight_b / 100.0
+                    }
+                    
+                    print(f"Set: {rule1} = {weight_a}%, {rule2} = {weight_b}%")
+                    break
+                    
+                except ValueError:
+                    print("Invalid input. Please enter a number between 0 and 100.")
+                    
+        return weights
+    
+    def normalize_metrics(self) -> pd.DataFrame:
+        """
+        Normalize all metrics used in priority rules to 0-1 scale.
+        
+        Returns:
+            DataFrame with normalized columns
+        """
+        df_norm = self.df.copy()
+        
+        # Define metrics and their normalization approach
+        metrics_config = {
+            'Duration': 'standard',  # Processing time
+            'Earliest_Start': 'standard',
+            'Latest_Start': 'standard', 
+            'Float': 'standard',
+            'Total_Successors': 'standard',
+            'Resource_Demand': 'standard',
+            'GRPW': 'standard'
+        }
+        
+        for metric, norm_type in metrics_config.items():
+            if metric in df_norm.columns:
+                values = df_norm[metric].values
+                
+                if norm_type == 'standard':
+                    # Min-max normalization
+                    min_val = np.min(values)
+                    max_val = np.max(values)
+                    
+                    if max_val > min_val:
+                        df_norm[f'{metric}_norm'] = (values - min_val) / (max_val - min_val)
+                    else:
+                        # All values are the same
+                        df_norm[f'{metric}_norm'] = 0.5
+                        
+                print(f"Normalized {metric}: range [{np.min(values):.2f}, {np.max(values):.2f}] -> [0, 1]")
+        
+        return df_norm
+    
+    def compute_composite_scores(self, df_norm: pd.DataFrame, weights: Dict[str, Dict[str, float]]) -> pd.DataFrame:
+        """
+        Compute composite priority scores for all tasks based on weighted rules.
+        
+        Args:
+            df_norm: DataFrame with normalized metrics
+            weights: Weight configuration for each rule pair
+            
+        Returns:
+            DataFrame with composite scores added
+        """
+        df_scored = df_norm.copy()
+        df_scored['composite_score'] = 0.0
+        
+        print(f"\n=== Computing Composite Priority Scores ===")
+        
+        # Processing Time (Duration)
+        if 'processing_time' in weights and 'Duration_norm' in df_scored.columns:
+            w = weights['processing_time']
+            # Side A: Longest Processing Time (higher duration = higher score)
+            # Side B: Shortest Processing Time (lower duration = higher score)
+            score_a = df_scored['Duration_norm'] * w['side_a']
+            score_b = (1 - df_scored['Duration_norm']) * w['side_b']
+            df_scored['composite_score'] += score_a + score_b
+            print(f"Added Processing Time: LPT weight={w['side_a']:.2f}, SPT weight={w['side_b']:.2f}")
+        
+        # Earliest Start
+        if 'earliest_start' in weights and 'Earliest_Start_norm' in df_scored.columns:
+            w = weights['earliest_start']
+            # Side A: Latest Earliest Start (higher ES = higher score)
+            # Side B: Earliest Earliest Start (lower ES = higher score)
+            score_a = df_scored['Earliest_Start_norm'] * w['side_a']
+            score_b = (1 - df_scored['Earliest_Start_norm']) * w['side_b']
+            df_scored['composite_score'] += score_a + score_b
+            print(f"Added Earliest Start: Latest ES weight={w['side_a']:.2f}, Earliest ES weight={w['side_b']:.2f}")
+        
+        # Latest Start
+        if 'latest_start' in weights and 'Latest_Start_norm' in df_scored.columns:
+            w = weights['latest_start']
+            # Side A: Latest Latest Start (higher LS = higher score)
+            # Side B: Earliest Latest Start (lower LS = higher score)
+            score_a = df_scored['Latest_Start_norm'] * w['side_a']
+            score_b = (1 - df_scored['Latest_Start_norm']) * w['side_b']
+            df_scored['composite_score'] += score_a + score_b
+            print(f"Added Latest Start: Latest LS weight={w['side_a']:.2f}, Earliest LS weight={w['side_b']:.2f}")
+        
+        # Float (Criticality)
+        if 'float' in weights and 'Float_norm' in df_scored.columns:
+            w = weights['float']
+            # Side A: Most Critical (least float = higher score)
+            # Side B: Least Critical (most float = higher score)
+            score_a = (1 - df_scored['Float_norm']) * w['side_a']
+            score_b = df_scored['Float_norm'] * w['side_b']
+            df_scored['composite_score'] += score_a + score_b
+            print(f"Added Float: Most Critical weight={w['side_a']:.2f}, Least Critical weight={w['side_b']:.2f}")
+        
+        # Successors
+        if 'successors' in weights and 'Total_Successors_norm' in df_scored.columns:
+            w = weights['successors']
+            # Side A: Most Successors (higher successors = higher score)
+            # Side B: Fewest Successors (lower successors = higher score)
+            score_a = df_scored['Total_Successors_norm'] * w['side_a']
+            score_b = (1 - df_scored['Total_Successors_norm']) * w['side_b']
+            df_scored['composite_score'] += score_a + score_b
+            print(f"Added Successors: Most weight={w['side_a']:.2f}, Fewest weight={w['side_b']:.2f}")
+        
+        # Resource Demand
+        if 'resource_demand' in weights and 'Resource_Demand_norm' in df_scored.columns:
+            w = weights['resource_demand']
+            # Side A: Highest Resource Demand (higher demand = higher score)
+            # Side B: Lowest Resource Demand (lower demand = higher score)
+            score_a = df_scored['Resource_Demand_norm'] * w['side_a']
+            score_b = (1 - df_scored['Resource_Demand_norm']) * w['side_b']
+            df_scored['composite_score'] += score_a + score_b
+            print(f"Added Resource Demand: Highest weight={w['side_a']:.2f}, Lowest weight={w['side_b']:.2f}")
+        
+        # GRPW
+        if 'grpw' in weights and 'GRPW_norm' in df_scored.columns:
+            w = weights['grpw']
+            # Side A: Highest GRPW (higher GRPW = higher score)
+            # Side B: Lowest GRPW (lower GRPW = higher score)
+            score_a = df_scored['GRPW_norm'] * w['side_a']
+            score_b = (1 - df_scored['GRPW_norm']) * w['side_b']
+            df_scored['composite_score'] += score_a + score_b
+            print(f"Added GRPW: Highest weight={w['side_a']:.2f}, Lowest weight={w['side_b']:.2f}")
+        
+        # Sort by composite score (descending)
+        df_scored = df_scored.sort_values('composite_score', ascending=False).reset_index(drop=True)
+        
+        print(f"\nComposite scores computed. Range: [{df_scored['composite_score'].min():.3f}, {df_scored['composite_score'].max():.3f}]")
+        
+        return df_scored
+    
+    def get_available_tasks(self, df_scored: pd.DataFrame, current_time: float) -> List[int]:
+        """
+        Identify tasks that are available to be scheduled (predecessors completed).
+        
+        Args:
+            df_scored: DataFrame with task data and scores
+            current_time: Current scheduling time
+            
+        Returns:
+            List of task indices that are available for scheduling
+        """
+        available_tasks = []
+        
+        for idx, task in df_scored.iterrows():
+            task_id = task['Task_ID']
+            
+            # Skip if already scheduled
+            if task_id in self.scheduled_tasks:
+                continue
+                
+            # Check if all predecessors are completed
+            predecessors = task.get('Predecessors', [])
+            if isinstance(predecessors, str):
+                if predecessors.strip() == '' or predecessors.strip().lower() == 'nan':
+                    predecessors = []
+                else:
+                    # Handle comma-separated values, including letters
+                    predecessors = [x.strip() for x in predecessors.split(',') if x.strip()]
+            elif pd.isna(predecessors):
+                predecessors = []
+            
+            # Check if all predecessors are scheduled
+            all_predecessors_done = all(pred_id in self.scheduled_tasks for pred_id in predecessors)
+            
+            if all_predecessors_done:
+                available_tasks.append(idx)
+                
+        return available_tasks
+    
+    def serial_scheduling(self, df_scored: pd.DataFrame) -> List[Dict]:
+        """
+        Perform serial scheduling using the priority-ordered task list.
+        
+        Args:
+            df_scored: DataFrame with computed composite scores
+            
+        Returns:
+            List of scheduling results for each task
+        """
+        print(f"\n=== Serial Scheduling Algorithm ===")
+        
+        self.scheduled_tasks = set()
+        self.schedule_results = []
+        current_time = 0.0
+        
+        # Create priority order based on composite scores
+        priority_order = df_scored.sort_values('composite_score', ascending=False)
+        
+        print("Priority Order (Top 10):")
+        for i, (_, task) in enumerate(priority_order.head(10).iterrows()):
+            print(f"  {i+1}. Task {task['Task_ID']}: Score = {task['composite_score']:.3f}")
+        
+        total_tasks = len(df_scored)
+        scheduled_count = 0
+        
+        while scheduled_count < total_tasks:
+            # Get available tasks
+            available_task_indices = self.get_available_tasks(df_scored, current_time)
+            
+            if not available_task_indices:
+                # No tasks available, increment time
+                current_time += 1
+                continue
+            
+            # Among available tasks, select the one with highest composite score
+            available_tasks_with_scores = [(idx, df_scored.loc[idx, 'composite_score']) 
+                                         for idx in available_task_indices]
+            available_tasks_with_scores.sort(key=lambda x: x[1], reverse=True)
+            
+            # Select highest priority available task
+            selected_idx = available_tasks_with_scores[0][0]
+            selected_task = df_scored.loc[selected_idx]
+            
+            # Schedule the task
+            task_id = selected_task['Task_ID']
+            duration = selected_task['Duration']
+            start_time = current_time
+            finish_time = start_time + duration
+            
+            # Record the scheduling result
+            result = {
+                'Task_ID': task_id,
+                'Start_Time': start_time,
+                'Finish_Time': finish_time,
+                'Duration': duration,
+                'Priority_Score': selected_task['composite_score'],
+                'Resource_Demand': selected_task.get('Resource_Demand', 0)
+            }
+            
+            self.schedule_results.append(result)
+            self.scheduled_tasks.add(task_id)
+            scheduled_count += 1
+            
+            # Update current time to when this task finishes
+            current_time = finish_time
+            
+            print(f"Scheduled Task {task_id}: Start={start_time:.1f}, Finish={finish_time:.1f}, Score={selected_task['composite_score']:.3f}")
+        
+        print(f"\nScheduling completed. Total project duration: {current_time:.1f}")
+        
+        return self.schedule_results
+    
+    def generate_gantt_chart(self, schedule_results: List[Dict], figsize: Tuple[int, int] = (12, 8)) -> None:
+        """
+        Generate a Gantt chart visualization of the schedule.
+        
+        Args:
+            schedule_results: List of scheduling results
+            figsize: Figure size for the plot
+        """
+        if not schedule_results:
+            print("No schedule results to display.")
+            return
+            
+        fig, ax = plt.subplots(figsize=figsize)
+        
+        # Sort by start time for better visualization
+        sorted_results = sorted(schedule_results, key=lambda x: x['Start_Time'])
+        
+        # Color map for tasks
+        colors = plt.cm.Set3(np.linspace(0, 1, len(sorted_results)))
+        
+        y_pos = 0
+        y_labels = []
+        
+        for i, task in enumerate(sorted_results):
+            start = task['Start_Time']
+            duration = task['Duration']
+            task_id = task['Task_ID']
+            
+            # Create rectangle for task
+            rect = patches.Rectangle((start, y_pos), duration, 0.8, 
+                                   linewidth=1, edgecolor='black', 
+                                   facecolor=colors[i], alpha=0.7)
+            ax.add_patch(rect)
+            
+            # Add task label
+            ax.text(start + duration/2, y_pos + 0.4, f'T{task_id}', 
+                   ha='center', va='center', fontweight='bold', fontsize=8)
+            
+            y_labels.append(f'Task {task_id}')
+            y_pos += 1
+        
+        # Formatting
+        ax.set_xlim(0, max(task['Finish_Time'] for task in schedule_results) * 1.05)
+        ax.set_ylim(-0.5, len(sorted_results) - 0.5)
+        ax.set_xlabel('Time', fontsize=12, fontweight='bold')
+        ax.set_ylabel('Tasks', fontsize=12, fontweight='bold')
+        ax.set_title('Project Schedule - Gantt Chart\n(Multi-Priority Scheduling)', 
+                    fontsize=14, fontweight='bold')
+        
+        # Set y-axis labels
+        ax.set_yticks(range(len(y_labels)))
+        ax.set_yticklabels(y_labels)
+        
+        # Add grid
+        ax.grid(True, alpha=0.3)
+        ax.set_axisbelow(True)
+        
+        plt.tight_layout()
+        plt.show()
+    
+    def generate_resource_chart(self, schedule_results: List[Dict], figsize: Tuple[int, int] = (12, 6)) -> None:
+        """
+        Generate a resource usage chart over time.
+        
+        Args:
+            schedule_results: List of scheduling results
+            figsize: Figure size for the plot
+        """
+        if not schedule_results:
+            print("No schedule results to display.")
+            return
+            
+        # Create time points and resource usage
+        max_time = max(task['Finish_Time'] for task in schedule_results)
+        time_points = np.arange(0, max_time + 1, 0.5)
+        resource_usage = []
+        
+        for t in time_points:
+            current_usage = 0
+            for task in schedule_results:
+                if task['Start_Time'] <= t < task['Finish_Time']:
+                    current_usage += task['Resource_Demand']
+            resource_usage.append(current_usage)
+        
+        # Create the plot
+        fig, ax = plt.subplots(figsize=figsize)
+        
+        ax.plot(time_points, resource_usage, linewidth=2, color='steelblue', marker='o', markersize=3)
+        ax.fill_between(time_points, resource_usage, alpha=0.3, color='steelblue')
+        
+        # Formatting
+        ax.set_xlabel('Time', fontsize=12, fontweight='bold')
+        ax.set_ylabel('Resource Usage', fontsize=12, fontweight='bold')
+        ax.set_title('Resource Usage Over Time\n(Multi-Priority Scheduling)', 
+                    fontsize=14, fontweight='bold')
+        ax.grid(True, alpha=0.3)
+        
+        # Add statistics
+        avg_usage = np.mean(resource_usage)
+        max_usage = np.max(resource_usage)
+        ax.axhline(y=avg_usage, color='red', linestyle='--', alpha=0.7, 
+                  label=f'Average: {avg_usage:.1f}')
+        ax.axhline(y=max_usage, color='orange', linestyle='--', alpha=0.7, 
+                  label=f'Peak: {max_usage:.1f}')
+        
+        ax.legend()
+        plt.tight_layout()
+        plt.show()
+    
+    def print_schedule_summary(self, schedule_results: List[Dict]) -> None:
+        """
+        Print a detailed summary of the scheduling results.
+        
+        Args:
+            schedule_results: List of scheduling results
+        """
+        if not schedule_results:
+            print("No schedule results to summarize.")
+            return
+            
+        print(f"\n=== Schedule Summary ===")
+        print(f"Total Tasks: {len(schedule_results)}")
+        print(f"Project Duration: {max(task['Finish_Time'] for task in schedule_results):.1f}")
+        print(f"Average Task Duration: {np.mean([task['Duration'] for task in schedule_results]):.1f}")
+        
+        # Sort by start time for chronological display
+        sorted_results = sorted(schedule_results, key=lambda x: x['Start_Time'])
+        
+        print(f"\nDetailed Schedule:")
+        print(f"{'Task':<6} {'Start':<8} {'Finish':<8} {'Duration':<8} {'Priority':<10} {'Resource':<8}")
+        print(f"{'-'*60}")
+        
+        for task in sorted_results:
+            print(f"{task['Task_ID']:<6} {task['Start_Time']:<8.1f} {task['Finish_Time']:<8.1f} "
+                  f"{task['Duration']:<8.1f} {task['Priority_Score']:<10.3f} {task['Resource_Demand']:<8.1f}")
+    
+    def run_scheduling(self) -> List[Dict]:
+        """
+        Main method to run the complete multi-priority scheduling process.
+        
+        Returns:
+            List of scheduling results
+        """
+        try:
+            # Step 1: Get user weights
+            weights = self.get_user_weights()
+            
+            # Step 2: Normalize metrics
+            print(f"\n=== Normalizing Metrics ===")
+            df_normalized = self.normalize_metrics()
+            
+            # Step 3: Compute composite scores
+            df_scored = self.compute_composite_scores(df_normalized, weights)
+            
+            # Step 4: Perform serial scheduling
+            schedule_results = self.serial_scheduling(df_scored)
+            
+            # Step 5: Display results
+            self.print_schedule_summary(schedule_results)
+            
+            # Step 6: Generate visualizations
+            print(f"\nGenerating visualizations...")
+            self.generate_gantt_chart(schedule_results)
+            self.generate_resource_chart(schedule_results)
+            
+            return schedule_results
+            
+        except Exception as e:
+            print(f"Error during scheduling: {str(e)}")
+            return []
+
+
+# Example usage and demonstration
+def create_sample_data() -> pd.DataFrame:
+    """
+    Create sample project data for demonstration purposes.
+    
+    Returns:
+        Sample DataFrame with project task data
+    """
+    np.random.seed(42)  # For reproducible results
+    
+    sample_data = {
+        'Task_ID': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        'Duration': [3, 4, 2, 5, 3, 4, 2, 6, 3, 4],
+        'Predecessors': ['', '1', '1', '2,3', '3', '4', '5,6', '6', '7,8', '9'],
+        'Earliest_Start': [0, 3, 3, 7, 5, 12, 9, 16, 13, 16],
+        'Earliest_Finish': [3, 7, 5, 12, 8, 16, 11, 22, 16, 20],
+        'Latest_Start': [0, 3, 5, 7, 13, 12, 14, 16, 17, 16],
+        'Latest_Finish': [3, 7, 7, 12, 16, 16, 16, 22, 20, 20],
+        'Float': [0, 0, 2, 0, 8, 0, 5, 0, 4, 0],
+        'Immediate_Successors': [2, 2, 2, 1, 1, 2, 1, 1, 1, 0],
+        'Total_Successors': [9, 7, 6, 4, 3, 3, 2, 1, 1, 0],
+        'Resource_Demand': [2, 3, 1, 4, 2, 3, 1, 5, 2, 3],
+        'Cumulative_Resource_Demand': [20, 18, 15, 14, 10, 8, 5, 4, 3, 3],
+        'GRPW': [0.45, 0.38, 0.22, 0.67, 0.31, 0.55, 0.18, 0.89, 0.42, 0.71]
+    }
+    
+    return pd.DataFrame(sample_data)
+
+def load_csv_data(file_path: str) -> pd.DataFrame:
+        """
+        Load project data from CSV file.
+        
+        Args:
+            file_path: Path to the CSV file
+            
+        Returns:
+            DataFrame with project task data
+        """
+        try:
+            df = pd.read_csv(file_path)
+            print(f"Successfully loaded {len(df)} tasks from {file_path}")
+            
+            # Handle predecessor format conversion
+            # Convert empty strings and handle different formats
+            def clean_predecessors(pred):
+                if pd.isna(pred) or pred == '' or pred == 'nan':
+                    return ''
+                return str(pred).strip()
+            
+            df['Predecessors'] = df['Predecessors'].apply(clean_predecessors)
+            
+            return df
+            
+        except FileNotFoundError:
+            print(f"Error: File '{file_path}' not found.")
+            return None
+        except Exception as e:
+            print(f"Error loading CSV file: {str(e)}")
+            return None
+
+def get_csv_file_path() -> str:
+        """
+        Get CSV file path from user input.
+        
+        Returns:
+            Path to CSV file
+        """
+        while True:
+            file_path = input("Please enter the path to your CSV file: ").strip()
+            
+            if not file_path:
+                print("Please provide a valid file path.")
+                continue
+                
+            # Remove quotes if user included them
+            file_path = file_path.strip('"').strip("'")
+            
+            return file_path
+
+# Main execution
+if __name__ == "__main__":
+    print("=== Multi-Priority Project Scheduler ===")
+    print("This system will load your project data from a CSV file.")
+    print("\nExpected CSV format:")
+    print("Activity, Duration, ES, EF, LS, LF, Float, Critical, Predecessors,")
+    print("Immediate_Successors, Total_Successors, Resource_Demand, Cumulative_Demand, GRPW")
+    
+    #Ask user for CSV file instead of using sample data
+    while True:
+        use_sample = input("\nWould you like to use sample data (s) or load from CSV file (c)? [s/c]: ").strip().lower()
+        
+        if use_sample == 's':
+            print("Using sample data for demonstration...")
+            project_df = create_sample_data()
+            break
+        elif use_sample == 'c':
+            csv_path = get_csv_file_path()
+            project_df = load_csv_data(csv_path)
+            
+            if project_df is not None:
+                break
+            else:
+                print("Failed to load CSV. Please try again.")
+                continue
+        else:
+            print("Please enter 's' for sample data or 'c' for CSV file.")
+    
+    print(f"Loaded {len(project_df)} tasks for scheduling.")
+    print("\nSample of task data:")
+    display_columns = ['Task_ID' if 'Task_ID' in project_df.columns else 'Activity', 
+                      'Duration', 'Predecessors', 'Float', 'Resource_Demand']
+    
+    # Handle both original and mapped column names for display
+    available_columns = [col for col in display_columns if col in project_df.columns]
+    if 'Activity' in project_df.columns and 'Task_ID' not in available_columns:
+        available_columns = ['Activity'] + [col for col in available_columns if col != 'Task_ID']
+    
+    print(project_df[available_columns].head())
+    
+    # Initialize and run the scheduler
+    scheduler = MultiPriorityScheduler(project_df)
+    results = scheduler.run_scheduling()
+    
+    print(f"\nScheduling process completed successfully!")
+    print(f"Use the 'results' variable to access detailed scheduling information.")
