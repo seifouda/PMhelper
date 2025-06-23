@@ -163,6 +163,58 @@ class CPMAnalyzer:
         
         return [longest_path] if longest_path else [critical_activities], critical_activities
     
+    
+    def calculate_additional_metrics(self, G, activities_data):
+        """Calculate additional metrics for each activity"""
+        # Create a mapping of activity data for resource information
+        activity_map = {act['id']: act for act in activities_data}
+        
+        for node in G.nodes():
+            if node not in ['START', 'END']:
+                # Number of predecessors
+                G.nodes[node]['num_predecessors'] = G.in_degree(node)
+                
+                # Number of immediate successors
+                G.nodes[node]['num_immediate_successors'] = G.out_degree(node)
+                
+                # Number of total successors (all activities after this one)
+                total_successors = set()
+                def get_all_successors(current_node):
+                    for successor in G.successors(current_node):
+                        if successor not in ['START', 'END'] and successor not in total_successors:
+                            total_successors.add(successor)
+                            get_all_successors(successor)
+                
+                get_all_successors(node)
+                G.nodes[node]['num_total_successors'] = len(total_successors)
+                
+                # Resource demand (from input data if available)
+                activity_data = activity_map.get(node, {})
+                resource_demand = activity_data.get('resource_demand', 0)
+                try:
+                    G.nodes[node]['resource_demand'] = int(resource_demand) if resource_demand else 0
+                except (ValueError, TypeError):
+                    G.nodes[node]['resource_demand'] = 0
+                
+                # Cumulative demand (resource_demand * duration)
+                G.nodes[node]['cumulative_demand'] = G.nodes[node]['resource_demand'] * G.nodes[node]['duration']
+                
+                # GRPW (Greatest Rank Positional Weight) = duration + sum of durations of all successors
+                grpw = G.nodes[node]['duration']
+                for successor in total_successors:
+                    grpw += G.nodes[successor]['duration']
+                G.nodes[node]['grpw'] = grpw
+            else:
+                # Set default values for START and END nodes
+                G.nodes[node]['num_predecessors'] = 0
+                G.nodes[node]['num_immediate_successors'] = 0
+                G.nodes[node]['num_total_successors'] = 0
+                G.nodes[node]['resource_demand'] = 0
+                G.nodes[node]['cumulative_demand'] = 0
+                G.nodes[node]['grpw'] = 0
+        
+        return G
+    
     def analyze(self, activities_data):
         """Perform complete CPM analysis"""
         activities = self.load_activities_from_data(activities_data)
@@ -171,7 +223,9 @@ class CPMAnalyzer:
         self.G = self.backward_pass(self.G)
         self.G = self.calculate_float(self.G)
         self.critical_paths, self.critical_activities = self.identify_critical_path(self.G)
-        
+        self.G = self.calculate_additional_metrics(self.G, activities_data)
+        self.critical_paths, self.critical_activities = self.identify_critical_path(self.G)
+    
         return self.G, self.critical_paths, self.critical_activities
 
 
@@ -233,13 +287,21 @@ class CPMDesktopApp:
         ttk.Button(button_frame, text="Analyze", command=self.analyze_project).pack(side=tk.RIGHT)
         
         # Create treeview for activity input
-        columns = ("ID", "Activity Name", "Duration", "Predecessors")
+        columns = ("ID", "Activity Name", "Duration", "Predecessors", "Resource Demand")
         self.tree = ttk.Treeview(input_frame, columns=columns, show="headings", height=15)
+        
+        # # Define column headings and widths
+        # for col in columns:
+        #     self.tree.heading(col, text=col)
+        #     self.tree.column(col, width=150)
         
         # Define column headings and widths
         for col in columns:
             self.tree.heading(col, text=col)
-            self.tree.column(col, width=150)
+            if col == "Resource Demand":  # **NEW:** Set specific width for resource demand
+                self.tree.column(col, width=120)
+            else:
+                self.tree.column(col, width=150)
         
         # Add scrollbars
         v_scrollbar = ttk.Scrollbar(input_frame, orient=tk.VERTICAL, command=self.tree.yview)
@@ -259,6 +321,12 @@ class CPMDesktopApp:
         results_frame = ttk.Frame(self.notebook)
         self.notebook.add(results_frame, text="Analysis Results")
         
+        # Add button frame for Save CSV button
+        button_frame = ttk.Frame(results_frame)
+        button_frame.pack(fill=tk.X, pady=(0, 10))
+    
+        ttk.Button(button_frame, text="Save CSV", command=self.save_results_csv).pack(side=tk.LEFT)
+    
         # Create text widget for results
         self.results_text = scrolledtext.ScrolledText(results_frame, font=("Courier", 10))
         self.results_text.pack(fill=tk.BOTH, expand=True)
@@ -296,14 +364,14 @@ class CPMDesktopApp:
     def load_sample_data(self):
         """Load sample project data"""
         sample_data = [
-            ("A", "Design Phase", "5", ""),
-            ("B", "Requirements Analysis", "3", ""),
-            ("C", "Architecture Design", "4", "A,B"),
-            ("D", "Database Design", "2", "B"),
-            ("E", "Frontend Development", "6", "C"),
-            ("F", "Backend Development", "8", "C,D"),
-            ("G", "Testing", "3", "E,F"),
-            ("H", "Deployment", "2", "G")
+            ("A", "Design Phase", "5", "","2"),
+            ("B", "Requirements Analysis", "3", "", "1"),
+            ("C", "Architecture Design", "4", "A,B", "3"),
+            ("D", "Database Design", "2", "B","1"),
+            ("E", "Frontend Development", "6", "C", "4"),
+            ("F", "Backend Development", "8", "C,D","3"),
+            ("G", "Testing", "3", "E,F", "2"),
+            ("H", "Deployment", "2", "G", "1"),
         ]
         
         for item in sample_data:
@@ -327,12 +395,14 @@ class CPMDesktopApp:
                     for row in reader:
                         activity_name = row.get('activity', '').strip()
                         predecessors = row.get('predecessors', '').strip()
+                        resource_demand = row.get('resource_demand', '0').strip()
                         
                         self.tree.insert("", tk.END, values=(
                             row['id'],
                             activity_name,
                             row['duration'],
-                            predecessors
+                            predecessors,
+                            resource_demand
                         ))
                 
                 messagebox.showinfo("Success", "CSV file loaded successfully!")
@@ -403,7 +473,8 @@ class CPMDesktopApp:
                     'id': values[0],
                     'activity': values[1] if len(values) > 1 else '',
                     'duration': values[2] if len(values) > 2 else '0',
-                    'predecessors': values[3] if len(values) > 3 else ''
+                    'predecessors': values[3] if len(values) > 3 else '',
+                    'resource_demand': values[4] if len(values) > 4 else '0'
                 })
         return activities_data
     
@@ -439,6 +510,68 @@ class CPMDesktopApp:
         except Exception as e:
             messagebox.showerror("Error", f"Analysis failed: {str(e)}")
     
+    def save_results_csv(self):
+        """Save analysis results to CSV file"""
+        try:
+            # Check if analysis has been performed
+            if not hasattr(self.analyzer, 'G') or self.analyzer.G is None:
+                messagebox.showwarning("Warning", "Please run the analysis first before saving results.")
+                return
+            
+            # Get file path for saving
+            file_path = filedialog.asksaveasfilename(
+                title="Save Analysis Results as CSV",
+                defaultextension=".csv",
+                filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
+            )
+            
+            if not file_path:
+                return  # User cancelled
+            
+            G = self.analyzer.G
+            
+            # Prepare data for CSV
+            csv_data = []
+            headers = ["Activity", "Duration", "ES", "EF", "LS", "LF", "Float", "Critical",
+                    "Predecessors", "Immediate_Successors", "Total_Successors", 
+                    "Resource_Demand", "Cumulative_Demand", "GRPW"]
+            
+            for node in G.nodes():
+                if node not in ['START', 'END']:  # Skip START and END nodes
+                    # Get predecessors and successors as comma-separated strings
+                    predecessors = ', '.join([pred for pred in G.predecessors(node) if pred != 'START'])
+                    immediate_successors = ', '.join([succ for succ in G.successors(node) if succ != 'END'])
+                    
+                    row = [
+                        node,  # Activity ID
+                        G.nodes[node]['duration'],
+                        G.nodes[node]['ES'],
+                        G.nodes[node]['EF'],
+                        G.nodes[node]['LS'],
+                        G.nodes[node]['LF'],
+                        G.nodes[node]['float'],
+                        "Yes" if G.nodes[node]['float'] == 0 else "No",
+                        predecessors,
+                        immediate_successors,
+                        G.nodes[node]['num_total_successors'],
+                        G.nodes[node]['resource_demand'],
+                        G.nodes[node]['cumulative_demand'],
+                        G.nodes[node]['grpw']
+                    ]
+                    csv_data.append(row)
+            
+            # Write to CSV file
+            with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(headers)  # Write header row
+                writer.writerows(csv_data)  # Write data rows
+            
+            messagebox.showinfo("Success", f"Analysis results saved successfully to:\n{file_path}")
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to save CSV file: {str(e)}")
+    
+    
     def display_results(self, G, critical_paths):
         """Display analysis results in the results tab"""
         # Clear previous results
@@ -456,10 +589,17 @@ class CPMDesktopApp:
                     G.nodes[node]['LS'],
                     G.nodes[node]['LF'],
                     G.nodes[node]['float'],
-                    "Yes" if G.nodes[node]['float'] == 0 else "No"
+                    "Yes" if G.nodes[node]['float'] == 0 else "No",
+                    G.nodes[node]['num_predecessors'],
+                    G.nodes[node]['num_immediate_successors'],
+                    G.nodes[node]['num_total_successors'],
+                    G.nodes[node]['resource_demand'],
+                    G.nodes[node]['cumulative_demand'],
+                    G.nodes[node]['grpw']
                 ])
         
-        headers = ["Activity", "Duration", "ES", "EF", "LS", "LF", "Float", "Critical?"]
+        headers = ["Activity", "Duration", "ES", "EF", "LS", "LF", "Float", "Critical",
+                    "# Pred", "# Imm Succ", "# Total Succ", "Resource", "Cum Demand", "GRPW"]
         results_table = tabulate(table_data, headers=headers, tablefmt="grid")
         
         # Display results
