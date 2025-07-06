@@ -370,617 +370,6 @@ class CPMAnalyzer:
         
         return crashed_G, total_crash_cost, crash_log
     
-    # def resource_constrained_scheduling(self, resource_limit, priority_rule='minimum_slack'):
-    #     """
-    #     Perform resource-constrained project scheduling
-    #     Returns: (scheduled_activities, resource_usage_timeline)
-    #     """
-    #     if not self.G:
-    #         raise ValueError("No network graph available. Run analysis first.")
-        
-    #     # Initialize scheduling data
-    #     scheduled_activities = {}
-    #     resource_usage = {}  # time -> resource usage
-        
-    #     # Get all activities except START and END
-    #     activities = [node for node in self.G.nodes() if node not in ['START', 'END']]
-        
-    #     # Initialize activity status
-    #     for activity in activities:
-    #         scheduled_activities[activity] = {
-    #             'scheduled_start': None,
-    #             'scheduled_finish': None,
-    #             'actual_start': None,
-    #             'actual_finish': None,
-    #             'resource_demand': self.G.nodes[activity].get('resource_demand', 0),
-    #             'duration': self.G.nodes[activity].get('duration', 1),
-    #             'es': self.G.nodes[activity].get('ES', 0),
-    #             'ls': self.G.nodes[activity].get('LS', 0),
-    #             'float': self.G.nodes[activity].get('float', 0),
-    #             'predecessors': list(self.G.predecessors(activity))
-    #         }
-        
-    #     # Schedule activities
-    #     current_time = 0
-    #     # max_time = max([self.G.nodes[node]['LF'] for node in self.G.nodes()]) + 50  # Safety margin
-    #     max_time = max([self.G.nodes[node].get('LF', 0) for node in self.G.nodes()]) + 50  # Safety margin
-                
-    #     while current_time <= max_time:
-    #         # Find activities ready to start
-    #         ready_activities = []
-    #         for activity in activities:
-    #             if scheduled_activities[activity]['scheduled_start'] is None:
-    #                 # Check if all predecessors are complete
-    #                 predecessors_complete = True
-    #                 for pred in self.G.predecessors(activity):
-    #                     if pred != 'START' and scheduled_activities[pred]['scheduled_finish'] is None:
-    #                         predecessors_complete = False
-    #                         break
-    #                     elif pred != 'START' and scheduled_activities[pred]['scheduled_finish'] > current_time:
-    #                         predecessors_complete = False
-    #                         break
-                    
-    #                 if predecessors_complete:
-    #                     ready_activities.append(activity)
-            
-            
-    #         print("Ready:", ready_activities)
-    #         for x in ready_activities:
-    #             print(x, scheduled_activities[x])
-            
-            
-    #         # Apply priority rule (move sorting outside the for loop)
-    #         if priority_rule == 'minimum_slack':
-    #             ready_activities.sort(key=lambda x: scheduled_activities[x]['float'] if scheduled_activities[x]['float'] is not None else float('inf'))
-    #         elif priority_rule == 'shortest_duration':
-    #             ready_activities.sort(key=lambda x: scheduled_activities[x]['duration'] if scheduled_activities[x]['duration'] is not None else float('inf'))
-    #         elif priority_rule == 'earliest_start':
-    #             ready_activities.sort(key=lambda x: scheduled_activities[x]['es'] if scheduled_activities[x]['es'] is not None else float('inf'))
-
-    #         # if priority_rule == 'minimum_slack':
-    #         #     ready_activities.sort(key=lambda x: scheduled_activities[x]['float'] if scheduled_activities[x]['float'] is not None else float('inf'))
-    #         #     elif priority_rule == 'shortest_duration':
-    #         #         ready_activities.sort(key=lambda x: scheduled_activities[x]['duration'] if scheduled_activities[x]['duration'] is not None else float('inf'))
-    #         #     elif priority_rule == 'earliest_start':
-    #         #         ready_activities.sort(key=lambda x: scheduled_activities[x]['es'] if scheduled_activities[x]['es'] is not None else float('inf'))
-
-    #         # # Try to schedule activities
-    #         # for activity in ready_activities:
-    #         #     resource_demand = scheduled_activities[activity]['resource_demand']
-    #         #     duration = scheduled_activities[activity]['duration']
-    #         #     is_critical = scheduled_activities[activity]['float'] == 0
-    #         #     earliest_start = scheduled_activities[activity]['es']
-
-    #         #     # Critical activities can only be scheduled at their ES
-    #         #     if is_critical and current_time != earliest_start:
-    #         #         continue
-    
-    #         #     # Check resource availability for the entire duration
-    #         #     can_schedule = True
-    #         #     for t in range(current_time, current_time + duration):
-    #         #         current_usage = resource_usage.get(t, 0)
-    #         #         if current_usage + resource_demand > resource_limit:
-    #         #             can_schedule = False
-    #         #             break
-            
-    #         scheduled_this_step = False
-    #         for activity in ready_activities:
-    #             resource_demand = scheduled_activities[activity]['resource_demand']
-    #             duration = scheduled_activities[activity]['duration']
-    #             is_critical = scheduled_activities[activity]['float'] == 0
-    #             earliest_start = scheduled_activities[activity]['es']
-
-    #             # Critical activities can only be scheduled at their ES
-    #             if is_critical and current_time < earliest_start:
-    #                 continue
-
-    #             # Check resource availability for the entire duration
-    #             can_schedule = True
-    #             for t in range(current_time, current_time + duration):
-    #                 current_usage = resource_usage.get(t, 0)
-    #                 if current_usage + resource_demand > resource_limit:
-    #                     can_schedule = False
-    #                     break    
-                
-    #             if can_schedule:
-    #                 # Schedule the activity
-    #                 scheduled_activities[activity]['scheduled_start'] = current_time
-    #                 scheduled_activities[activity]['scheduled_finish'] = current_time + duration
-    #                 scheduled_activities[activity]['actual_start'] = current_time
-    #                 scheduled_activities[activity]['actual_finish'] = current_time + duration
-                    
-    #                 # Update resource usage
-    #                 for t in range(current_time, current_time + duration):
-    #                     resource_usage[t] = resource_usage.get(t, 0) + resource_demand
-    #                 scheduled_this_step = True
-            
-    #         if not scheduled_this_step:
-    #             # No activity could be scheduled, advance time to next finish
-    #             unfinished = [data['scheduled_finish'] for data in scheduled_activities.values() if data['scheduled_finish'] is not None and data['scheduled_finish'] > current_time]
-    #             if unfinished:
-    #                 current_time = min(unfinished)
-    #             else:
-    #                 # No unfinished activities, break to avoid infinite loop
-    #                 break
-    #         else:
-    #             current_time += 1
-            
-    #         # Check if all activities are scheduled
-    #         all_scheduled = all(scheduled_activities[act]['scheduled_start'] is not None 
-    #                         for act in activities)
-    #         if all_scheduled:
-    #             break
-        
-    #     return scheduled_activities, resource_usage
-    
-    # def resource_constrained_scheduling(self, resource_limit, priority_rule='minimum_slack'):
-    #     """
-    #     Perform resource-constrained project scheduling
-    #     Returns: (scheduled_activities, resource_usage_timeline)
-    #     """
-    #     if not self.G:
-    #         raise ValueError("No network graph available. Run analysis first.")
-        
-    #     scheduled_activities = {}
-    #     resource_usage = {}  # time -> resource usage
-    #     activities = [node for node in self.G.nodes() if node not in ['START', 'END']]
-        
-    #     for activity in activities:
-    #         scheduled_activities[activity] = {
-    #             'scheduled_start': None,
-    #             'scheduled_finish': None,
-    #             'actual_start': None,
-    #             'actual_finish': None,
-    #             'resource_demand': self.G.nodes[activity].get('resource_demand', 0),
-    #             'duration': self.G.nodes[activity].get('duration', 1),
-    #             'es': self.G.nodes[activity].get('ES', 0),
-    #             'ls': self.G.nodes[activity].get('LS', 0),
-    #             'float': self.G.nodes[activity].get('float', 0),
-    #             'predecessors': list(self.G.predecessors(activity))
-    #         }
-        
-    #     current_time = 0
-    #     max_time = max([self.G.nodes[node].get('LF', 0) for node in self.G.nodes()]) + 50  # Safety margin
-
-    #     while current_time <= max_time:
-    #         # Find activities ready to start (all preds done, current_time >= ES, not yet scheduled)
-    #         ready_activities = []
-    #         for activity in activities:
-    #             if scheduled_activities[activity]['scheduled_start'] is None:
-    #                 # Check all predecessors are complete
-    #                 preds_done = all(
-    #                     pred == 'START' or scheduled_activities[pred]['scheduled_finish'] is not None and scheduled_activities[pred]['scheduled_finish'] <= current_time
-    #                     for pred in self.G.predecessors(activity)
-    #                 )
-    #                 # Only add if ES reached
-    #                 if preds_done and current_time >= scheduled_activities[activity]['es']:
-    #                     ready_activities.append(activity)
-
-    #         # Apply priority rule
-    #         if priority_rule == 'minimum_slack':
-    #             ready_activities.sort(key=lambda x: scheduled_activities[x]['float'] if scheduled_activities[x]['float'] is not None else float('inf'))
-    #         elif priority_rule == 'shortest_duration':
-    #             ready_activities.sort(key=lambda x: scheduled_activities[x]['duration'] if scheduled_activities[x]['duration'] is not None else float('inf'))
-    #         elif priority_rule == 'earliest_start':
-    #             ready_activities.sort(key=lambda x: scheduled_activities[x]['es'] if scheduled_activities[x]['es'] is not None else float('inf'))
-
-    #         scheduled_this_step = False
-    #         for activity in ready_activities:
-    #             resource_demand = scheduled_activities[activity]['resource_demand']
-    #             duration = scheduled_activities[activity]['duration']
-    #             es = scheduled_activities[activity]['es']
-    #             ls = scheduled_activities[activity]['ls']
-
-    #             # Only schedule if current_time <= LS (within slack)
-    #             if current_time > ls:
-    #                 # Missed the latest start, cannot schedule anymore
-    #                 continue
-
-    #             # Check resource availability for the entire duration
-    #             can_schedule = True
-    #             for t in range(current_time, current_time + duration):
-    #                 current_usage = resource_usage.get(t, 0)
-    #                 if current_usage + resource_demand > resource_limit:
-    #                     can_schedule = False
-    #                     break
-
-    #             if can_schedule:
-    #                 # Schedule the activity
-    #                 scheduled_activities[activity]['scheduled_start'] = current_time
-    #                 scheduled_activities[activity]['scheduled_finish'] = current_time + duration
-    #                 scheduled_activities[activity]['actual_start'] = current_time
-    #                 scheduled_activities[activity]['actual_finish'] = current_time + duration
-    #                 for t in range(current_time, current_time + duration):
-    #                     resource_usage[t] = resource_usage.get(t, 0) + resource_demand
-    #                 scheduled_this_step = True
-    #                 # Only schedule one activity per time unit if you want strict "one by one" (remove break for parallel)
-    #                 # break
-
-    #         if not scheduled_this_step:
-    #             # Advance time to next finish or next ES of any unscheduled activity
-    #             unfinished = [data['scheduled_finish'] for data in scheduled_activities.values() if data['scheduled_finish'] is not None and data['scheduled_finish'] > current_time]
-    #             next_es = [scheduled_activities[a]['es'] for a in activities if scheduled_activities[a]['scheduled_start'] is None and scheduled_activities[a]['es'] > current_time]
-    #             candidates = []
-    #             if unfinished:
-    #                 candidates.append(min(unfinished))
-    #             if next_es:
-    #                 candidates.append(min(next_es))
-    #             if candidates:
-    #                 current_time = min(candidates)
-    #             else:
-    #                 break
-    #         else:
-    #             current_time += 1
-
-    #         # Check if all activities are scheduled
-    #         if all(scheduled_activities[act]['scheduled_start'] is not None for act in activities):
-    #             break
-
-    #     return scheduled_activities, resource_usage
-    
-    # def resource_constrained_scheduling(self, resource_limit, priority_rule='minimum_slack'):
-    #     """
-    #     Improved RCPS: Schedule activities in input order, respect ES/LS, float, and resource constraints.
-    #     """
-    #     if not self.G:
-    #         raise ValueError("No network graph available. Run analysis first.")
-
-    #     scheduled_activities = {}
-    #     resource_usage = {}  # time -> resource usage
-    #     activities = [node for node in self.G.nodes() if node not in ['START', 'END']]
-        
-    #     # --- DEBUG POINT 1: Show input data ---
-    #     print("=== RCPS INPUT DATA ===")
-    #     for activity in activities:
-    #         node = self.G.nodes[activity]
-    #         print(f"{activity}: duration={node.get('duration')}, resource_demand={node.get('resource_demand')}, "
-    #             f"ES={node.get('ES')}, LS={node.get('LS')}, float={node.get('float')}, preds={list(self.G.predecessors(activity))}")
-
-
-    #     # Prepare activity data
-    #     for activity in activities:
-    #         scheduled_activities[activity] = {
-    #             'scheduled_start': None,
-    #             'scheduled_finish': None,
-    #             'actual_start': None,
-    #             'actual_finish': None,
-    #             'resource_demand': self.G.nodes[activity].get('resource_demand', 0),
-    #             'duration': self.G.nodes[activity].get('duration', 1),
-    #             'es': self.G.nodes[activity].get('ES', 0),
-    #             'ls': self.G.nodes[activity].get('LS', 0),
-    #             'lf': self.G.nodes[activity].get('LF', 0),
-    #             'float': self.G.nodes[activity].get('float', 0),
-    #             'predecessors': list(self.G.predecessors(activity))
-    #         }
-
-    #     # Track which activities are scheduled
-    #     unscheduled = set(activities)
-    #     current_time = 0
-    #     max_time = max([self.G.nodes[node].get('LF', 0) for node in self.G.nodes()]) + 50  # Safety margin
-
-    #     while unscheduled and current_time <= max_time:
-    #         # Find all activities that can be scheduled now (all preds finished, ES reached, not scheduled)
-    #         ready_activities = []
-    #         for activity in activities:
-    #             if activity not in unscheduled:
-    #                 continue
-    #             data = scheduled_activities[activity]
-    #             # Check all predecessors are finished
-    #             preds = data['predecessors']
-    #             preds_finished = all(
-    #                 pred == 'START' or (scheduled_activities[pred]['scheduled_finish'] is not None and scheduled_activities[pred]['scheduled_finish'] <= current_time)
-    #                 for pred in preds
-    #             )
-    #             # Only consider if ES reached
-    #             if preds_finished and current_time >= data['es']:
-    #                 ready_activities.append(activity)
-
-    #         # If no activities are ready, advance time to next event (next finish or next ES)
-    #         if not ready_activities:
-    #             next_finish = [scheduled_activities[a]['scheduled_finish'] for a in activities if scheduled_activities[a]['scheduled_finish'] is not None and scheduled_activities[a]['scheduled_finish'] > current_time]
-    #             next_es = [scheduled_activities[a]['es'] for a in unscheduled if scheduled_activities[a]['es'] > current_time]
-    #             candidates = []
-    #             if next_finish:
-    #                 candidates.append(min(next_finish))
-    #             if next_es:
-    #                 candidates.append(min(next_es))
-    #             if candidates:
-    #                 current_time = min(candidates)
-    #             else:
-    #                 break
-    #             continue
-
-    #         # If more than one ready, apply priority rule
-    #         if len(ready_activities) > 1:
-    #             if priority_rule == 'minimum_slack':
-    #                 ready_activities.sort(key=lambda x: scheduled_activities[x]['float'] if scheduled_activities[x]['float'] is not None else float('inf'))
-    #             elif priority_rule == 'shortest_duration':
-    #                 ready_activities.sort(key=lambda x: scheduled_activities[x]['duration'] if scheduled_activities[x]['duration'] is not None else float('inf'))
-    #             elif priority_rule == 'earliest_start':
-    #                 ready_activities.sort(key=lambda x: scheduled_activities[x]['es'] if scheduled_activities[x]['es'] is not None else float('inf'))
-    #             # else: keep input order
-
-    #         scheduled_this_step = False
-    #         for activity in ready_activities:
-    #             data = scheduled_activities[activity]
-    #             es = data['es']
-    #             ls = data['ls']
-    #             duration = data['duration']
-    #             demand = data['resource_demand']
-    #             float_val = data['float']
-
-    #             # Don't schedule before ES
-    #             start_time = max(current_time, es)
-    #             # Don't schedule after LS (float)
-    #             latest_start = ls
-
-    #             # Try to find earliest feasible start within [ES, LS]
-    #             feasible = False
-    #             for t in range(start_time, latest_start + 1):
-    #                 # Check resource availability for the whole duration
-    #                 can_schedule = True
-    #                 for tt in range(t, t + duration):
-    #                     if resource_usage.get(tt, 0) + demand > resource_limit:
-    #                         can_schedule = False
-    #                         break
-    #                 if can_schedule:
-    #                     # Schedule activity at t
-    #                     data['scheduled_start'] = t
-    #                     data['scheduled_finish'] = t + duration
-    #                     data['actual_start'] = t
-    #                     data['actual_finish'] = t + duration
-    #                     for tt in range(t, t + duration):
-    #                         resource_usage[tt] = resource_usage.get(tt, 0) + demand
-    #                     unscheduled.remove(activity)
-    #                     scheduled_this_step = True
-    #                     feasible = True
-    #                     break  # Only schedule one activity per loop (serial scheduling)
-    #             if scheduled_this_step:
-    #                 break  # Only schedule one per time unit
-
-    #         # If nothing could be scheduled, advance time to next event
-    #         if not scheduled_this_step:
-    #             next_finish = [scheduled_activities[a]['scheduled_finish'] for a in activities if scheduled_activities[a]['scheduled_finish'] is not None and scheduled_activities[a]['scheduled_finish'] > current_time]
-    #             next_es = [scheduled_activities[a]['es'] for a in unscheduled if scheduled_activities[a]['es'] > current_time]
-    #             candidates = []
-    #             if next_finish:
-    #                 candidates.append(min(next_finish))
-    #             if next_es:
-    #                 candidates.append(min(next_es))
-    #             if candidates:
-    #                 current_time = min(candidates)
-    #             else:
-    #                 break
-    #         else:
-    #             # Move to next time unit
-    #             current_time += 1
-        
-    #     # --- DEBUG POINT 2: Show output data ---
-    #     print("=== RCPS OUTPUT DATA ===")
-    #     for activity in activities:
-    #         data = scheduled_activities[activity]
-    #         print(f"{activity}: scheduled_start={data['scheduled_start']}, scheduled_finish={data['scheduled_finish']}, "
-    #             f"actual_start={data['actual_start']}, actual_finish={data['actual_finish']}, "
-    #             f"resource_demand={data['resource_demand']}, duration={data['duration']}, "
-    #             f"es={data['es']}, ls={data['ls']}, float={data['float']}, preds={data['predecessors']}")
-
-
-    #     return scheduled_activities, resource_usage
-    
-    # def resource_constrained_scheduling(self, resource_limit, priority_rule='minimum_slack'):
-    #     """
-    #     RCPS with dynamic slack: At each step, recompute slack for ready activities and schedule by priority.
-    #     """
-    #     if not self.G:
-    #         raise ValueError("No network graph available. Run analysis first.")
-
-    #     scheduled_activities = {}
-    #     resource_usage = {}
-    #     activities = [node for node in self.G.nodes() if node not in ['START', 'END']]
-
-    #     # Prepare activity data
-    #     for activity in activities:
-    #         scheduled_activities[activity] = {
-    #             'scheduled_start': None,
-    #             'scheduled_finish': None,
-    #             'actual_start': None,
-    #             'actual_finish': None,
-    #             'resource_demand': self.G.nodes[activity].get('resource_demand', 0),
-    #             'duration': self.G.nodes[activity].get('duration', 1),
-    #             'es': self.G.nodes[activity].get('ES', 0),
-    #             'ls': self.G.nodes[activity].get('LS', 0),
-    #             'lf': self.G.nodes[activity].get('LF', 0),
-    #             'float': self.G.nodes[activity].get('float', 0),
-    #             'predecessors': list(self.G.predecessors(activity))
-    #         }
-
-    #     unscheduled = set(activities)
-    #     current_time = 0
-    #     max_time = max([self.G.nodes[node].get('LF', 0) for node in self.G.nodes()]) + 50
-
-    #     while unscheduled and current_time <= max_time:
-    #         # Find all activities that can be scheduled now (all preds finished, ES reached, not scheduled)
-    #         ready_activities = []
-    #         for activity in activities:
-    #             if activity not in unscheduled:
-    #                 continue
-    #             data = scheduled_activities[activity]
-    #             preds = data['predecessors']
-    #             preds_finished = all(
-    #                 pred == 'START' or (scheduled_activities[pred]['scheduled_finish'] is not None and scheduled_activities[pred]['scheduled_finish'] <= current_time)
-    #                 for pred in preds
-    #             )
-    #             if preds_finished and current_time >= data['es']:
-    #                 ready_activities.append(activity)
-
-    #         # --- DYNAMIC SLACK CALCULATION ---
-    #         # For each ready activity, recalculate slack as LS - max(current_time, ES)
-    #         dynamic_slack = {}
-    #         for activity in ready_activities:
-    #             data = scheduled_activities[activity]
-    #             earliest_possible = max(current_time, data['es'])
-    #             slack = data['ls'] - earliest_possible
-    #             dynamic_slack[activity] = slack
-
-    #         # If more than one ready, apply priority rule using dynamic slack
-    #         if len(ready_activities) > 1:
-    #             if priority_rule == 'minimum_slack':
-    #                 ready_activities.sort(key=lambda x: (dynamic_slack[x], scheduled_activities[x]['es'], activities.index(x)))
-    #             elif priority_rule == 'shortest_duration':
-    #                 ready_activities.sort(key=lambda x: (scheduled_activities[x]['duration'], dynamic_slack[x], activities.index(x)))
-    #             elif priority_rule == 'earliest_start':
-    #                 ready_activities.sort(key=lambda x: (scheduled_activities[x]['es'], dynamic_slack[x], activities.index(x)))
-    #             # else: keep input order
-
-    #         scheduled_this_step = False
-    #         for activity in ready_activities:
-    #             data = scheduled_activities[activity]
-    #             es = data['es']
-    #             ls = data['ls']
-    #             duration = data['duration']
-    #             demand = data['resource_demand']
-
-    #             # Don't schedule before ES or after LS
-    #             start_time = max(current_time, es)
-    #             latest_start = ls
-
-    #             # Try to find earliest feasible start within [start_time, latest_start]
-    #             for t in range(start_time, latest_start + 1):
-    #                 can_schedule = True
-    #                 for tt in range(t, t + duration):
-    #                     if resource_usage.get(tt, 0) + demand > resource_limit:
-    #                         can_schedule = False
-    #                         break
-    #                 if can_schedule:
-    #                     data['scheduled_start'] = t
-    #                     data['scheduled_finish'] = t + duration
-    #                     data['actual_start'] = t
-    #                     data['actual_finish'] = t + duration
-    #                     for tt in range(t, t + duration):
-    #                         resource_usage[tt] = resource_usage.get(tt, 0) + demand
-    #                     unscheduled.remove(activity)
-    #                     scheduled_this_step = True
-    #                     break
-    #             if scheduled_this_step:
-    #                 break  # Only schedule one per time unit
-
-    #         # If nothing could be scheduled, advance time to next event
-    #         if not scheduled_this_step:
-    #             next_finish = [scheduled_activities[a]['scheduled_finish'] for a in activities if scheduled_activities[a]['scheduled_finish'] is not None and scheduled_activities[a]['scheduled_finish'] > current_time]
-    #             next_es = [scheduled_activities[a]['es'] for a in unscheduled if scheduled_activities[a]['es'] > current_time]
-    #             candidates = []
-    #             if next_finish:
-    #                 candidates.append(min(next_finish))
-    #             if next_es:
-    #                 candidates.append(min(next_es))
-    #             if candidates:
-    #                 current_time = min(candidates)
-    #             else:
-    #                 break
-    #         else:
-    #             current_time += 1
-
-    #     # --- DEBUG POINT 2: Show output data ---
-    #     print("=== RCPS OUTPUT DATA ===")
-    #     for activity in activities:
-    #         data = scheduled_activities[activity]
-    #         print(f"{activity}: scheduled_start={data['scheduled_start']}, scheduled_finish={data['scheduled_finish']}, "
-    #             f"actual_start={data['actual_start']}, actual_finish={data['actual_finish']}, "
-    #             f"resource_demand={data['resource_demand']}, duration={data['duration']}, "
-    #             f"es={data['es']}, ls={data['ls']}, float={data['float']}, preds={data['predecessors']}")
-
-    #     return scheduled_activities, resource_usage
-    #-----------------------------------------------------------------
-    # def rcps_heuristic_schedule(df, resource_limit):
-    #     """
-    #     Heuristic RCPS scheduler.
-    #     Args:
-    #         df: pandas DataFrame with columns ['ID', 'Duration', 'Resource', 'Predecessors', 'ES', 'LF']
-    #         resource_limit: int, max available resource units per time unit
-    #     Returns:
-    #         schedule: dict {task_id: {'start': int, 'finish': int}}
-    #         resource_usage: dict {time: used_resource}
-    #     """
-    #     # Prepare and standardize columns
-    #     df = df_gantt.copy()
-    #     # Rename columns for consistency if needed
-    #     col_map = {
-    #         'ID': 'id', 'Id': 'id',
-    #         'Duration': 'duration',
-    #         'Resource': 'resource',
-    #         'Predecessors': 'predecessors',
-    #         'ES': 'early_start', 'Early_Start': 'early_start', 'early_start': 'early_start',
-    #         'LF': 'late_finish', 'Late_Finish': 'late_finish', 'late_finish': 'late_finish'
-    #     }
-    #     df.rename(columns=col_map, inplace=True)
-    #     # Ensure all required columns exist
-    #     for col in ['id', 'duration', 'resource', 'predecessors', 'early_start', 'late_finish']:
-    #         if col not in df.columns:
-    #             raise ValueError(f"Missing required column '{col}' in df_gantt")
-
-    #     # Calculate slack if not present
-    #     if 'slack' not in df.columns:
-    #         df['slack'] = df['late_finish'] - df['early_start'] - df['duration']
-        
-        
-    #     # Initialization
-    #     tasks = df.set_index('id')
-    #     tasks['Scheduled'] = False
-    #     tasks['Start'] = None
-    #     tasks['Finish'] = None
-    #     tasks['Slack'] = tasks['LF'] - tasks['ES'] - tasks['Duration']
-    #     # tasks = tasks.set_index('ID')
-    #     current_time = 0
-    #     resource_usage = {}
-    #     unscheduled = set(tasks.index)
-    #     # For fast lookup of predecessors
-    #     pred_map = {tid: [p for p in str(tasks.at[tid, 'Predecessors']).split(',') if p and p != 'nan'] for tid in tasks.index}
-
-    #     while unscheduled:
-    #         # 1. Find eligible tasks (all preds scheduled and finished)
-    #         eligible = []
-    #         for tid in unscheduled:
-    #             preds = pred_map[tid]
-    #             if all(tasks.at[p, 'Scheduled'] and tasks.at[p, 'Finish'] <= current_time for p in preds):
-    #                 eligible.append(tid)
-    #         # 2. Sort by min slack, then shortest duration, then lowest ID
-    #         eligible.sort(key=lambda tid: (
-    #             tasks.at[tid, 'Slack'],
-    #             tasks.at[tid, 'Duration'],
-    #             tid
-    #         ))
-    #         scheduled_this_step = False
-    #         for tid in eligible:
-    #             dur = tasks.at[tid, 'Duration']
-    #             res = tasks.at[tid, 'Resource']
-    #             # Check resource availability for [current_time, current_time+dur)
-    #             can_schedule = True
-    #             for t in range(current_time, current_time + dur):
-    #                 if resource_usage.get(t, 0) + res > resource_limit:
-    #                     can_schedule = False
-    #                     break
-    #             if can_schedule:
-    #                 # Schedule task
-    #                 tasks.at[tid, 'Start'] = current_time
-    #                 tasks.at[tid, 'Finish'] = current_time + dur
-    #                 tasks.at[tid, 'Scheduled'] = True
-    #                 for t in range(current_time, current_time + dur):
-    #                     resource_usage[t] = resource_usage.get(t, 0) + res
-    #                 unscheduled.remove(tid)
-    #                 scheduled_this_step = True
-    #                 break  # Only schedule one per time unit
-    #         if not scheduled_this_step:
-    #             current_time += 1
-    #     # Build schedule dict
-    #     schedule = {tid: {'start': int(tasks.at[tid, 'Start']), 'finish': int(tasks.at[tid, 'Finish'])} for tid in tasks.index}
-    #     return schedule, resource_usage
-    
-    # def schedule_with_resource_constraints(self, resource_limit, priority_rule='minimum_slack'):
-    #     """
-    #     Alias for resource_constrained_scheduling for clarity and future-proofing.
-    #     """
-    #     return self.resource_constrained_scheduling(resource_limit, priority_rule)
-    
     def apply_crashing(self, target_duration, max_iterations=100, max_budget=None):
         """
         Crash the project to achieve target duration.
@@ -1032,7 +421,7 @@ class CPMAnalyzer:
             cheapest_activity = min(crashable_activities, key=lambda x: x['crash_cost'])
             activity_id = cheapest_activity['id']
             
-            #  Budget check before crashing
+            # Budget check before crashing
             if max_budget is not None and total_crash_cost + cheapest_activity['crash_cost'] > max_budget:
                 print(f"Next crash would exceed budget: {total_crash_cost} + {cheapest_activity['crash_cost']} > {max_budget}")
                 break
@@ -1056,7 +445,6 @@ class CPMAnalyzer:
         crashed_G = self.backward_pass(crashed_G)
         crashed_G = self.calculate_float(crashed_G)
         return crashed_G, total_crash_cost, crash_log
-    
     
     def build_cpm_schedule_table(self, df_gantt, resource_limit):
         """
@@ -1092,11 +480,320 @@ class CPMAnalyzer:
                 table[table[t] == 'S']['resource'].sum()
             )
         # Append resource rows
-        resource_row = pd.Series(['resource_available', '', resource_limit, '', '', ''] + resource_available, index=table.columns)
-        scheduled_row = pd.Series(['resource_scheduled', '', '', '', '', ''] + resource_scheduled, index=table.columns)
+        resource_row = pd.Series(['RA', '', resource_limit, '', '', ''] + resource_available, index=table.columns)
+        scheduled_row = pd.Series(['RS', '', '', '', '', ''] + resource_scheduled, index=table.columns)
         table = pd.concat([table, pd.DataFrame([resource_row, scheduled_row])], ignore_index=True)
         return table, time_cols, set(df[df['critical']]['id'])
+    
+    # def build_cpm_schedule_table(self, df_gantt, resource_limit):
+    #     """
+    #     Build the initial CPM-based schedule table.
+    #     Returns: DataFrame (table), list of time units, dict of critical activities
+    #     """
+    #     df = df_gantt.copy()
+    #     # Ensure correct columns
+    #     required = ['id', 'duration', 'resource', 'early_start', 'late_finish', 'float', 'predecessors']
+    #     for col in required:
+    #         if col not in df.columns:
+    #             raise ValueError(f"Missing column: {col}")
+    #     df['critical'] = df['float'] == 0
+    #     # Time units: from 1 to max LF
+    #     max_time = int(df['late_finish'].max())
+    #     time_cols = list(range(1, max_time + 1))
+    #     # Build table
+    #     table = df[['id', 'duration', 'resource', 'early_start', 'late_finish', 'float']].copy()
+    #     for t in time_cols:
+    #         table[t] = ''
+    #     # Fill schedule cells
+    #     for idx, row in table.iterrows():
+    #         es = int(row['early_start'])
+    #         dur = int(row['duration'])
+    #         for t in range(es + 1, es + dur + 1):  # time units are 1-based
+    #             if t in time_cols:
+    #                 table.at[idx, t] = 'S'
+    #     # Add resource rows
+    #     resource_available = [resource_limit] * len(time_cols)
+    #     resource_scheduled = []
+    #     for t in time_cols:
+    #         resource_scheduled.append(
+    #             table[table[t] == 'S']['resource'].sum()
+    #         )
+    #     # Append resource rows with UPDATED names
+    #     resource_row = pd.Series(['RA', '', resource_limit, '', '', ''] + resource_available, index=table.columns)  # CHANGED: 'RA'
+    #     scheduled_row = pd.Series(['RS', '', '', '', '', ''] + resource_scheduled, index=table.columns)  # CHANGED: 'RS'
+    #     table = pd.concat([table, pd.DataFrame([resource_row, scheduled_row])], ignore_index=True)
+    #     return table, time_cols, set(df[df['critical']]['id'])
+    
+    
+    # def rcps_heuristic_schedule_table(self, df_gantt, resource_limit, priority_rule='minimum_slack'):
+    #     """
+    #     Apply RCPS heuristic and build the actual schedule table.
+    #     Returns: DataFrame (table), dict of actual start times, dict of critical activities
+    #     """
+    #     df = df_gantt.copy()
+    #     df['critical'] = df['float'] == 0
+        
+        
+    #     # Prepare schedule tracking
+    #     tasks = df.set_index('id')
+    #     tasks['scheduled'] = False
+    #     tasks['actual_start'] = None
+    #     tasks['actual_finish'] = None
+    #     current_time = 0
+    #     # resource_usage = {t: 0 for t in time_cols}
+    #     resource_usage = {}
+    #     unscheduled = set(tasks.index)
+    #     pred_map = {tid: [p for p in str(tasks.at[tid, 'predecessors']).split(',') if p and p != 'nan'] for tid in tasks.index}
+        
+        
+    #     # Scheduling loop
+    #     while unscheduled:
+    #         # Find ready tasks
+    #         ready = []
+    #         for tid in unscheduled:
+    #             preds = pred_map[tid]
+    #             if all(tasks.at[p, 'scheduled'] and tasks.at[p, 'actual_finish'] <= current_time for p in preds):
+    #                 if tasks.at[tid, 'early_start'] <= current_time:
+    #                     ready.append(tid)
+            
+    #         # Sort ready tasks by selected priority rule
+    #         if priority_rule == 'minimum_slack':
+    #             ready.sort(key=lambda tid: (
+    #                 tasks.at[tid, 'float'],
+    #                 tasks.at[tid, 'duration'],
+    #                 tid
+    #             ))
+    #         elif priority_rule == 'shortest_duration':
+    #             ready.sort(key=lambda tid: (
+    #                 tasks.at[tid, 'duration'],
+    #                 tasks.at[tid, 'float'],
+    #                 tid
+    #             ))
+    #         elif priority_rule == 'earliest_start':
+    #             ready.sort(key=lambda tid: (
+    #                 tasks.at[tid, 'early_start'],
+    #                 tasks.at[tid, 'float'],
+    #                 tid
+    #             ))
+    #         else:
+    #             ready.sort(key=lambda tid: tid)  # Default: by ID
+            
+    #         # Try to schedule the first ready task
+    #         scheduled_this_step = False
+    #         for tid in ready:
+    #             dur = int(tasks.at[tid, 'duration'])
+    #             res = int(tasks.at[tid, 'resource'])
+    #             # Check resource availability
+    #             can_schedule = True
+    #             for t in range(current_time + 1, current_time + dur + 1):
+    #                 if resource_usage.get(t, 0) + res > resource_limit:
+    #                     can_schedule = False
+    #                     break
+    #             if can_schedule:
+    #                 tasks.at[tid, 'actual_start'] = current_time
+    #                 tasks.at[tid, 'actual_finish'] = current_time + dur
+    #                 tasks.at[tid, 'scheduled'] = True
+    #                 for t in range(current_time + 1, current_time + dur + 1):
+    #                     resource_usage[t] = resource_usage.get(t, 0) + res
+    #                 unscheduled.remove(tid)
+    #                 scheduled_this_step = True
+    #                 break
+    #         if not scheduled_this_step:
+    #             current_time += 1
+        
+    #     # After scheduling, get the actual RCPS project duration
+    #     actual_project_duration = max([tasks.at[tid, 'actual_finish'] for tid in tasks.index])
 
+    #     # Build time columns based on actual RCPS duration
+    #     time_cols = list(range(1, actual_project_duration + 1))
+        
+        
+        
+    #     # Build table
+    #     table = tasks.reset_index()[['id', 'duration', 'resource', 'early_start', 'late_finish', 'float', 'actual_start']].copy()
+    #     for t in time_cols:
+    #         if t not in resource_usage:
+    #             resource_usage[t] = 0
+    #     for idx, row in table.iterrows():
+    #         if row['id'] in ['resource_available', 'resource_scheduled']:
+    #             continue
+    #         start = int(row['actual_start'])
+    #         dur = int(row['duration'])
+    #         es = int(row['early_start'])
+    #         resource_demand = int(row['resource'])  # Get resource demand
+            
+    #         # Fill schedule cells
+    #         for t in range(start + 1, start + dur + 1):
+    #             if t in time_cols:
+    #                 # Show resource demand in cells
+    #                 table.at[idx, t] = int(resource_demand)
+                    
+    #                 # if start == es:
+    #                 #     table.at[idx, t] = 'S'  # On-time
+    #                 # else:
+    #                 #     table.at[idx, t] = 'D'  # Delayed
+        
+    #     # Add resource rows
+    #     resource_available = [resource_limit] * len(time_cols)
+    #     resource_scheduled = [resource_usage.get(t, 0) for t in time_cols]
+    #     resource_row = pd.Series(['resource_available', '', resource_limit, '', '', '', ''] + resource_available, index=table.columns)
+    #     scheduled_row = pd.Series(['resource_scheduled', '', '', '', '', '', ''] + resource_scheduled, index=table.columns)
+    #     table = pd.concat([table, pd.DataFrame([resource_row, scheduled_row])], ignore_index=True)
+        
+    #     # Build actual start dict for highlighting
+    #     actual_starts = {row['id']: row['actual_start'] for _, row in table.iterrows() if row['id'] not in ['resource_available', 'resource_scheduled']}
+    #     # Replace all nan and "nan" with empty string
+    #     table = table.replace({np.nan: '', 'nan': ''})
+        
+    #     return table, actual_starts, set(df[df['critical']]['id'])
+    
+    # def rcps_heuristic_schedule_table(self, df_gantt, resource_limit, priority_rule='minimum_slack'):
+    #     """
+    #     Apply RCPS heuristic and build the actual schedule table.
+    #     Returns: DataFrame (table), dict of actual start times, dict of critical activities
+    #     """
+    #     df = df_gantt.copy()
+    #     df['critical'] = df['float'] == 0
+        
+        
+    #     # Prepare schedule tracking
+    #     tasks = df.set_index('id')
+    #     tasks['scheduled'] = False
+    #     tasks['actual_start'] = None
+    #     tasks['actual_finish'] = None
+    #     current_time = 0
+    #     # resource_usage = {t: 0 for t in time_cols}
+    #     resource_usage = {}
+    #     unscheduled = set(tasks.index)
+    #     pred_map = {tid: [p for p in str(tasks.at[tid, 'predecessors']).split(',') if p and p != 'nan'] for tid in tasks.index}
+        
+        
+    #     # Scheduling loop
+    #     while unscheduled:
+    #         # Find ready tasks
+    #         ready = []
+    #         for tid in unscheduled:
+    #             preds = pred_map[tid]
+    #             if all(tasks.at[p, 'scheduled'] and tasks.at[p, 'actual_finish'] <= current_time for p in preds):
+    #                 if tasks.at[tid, 'early_start'] <= current_time:
+    #                     ready.append(tid)
+            
+    #         # Sort ready tasks by selected priority rule
+    #         if priority_rule == 'minimum_slack':
+    #             ready.sort(key=lambda tid: (
+    #                 tasks.at[tid, 'float'],
+    #                 tasks.at[tid, 'duration'],
+    #                 tid
+    #             ))
+    #         elif priority_rule == 'shortest_duration':
+    #             ready.sort(key=lambda tid: (
+    #                 tasks.at[tid, 'duration'],
+    #                 tasks.at[tid, 'float'],
+    #                 tid
+    #             ))
+    #         elif priority_rule == 'earliest_start':
+    #             ready.sort(key=lambda tid: (
+    #                 tasks.at[tid, 'early_start'],
+    #                 tasks.at[tid, 'float'],
+    #                 tid
+    #             ))
+    #         else:
+    #             ready.sort(key=lambda tid: tid)  # Default: by ID
+            
+    #         # Try to schedule the first ready task
+    #         scheduled_this_step = False
+    #         for tid in ready:
+    #             dur = int(tasks.at[tid, 'duration'])
+    #             res = int(tasks.at[tid, 'resource'])
+    #             # Check resource availability
+    #             can_schedule = True
+    #             for t in range(current_time + 1, current_time + dur + 1):
+    #                 if resource_usage.get(t, 0) + res > resource_limit:
+    #                     can_schedule = False
+    #                     break
+    #             if can_schedule:
+    #                 tasks.at[tid, 'actual_start'] = current_time
+    #                 tasks.at[tid, 'actual_finish'] = current_time + dur
+    #                 tasks.at[tid, 'scheduled'] = True
+    #                 for t in range(current_time + 1, current_time + dur + 1):
+    #                     resource_usage[t] = resource_usage.get(t, 0) + res
+    #                 unscheduled.remove(tid)
+    #                 scheduled_this_step = True
+    #                 break
+    #         if not scheduled_this_step:
+    #             current_time += 1
+        
+    #     # After scheduling, get the actual RCPS project duration
+    #     actual_project_duration = max([tasks.at[tid, 'actual_finish'] for tid in tasks.index])
+
+    #     # Build time columns based on actual RCPS duration
+    #     time_cols = list(range(1, actual_project_duration + 1))
+        
+    #     # Build table
+    #     table = tasks.reset_index()[['id', 'duration', 'resource', 'early_start', 'late_finish', 'float', 'actual_start']].copy()
+        
+    #     # Ensure all time columns are initialized
+    #     for t in time_cols:
+    #         table[t] = ''
+    #         if t not in resource_usage:
+    #             resource_usage[t] = 0
+            
+            
+    #     # Fill schedule cells
+    #     for idx, row in table.iterrows():
+    #         if row['id'] in ['resource_available', 'resource_scheduled']:
+    #             continue
+    #         start = int(row['actual_start'])
+    #         dur = int(row['duration'])
+    #         es = int(row['early_start'])
+    #         resource_demand = int(row['resource'])  # Get resource demand
+            
+    #         # Fill schedule cells
+    #         for t in range(start + 1, start + dur + 1):
+    #             if t in time_cols:
+    #                 # Show resource demand in cells
+    #                 table.at[idx, t] = int(resource_demand)
+                    
+    #                 # if start == es:
+    #                 #     table.at[idx, t] = 'S'  # On-time
+    #                 # else:
+    #                 #     table.at[idx, t] = 'D'  # Delayed
+    #         # FIXED: Calculate resource_scheduled correctly by summing actual resource usage
+    #         resource_scheduled = []
+    #         for t in time_cols:
+    #             # Sum all resource demands that are active in time period t
+    #             total_resources = 0
+    #             for idx, row in table.iterrows():
+    #                 if row['id'] not in ['resource_available', 'resource_scheduled']:
+    #                     if isinstance(row.get(t, ''), int) and row[t] > 0:
+    #                         total_resources += row[t]
+    #             resource_scheduled.append(total_resources)
+        
+        
+    #     # # Add resource rows
+    #     # resource_available = [resource_limit] * len(time_cols)
+    #     # resource_scheduled = [resource_usage.get(t, 0) for t in time_cols]
+    #     # resource_row = pd.Series(['resource_available', '', resource_limit, '', '', '', ''] + resource_available, index=table.columns)
+    #     # scheduled_row = pd.Series(['resource_scheduled', '', '', '', '', '', ''] + resource_scheduled, index=table.columns)
+    #     # table = pd.concat([table, pd.DataFrame([resource_row, scheduled_row])], ignore_index=True)
+        
+    #     # Add resource rows
+    #     resource_available = [resource_limit] * len(time_cols)
+    #     resource_row = pd.Series(['resource_available', '', resource_limit, '', '', '', ''] + resource_available, index=table.columns)
+    #     scheduled_row = pd.Series(['resource_scheduled', '', '', '', '', '', ''] + resource_scheduled, index=table.columns)
+    #     table = pd.concat([table, pd.DataFrame([resource_row, scheduled_row])], ignore_index=True)
+
+        
+        
+    #     # Build actual start dict for highlighting
+    #     actual_starts = {row['id']: row['actual_start'] for _, row in table.iterrows() if row['id'] not in ['resource_available', 'resource_scheduled']}
+    #     # Replace all nan and "nan" with empty string
+    #     table = table.replace({np.nan: '', 'nan': ''})
+        
+    #     return table, actual_starts, set(df[df['critical']]['id'])
+    
+    
+    
     def rcps_heuristic_schedule_table(self, df_gantt, resource_limit, priority_rule='minimum_slack'):
         """
         Apply RCPS heuristic and build the actual schedule table.
@@ -1104,8 +801,6 @@ class CPMAnalyzer:
         """
         df = df_gantt.copy()
         df['critical'] = df['float'] == 0
-        # max_time = int(df['late_finish'].max())
-        # time_cols = list(range(1, max_time + 1))
         
         # Prepare schedule tracking
         tasks = df.set_index('id')
@@ -1113,11 +808,9 @@ class CPMAnalyzer:
         tasks['actual_start'] = None
         tasks['actual_finish'] = None
         current_time = 0
-        # resource_usage = {t: 0 for t in time_cols}
         resource_usage = {}
         unscheduled = set(tasks.index)
         pred_map = {tid: [p for p in str(tasks.at[tid, 'predecessors']).split(',') if p and p != 'nan'] for tid in tasks.index}
-        
         
         # Scheduling loop
         while unscheduled:
@@ -1150,14 +843,8 @@ class CPMAnalyzer:
                 ))
             else:
                 ready.sort(key=lambda tid: tid)  # Default: by ID
-                
             
-            # # Sort by min slack, then shortest duration, then lowest ID
-            # ready.sort(key=lambda tid: (
-            #     tasks.at[tid, 'float'],
-            #     tasks.at[tid, 'duration'],
-            #     tid
-            # ))
+            # Try to schedule the first ready task
             scheduled_this_step = False
             for tid in ready:
                 dur = int(tasks.at[tid, 'duration'])
@@ -1186,37 +873,177 @@ class CPMAnalyzer:
         # Build time columns based on actual RCPS duration
         time_cols = list(range(1, actual_project_duration + 1))
         
-        
-        
         # Build table
         table = tasks.reset_index()[['id', 'duration', 'resource', 'early_start', 'late_finish', 'float', 'actual_start']].copy()
+        
+        # Ensure all time columns are initialized
         for t in time_cols:
+            table[t] = ''
             if t not in resource_usage:
                 resource_usage[t] = 0
+        
+        # Fill schedule cells for all activities FIRST
         for idx, row in table.iterrows():
-            if row['id'] in ['resource_available', 'resource_scheduled']:
+            if row['id'] in ['RA', 'RS']:
                 continue
             start = int(row['actual_start'])
             dur = int(row['duration'])
-            es = int(row['early_start'])
+            resource_demand = int(row['resource'])
+            
+            # Fill schedule cells with resource demand
             for t in range(start + 1, start + dur + 1):
                 if t in time_cols:
-                    if start == es:
-                        table.at[idx, t] = 'S'  # On-time
-                    else:
-                        table.at[idx, t] = 'D'  # Delayed
+                    table.at[idx, t] = int(resource_demand)
+        
+        # MOVED: Calculate resource_scheduled AFTER all activities are filled
+        resource_scheduled = []
+        for t in time_cols:
+            # Sum all resource demands that are active in time period t
+            total_resources = 0
+            for idx, row in table.iterrows():
+                if row['id'] not in ['RA', 'RS']:
+                    if isinstance(row.get(t, ''), int) and row[t] > 0:
+                        total_resources += row[t]
+            resource_scheduled.append(total_resources)
+        
         # Add resource rows
         resource_available = [resource_limit] * len(time_cols)
-        resource_scheduled = [resource_usage.get(t, 0) for t in time_cols]
-        resource_row = pd.Series(['resource_available', '', resource_limit, '', '', '', ''] + resource_available, index=table.columns)
-        scheduled_row = pd.Series(['resource_scheduled', '', '', '', '', '', ''] + resource_scheduled, index=table.columns)
+        resource_row = pd.Series(['RA', '', '', '', '', '', ''] + resource_available, index=table.columns)
+        scheduled_row = pd.Series(['RS', '', '', '', '', '', ''] + resource_scheduled, index=table.columns)
         table = pd.concat([table, pd.DataFrame([resource_row, scheduled_row])], ignore_index=True)
+        
         # Build actual start dict for highlighting
-        actual_starts = {row['id']: row['actual_start'] for _, row in table.iterrows() if row['id'] not in ['resource_available', 'resource_scheduled']}
+        actual_starts = {row['id']: row['actual_start'] for _, row in table.iterrows() if row['id'] not in ['RA', 'RS']}
         # Replace all nan and "nan" with empty string
         table = table.replace({np.nan: '', 'nan': ''})
         
         return table, actual_starts, set(df[df['critical']]['id'])
+    
+    # def rcps_heuristic_schedule_table(self, df_gantt, resource_limit, priority_rule='minimum_slack'):
+    #     """
+    #     Apply RCPS heuristic and build the actual schedule table.
+    #     Returns: DataFrame (table), dict of actual start times, dict of critical activities
+    #     """
+    #     df = df_gantt.copy()
+    #     df['critical'] = df['float'] == 0
+        
+    #     # Prepare schedule tracking
+    #     tasks = df.set_index('id')
+    #     tasks['scheduled'] = False
+    #     tasks['actual_start'] = None
+    #     tasks['actual_finish'] = None
+    #     current_time = 0
+    #     resource_usage = {}
+    #     unscheduled = set(tasks.index)
+    #     pred_map = {tid: [p for p in str(tasks.at[tid, 'predecessors']).split(',') if p and p != 'nan'] for tid in tasks.index}
+        
+    #     # Scheduling loop
+    #     while unscheduled:
+    #         # Find ready tasks
+    #         ready = []
+    #         for tid in unscheduled:
+    #             preds = pred_map[tid]
+    #             if all(tasks.at[p, 'scheduled'] and tasks.at[p, 'actual_finish'] <= current_time for p in preds):
+    #                 if tasks.at[tid, 'early_start'] <= current_time:
+    #                     ready.append(tid)
+            
+    #         # Sort ready tasks by selected priority rule
+    #         if priority_rule == 'minimum_slack':
+    #             ready.sort(key=lambda tid: (
+    #                 tasks.at[tid, 'float'],
+    #                 tasks.at[tid, 'duration'],
+    #                 tid
+    #             ))
+    #         elif priority_rule == 'shortest_duration':
+    #             ready.sort(key=lambda tid: (
+    #                 tasks.at[tid, 'duration'],
+    #                 tasks.at[tid, 'float'],
+    #                 tid
+    #             ))
+    #         elif priority_rule == 'earliest_start':
+    #             ready.sort(key=lambda tid: (
+    #                 tasks.at[tid, 'early_start'],
+    #                 tasks.at[tid, 'float'],
+    #                 tid
+    #             ))
+    #         else:
+    #             ready.sort(key=lambda tid: tid)  # Default: by ID
+            
+    #         # Try to schedule the first ready task
+    #         scheduled_this_step = False
+    #         for tid in ready:
+    #             dur = int(tasks.at[tid, 'duration'])
+    #             res = int(tasks.at[tid, 'resource'])
+    #             # Check resource availability
+    #             can_schedule = True
+    #             for t in range(current_time + 1, current_time + dur + 1):
+    #                 if resource_usage.get(t, 0) + res > resource_limit:
+    #                     can_schedule = False
+    #                     break
+    #             if can_schedule:
+    #                 tasks.at[tid, 'actual_start'] = current_time
+    #                 tasks.at[tid, 'actual_finish'] = current_time + dur
+    #                 tasks.at[tid, 'scheduled'] = True
+    #                 for t in range(current_time + 1, current_time + dur + 1):
+    #                     resource_usage[t] = resource_usage.get(t, 0) + res
+    #                 unscheduled.remove(tid)
+    #                 scheduled_this_step = True
+    #                 break
+    #         if not scheduled_this_step:
+    #             current_time += 1
+        
+    #     # After scheduling, get the actual RCPS project duration
+    #     actual_project_duration = max([tasks.at[tid, 'actual_finish'] for tid in tasks.index])
+
+    #     # Build time columns based on actual RCPS duration
+    #     time_cols = list(range(1, actual_project_duration + 1))
+        
+    #     # Build table
+    #     table = tasks.reset_index()[['id', 'duration', 'resource', 'early_start', 'late_finish', 'float', 'actual_start']].copy()
+        
+    #     # Ensure all time columns are initialized
+    #     for t in time_cols:
+    #         table[t] = ''
+    #         if t not in resource_usage:
+    #             resource_usage[t] = 0
+        
+    #     # Fill schedule cells for all activities FIRST
+    #     for idx, row in table.iterrows():
+    #         if row['id'] in ['RA', 'RS']:  # UPDATED: Use new shortened names
+    #             continue
+    #         start = int(row['actual_start'])
+    #         dur = int(row['duration'])
+    #         resource_demand = int(row['resource'])
+            
+    #         # Fill schedule cells with resource demand
+    #         for t in range(start + 1, start + dur + 1):
+    #             if t in time_cols:
+    #                 table.at[idx, t] = int(resource_demand)
+        
+    #     # MOVED: Calculate resource_scheduled AFTER all activities are filled
+    #     resource_scheduled = []
+    #     for t in time_cols:
+    #         # Sum all resource demands that are active in time period t
+    #         total_resources = 0
+    #         for idx, row in table.iterrows():
+    #             if row['id'] not in ['RA', 'RS']:  # UPDATED: Use new shortened names
+    #                 if isinstance(row.get(t, ''), int) and row[t] > 0:
+    #                     total_resources += row[t]
+    #         resource_scheduled.append(total_resources)
+        
+    #     # Add resource rows with UPDATED names
+    #     resource_available = [resource_limit] * len(time_cols)
+    #     resource_row = pd.Series(['RA', '', resource_limit, '', '', '', ''] + resource_available, index=table.columns)  # CHANGED: 'RA'
+    #     scheduled_row = pd.Series(['RS', '', '', '', '', '', ''] + resource_scheduled, index=table.columns)  # CHANGED: 'RS'
+    #     table = pd.concat([table, pd.DataFrame([resource_row, scheduled_row])], ignore_index=True)
+        
+    #     # Build actual start dict for highlighting
+    #     actual_starts = {row['id']: row['actual_start'] for _, row in table.iterrows() if row['id'] not in ['RA', 'RS']}  # UPDATED: Use new shortened names
+    #     # Replace all nan and "nan" with empty string
+    #     table = table.replace({np.nan: '', 'nan': ''})
+        
+    #     return table, actual_starts, set(df[df['critical']]['id'])
+    
 
 
 
@@ -1255,6 +1082,7 @@ class CPMDesktopApp:
         self.create_gantt_tab()
         self.create_rcps_tab()
         self.create_crashing_tab()
+        self.create_rcps_crashing_tab()
     
     def create_input_tab(self):
         """Create the input tab for activity data"""
@@ -1452,9 +1280,97 @@ class CPMDesktopApp:
             messagebox.showwarning("Warning", "Please select a row to delete.")
     
     def clear_all(self):
-        """Clear all data"""
+        """Clear all data from input table and all tabs"""
+        # Clear the input table
         for item in self.tree.get_children():
             self.tree.delete(item)
+        
+        # Clear analyzer data
+        self.analyzer.G = None
+        self.analyzer.critical_paths = []
+        self.analyzer.critical_activities = []
+        
+        # Clear results tab
+        if hasattr(self, 'results_text'):
+            self.results_text.delete(1.0, tk.END)
+        
+        # Clear network diagram
+        if hasattr(self, 'fig_network'):
+            self.fig_network.clear()
+            self.canvas_network.draw()
+        
+        # Clear critical path diagram
+        if hasattr(self, 'fig_critical_path'):
+            self.fig_critical_path.clear()
+            self.canvas_critical_path.draw()
+        
+        # Clear Gantt chart
+        if hasattr(self, 'fig_gantt'):
+            self.fig_gantt.clear()
+            self.canvas_gantt.draw()
+        
+        # Clear RCPS tables
+        if hasattr(self, 'fig_rcps_tables'):
+            self.fig_rcps_tables.clear()
+            self.canvas_rcps_tables.draw()
+        
+        # Clear RCPS stored data
+        if hasattr(self, 'last_rcps_table'):
+            self.last_rcps_table = None
+        
+        # Clear crashing tab
+        if hasattr(self, 'crash_results_text'):
+            self.crash_results_text.delete(1.0, tk.END)
+        
+        if hasattr(self, 'fig_crashed'):
+            self.fig_crashed.clear()
+            self.canvas_crashed.draw()
+        
+        # Clear crash step diagrams
+        if hasattr(self, 'crash_steps_frame'):
+            for widget in self.crash_steps_frame.winfo_children():
+                widget.destroy()
+        
+        if hasattr(self, 'crash_step_images'):
+            self.crash_step_images = []
+        
+        # Clear RCPS crashing tab
+        if hasattr(self, 'rcps_crash_results_text'):
+            self.rcps_crash_results_text.delete(1.0, tk.END)
+        
+        if hasattr(self, 'fig_rcps_crashed'):
+            self.fig_rcps_crashed.clear()
+            self.canvas_rcps_crashed.draw()
+        
+        # Clear RCPS crash step diagrams
+        if hasattr(self, 'rcps_crash_steps_frame'):
+            for widget in self.rcps_crash_steps_frame.winfo_children():
+                widget.destroy()
+        
+        if hasattr(self, 'rcps_crash_step_images'):
+            self.rcps_crash_step_images = []
+        
+        # Reset input field values to defaults
+        if hasattr(self, 'resource_limit_var'):
+            self.resource_limit_var.set("5")
+        
+        if hasattr(self, 'priority_rule_var'):
+            self.priority_rule_var.set("minimum_slack")
+        
+        if hasattr(self, 'target_duration_var'):
+            self.target_duration_var.set("10")
+        
+        if hasattr(self, 'crash_budget_var'):
+            self.crash_budget_var.set("")
+        
+        if hasattr(self, 'rcps_target_duration_var'):
+            self.rcps_target_duration_var.set("10")
+        
+        if hasattr(self, 'rcps_crash_budget_var'):
+            self.rcps_crash_budget_var.set("")
+        
+        # Optional: Show a message to confirm clearing
+        messagebox.showinfo("Cleared", "All data has been cleared from all tabs.")
     
     def edit_item(self, event):
         """Edit selected item in place"""
@@ -1502,9 +1418,9 @@ class CPMDesktopApp:
                     'activity': values[1] if len(values) > 1 else '',
                     'duration': values[2] if len(values) > 2 else '0',
                     'predecessors': values[3] if len(values) > 3 else '',
-                    'resource_demand': values[4] if len(values) > 4 else '0',
+                    'min_duration': values[4] if len(values) > 4 else values[2] if len(values) > 2 else '0',
                     'crash_cost': values[5] if len(values) > 5 else '0',
-                    'min_duration': values[6] if len(values) > 6 else values[2] if len(values) > 2 else '0',
+                    'resource_demand': values[6] if len(values) > 6 else '0',
                     'max_crash_steps': int(values[7]) if len(values) > 7 and str(values[7]).isdigit() else None
                 })
         return activities_data
@@ -2039,6 +1955,8 @@ class CPMDesktopApp:
         # Draw the canvas
         self.canvas_critical_path.draw()
     
+    
+    
     def create_rcps_tab(self):
         """Create the Resource-Constrained Project Scheduling tab"""
         rcps_frame = ttk.Frame(self.notebook)
@@ -2075,54 +1993,6 @@ class CPMDesktopApp:
         self.fig_rcps_tables = plt.Figure(figsize=(18, 10))
         self.canvas_rcps_tables = FigureCanvasTkAgg(self.fig_rcps_tables, results_frame)
         self.canvas_rcps_tables.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-        
-        # # Create matplotlib figure for RCPS Gantt chart
-        # self.fig_rcps = plt.Figure(figsize=(18, 12))
-        # self.canvas_rcps = FigureCanvasTkAgg(self.fig_rcps, results_frame)
-        # self.canvas_rcps.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-    
-    # def generate_rcps_schedule(self):
-    #     """Generate and display resource-constrained project schedule"""
-    #     try:
-    #         # Check if analysis has been performed
-    #         if not hasattr(self.analyzer, 'G') or self.analyzer.G is None:
-    #             messagebox.showwarning("Warning", "Please run the CPM analysis first.")
-    #             return
-            
-    #         # Get resource limit and priority rule
-    #         try:
-    #             resource_limit = int(self.resource_limit_var.get())
-    #         except ValueError:
-    #             messagebox.showerror("Error", "Resource limit must be a number.")
-    #             return
-            
-    #         priority_rule = self.priority_rule_var.get()
-            
-    #         # Generate RCPS schedule
-    #         scheduled_activities, resource_usage = self.analyzer.schedule_with_resource_constraints(
-    #             resource_limit, priority_rule
-    #         )
-            
-    #         # Check if scheduling was successful
-    #         print("Scheduled activities:", scheduled_activities)
-    #         print("Resource usage:", resource_usage)
-            
-    #         # # Generate RCPS Gantt chart (trial 1)
-    #         # self.generate_rcps_gantt_chart(scheduled_activities, resource_usage, resource_limit)
-            
-    #         # # Generate resource allocation chart (trial 2)
-    #         # self.generate_resource_allocation_chart(scheduled_activities, resource_usage, resource_limit)
-            
-    #         # Generate Gantt chart for RCPS
-    #         self.generate_resource_constrained_gantt(scheduled_activities, resource_limit)
-            
-    #         # Switch to RCPS tab
-    #         self.notebook.select(5)  # RCPS tab index
-            
-    #         messagebox.showinfo("Success", "RCPS schedule generated successfully!")
-            
-    #     except Exception as e:
-    #         messagebox.showerror("Error", f"RCPS generation failed: {str(e)}")
     
     def get_scheduled_critical_path(self, scheduled_activities):
         """
@@ -2143,7 +2013,8 @@ class CPMDesktopApp:
                 if pred in G:
                     G.add_edge(pred, act_id)
         
-        print("DEBUG: Edges in scheduled graph:", list(G.edges()))
+        # # Debug output
+        # print("DEBUG: Edges in scheduled graph:", list(G.edges()))
         
         
         # Find all paths from sources to sinks
@@ -2160,259 +2031,11 @@ class CPMDesktopApp:
                     if duration > max_duration:
                         max_duration = duration
                         max_path = path
+        
+        # # Debug output critical path
         # print("DEBUG: Critical path found:", max_path)
+        
         return set(max_path)
-    
-    # def generate_rcps_gantt_chart(self, scheduled_activities, resource_usage, resource_limit):
-    #     """Generate RCPS Gantt chart with resource utilization"""
-    #     self.fig_rcps.clear()
-        
-    #     # Create subplots
-    #     ax1 = self.fig_rcps.add_subplot(2, 1, 1)  # Gantt chart
-    #     ax2 = self.fig_rcps.add_subplot(2, 1, 2)  # Resource utilization
-        
-    #     # Prepare activity data
-    #     activities = list(scheduled_activities.keys())
-    #     # activities.sort(key=lambda x: scheduled_activities[x]['scheduled_start'])
-    #     activities.sort() 
-        
-    #     y_pos = np.arange(len(activities))
-    #     y_pos = y_pos[::-1]
-        
-    #     # Colors
-    #     critical_color = 'red'
-    #     normal_color = 'lightblue'
-    #     slack_color = 'lightgrey'
-        
-    #     # Recalculate critical path based on scheduled times
-    #     scheduled_critical_activities = self.get_scheduled_critical_path(scheduled_activities)
-
-    #     # Calculate project duration
-    #     project_duration = max([data['scheduled_finish'] for data in scheduled_activities.values()])
-
-    #     # Initialize activity_labels list
-    #     activity_labels = []
-
-    #     # Gantt chart
-    #     for i, activity in enumerate(activities):
-    #         data = scheduled_activities[activity]
-    #         start = data['scheduled_start']
-    #         duration = data['duration']
-    #         resource_demand = data['resource_demand']
-    #         finish = data['scheduled_finish']
-    #         float_time = data.get('float', 0)
-    #         is_critical = activity in scheduled_critical_activities
-    #         bar_color = critical_color if is_critical else normal_color
-            
-    #         # Activity bar
-    #         ax1.barh(y_pos[i], duration, left=start, 
-    #                 color=bar_color, alpha=0.7, height=0.6,
-    #                 edgecolor='black', linewidth=0.8)
-            
-    #         # Slack bar (if float > 0)
-    #         if float_time > 0:
-    #             ax1.barh(y_pos[i], float_time, left=finish,
-    #                     color=slack_color, alpha=0.5, height=0.6,
-    #                     edgecolor='gray', linewidth=0.5, linestyle='--')
-            
-    #         activity_labels.append(activity)
-            
-    #         # Add text
-    #         bar_center_x = start + duration / 2
-    #         ax1.text(bar_center_x, y_pos[i], f"(R:{resource_demand})", 
-    #                 ha='center', va='center', fontweight='bold', fontsize=9)
-            
-    #         # Early start/finish times
-    #         ax1.text(start - 0.1, y_pos[i], f"{start}",
-    #                 ha='right', va='center', fontsize=9, color='darkgreen', fontweight='bold')
-    #         ax1.text(finish + 0.1, y_pos[i], f"{finish}",
-    #                 ha='left', va='center', fontsize=9, color='darkgreen', fontweight='bold')
-
-        
-    #     # Customize Gantt chart
-    #     ax1.set_yticks(y_pos)
-    #     ax1.set_yticklabels(activity_labels)
-    #     ax1.set_xlabel('Time Units')
-    #     ax1.set_ylabel('Activities')
-    #     ax1.set_title('Resource-Constrained Project Schedule (RCPS)')
-    #     ax1.set_xlim(-0.5, project_duration + 0.5)
-    #     ax1.grid(True, axis='x', alpha=0.3)
-        
-    #     # Legend
-    #     legend_elements = [
-    #         mpatches.Patch(color=critical_color, alpha=0.7, label='Critical Activities'),
-    #         mpatches.Patch(color=normal_color, alpha=0.7, label='Non-Critical Activities'),
-    #         mpatches.Patch(color=slack_color, alpha=0.5, label='Available Slack/Float')
-    #     ]
-    #     ax1.legend(handles=legend_elements, loc='lower left')
-        
-    #     # Resource utilization chart
-    #     times = sorted(resource_usage.keys())
-    #     usage_values = [resource_usage[t] for t in times]
-        
-    #     ax2.step(times, usage_values, where='post', linewidth=2, color='blue', alpha=0.7)
-    #     ax2.fill_between(times, usage_values, step='post', alpha=0.3, color='blue')
-    #     ax2.axhline(y=resource_limit, color='red', linestyle='--', linewidth=2, label=f'Resource Limit ({resource_limit})')
-    #     ax2.set_xlabel('Time Units')
-    #     ax2.set_ylabel('Resource Usage')
-    #     ax2.set_title('Resource Utilization Over Time')
-    #     ax2.legend()
-    #     ax2.grid(True, alpha=0.3)
-        
-    #     # # Calculate project duration
-    #     # project_duration = max([data['scheduled_finish'] for data in scheduled_activities.values()])
-        
-    #     # Add summary text
-    #     summary_text = f"Project Duration: {project_duration} time units\n"
-    #     summary_text += f"Resource Limit: {resource_limit} units\n"
-    #     summary_text += f"Max Resource Usage: {max(usage_values) if usage_values else 0} units"
-        
-    #     self.fig_rcps.text(0.02, 0.02, summary_text, fontsize=10, 
-    #                     bbox=dict(boxstyle="round,pad=0.3", facecolor="lightgray", alpha=0.8))
-        
-    #     self.fig_rcps.tight_layout()
-    #     self.canvas_rcps.draw()
-    
-    # def generate_resource_allocation_chart(self, scheduled_activities, resource_usage, resource_limit):
-    #     """
-    #     Generate a Resource Allocation Chart (Resource Histogram) for RCPS.
-    #     - Green bars: activities, scheduled after resource leveling.
-    #     - Red dashed line: resource limit.
-    #     - Histogram below: total resource usage per time unit.
-    #     """
-    #     import matplotlib.pyplot as plt
-    #     import numpy as np
-
-    #     # Clear previous figure
-    #     self.fig_rcps.clear()
-    #     fig = self.fig_rcps
-
-    #     # Prepare data
-    #     activities = list(scheduled_activities.keys())
-    #     activities.sort(key=lambda x: scheduled_activities[x]['scheduled_start'])
-    #     n_activities = len(activities)
-    #     project_duration = max([scheduled_activities[a]['scheduled_finish'] for a in activities])
-
-    #     # Create subplots: top for activities, bottom for resource usage
-    #     ax1 = fig.add_subplot(2, 1, 1)
-    #     ax2 = fig.add_subplot(2, 1, 2, sharex=ax1)
-
-    #     # --- Plot activities as green bars ---
-    #     for i, activity in enumerate(activities):
-    #         data = scheduled_activities[activity]
-    #         start = data['scheduled_start']
-    #         duration = data['duration']
-    #         resource_demand = data['resource_demand']
-    #         ax1.barh(
-    #             y=activity,
-    #             width=duration,
-    #             left=start,
-    #             height=resource_demand,
-    #             color='green',
-    #             alpha=0.7,
-    #             edgecolor='black'
-    #         )
-    #         # Annotate resource demand
-    #         ax1.text(
-    #             start + duration / 2, activity, f"R={resource_demand}",
-    #             ha='center', va='center', color='white', fontweight='bold', fontsize=9
-    #         )
-
-    #     # Resource limit line
-    #     ax1.axvline(x=project_duration, color='gray', linestyle=':', linewidth=1)
-    #     ax1.axhline(y=resource_limit, color='red', linestyle='--', linewidth=2, label=f'Resource Limit ({resource_limit})')
-
-    #     ax1.set_ylabel("Activities")
-    #     ax1.set_xlabel("Time")
-    #     ax1.set_title("Resource Allocation Chart (RCPS)")
-    #     ax1.legend()
-    #     ax1.grid(axis='x', alpha=0.3)
-
-    #     # --- Plot resource usage histogram ---
-    #     times = sorted(resource_usage.keys())
-    #     usage_values = [resource_usage[t] for t in times]
-    #     ax2.step(times, usage_values, where='post', color='blue', linewidth=2, label='Total Resource Usage')
-    #     ax2.fill_between(times, usage_values, step='post', color='blue', alpha=0.3)
-    #     ax2.axhline(y=resource_limit, color='red', linestyle='--', linewidth=2, label=f'Resource Limit ({resource_limit})')
-    #     ax2.set_ylabel("Resource Usage")
-    #     ax2.set_xlabel("Time")
-    #     ax2.set_ylim(0, max(max(usage_values), resource_limit) + 1)
-    #     ax2.set_xlim(0, project_duration)
-    #     ax2.legend()
-    #     ax2.grid(axis='x', alpha=0.3)
-
-    #     fig.tight_layout()
-    #     self.canvas_rcps.draw()
-    
-    # def generate_resource_constrained_gantt(self, scheduled_activities, resource_limit):
-    #     """
-    #     Generate a resource-constrained Gantt chart and resource usage histogram.
-    #     - Green bars: scheduled activities (start/finish).
-    #     - Resource usage per time unit shown below.
-    #     - Resource limit line shown.
-    #     """
-    #     import matplotlib.pyplot as plt
-    #     import numpy as np
-
-    #     # Clear previous figure
-    #     self.fig_rcps.clear()
-    #     fig = self.fig_rcps
-
-    #     # Prepare data
-    #     activities = list(scheduled_activities.keys())
-    #     # Sort by scheduled start time for Gantt clarity
-    #     activities.sort(key=lambda x: scheduled_activities[x]['scheduled_start'])
-    #     n_activities = len(activities)
-    #     # Find project duration (latest finish)
-    #     project_duration = max([scheduled_activities[a]['scheduled_finish'] for a in activities])
-
-    #     # Build resource usage timeline
-    #     resource_usage = np.zeros(project_duration + 1, dtype=int)
-    #     for act in activities:
-    #         start = scheduled_activities[act]['scheduled_start']
-    #         finish = scheduled_activities[act]['scheduled_finish']
-    #         demand = scheduled_activities[act]['resource_demand']
-    #         resource_usage[start:finish] += demand
-
-    #     # --- Gantt Chart ---
-    #     ax1 = fig.add_subplot(2, 1, 1)
-    #     y_pos = np.arange(n_activities)
-    #     for i, act in enumerate(activities):
-    #         start = scheduled_activities[act]['scheduled_start']
-    #         finish = scheduled_activities[act]['scheduled_finish']
-    #         duration = finish - start
-    #         ax1.barh(y_pos[i], duration, left=start, color='green', alpha=0.7, edgecolor='black', height=0.6)
-    #         # Label with task name
-    #         ax1.text(start + duration/2, y_pos[i], act, ha='center', va='center', color='white', fontweight='bold', fontsize=10)
-    #         # Optionally show resource demand
-    #         ax1.text(finish + 0.1, y_pos[i], f"R={scheduled_activities[act]['resource_demand']}", 
-    #                 ha='left', va='center', fontsize=9, color='darkgreen')
-
-    #     ax1.set_yticks(y_pos)
-    #     ax1.set_yticklabels(activities)
-    #     ax1.set_xlabel("Time Units")
-    #     ax1.set_ylabel("Tasks")
-    #     ax1.set_title("Resource-Constrained Gantt Chart")
-    #     ax1.set_xlim(0, project_duration + 1)
-    #     ax1.grid(axis='x', alpha=0.3)
-
-    #     # --- Resource Usage Histogram ---
-    #     ax2 = fig.add_subplot(2, 1, 2, sharex=ax1)
-    #     time_units = np.arange(project_duration + 1)
-    #     ax2.step(time_units, resource_usage, where='post', color='blue', linewidth=2, label='Resource Usage')
-    #     ax2.fill_between(time_units, resource_usage, step='post', color='blue', alpha=0.3)
-    #     ax2.axhline(y=resource_limit, color='red', linestyle='--', linewidth=2, label=f'Resource Limit ({resource_limit})')
-    #     ax2.step(time_units, [resource_limit]*(project_duration+1), where='post', color='red', linestyle='--', alpha=0.5, label='Resource Available')
-    #     ax2.set_xlabel("Time Units")
-    #     ax2.set_ylabel("Resources")
-    #     ax2.set_ylim(0, max(resource_usage.max(), resource_limit) + 1)
-    #     ax2.set_yticks(range(0, max(resource_usage.max(), resource_limit) + 2))
-    #     ax2.set_title("Resource Usage Over Time")
-    #     ax2.legend(loc='upper right')
-    #     ax2.grid(axis='x', alpha=0.3)
-
-    #     fig.tight_layout()
-    #     self.canvas_rcps.draw()
     
     def run_rcps_tables(self):
         """Run CPMAnalyzer logic and plot schedule tables in RCPS tab."""
@@ -2476,92 +2099,17 @@ class CPMDesktopApp:
             
             # Plot the tables
             self.plot_schedule_tables(cpm_table, rcps_table, time_cols, critical_ids, actual_starts, df_gantt)
-            # Switch to RCPS tab
-            self.notebook.select(self.notebook.tabs()[-2])  # or use the correct tab index if needed
-
+            
+            # Store RCPS table for RCPS Crashing tab
+            self.last_rcps_table = rcps_table.copy() 
+            
+            
         except Exception as e:
             messagebox.showerror("Error", f"RCPS scheduling failed: {str(e)}")
-
     
     # def plot_schedule_tables(self, cpm_table, rcps_table, time_cols, critical_ids, actual_starts, df_gantt):
     #     """
-    #     Plot the CPM and RCPS schedule tables side by side with highlights.
-    #     """
-    #     import matplotlib.pyplot as plt
-    #     from matplotlib.table import Table
-    #     from matplotlib.font_manager import FontProperties
-
-    #     def color_cell(val, row, col, table_type):
-    #         # Highlighting logic
-    #         if col == 0 and row['id'] in critical_ids:
-    #             return {'facecolor': '#ffcccc'}  # Red for critical ID
-    #         if col in time_cols:
-    #             if table_type == 'cpm':
-    #                 if row[col] == 'S':
-    #                     return {'facecolor': '#b6fcb6'}  # Green for scheduled
-    #             elif table_type == 'rcps':
-    #                 if row[col] == 'S':
-    #                     return {'facecolor': '#b6fcb6'}  # Green for on-time
-    #                 elif row[col] == 'D':
-    #                     return {'facecolor': '#ffd580'}  # Orange for delayed
-    #         if row['id'] == 'resource_available':
-    #             return {'facecolor': '#e0e0e0'}
-    #         if row['id'] == 'resource_scheduled':
-    #             # Overuse highlight
-    #             if col in time_cols and row[col] > df_gantt['resource'].max():
-    #                 return {'facecolor': '#ffb3b3'}
-    #             return {'facecolor': '#e0e0e0'}
-    #         return {}
-        
-    
-    #     # Prepare figure
-    #     fig_height = max(8, min(12, 0.4 * cpm_table.shape[0]))  # Dynamically adjust height
-    #     fig, axes = plt.subplots(2, 1, figsize=(min(22, 2 + len(time_cols)), fig_height))
-    #     for ax, table, table_type, title in zip(
-    #         axes, [cpm_table, rcps_table], ['cpm', 'rcps'],
-    #         ['Initial CPM-based Plan', 'Resource-Constrained Schedule (RCPS)']
-    #     ):
-    #         ax.axis('off')
-    #         #Adjust table position and size for better text visibility
-    #         tbl = Table(ax, bbox=[0, 0.05, 1, 0.9])  # Move table down, shrink vertically
-    #         nrows, ncols = table.shape
-    #         width, height = 1.0 / ncols, 1.0 / nrows
-            
-    #         # Create font properties with larger size
-    #         font_prop = FontProperties(size=12, weight='normal')  # Increased font size
-    #         header_font_prop = FontProperties(size=13, weight='bold')  # Header font
-            
-    #         for i in range(nrows):
-    #             for j in range(ncols):
-    #                 val = table.iloc[i, j]
-    #                 cell_kw = color_cell(val, table.iloc[i], table.columns[j], table_type)
-    #                 # Create cell with explicit font size
-    #                 cell = tbl.add_cell(i, j, width, height, text=str(val), loc='center', **cell_kw)
-    #                 # Set font properties on the text object
-    #                 text_obj = cell.get_text()
-    #                 text_obj.set_fontproperties(font_prop)
-    #                 text_obj.set_fontsize(16)  # Explicit font size setting
-    #                 text_obj.set_color('black')  # Ensure text is visible
-                    
-    #         # Add header row with larger font
-    #         for j, col in enumerate(table.columns):
-    #             header_cell = tbl.add_cell(-1, j, width, height, text=str(col), loc='center', facecolor='#cccccc')
-    #             header_text = header_cell.get_text()
-    #             header_text.set_fontproperties(header_font_prop)
-    #             header_text.set_fontsize(13)  # Explicit header font size
-    #             header_text.set_color('black')
-    #             header_text.set_weight('bold')
-                
-    #         ax.add_table(tbl)
-    #         ax.set_title(title, fontsize=18, fontweight='bold', pad=25)  # Larger title
-            
-    #     plt.tight_layout(rect=[0, 0, 1, 0.96])  # Adjust layout
-    #     plt.subplots_adjust(hspace=0.3)  # Add space between subplots
-    #     plt.show()
-    
-    # def plot_schedule_tables(self, cpm_table, rcps_table, time_cols, critical_ids, actual_starts, df_gantt):
-    #     """
-    #     Plot the CPM and RCPS schedule tables side by side with highlights.
+    #     Plot the CPM and RCPS schedule tables side by side with highlights in the RCPS tab.
     #     """
     #     import matplotlib.pyplot as plt
     #     import numpy as np
@@ -2569,30 +2117,32 @@ class CPMDesktopApp:
     #     # Use the embedded figure for the RCPS tab
     #     self.fig_rcps_tables.clear()
     #     fig = self.fig_rcps_tables
-    #     axes = fig.subplots(2, 1)
-
+        
+    #     # Create two subplots (axes) in the embedded figure
+    #     ax1 = fig.add_subplot(2, 1, 1)
+    #     ax2 = fig.add_subplot(2, 1, 2)
         
     #     def get_cell_colors(table_data, table_type):
-    #         """Generate color matrix for the table cells"""
     #         colors = []
     #         for i, (idx, row) in enumerate(table_data.iterrows()):
     #             row_colors = []
     #             for j, col in enumerate(table_data.columns):
     #                 val = row[col]
-    #                 # Highlighting logic
     #                 if j == 0 and row['id'] in critical_ids:
-    #                     row_colors.append('#ffcccc')  # Red for critical ID
+    #                     row_colors.append('#ffcccc')
     #                 elif col in time_cols:
     #                     if table_type == 'cpm':
     #                         if val == 'S':
-    #                             row_colors.append('#b6fcb6')  # Green for scheduled
+    #                             row_colors.append('#b6fcb6')
     #                         else:
     #                             row_colors.append('white')
     #                     elif table_type == 'rcps':
     #                         if val == 'S':
-    #                             row_colors.append('#b6fcb6')  # Green for on-time
+    #                             row_colors.append('#b6fcb6')
     #                         elif val == 'D':
-    #                             row_colors.append('#ffd580')  # Orange for delayed
+    #                             row_colors.append('#ffd580')
+    #                         elif isinstance(val, (int, float)) and int(val) > 0:  # Resource demand
+    #                             row_colors.append('#b6fcb6')  # Same color as 'S' for on-time
     #                         else:
     #                             row_colors.append('white')
     #                     else:
@@ -2600,7 +2150,6 @@ class CPMDesktopApp:
     #                 elif row['id'] == 'resource_available':
     #                     row_colors.append('#e0e0e0')
     #                 elif row['id'] == 'resource_scheduled':
-    #                     # Overuse highlight
     #                     if col in time_cols and val > df_gantt['resource'].max():
     #                         row_colors.append('#ffb3b3')
     #                     else:
@@ -2609,8 +2158,8 @@ class CPMDesktopApp:
     #                     row_colors.append('white')
     #             colors.append(row_colors)
     #         return colors
-
-    #     # Map internal column names to pretty headers
+        
+        
     #     pretty_names = {
     #         'id': 'ID',
     #         'duration': 'D',
@@ -2618,44 +2167,39 @@ class CPMDesktopApp:
     #         'early_start': 'ES',
     #         'late_finish': 'LF',
     #         'float': 'F',
-    #         'actual_start': 'AS',  # for RCPS table
-    #         # add more if needed
+    #         'actual_start': 'AS',
     #     }
         
-    #     # Create figure with appropriate size
-    #     fig_height = max(10, min(15, 0.5 * cpm_table.shape[0]))
-    #     fig_width = max(15, min(25, 2 + len(time_cols) * 1.2))
-    #     fig, axes = plt.subplots(2, 1, figsize=(fig_width, fig_height))
-
-    #     tables_data = [cpm_table, rcps_table]
-    #     table_types = ['cpm', 'rcps']
-    #     titles = ['Initial CPM-based Plan', 'Resource-Constrained Schedule (RCPS)']
-
-    #     # Build headers dynamically to match DataFrame columns
     #     def get_headers(df):
     #         return [pretty_names.get(col, str(col)) for col in df.columns]
         
-    #     # Get time columns for each table
+        
     #     cpm_time_cols = [col for col in cpm_table.columns if isinstance(col, int)]
     #     rcps_time_cols = [col for col in rcps_table.columns if isinstance(col, int)]
-
+        
     #     for ax, table_data, table_type, title, tcols in zip(
-    #         axes, tables_data, table_types, titles, [cpm_time_cols, rcps_time_cols]
+    #         [ax1, ax2], [cpm_table, rcps_table], ['cpm', 'rcps'],
+    #         ['Initial CPM-based Plan', 'Resource-Constrained Schedule (RCPS)'],
+    #         [cpm_time_cols, rcps_time_cols]
     #     ):
+    #         ax.clear()
     #         ax.axis('off')
             
-    #         # Convert DataFrame to list of lists for matplotlib table
+    #         # Prepare cell text and colors
     #         cell_text = []
     #         for _, row in table_data.iterrows():
-    #             cell_text.append([str(val) for val in row.values])
+    #             # Convert float values to integers in display
+    #             formatted_row = []
+    #             for val in row.values:
+    #                 if isinstance(val, float) and val.is_integer():
+    #                     formatted_row.append(str(int(val)))
+    #                 else:
+    #                     formatted_row.append(str(val))
+    #             cell_text.append(formatted_row)
             
-    #         # Get colors for cells
     #         cell_colors = get_cell_colors(table_data, table_type)
-            
-    #         # Create header colors (light gray)
     #         header_colors = ['#cccccc'] * len(table_data.columns)
     #         custom_headers = get_headers(table_data)
-    #         # Create the table using matplotlib's table function
     #         table = ax.table(
     #             cellText=cell_text,
     #             colLabels=custom_headers,
@@ -2663,32 +2207,281 @@ class CPMDesktopApp:
     #             colColours=header_colors,
     #             cellLoc='center',
     #             loc='center',
-    #             bbox=[0, 0, 1, 1]  # Full axes area
+    #             bbox=[0, 0, 1, 1]
+    #         )
+    #         table.auto_set_font_size(False)
+    #         table.set_fontsize(10)
+    #         table.scale(1, 2)
+    #         for (i, j), cell in table.get_celld().items():
+    #             cell.set_text_props(weight='normal', size=12)
+    #             if i == -1:
+    #                 cell.set_text_props(weight='bold', size=14)
+    #                 cell.set_height(0.08)
+    #             else:
+    #                 cell.set_height(0.06)
+    #         ax.set_title(title, fontsize=20, fontweight='bold', pad=20)
+        
+    #     fig.tight_layout()
+    #     fig.subplots_adjust(hspace=0.4)
+    #     self.canvas_rcps_tables.draw()
+    
+    # def plot_schedule_tables(self, cpm_table, rcps_table, time_cols, critical_ids, actual_starts, df_gantt):
+    #     """
+    #     Plot the CPM and RCPS schedule tables side by side with highlights in the RCPS tab.
+    #     """
+    #     import matplotlib.pyplot as plt
+    #     import numpy as np
+        
+    #     self.fig_rcps_tables.clear()
+    #     fig = self.fig_rcps_tables
+        
+    #     ax1 = fig.add_subplot(2, 1, 1)
+    #     ax2 = fig.add_subplot(2, 1, 2)
+        
+    #     def get_cell_colors(table_data, table_type, scheduled_activities, delayed_activities):
+    #         colors = []
+    #         for i, (idx, row) in enumerate(table_data.iterrows()):
+    #             row_colors = []
+    #             for j, col in enumerate(table_data.columns):
+    #                 val = row[col]
+    #                 if j == 0 and row['id'] in critical_ids:
+    #                     row_colors.append('#ffcccc')
+    #                 elif col in time_cols:
+    #                     if table_type == 'cpm':
+    #                         if isinstance(val, (int, float)) and int(val) > 0:
+    #                             row_colors.append('#b6fcb6')
+    #                         else:
+    #                             row_colors.append('white')
+    #                     elif table_type == 'rcps':
+    #                         if isinstance(val, (int, float)) and int(val) > 0:
+    #                             if row['id'] in delayed_activities:
+    #                                 row_colors.append('#ffd580')
+    #                             elif row['id'] in scheduled_activities:
+    #                                 row_colors.append('#b6fcb6')
+    #                             else:
+    #                                 row_colors.append('white')
+    #                         else:
+    #                             row_colors.append('white')
+    #                 elif row['id'] in ['resource_available', 'resource_scheduled']:
+    #                     row_colors.append('#e0e0e0')  # Light gray background for resource rows
+    #                 else:
+    #                     row_colors.append('white')
+    #             colors.append(row_colors)
+    #         return colors
+        
+    #     pretty_names = {
+    #         'id': 'ID',
+    #         'duration': 'D',
+    #         'resource': 'R',
+    #         'early_start': 'ES',
+    #         'late_finish': 'LF',
+    #         'float': 'F',
+    #         'actual_start': 'AS',
+    #     }
+        
+    #     def get_headers(df):
+    #         return [pretty_names.get(col, str(col)) for col in df.columns]
+        
+    #     # Identify scheduled and delayed activities
+    #     scheduled_activities = set()
+    #     delayed_activities = set()
+    #     for idx, row in rcps_table.iterrows():
+    #         if row['id'] not in ['resource_available', 'resource_scheduled']:
+    #             if row['actual_start'] == row['early_start']:
+    #                 scheduled_activities.add(row['id'])
+    #             else:
+    #                 delayed_activities.add(row['id'])
+        
+    #     cpm_time_cols = [col for col in cpm_table.columns if isinstance(col, int)]
+    #     rcps_time_cols = [col for col in rcps_table.columns if isinstance(col, int)]
+        
+    #     for ax, table_data, table_type, title, tcols in zip(
+    #         [ax1, ax2], [cpm_table, rcps_table], ['cpm', 'rcps'],
+    #         ['Initial CPM-based Plan', 'Resource-Constrained Schedule (RCPS)'],
+    #         [cpm_time_cols, rcps_time_cols]
+    #     ):
+    #         ax.clear()
+    #         ax.axis('off')
+            
+    #         # CHANGED: Simplified cell text preparation
+    #         cell_text = []
+    #         for _, row in table_data.iterrows():
+    #             formatted_row = []
+    #             for col, val in row.items():
+    #                 # Handle empty values and format numbers
+    #                 if pd.isna(val) or val == '' or str(val) == 'nan':
+    #                     formatted_row.append('')
+    #                 elif isinstance(val, float) and val.is_integer():
+    #                     formatted_row.append(str(int(val)))
+    #                 else:
+    #                     formatted_row.append(str(val))
+                
+    #             # Special handling for resource rows
+    #             if row['id'] in ['resource_available', 'resource_scheduled']:
+    #                 formatted_row[1] = ''  # Empty duration
+    #                 formatted_row[2] = ''  # Empty resource
+                
+    #             cell_text.append(formatted_row)
+            
+    #         cell_colors = get_cell_colors(table_data, table_type, scheduled_activities, delayed_activities)
+    #         header_colors = ['#cccccc'] * len(table_data.columns)
+    #         custom_headers = get_headers(table_data)
+            
+    #         # CHANGED: Adjusted table creation parameters
+    #         table = ax.table(
+    #             cellText=cell_text,
+    #             colLabels=custom_headers,
+    #             cellColours=cell_colors,
+    #             colColours=header_colors,
+    #             cellLoc='center',
+    #             loc='center',
+    #             bbox=[0, 0, 1, 1]
     #         )
             
-    #         # CRITICAL: Set font size for all cells
-    #         table.auto_set_font_size(False)  # Disable auto font sizing
-    #         table.set_fontsize(10)  # Set your desired font size here
-            
-    #         # Scale the table for better visibility
-    #         table.scale(1, 2)  # width_scale=1, height_scale=2 (makes rows taller)
-            
-    #         # Optional: Set individual cell properties for even more control
+    #         # CHANGED: Adjusted cell properties
     #         for (i, j), cell in table.get_celld().items():
-    #             cell.set_text_props(weight='normal', size=12)  # Explicit font size
+    #             cell.set_text_props(weight='normal', size=8)  # Reduced font size
+                
+    #             # Special formatting for resource rows
+    #             if i > 0 and cell._text.get_text() != '':  # Only adjust non-empty cells
+    #                 row_id = table_data.iloc[i-1]['id'] if i-1 < len(table_data) else None
+    #                 if row_id in ['resource_available', 'resource_scheduled']:
+    #                     cell.set_text_props(weight='bold')
+                
     #             if i == -1:  # Header row
-    #                 cell.set_text_props(weight='bold', size=14)  # Larger bold headers
-    #                 cell.set_height(0.08)  # Taller header
+    #                 cell.set_text_props(weight='bold', size=10)
+    #                 cell.set_height(0.08)
     #             else:
-    #                 cell.set_height(0.06)  # Taller data rows
+    #                 cell.set_height(0.06)
             
     #         ax.set_title(title, fontsize=20, fontweight='bold', pad=20)
-
-    #     # DEBUGG: find number of columns in rcp_table
-    #     print("Number of columns in rcps_table:", len(rcps_table.columns))
-    #     # plt.tight_layout()
-    #     # plt.subplots_adjust(hspace=0.4)  # More space between tables
-    #     # plt.show()
+        
+    #     fig.tight_layout()
+    #     fig.subplots_adjust(hspace=0.4)
+    #     self.canvas_rcps_tables.draw()
+    
+    # def plot_schedule_tables(self, cpm_table, rcps_table, time_cols, critical_ids, actual_starts, df_gantt):
+    #     """
+    #     Plot the CPM and RCPS schedule tables side by side with highlights in the RCPS tab.
+    #     """
+    #     import matplotlib.pyplot as plt
+    #     import numpy as np
+        
+    #     self.fig_rcps_tables.clear()
+    #     fig = self.fig_rcps_tables
+        
+    #     ax1 = fig.add_subplot(2, 1, 1)
+    #     ax2 = fig.add_subplot(2, 1, 2)
+        
+    #     def get_cell_colors(table_data, table_type, scheduled_activities, delayed_activities):
+    #         colors = []
+    #         for i, (idx, row) in enumerate(table_data.iterrows()):
+    #             row_colors = []
+    #             for j, col in enumerate(table_data.columns):
+    #                 val = row[col]
+    #                 if j == 0 and row['id'] in critical_ids:
+    #                     row_colors.append('#ffcccc')
+    #                 elif col in time_cols:
+    #                     if table_type == 'cpm':
+    #                         if isinstance(val, (int, float)) and int(val) > 0:
+    #                             row_colors.append('#b6fcb6')
+    #                         else:
+    #                             row_colors.append('white')
+    #                     elif table_type == 'rcps':
+    #                         if isinstance(val, (int, float)) and int(val) > 0:
+    #                             if row['id'] in delayed_activities:
+    #                                 row_colors.append('#ffd580')
+    #                             elif row['id'] in scheduled_activities:
+    #                                 row_colors.append('#b6fcb6')
+    #                             else:
+    #                                 row_colors.append('white')
+    #                         else:
+    #                             row_colors.append('white')
+    #                 elif row['id'] in ['resource_available', 'resource_scheduled']:
+    #                     row_colors.append('#e0e0e0')
+    #                 else:
+    #                     row_colors.append('white')
+    #             colors.append(row_colors)
+    #         return colors
+        
+    #     pretty_names = {
+    #         'id': 'ID',
+    #         'duration': 'D',
+    #         'resource': 'R',
+    #         'early_start': 'ES',
+    #         'late_finish': 'LF',
+    #         'float': 'F',
+    #         'actual_start': 'AS',
+    #     }
+        
+    #     def get_headers(df):
+    #         return [pretty_names.get(col, str(col)) for col in df.columns]
+        
+    #     # Identify scheduled and delayed activities
+    #     scheduled_activities = set()
+    #     delayed_activities = set()
+    #     for idx, row in rcps_table.iterrows():
+    #         if row['id'] not in ['resource_available', 'resource_scheduled']:
+    #             if row['actual_start'] == row['early_start']:
+    #                 scheduled_activities.add(row['id'])
+    #             else:
+    #                 delayed_activities.add(row['id'])
+        
+    #     cpm_time_cols = [col for col in cpm_table.columns if isinstance(col, int)]
+    #     rcps_time_cols = [col for col in rcps_table.columns if isinstance(col, int)]
+        
+    #     for ax, table_data, table_type, title, tcols in zip(
+    #         [ax1, ax2], [cpm_table, rcps_table], ['cpm', 'rcps'],
+    #         ['Initial CPM-based Plan', 'Resource-Constrained Schedule (RCPS)'],
+    #         [cpm_time_cols, rcps_time_cols]
+    #     ):
+    #         ax.clear()
+    #         ax.axis('off')
+            
+    #         # Prepare cell text and colors
+    #         cell_text = []
+    #         for _, row in table_data.iterrows():
+    #             # Convert float values to integers in display
+    #             formatted_row = []
+    #             for val in row.values:
+    #                 if isinstance(val, float) and val.is_integer():
+    #                     formatted_row.append(str(int(val)))
+    #                 else:
+    #                     formatted_row.append(str(val))
+                
+    #             # Special handling for resource rows
+    #             if row['id'] in ['resource_available', 'resource_scheduled']:
+    #                 formatted_row[1] = ''  # Empty duration
+    #                 formatted_row[2] = ''  # Empty resource
+                
+    #             cell_text.append(formatted_row)
+            
+    #         cell_colors = get_cell_colors(table_data, table_type, scheduled_activities, delayed_activities)
+    #         header_colors = ['#cccccc'] * len(table_data.columns)
+    #         custom_headers = get_headers(table_data)
+    #         table = ax.table(
+    #             cellText=cell_text,
+    #             colLabels=custom_headers,
+    #             cellColours=cell_colors,
+    #             colColours=header_colors,
+    #             cellLoc='center',
+    #             loc='center',
+    #             bbox=[0, 0, 1, 1]
+    #         )
+            
+    #         table.auto_set_font_size(False)
+    #         table.set_fontsize(10)
+    #         table.scale(1, 2)
+            
+    #         for (i, j), cell in table.get_celld().items():
+    #             cell.set_text_props(weight='normal', size=12)
+    #             if i == -1:
+    #                 cell.set_text_props(weight='bold', size=14)
+    #                 cell.set_height(0.08)
+    #             else:
+    #                 cell.set_height(0.06)
+            
+    #         ax.set_title(title, fontsize=20, fontweight='bold', pad=20)
         
     #     fig.tight_layout()
     #     fig.subplots_adjust(hspace=0.4)
@@ -2700,17 +2493,216 @@ class CPMDesktopApp:
         """
         import matplotlib.pyplot as plt
         import numpy as np
-
-        # Use the embedded figure for the RCPS tab
+        from matplotlib.colors import Normalize
+        from matplotlib.cm import YlOrRd  # Yellow to Red colormap
+        
         self.fig_rcps_tables.clear()
         fig = self.fig_rcps_tables
-
-        # Create two subplots (axes) in the embedded figure
+        
         ax1 = fig.add_subplot(2, 1, 1)
         ax2 = fig.add_subplot(2, 1, 2)
-
-        def get_cell_colors(table_data, table_type):
+        
+        # Function to create heatmap colors
+        def get_heatmap_color(value, min_val, max_val, colormap=YlOrRd):
+            """Convert a value to a color using a heatmap scale."""
+            if pd.isna(value) or not isinstance(value, (int, float)):
+                return 'white'
+            norm = Normalize(vmin=min_val, vmax=max_val)
+            return colormap(norm(value))
+        
+        
+        # def get_cell_colors(table_data, table_type, scheduled_activities, delayed_activities):
+        #     colors = []
+            
+        #     # CHANGED: Get min and max values only for duration columns in RCPS resource_scheduled row
+        #     time_values = []
+        #     if table_type == 'rcps':
+        #         resource_scheduled_row = table_data[table_data['id'] == 'resource_scheduled']
+        #         if not resource_scheduled_row.empty:
+        #             # Only consider time_cols (duration columns)
+        #             for col in time_cols:
+        #                 val = resource_scheduled_row[col].iloc[0]
+        #                 if isinstance(val, (int, float)) and val > 0:
+        #                     time_values.append(val)
+            
+        #     min_val = min(time_values) if time_values else 0
+        #     max_val = max(time_values) if time_values else 1
+            
+            
+        #     for i, (idx, row) in enumerate(table_data.iterrows()):
+        #         row_colors = []
+        #         for j, col in enumerate(table_data.columns):
+        #             val = row[col]
+        #             if j == 0 and row['id'] in critical_ids:
+        #                 row_colors.append('#ffcccc')
+        #             elif col in time_cols not in ['resource_available', 'resource_scheduled']:
+                        
+        #                 # CHANGED: Only apply heatmap to duration columns in resource_scheduled row of RCPS table
+        #                 if table_type == 'rcps' and row['id'] == 'resource_scheduled':
+        #                     if isinstance(val, (int, float)) and val > 0:
+        #                         row_colors.append(get_heatmap_color(val, min_val, max_val))
+        #                     else:
+        #                         row_colors.append('white')
+                        
+        #                 # CHANGED: CPM table coloring now based on resource values
+        #                 elif table_type == 'cpm':
+        #                     # if isinstance(val, (int, float)) and int(val) > 0:
+        #                     # FIXED: Check for both 'S' and numeric resource demand values
+        #                     if str(val) == 'S' or (isinstance(val, (int, float)) and int(val) > 0):
+        #                         row_colors.append('#b6fcb6')  # Green for resource demand values
+        #                     else:
+        #                         row_colors.append('white')
+        #                 elif table_type == 'rcps':
+        #                     if isinstance(val, (int, float)) and int(val) > 0:
+        #                         if row['id'] in delayed_activities:
+        #                             row_colors.append('#ffd580')
+        #                         elif row['id'] in scheduled_activities:
+        #                             row_colors.append('#b6fcb6')
+        #                         else:
+        #                             row_colors.append('white')
+        #                     else:
+        #                         row_colors.append('white')
+        #             elif row['id'] in ['resource_available', 'resource_scheduled']:
+        #                 row_colors.append('#e0e0e0')
+        #             else:
+        #                 row_colors.append('white')
+        #         colors.append(row_colors)
+        #     return colors
+        
+        # def get_cell_colors(table_data, table_type, scheduled_activities, delayed_activities):
+        #     colors = []
+            
+        #     # CHANGED: Get min and max values only for duration columns in RCPS resource_scheduled row
+        #     time_values = []
+        #     if table_type == 'rcps':
+        #         resource_scheduled_row = table_data[table_data['id'] == 'resource_scheduled']
+        #         if not resource_scheduled_row.empty:
+        #             # Only consider time_cols (duration columns)
+        #             for col in time_cols:
+        #                 val = resource_scheduled_row[col].iloc[0]
+        #                 if isinstance(val, (int, float)) and val > 0:
+        #                     time_values.append(val)
+            
+        #     min_val = min(time_values) if time_values else 0
+        #     max_val = max(time_values) if time_values else 1
+            
+        #     for i, (idx, row) in enumerate(table_data.iterrows()):
+        #         row_colors = []
+        #         for j, col in enumerate(table_data.columns):
+        #             val = row[col]
+        #             if j == 0 and row['id'] in critical_ids:
+        #                 row_colors.append('#ffcccc')
+        #             elif col in time_cols:
+        #                 # Handle resource_scheduled row FIRST for RCPS heatmap
+        #                 if table_type == 'rcps' and row['id'] == 'resource_scheduled':
+        #                     if isinstance(val, (int, float)) and val > 0:
+        #                         row_colors.append(get_heatmap_color(val, min_val, max_val))
+        #                     else:
+        #                         row_colors.append('white')
+        #                 # Handle regular activity rows (not resource rows)
+        #                 elif row['id'] not in ['RA', 'RS']:
+        #                     if table_type == 'cpm':
+        #                         if str(val) == 'S' or (isinstance(val, (int, float)) and int(val) > 0):
+        #                             row_colors.append('#b6fcb6')  # Green for resource demand values
+        #                         else:
+        #                             row_colors.append('white')
+        #                     elif table_type == 'rcps':
+        #                         if isinstance(val, (int, float)) and int(val) > 0:
+        #                             if row['id'] in delayed_activities:
+        #                                 row_colors.append('#ffd580')
+        #                             elif row['id'] in scheduled_activities:
+        #                                 row_colors.append('#b6fcb6')
+        #                             else:
+        #                                 row_colors.append('white')
+        #                         else:
+        #                             row_colors.append('white')
+        #                 # Handle resource_available row
+        #                 elif row['id'] == 'RA':
+        #                     row_colors.append('#e0e0e0')
+        #                 else:
+        #                     row_colors.append('white')
+        #             elif row['id'] in ['RA', 'RS']:
+        #                 row_colors.append('#e0e0e0')
+        #             else:
+        #                 row_colors.append('white')
+        #         colors.append(row_colors)
+        #     return colors
+        
+        # def get_cell_colors(table_data, table_type, scheduled_activities, delayed_activities):
+        #     colors = []
+            
+        #     # CHANGED: Get min and max values only for duration columns in RCPS resource_scheduled row
+        #     time_values = []
+        #     if table_type == 'rcps':
+        #         resource_scheduled_row = table_data[table_data['id'] == 'RS']  # CHANGED: Use 'RS' instead of 'resource_scheduled'
+        #         if not resource_scheduled_row.empty:
+        #             # Only consider time_cols (duration columns)
+        #             for col in time_cols:
+        #                 val = resource_scheduled_row[col].iloc[0]
+        #                 if isinstance(val, (int, float)) and val > 0:
+        #                     time_values.append(val)
+            
+        #     min_val = min(time_values) if time_values else 0
+        #     max_val = max(time_values) if time_values else 1
+            
+        #     for i, (idx, row) in enumerate(table_data.iterrows()):
+        #         row_colors = []
+        #         for j, col in enumerate(table_data.columns):
+        #             val = row[col]
+        #             if j == 0 and row['id'] in critical_ids:
+        #                 row_colors.append('#ffcccc')
+        #             elif col in time_cols:
+        #                 # Handle resource_scheduled row FIRST for RCPS heatmap
+        #                 if table_type == 'rcps' and row['id'] == 'RS':  # CHANGED: Use 'RS' instead of 'resource_scheduled'
+        #                     if isinstance(val, (int, float)) and val > 0:
+        #                         row_colors.append(get_heatmap_color(val, min_val, max_val))
+        #                     else:
+        #                         row_colors.append('white')
+        #                 # Handle regular activity rows (not resource rows)
+        #                 elif row['id'] not in ['RA', 'RS']:
+        #                     if table_type == 'cpm':
+        #                         if str(val) == 'S' or (isinstance(val, (int, float)) and int(val) > 0):
+        #                             row_colors.append('#b6fcb6')  # Green for resource demand values
+        #                         else:
+        #                             row_colors.append('white')
+        #                     elif table_type == 'rcps':
+        #                         if isinstance(val, (int, float)) and int(val) > 0:
+        #                             if row['id'] in delayed_activities:
+        #                                 row_colors.append('#ffd580')
+        #                             elif row['id'] in scheduled_activities:
+        #                                 row_colors.append('#b6fcb6')
+        #                             else:
+        #                                 row_colors.append('white')
+        #                         else:
+        #                             row_colors.append('white')
+        #                 # Handle resource_available row
+        #                 elif row['id'] == 'RA':
+        #                     row_colors.append('#e0e0e0')
+        #                 else:
+        #                     row_colors.append('white')
+        #             elif row['id'] in ['RA', 'RS']:
+        #                 row_colors.append('#e0e0e0')
+        #             else:
+        #                 row_colors.append('white')
+        #         colors.append(row_colors)
+        #     return colors
+        
+        def get_cell_colors(table_data, table_type, scheduled_activities, delayed_activities):
             colors = []
+            
+            # Get min and max values only for duration columns in RCPS resource_scheduled row
+            time_values = []
+            if table_type == 'rcps':
+                resource_scheduled_row = table_data[table_data['id'] == 'RS']
+                if not resource_scheduled_row.empty:
+                    for col in time_cols:
+                        val = resource_scheduled_row[col].iloc[0]
+                        if isinstance(val, (int, float)) and val > 0:
+                            time_values.append(val)
+            
+            min_val = min(time_values) if time_values else 0
+            max_val = max(time_values) if time_values else 1
+            
             for i, (idx, row) in enumerate(table_data.iterrows()):
                 row_colors = []
                 for j, col in enumerate(table_data.columns):
@@ -2718,32 +2710,40 @@ class CPMDesktopApp:
                     if j == 0 and row['id'] in critical_ids:
                         row_colors.append('#ffcccc')
                     elif col in time_cols:
-                        if table_type == 'cpm':
-                            if val == 'S':
-                                row_colors.append('#b6fcb6')
+                        # EXPLICIT HEATMAP: Apply heatmap ONLY to RS row in RCPS table
+                        if table_type == 'rcps' and row['id'] == 'RS':
+                            if isinstance(val, (int, float)) and val > 0:
+                                row_colors.append(get_heatmap_color(val, min_val, max_val))
                             else:
                                 row_colors.append('white')
-                        elif table_type == 'rcps':
-                            if val == 'S':
-                                row_colors.append('#b6fcb6')
-                            elif val == 'D':
-                                row_colors.append('#ffd580')
-                            else:
-                                row_colors.append('white')
-                        else:
-                            row_colors.append('white')
-                    elif row['id'] == 'resource_available':
-                        row_colors.append('#e0e0e0')
-                    elif row['id'] == 'resource_scheduled':
-                        if col in time_cols and val > df_gantt['resource'].max():
-                            row_colors.append('#ffb3b3')
-                        else:
+                        # RESOURCE ROWS: Both RA and RS get gray background in time columns
+                        elif row['id'] in ['RA', 'RS']:
                             row_colors.append('#e0e0e0')
+                        # REGULAR ACTIVITIES: Only non-resource rows get activity coloring
+                        else:
+                            if table_type == 'cpm':
+                                if str(val) == 'S' or (isinstance(val, (int, float)) and int(val) > 0):
+                                    row_colors.append('#b6fcb6')
+                                else:
+                                    row_colors.append('white')
+                            elif table_type == 'rcps':
+                                if isinstance(val, (int, float)) and int(val) > 0:
+                                    if row['id'] in delayed_activities:
+                                        row_colors.append('#ffd580')
+                                    elif row['id'] in scheduled_activities:
+                                        row_colors.append('#b6fcb6')
+                                    else:
+                                        row_colors.append('white')
+                                else:
+                                    row_colors.append('white')
+                    elif row['id'] in ['RA', 'RS']:
+                        row_colors.append('#e0e0e0')
                     else:
                         row_colors.append('white')
                 colors.append(row_colors)
             return colors
-
+        
+        
         pretty_names = {
             'id': 'ID',
             'duration': 'D',
@@ -2753,13 +2753,23 @@ class CPMDesktopApp:
             'float': 'F',
             'actual_start': 'AS',
         }
-
+        
         def get_headers(df):
             return [pretty_names.get(col, str(col)) for col in df.columns]
-
+        
+        # Identify scheduled and delayed activities
+        scheduled_activities = set()
+        delayed_activities = set()
+        for idx, row in rcps_table.iterrows():
+            if row['id'] not in ['RA', 'RS']:
+                if row['actual_start'] == row['early_start']:
+                    scheduled_activities.add(row['id'])
+                else:
+                    delayed_activities.add(row['id'])
+        
         cpm_time_cols = [col for col in cpm_table.columns if isinstance(col, int)]
         rcps_time_cols = [col for col in rcps_table.columns if isinstance(col, int)]
-
+        
         for ax, table_data, table_type, title, tcols in zip(
             [ax1, ax2], [cpm_table, rcps_table], ['cpm', 'rcps'],
             ['Initial CPM-based Plan', 'Resource-Constrained Schedule (RCPS)'],
@@ -2767,10 +2777,38 @@ class CPMDesktopApp:
         ):
             ax.clear()
             ax.axis('off')
+            
+            # Prepare cell text and colors
             cell_text = []
             for _, row in table_data.iterrows():
-                cell_text.append([str(val) for val in row.values])
-            cell_colors = get_cell_colors(table_data, table_type)
+                # Convert float values to integers in display
+                formatted_row = []
+                # Handle CPM table cell values
+                if table_type == 'cpm':
+                    for col, val in row.items():
+                        if col in time_cols and str(val) == 'S':
+                            # Replace 'S' with resource demand
+                            formatted_row.append(str(int(row['resource'])))
+                        elif isinstance(val, float) and val.is_integer():
+                            formatted_row.append(str(int(val)))
+                        else:
+                            formatted_row.append(str(val))
+                else:
+                    # Original handling for RCPS table
+                    for val in row.values:
+                        if isinstance(val, float) and val.is_integer():
+                            formatted_row.append(str(int(val)))
+                        else:
+                            formatted_row.append(str(val))
+                
+                # Special handling for resource rows
+                if row['id'] in ['RA', 'RS']:
+                    formatted_row[1] = ''  # Empty duration
+                    formatted_row[2] = ''  # Empty resource
+                
+                cell_text.append(formatted_row)
+            
+            cell_colors = get_cell_colors(table_data, table_type, scheduled_activities, delayed_activities)
             header_colors = ['#cccccc'] * len(table_data.columns)
             custom_headers = get_headers(table_data)
             table = ax.table(
@@ -2782,18 +2820,22 @@ class CPMDesktopApp:
                 loc='center',
                 bbox=[0, 0, 1, 1]
             )
+            
+            
             table.auto_set_font_size(False)
-            table.set_fontsize(10)
+            table.set_fontsize(8)
             table.scale(1, 2)
+            
             for (i, j), cell in table.get_celld().items():
                 cell.set_text_props(weight='normal', size=12)
                 if i == -1:
                     cell.set_text_props(weight='bold', size=14)
                     cell.set_height(0.08)
                 else:
-                    cell.set_height(0.06)
+                    cell.set_height(0.08)
+            
             ax.set_title(title, fontsize=20, fontweight='bold', pad=20)
-
+        
         fig.tight_layout()
         fig.subplots_adjust(hspace=0.4)
         self.canvas_rcps_tables.draw()
@@ -2802,70 +2844,60 @@ class CPMDesktopApp:
     
     
     
-    
-    
-    
-    
-    # def plot_rcps_gantt(schedule, resource_usage, resource_limit):
-    #     """
-    #     Plot Gantt chart and resource usage.
-    #     Args:
-    #         schedule: dict {task_id: {'start': int, 'finish': int}}
-    #         resource_usage: dict {time: used_resource}
-    #         resource_limit: int
-    #     """
-    #     # Prepare data
-    #     task_ids = list(schedule.keys())
-    #     task_ids.sort()
-    #     y_pos = np.arange(len(task_ids))
-    #     starts = [schedule[tid]['start'] for tid in task_ids]
-    #     finishes = [schedule[tid]['finish'] for tid in task_ids]
-    #     durations = [f - s for s, f in zip(starts, finishes)]
-    #     project_duration = max(finishes)
-    #     # Gantt chart
-    #     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 7), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
-    #     for i, tid in enumerate(task_ids):
-    #         ax1.barh(y_pos[i], durations[i], left=starts[i], color='green', alpha=0.7, edgecolor='black', height=0.6)
-    #         ax1.text(starts[i] + durations[i]/2, y_pos[i], tid, ha='center', va='center', color='white', fontweight='bold')
-    #     ax1.set_yticks(y_pos)
-    #     ax1.set_yticklabels(task_ids)
-    #     ax1.set_xlabel("Time")
-    #     ax1.set_ylabel("Tasks")
-    #     ax1.set_title("Resource-Constrained Gantt Chart (Heuristic RCPS)")
-    #     ax1.grid(axis='x', alpha=0.3)
-    #     # Resource usage
-    #     times = np.arange(0, project_duration + 1)
-    #     usage = np.array([resource_usage.get(t, 0) for t in times])
-    #     ax2.step(times, usage, where='post', color='blue', linewidth=2, label='Resource Usage')
-    #     ax2.fill_between(times, usage, step='post', color='blue', alpha=0.3)
-    #     ax2.axhline(y=resource_limit, color='red', linestyle='--', linewidth=2, label=f'Resource Limit ({resource_limit})')
-    #     ax2.set_xlabel("Time")
-    #     ax2.set_ylabel("Resources")
-    #     ax2.set_ylim(0, max(usage.max(), resource_limit) + 1)
-    #     ax2.set_yticks(range(0, max(usage.max(), resource_limit) + 2))
-    #     ax2.set_title("Resource Usage Over Time")
-    #     ax2.legend(loc='upper right')
-    #     ax2.grid(axis='x', alpha=0.3)
-    #     plt.tight_layout()
-    #     plt.show()
+    def create_crashing_tab(self):
+        """Create the Crashing Optimization tab"""
+        crashing_frame = ttk.Frame(self.notebook)
+        self.notebook.add(crashing_frame, text="Crashing Optimization")
 
-    # # Example usage:
-    # if __name__ == "__main__":
-    #     # Example DataFrame
-    #     data = [
-    #         # ID, Duration, Resource, Predecessors, ES, LF
-    #         ['A', 3, 1, '', 0, 10],
-    #         ['B', 2, 1, '', 0, 10],
-    #         ['C', 4, 2, 'A,B', 3, 12],
-    #         ['D', 2, 1, 'A', 3, 10],
-    #         ['E', 3, 1, 'B', 2, 12],
-    #         ['F', 2, 1, 'C,D,E', 7, 15],
-    #     ]
-    #     df = pd.DataFrame(data, columns=['ID', 'Duration', 'Resource', 'Predecessors', 'ES', 'LF'])
-    #     resource_limit = 2
-    #     schedule, resource_usage = rcps_heuristic_schedule(df, resource_limit)
-    #     plot_rcps_gantt(schedule, resource_usage, resource_limit)
+        # Control frame
+        control_frame = ttk.Frame(crashing_frame)
+        control_frame.pack(fill=tk.X, pady=(0, 10))
+
+        ttk.Label(control_frame, text="Target Duration:").pack(side=tk.LEFT, padx=(0, 5))
+        self.target_duration_var = tk.StringVar(value="10")
+        target_entry = ttk.Entry(control_frame, textvariable=self.target_duration_var, width=10)
+        target_entry.pack(side=tk.LEFT, padx=(0, 20))
+
+        ttk.Button(control_frame, text="Run Crashing Optimization",
+                command=self.run_crashing_optimization).pack(side=tk.LEFT)
         
+        ttk.Label(control_frame, text="Crash Budget:").pack(side=tk.LEFT, padx=(0, 5))
+        self.crash_budget_var = tk.StringVar(value="")
+        budget_entry = ttk.Entry(control_frame, textvariable=self.crash_budget_var, width=10)
+        budget_entry.pack(side=tk.LEFT, padx=(0, 20))
+
+        # Results frame
+        results_frame = ttk.Frame(crashing_frame)
+        results_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Text output for crash log/results
+        self.crash_results_text = scrolledtext.ScrolledText(results_frame, font=("Courier", 10), height=12)
+        self.crash_results_text.pack(fill=tk.BOTH, expand=True)
+
+        # Matplotlib figure for crashed network
+        self.fig_crashed = plt.Figure(figsize=(12, 8))
+        self.canvas_crashed = FigureCanvasTkAgg(self.fig_crashed, results_frame)
+        self.canvas_crashed.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        
+        # Scrollable area for crash step diagrams
+        crash_steps_area = ttk.Frame(results_frame)
+        crash_steps_area.pack(fill=tk.BOTH, expand=True)
+
+        self.crash_steps_canvas = tk.Canvas(crash_steps_area, height=600)
+        self.crash_steps_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        crash_steps_scrollbar = ttk.Scrollbar(crash_steps_area, orient="vertical", command=self.crash_steps_canvas.yview)
+        crash_steps_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.crash_steps_canvas.configure(yscrollcommand=crash_steps_scrollbar.set)
+
+        # Frame inside the canvas for step diagrams
+        self.crash_steps_frame = ttk.Frame(self.crash_steps_canvas)
+        self.crash_steps_canvas.create_window((0, 0), window=self.crash_steps_frame, anchor="nw")
+
+        # Make sure the scroll region updates
+        def _on_frame_configure(event):
+            self.crash_steps_canvas.configure(scrollregion=self.crash_steps_canvas.bbox("all"))
+        self.crash_steps_frame.bind("<Configure>", _on_frame_configure)
     
     def run_crashing_optimization(self, max_budget=None):
         """Run project crashing optimization"""
@@ -2922,61 +2954,6 @@ class CPMDesktopApp:
             messagebox.showinfo("Success", "Project crashing completed successfully!")
         except Exception as e:
             messagebox.showerror("Error", f"Crashing optimization failed: {str(e)}")
-    
-    def create_crashing_tab(self):
-        """Create the Crashing Optimization tab"""
-        crashing_frame = ttk.Frame(self.notebook)
-        self.notebook.add(crashing_frame, text="Crashing Optimization")
-
-        # Control frame
-        control_frame = ttk.Frame(crashing_frame)
-        control_frame.pack(fill=tk.X, pady=(0, 10))
-
-        ttk.Label(control_frame, text="Target Duration:").pack(side=tk.LEFT, padx=(0, 5))
-        self.target_duration_var = tk.StringVar(value="10")
-        target_entry = ttk.Entry(control_frame, textvariable=self.target_duration_var, width=10)
-        target_entry.pack(side=tk.LEFT, padx=(0, 20))
-
-        ttk.Button(control_frame, text="Run Crashing Optimization",
-                command=self.run_crashing_optimization).pack(side=tk.LEFT)
-        
-        ttk.Label(control_frame, text="Crash Budget:").pack(side=tk.LEFT, padx=(0, 5))
-        self.crash_budget_var = tk.StringVar(value="")
-        budget_entry = ttk.Entry(control_frame, textvariable=self.crash_budget_var, width=10)
-        budget_entry.pack(side=tk.LEFT, padx=(0, 20))
-
-        # Results frame
-        results_frame = ttk.Frame(crashing_frame)
-        results_frame.pack(fill=tk.BOTH, expand=True)
-
-        # Text output for crash log/results
-        self.crash_results_text = scrolledtext.ScrolledText(results_frame, font=("Courier", 10), height=12)
-        self.crash_results_text.pack(fill=tk.BOTH, expand=True)
-
-        # Matplotlib figure for crashed network
-        self.fig_crashed = plt.Figure(figsize=(12, 8))
-        self.canvas_crashed = FigureCanvasTkAgg(self.fig_crashed, results_frame)
-        self.canvas_crashed.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-        
-        # Scrollable area for crash step diagrams
-        crash_steps_area = ttk.Frame(results_frame)
-        crash_steps_area.pack(fill=tk.BOTH, expand=True)
-
-        self.crash_steps_canvas = tk.Canvas(crash_steps_area, height=600)
-        self.crash_steps_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        crash_steps_scrollbar = ttk.Scrollbar(crash_steps_area, orient="vertical", command=self.crash_steps_canvas.yview)
-        crash_steps_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self.crash_steps_canvas.configure(yscrollcommand=crash_steps_scrollbar.set)
-
-        # Frame inside the canvas for step diagrams
-        self.crash_steps_frame = ttk.Frame(self.crash_steps_canvas)
-        self.crash_steps_canvas.create_window((0, 0), window=self.crash_steps_frame, anchor="nw")
-
-        # Make sure the scroll region updates
-        def _on_frame_configure(event):
-            self.crash_steps_canvas.configure(scrollregion=self.crash_steps_canvas.bbox("all"))
-        self.crash_steps_frame.bind("<Configure>", _on_frame_configure)
     
     def display_crash_results(self, crashed_G, total_crash_cost, crash_log, target_duration):
         """Display crash log and summary in the crashing tab"""
@@ -3057,7 +3034,7 @@ class CPMDesktopApp:
         ax.axis('equal')
         ax.axis('off')
         self.canvas_crashed.draw()
-
+    
     def show_crashing_steps_diagrams(self, crashed_G, crash_log):
         """Display a network diagram for every step of the crashing process, two per row, scrollable."""
         # Remove previous widgets if any
@@ -3113,52 +3090,7 @@ class CPMDesktopApp:
         # Update scroll region
         steps_frame.update_idletasks()
         self.crash_steps_canvas.config(scrollregion=self.crash_steps_canvas.bbox("all"))
-
-    # def show_crashing_steps_diagrams(self, crashed_G, crash_log):
-    #     """Show all step diagrams in a single page, very small if needed."""
-    #     # Remove previous widgets
-    #     for widget in self.crash_steps_frame.winfo_children():
-    #         widget.destroy()
-
-    #     step_graphs = []
-    #     G = self.analyzer.G.copy()
-    #     for i, entry in enumerate(crash_log):
-    #         G = G.copy()
-    #         G.nodes[entry['activity']]['duration'] = entry['new_duration']
-    #         G = self.analyzer.forward_pass(G)
-    #         G = self.analyzer.backward_pass(G)
-    #         G = self.analyzer.calculate_float(G)
-    #         step_graphs.append((i+1, entry['activity'], entry['new_duration'], G))
-
-    #     n_steps = len(step_graphs)
-    #     n_cols = min(6, n_steps)  # up to 6 per row
-    #     n_rows = (n_steps + n_cols - 1) // n_cols
-
-    #     fig, axes = plt.subplots(n_rows, n_cols, figsize=(n_cols*2, n_rows*2))
-    #     if n_rows == 1:
-    #         axes = [axes]
-    #     axes = axes.flatten()
-
-    #     for idx, (step_num, activity, new_duration, G_step) in enumerate(step_graphs):
-    #         ax = axes[idx]
-    #         self._draw_network_diagram_on_ax(ax, G_step)
-    #         ax.set_title(f"Step {step_num}: {activity}→{new_duration}", fontsize=7)
-    #     # Hide unused axes
-    #     for ax in axes[len(step_graphs):]:
-    #         ax.axis('off')
-
-    #     fig.tight_layout()
-
-    #     # Convert to Tkinter image
-    #     canvas = agg.FigureCanvasAgg(fig)
-    #     canvas.draw()
-    #     buf = canvas.buffer_rgba()
-    #     img = Image.frombuffer("RGBA", canvas.get_width_height(), buf, "raw", "RGBA", 0, 1)
-    #     tk_img = ImageTk.PhotoImage(img)
-    #     self.crash_step_images = [tk_img]  # Prevent GC
-
-    #     lbl = tk.Label(self.crash_steps_frame, image=tk_img)
-    #     lbl.pack()
+    
     
     def _draw_network_diagram_on_ax(self, ax, G):
         """Draw a CPM network diagram on the given matplotlib axis (like generate_network_diagram)."""
@@ -3214,7 +3146,320 @@ class CPMDesktopApp:
                         ha='center', va='center', fontsize=9)
         ax.set_axis_off()
         ax.set_aspect('equal')
+    
+    def create_rcps_crashing_tab(self):
+        """Create the RCPS Crashing Optimization tab."""
+        rcps_crashing_frame = ttk.Frame(self.notebook)
+        self.notebook.add(rcps_crashing_frame, text="RCPS Crashing")
 
+        # Control frame
+        control_frame = ttk.Frame(rcps_crashing_frame)
+        control_frame.pack(fill=tk.X, pady=(0, 10))
+
+        ttk.Label(control_frame, text="Target Duration:").pack(side=tk.LEFT, padx=(0, 5))
+        self.rcps_target_duration_var = tk.StringVar(value="10")
+        target_entry = ttk.Entry(control_frame, textvariable=self.rcps_target_duration_var, width=10)
+        target_entry.pack(side=tk.LEFT, padx=(0, 20))
+
+        ttk.Button(control_frame, text="Run RCPS Crashing",
+                   command=self.run_rcps_crashing_optimization).pack(side=tk.LEFT)
+
+        ttk.Label(control_frame, text="Crash Budget:").pack(side=tk.LEFT, padx=(0, 5))
+        self.rcps_crash_budget_var = tk.StringVar(value="")
+        budget_entry = ttk.Entry(control_frame, textvariable=self.rcps_crash_budget_var, width=10)
+        budget_entry.pack(side=tk.LEFT, padx=(0, 20))
+
+        # Results frame
+        results_frame = ttk.Frame(rcps_crashing_frame)
+        results_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Text output for crash log/results
+        self.rcps_crash_results_text = scrolledtext.ScrolledText(results_frame, font=("Courier", 10), height=12)
+        self.rcps_crash_results_text.pack(fill=tk.BOTH, expand=True)
+
+        # Matplotlib figure for crashed network
+        self.fig_rcps_crashed = plt.Figure(figsize=(12, 8))
+        self.canvas_rcps_crashed = FigureCanvasTkAgg(self.fig_rcps_crashed, results_frame)
+        self.canvas_rcps_crashed.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+        # Scrollable area for crash step diagrams
+        crash_steps_area = ttk.Frame(results_frame)
+        crash_steps_area.pack(fill=tk.BOTH, expand=True)
+
+        self.rcps_crash_steps_canvas = tk.Canvas(crash_steps_area, height=600)
+        self.rcps_crash_steps_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        crash_steps_scrollbar = ttk.Scrollbar(crash_steps_area, orient="vertical", command=self.rcps_crash_steps_canvas.yview)
+        crash_steps_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.rcps_crash_steps_canvas.configure(yscrollcommand=crash_steps_scrollbar.set)
+
+        # Frame inside the canvas for step diagrams
+        self.rcps_crash_steps_frame = ttk.Frame(self.rcps_crash_steps_canvas)
+        self.rcps_crash_steps_canvas.create_window((0, 0), window=self.rcps_crash_steps_frame, anchor="nw")
+
+        def _on_frame_configure(event):
+            self.rcps_crash_steps_canvas.configure(scrollregion=self.rcps_crash_steps_canvas.bbox("all"))
+        self.rcps_crash_steps_frame.bind("<Configure>", _on_frame_configure)
+    
+    def run_rcps_crashing_optimization(self):
+        """Run crashing optimization using RCPS schedule as input."""
+        try:
+            # Clear previous results
+            self.rcps_crash_results_text.delete(1.0, tk.END)
+            self.fig_rcps_crashed.clear() 
+            for widget in self.rcps_crash_steps_frame.winfo_children():
+                widget.destroy()
+
+            # Check if RCPS table exists (from last RCPS scheduling)
+            if not hasattr(self, 'last_rcps_table') or self.last_rcps_table is None:
+                messagebox.showwarning("Warning", "Please run the RCPS scheduling first.")
+                return
+
+            # Get target duration
+            try:
+                target_duration = float(self.rcps_target_duration_var.get())
+            except ValueError:
+                messagebox.showerror("Error", "Target duration must be a number.")
+                return
+
+            # Get crash budget
+            try:
+                crash_budget = self.rcps_crash_budget_var.get()
+                max_budget = float(crash_budget) if crash_budget.strip() else None
+            except ValueError:
+                messagebox.showerror("Error", "Crash budget must be a number.")
+                return
+
+            # Prepare activities data from RCPS table
+            rcps_df = self.last_rcps_table.copy()
+            activities_data = []
+            for idx, row in rcps_df.iterrows():
+                if row['id'] in ['RA', 'RS']:
+                    continue
+                
+                # Always reconstruct predecessors from the original CPM graph
+                preds = ''
+                if hasattr(self.analyzer, 'G') and row['id'] in self.analyzer.G.nodes:
+                    preds = ','.join([p for p in self.analyzer.G.predecessors(row['id']) if p not in ['START', 'END']])
+
+                
+                activities_data.append({
+                    'id': row['id'],
+                    'activity': '',  # Optionally fill if available
+                    'duration': int(row['duration']),
+                    'predecessors': preds, # row.get(['predecessors']),   # ' ' been removerd
+                    'resource_demand': int(row['resource']),
+                    'crash_cost': float(row.get('crash_cost', 0)),
+                    'min_duration': int(row.get('min_duration', row['duration']))
+                })
+            
+            # ----------
+            print("DEBUG: RCPS activities_data for crashing:", activities_data)
+            print("DEBUG: Target duration for crashing:", target_duration)
+            print("DEBUG: Crash budget:", max_budget)
+            # ----------
+
+            # # Run CPM analysis on RCPS-scheduled data
+            # G, critical_paths, critical_activities = self.analyzer.analyze(activities_data)
+            # # Run crashing optimization
+            # crashed_G, total_crash_cost, crash_log = self.analyzer.crash_project(target_duration, max_budget=max_budget)
+
+            # # Display crash results
+            # self.display_rcps_crashing_results(crashed_G, total_crash_cost, crash_log, target_duration)
+            # self.generate_rcps_crashed_network_diagram(crashed_G, crash_log)
+            # #self.show_rcps_crashing_steps_diagrams(crashed_G, crash_log)
+            # self.show_rcps_crashing_steps_diagrams(G, crash_log)
+            
+            self.update_cpm_graph_with_rcps()
+            # Now run crashing as in normal crashing
+            crashed_G, total_crash_cost, crash_log = self.analyzer.crash_project(target_duration, max_budget=max_budget)
+            self.display_rcps_crashing_results(crashed_G, total_crash_cost, crash_log, target_duration)
+            self.generate_rcps_crashed_network_diagram(crashed_G, crash_log)
+            self.show_rcps_crashing_steps_diagrams(self.analyzer.G, crash_log)
+            
+            
+            # Debug to check acivities_data
+            #print("DEBUG: Activities data for RCPS Crashing:", activities_data)
+            
+            # Switch to RCPS Crashing tab
+            self.notebook.select(self.notebook.tabs()[-1])
+            messagebox.showinfo("Success", "RCPS Crashing completed successfully!")
+        except Exception as e:
+            messagebox.showerror("Error", f"RCPS Crashing failed: {str(e)}")
+    
+    def display_rcps_crash_results(self, crashed_G, total_crash_cost, crash_log, target_duration):
+        """Display crash log and summary in the RCPS Crashing tab."""
+        self.rcps_crash_results_text.delete(1.0, tk.END)
+        lines = []
+        lines.append("RCPS CRASHING LOG\n" + "="*40)
+        for entry in crash_log:
+            lines.append(f"Step {entry['iteration']}: Activity {entry['activity']} crashed to duration {entry['new_duration']} (Cost: {entry['crash_cost']})")
+        lines.append("\nTotal Crash Cost: {:.2f}".format(total_crash_cost))
+        new_duration = max([crashed_G.nodes[node]['EF'] for node in crashed_G.nodes()])
+        lines.append(f"Achieved Project Duration: {new_duration} (Target: {target_duration})")
+        critical_activities = [node for node in crashed_G.nodes() if crashed_G.nodes[node]['float'] == 0 and node not in ['START', 'END']]
+        lines.append("New Critical Path: " + " -> ".join(critical_activities))
+        self.rcps_crash_results_text.insert(1.0, "\n".join(lines))
+    
+    def generate_rcps_crashed_network_diagram(self, crashed_G, crash_log):
+        """Show the crashed network diagram in RCPS Crashing tab."""
+        
+        # DEBUG: Print input graph nodes and their attributes
+        #print("DEBUG: RCPS Crashed Network Input Nodes:")
+        
+        for node in crashed_G.nodes(data=True):
+            print(node)
+        # print("DEBUG: Crash Log:", crash_log)
+        
+        self.fig_rcps_crashed.clear()
+        ax = self.fig_rcps_crashed.add_subplot(111)
+        pos = {}
+        generations = list(nx.topological_generations(crashed_G))
+        for i, gen in enumerate(generations):
+            sorted_gen = sorted(gen)
+            for j, node in enumerate(sorted_gen):
+                y_pos = (j - len(sorted_gen) / 2 + 0.5) * 4
+                pos[node] = (i * 3, y_pos)
+                
+        node_radius = 0.4
+        
+        # Draw edges
+        for u, v in crashed_G.edges():
+            x1, y1 = pos[u]
+            x2, y2 = pos[v]
+            dx = x2 - x1
+            dy = y2 - y1
+            distance = (dx ** 2 + dy ** 2) ** 0.5
+            if distance > 0:
+                dx_norm = dx / distance
+                dy_norm = dy / distance
+                start_x = x1 + node_radius * dx_norm
+                start_y = y1 + node_radius * dy_norm
+                end_x = x2 - node_radius * dx_norm
+                end_y = y2 - node_radius * dy_norm
+                ax.annotate("", xy=(end_x, end_y), xytext=(start_x, start_y),
+                            arrowprops=dict(arrowstyle="->", color="black", lw=1.5))
+                
+        # Draw nodes
+        critical_activities = [node for node in crashed_G.nodes() if crashed_G.nodes[node]['float'] == 0 and node not in ['START', 'END']]
+        for node in crashed_G.nodes():
+            x, y = pos[node]
+            if node == 'START':
+                color = 'lightgreen'
+            elif node == 'END':
+                color = 'orange'
+            elif node in critical_activities:
+                color = 'red'
+            else:
+                color = 'lightblue'
+            circle = plt.Circle((x, y), node_radius, fill=True, color=color, alpha=0.7,
+                                edgecolor='black', linewidth=1.5)
+            ax.add_patch(circle)
+            if node in ['START', 'END']:
+                display_text = 'Start' if node == 'START' else 'End'
+                ax.text(x, y, display_text, ha='center', va='center',
+                        fontsize=10, fontweight='bold')
+            else:
+                ax.plot([x - node_radius, x + node_radius], [y, y],
+                        color='black', linewidth=1.2)
+                ax.text(x, y + node_radius / 2, node, ha='center', va='center',
+                        fontsize=10, fontweight='bold')
+                ax.text(x, y - node_radius / 2, str(crashed_G.nodes[node]['duration']),
+                        ha='center', va='center', fontsize=9)
+        
+        # --- DEBUG: Print output node positions for diagram ---
+        print("DEBUG: Node positions for diagram:")
+        for node, (x, y) in pos.items():
+            print(f"{node}: x={x}, y={y}")
+        # ----------------------------------------------------- 
+            
+        ax.set_title("RCPS Crashed Project Network Diagram")
+        ax.axis('equal')
+        ax.axis('off')
+        self.canvas_rcps_crashed.draw()
+    
+    def display_rcps_crashing_results(self, crashed_G, total_crash_cost, crash_log, target_duration):
+        """Display crash log and summary in the RCPS Crashing tab (detailed style)."""
+        self.rcps_crash_results_text.delete(1.0, tk.END)
+        lines = []
+        lines.append("RCPS CRASHING OPTIMIZATION LOG\n" + "="*40)
+        for entry in crash_log:
+            lines.append(
+                f"Step {entry['iteration']}: Activity {entry['activity']} crashed to duration {entry['new_duration']} (Cost: {entry['crash_cost']})"
+            )
+        lines.append("\nTotal Crash Cost: {:.2f}".format(total_crash_cost))
+        new_duration = max([crashed_G.nodes[node]['EF'] for node in crashed_G.nodes()])
+        lines.append(f"Achieved Project Duration: {new_duration} (Target: {target_duration})")
+        # Show new critical path
+        critical_activities = [node for node in crashed_G.nodes() if crashed_G.nodes[node]['float'] == 0 and node not in ['START', 'END']]
+        lines.append("New Critical Path: " + " -> ".join(critical_activities))
+        self.rcps_crash_results_text.insert(1.0, "\n".join(lines))
+    
+    def show_rcps_crashing_steps_diagrams(self, base_G, crash_log):
+        """
+        Display a network diagram for every step of the RCPS crashing process, two per row, scrollable.
+        """
+        print("DEBUG: show_rcps_crashing_steps_diagrams called")
+        print(f"DEBUG: crash_log length = {len(crash_log)}")
+        for widget in self.rcps_crash_steps_frame.winfo_children():
+            widget.destroy()
+
+        canvas = tk.Canvas(self.rcps_crash_steps_frame, height=600)
+        scrollbar = ttk.Scrollbar(self.rcps_crash_steps_frame, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        steps_frame = ttk.Frame(self.rcps_crash_steps_canvas)
+        self.rcps_crash_steps_canvas.create_window((0, 0), window=steps_frame, anchor="nw")
+
+        step_graphs = []
+        G = base_G.copy()  # Start from the graph passed in
+
+        for i, entry in enumerate(crash_log):
+            G = G.copy()
+            G.nodes[entry['activity']]['duration'] = entry['new_duration']
+            G = self.analyzer.forward_pass(G)
+            G = self.analyzer.backward_pass(G)
+            G = self.analyzer.calculate_float(G)
+            step_graphs.append((i+1, entry['activity'], entry['new_duration'], G))
+
+        print(f"DEBUG: step_graphs length = {len(step_graphs)}")
+        self.rcps_crash_step_images = []
+
+        for idx, (step_num, activity, new_duration, G_step) in enumerate(step_graphs):
+            fig = plt.Figure(figsize=(4, 3))
+            ax = fig.add_subplot(111)
+            self._draw_network_diagram_on_ax(ax, G_step)
+            ax.set_title(f"Step {step_num}: {activity} → {new_duration}")
+            canvas_fig = agg.FigureCanvasAgg(fig)
+            canvas_fig.draw()
+            buf = canvas_fig.buffer_rgba()
+            img = Image.frombuffer("RGBA", canvas_fig.get_width_height(), buf, "raw", "RGBA", 0, 1)
+            tk_img = ImageTk.PhotoImage(img)
+            self.rcps_crash_step_images.append(tk_img)
+            lbl = tk.Label(steps_frame, image=tk_img)
+            lbl.grid(row=idx // 2, column=idx % 2, padx=10, pady=10)
+
+        print(f"DEBUG: Created {len(self.rcps_crash_step_images)} images for steps.")
+        steps_frame.update_idletasks()
+        self.rcps_crash_steps_canvas.config(scrollregion=self.rcps_crash_steps_canvas.bbox("all"))
+    
+    def update_cpm_graph_with_rcps(self):
+        """Update CPM graph durations to match RCPS schedule."""
+        if not hasattr(self.analyzer, 'G') or self.analyzer.G is None:
+            return
+        if not hasattr(self, 'last_rcps_table') or self.last_rcps_table is None:
+            return
+        rcps_df = self.last_rcps_table
+        for idx, row in rcps_df.iterrows():
+            act_id = row['id']
+            if act_id in self.analyzer.G.nodes and act_id not in ['RA', 'RS']:
+                try:
+                    self.analyzer.G.nodes[act_id]['duration'] = int(row['duration'])
+                except Exception:
+                    pass
+    
     
 def main():
     """Main function to run the application"""
