@@ -256,132 +256,6 @@ class CPMAnalyzer:
         return self.G, self.critical_paths, self.critical_activities
     
     #####################################################################################
-    ####KEEPS####
-    # def crash_project(self, target_duration, max_iterations=300, max_budget=None):
-    #     """
-    #     Crash the project to achieve target duration with enhanced logging
-    #     Returns: (crashed_graph, total_crash_cost, crash_log)
-    #     """
-    #     if not self.G:
-    #         raise ValueError("No network graph available. Run analysis first.")
-        
-        
-    #     # Store original durations BEFORE any modifications
-    #     original_durations = {node: self.G.nodes[node]['duration'] for node in self.G.nodes()}
-
-        
-    #     # Create a copy of the graph to modify
-    #     crashed_G = self.G.copy()
-    #     total_crash_cost = 0
-    #     crash_log = []
-        
-    #     # Track how many times each activity has been crashed
-    #     crash_counts = {node: 0 for node in crashed_G.nodes()}
-
-    #     # Get max_crash_steps for each activity (default: unlimited)
-    #     max_crash_steps = {}
-    #     for node in crashed_G.nodes():
-    #         max_crash_steps[node] = crashed_G.nodes[node].get('max_crash_steps', None)
-        
-    #     # Get initial project duration
-    #     current_duration = max([crashed_G.nodes[node]['EF'] for node in crashed_G.nodes()])
-    #     iteration = 0
-        
-    #     print(f"Starting crash optimization: Initial duration = {current_duration}, Target = {target_duration}")
-        
-    #     while current_duration > target_duration and iteration < max_iterations:
-            
-    #         # Budget check before any crash
-    #         if max_budget is not None and total_crash_cost >= max_budget:
-    #             print(f"Crash budget reached: {total_crash_cost} >= {max_budget}")
-    #             break
-            
-    #         iteration += 1
-            
-    #         # Recalculate CPM on current graph
-    #         crashed_G = self.forward_pass(crashed_G)
-    #         crashed_G = self.backward_pass(crashed_G)
-    #         crashed_G = self.calculate_float(crashed_G)
-            
-    #         # Find critical activities
-    #         critical_activities = [node for node in crashed_G.nodes() 
-    #                             if crashed_G.nodes[node]['float'] == 0 and node not in ['START', 'END']]
-            
-    #         print(f"Iteration {iteration}: Critical path = {' -> '.join(critical_activities)}")
-            
-    #         if not critical_activities:
-    #             print("No critical activities found. Breaking.")
-    #             break
-            
-    #         # Find crashable activities on critical path
-    #         crashable_activities = []
-    #         for activity in critical_activities:
-    #             current_dur = crashed_G.nodes[activity]['duration']
-    #             min_dur = crashed_G.nodes[activity]['min_duration']
-    #             crash_cost = crashed_G.nodes[activity]['crash_cost']
-    #             max_steps = max_crash_steps.get(activity, None)
-    #             crashed_so_far = crash_counts.get(activity, 0)
-                
-    #             # Only allow if under max_crash_steps (or unlimited if None)
-    #             can_crash = (current_dur > min_dur and crash_cost > 0 and
-    #                         (max_steps is None or crashed_so_far < max_steps))
-                
-    #             if can_crash:
-    #                 crashable_activities.append({
-    #                     'id': activity,
-    #                     'crash_cost': crash_cost,
-    #                     'current_duration': current_dur,
-    #                     'min_duration': min_dur
-    #                 })
-    #                 print(f"  Crashable: {activity} (dur={current_dur}, min={min_dur}, cost={crash_cost})")
-
-            
-    #         if not crashable_activities:
-    #             print("No more activities can be crashed. Breaking.")
-    #             break  # No more activities can be crashed
-            
-    #         # Select activity with lowest crash cost
-    #         cheapest_activity = min(crashable_activities, key=lambda x: x['crash_cost'])
-    #         activity_id = cheapest_activity['id']
-            
-    #         # Budget check before this crash
-    #         if max_budget is not None and total_crash_cost + cheapest_activity['crash_cost'] > max_budget:
-    #             print(f"Next crash would exceed budget: {total_crash_cost} + {cheapest_activity['crash_cost']} > {max_budget}")
-    #             break
-            
-    #         # Crash the selected activity
-    #         crashed_G.nodes[activity_id]['duration'] -= 1
-    #         total_crash_cost += cheapest_activity['crash_cost']
-    #         crash_counts[activity_id] += 1  # Track this crash
-            
-    #         print(f"  Crashing {activity_id}: {cheapest_activity['current_duration']} → {crashed_G.nodes[activity_id]['duration']} (Cost: {cheapest_activity['crash_cost']})")
-            
-    #         crash_log.append({
-    #             'iteration': iteration,
-    #             'activity': activity_id,
-    #             'crash_cost': cheapest_activity['crash_cost'],
-    #             'new_duration': crashed_G.nodes[activity_id]['duration'],
-    #             'original_duration': original_durations[activity_id]
-    #         })
-            
-    #         # Update project duration
-    #         crashed_G = self.forward_pass(crashed_G)
-    #         new_duration = max([crashed_G.nodes[node]['EF'] for node in crashed_G.nodes()])
-    #         print(f"  New project duration: {current_duration} → {new_duration}")
-    #         current_duration = new_duration
-            
-    #         if current_duration <= target_duration:
-    #             print(f"Target duration {target_duration} achieved!")
-    #             break
-        
-    #     # Final CPM calculation
-    #     crashed_G = self.forward_pass(crashed_G)
-    #     crashed_G = self.backward_pass(crashed_G)
-    #     crashed_G = self.calculate_float(crashed_G)
-        
-    #     print(f"Crash optimization complete. Final duration: {current_duration}, Total cost: {total_crash_cost}")
-        
-    #     return crashed_G, total_crash_cost, crash_log
     
     def build_cpm_schedule_table(self, df_gantt, resource_limit):
         """
@@ -590,6 +464,102 @@ class CPMAnalyzer:
         
         return set(max_path)
     
+    # def get_scheduled_critical_path(self, scheduled_activities):
+    #     """
+    #     Find the critical path in the scheduled activities based on RCPS results.
+    #     Returns a set of activity IDs on the critical path.
+    #     """
+    #     import networkx as nx
+        
+    #     # Build a graph from scheduled_activities using their dependencies
+    #     G = nx.DiGraph()
+        
+    #     # Add nodes with scheduling information
+    #     for act_id, data in scheduled_activities.items():
+    #         if act_id not in ['START', 'END', 'RA', 'RS']:  # Skip utility nodes
+    #             G.add_node(act_id, **data)
+        
+    #     # Add edges based on predecessors
+    #     for act_id, data in scheduled_activities.items():
+    #         if act_id not in ['START', 'END', 'RA', 'RS']:
+    #             preds = data.get('predecessors', [])
+    #             if isinstance(preds, str):
+    #                 preds = [p.strip() for p in preds.split(',') if p.strip()]
+    #             elif preds is None:
+    #                 preds = []
+                
+    #             for pred in preds:
+    #                 if pred and pred in G.nodes:
+    #                     G.add_edge(pred, act_id)
+        
+    #     # Find project completion time
+    #     if not scheduled_activities:
+    #         return set()
+        
+    #     # Get finish times, handling different possible key names
+    #     finish_times = {}
+    #     for act_id, data in scheduled_activities.items():
+    #         if act_id not in ['START', 'END', 'RA', 'RS']:
+    #             # Try different possible key names for finish time
+    #             finish_time = (data.get('scheduled_finish') or 
+    #                         data.get('actual_finish') or 
+    #                         data.get('finish_time') or 
+    #                         data.get('EF', 0))
+    #             finish_times[act_id] = finish_time
+        
+    #     if not finish_times:
+    #         return set()
+        
+    #     project_finish_time = max(finish_times.values())
+        
+    #     # Find activities that finish at project completion time
+    #     end_activities = [act_id for act_id, finish_time in finish_times.items() 
+    #                     if finish_time == project_finish_time]
+        
+    #     # Find all paths from start nodes to end activities
+    #     start_nodes = [n for n in G.nodes if G.in_degree(n) == 0]
+    #     if not start_nodes:
+    #         start_nodes = list(G.nodes)  # Fallback if no clear start
+        
+    #     critical_paths = []
+        
+    #     for start in start_nodes:
+    #         for end in end_activities:
+    #             try:
+    #                 # Find all simple paths from start to end
+    #                 paths = list(nx.all_simple_paths(G, start, end))
+    #                 for path in paths:
+    #                     # Calculate path duration (sum of activity durations)
+    #                     path_duration = sum([scheduled_activities[node].get('duration', 0) for node in path])
+    #                     # Calculate path span (finish time - start time)
+    #                     path_start = min([scheduled_activities[node].get('scheduled_start', 
+    #                                     scheduled_activities[node].get('actual_start', 0)) for node in path])
+    #                     path_finish = max([scheduled_activities[node].get('scheduled_finish',
+    #                                     scheduled_activities[node].get('actual_finish', 0)) for node in path])
+    #                     path_span = path_finish - path_start
+                        
+    #                     critical_paths.append({
+    #                         'path': path,
+    #                         'duration': path_duration,
+    #                         'span': path_span,
+    #                         'finish_time': path_finish
+    #                     })
+    #             except nx.NetworkXNoPath:
+    #                 continue
+        
+    #     if not critical_paths:
+    #         # Fallback: return activities that finish at project completion time
+    #         return set(end_activities)
+        
+    #     # Sort by finish time (descending), then by span (descending)
+    #     critical_paths.sort(key=lambda x: (x['finish_time'], x['span']), reverse=True)
+        
+    #     # Return the path that finishes latest and has longest span
+    #     longest_path = critical_paths[0]['path']
+        
+    #     return set(longest_path)
+    
+    
     #####TRIAAL###
     def recalculate_with_rcps_constraints(self, G, rcps_start_times):
         """
@@ -636,6 +606,244 @@ class CPMAnalyzer:
                 G_new.nodes[node]['float'] = G_new.nodes[node]['LS'] - G_new.nodes[node]['ES']
         
         return G_new
+    
+    # def crash_project_with_rcps(self, target_duration, resource_limit, priority_rule='minimum_slack', max_iterations=300, max_budget=None):
+    #     """
+    #     Crash the project to achieve target duration while respecting resource constraints.
+        
+    #     This function integrates Resource-Constrained Project Scheduling (RCPS) into the crashing process,
+    #     ensuring that the crashing decisions respect both resource limitations and the chronological
+    #     progression of the project. Activities that have already completed cannot be crashed.
+        
+    #     Args:
+    #         target_duration (float): The desired project duration after crashing
+    #         resource_limit (int): Maximum resource availability per time period
+    #         priority_rule (str): Scheduling rule for resource allocation ('minimum_slack', 'shortest_duration', or 'earliest_start')
+    #         max_iterations (int): Maximum number of crashing iterations to prevent infinite loops
+    #         max_budget (float, optional): Maximum budget available for crashing activities
+        
+    #     Returns:
+    #         tuple: (crashed_graph, total_crash_cost, crash_log)
+    #     """
+    #     if not self.G:
+    #         raise ValueError("No network graph available. Run analysis first.")
+        
+    #     # Store original durations BEFORE any modifications
+    #     original_durations = {node: self.G.nodes[node]['duration'] for node in self.G.nodes()}
+        
+    #     # Create a copy of the graph to modify
+    #     crashed_G = self.G.copy()
+    #     total_crash_cost = 0
+    #     crash_log = []
+        
+    #     # Track how many times each activity has been crashed
+    #     crash_counts = {node: 0 for node in crashed_G.nodes()}
+
+    #     # Get max_crash_steps for each activity (default: unlimited)
+    #     max_crash_steps = {}
+    #     for node in crashed_G.nodes():
+    #         max_crash_steps[node] = crashed_G.nodes[node].get('max_crash_steps', None)
+        
+    #     iteration = 0
+        
+    #     # Initialize simulation time and completed activities tracker
+    #     current_time = 0
+    #     completed_activities = set()
+        
+    #     print(f"Starting RCPS-integrated crash optimization: Target = {target_duration}")
+        
+    #     while iteration < max_iterations:
+            
+    #         # Budget check before any crash
+    #         if max_budget is not None and total_crash_cost >= max_budget:
+    #             print(f"Crash budget reached: {total_crash_cost} >= {max_budget}")
+    #             break
+            
+    #         iteration += 1
+            
+    #         # Debug: Print current activity durations
+    #         for node in crashed_G.nodes():
+    #             if node not in ['START', 'END']:
+    #                 print(f"  {node}: {crashed_G.nodes[node]['duration']}")
+            
+    #         # Generate RCPS schedule for current graph state
+    #         # This creates a resource-feasible schedule considering resource constraints
+    #         current_schedule = self.generate_rcps_schedule_for_graph(crashed_G, resource_limit, priority_rule)
+    #         current_duration = current_schedule['project_duration']
+            
+    #         # Update completed activities based on current simulation time
+    #         for activity_id, activity_data in current_schedule['activities'].items():
+    #             # If activity finishes before or at current simulation time, mark as completed
+    #             if activity_data['actual_finish'] <= current_time:
+    #                 completed_activities.add(activity_id)
+    #                 print(f"DEBUG: Activity {activity_id} completed at time {activity_data['actual_finish']} (current_time: {current_time})")
+            
+    #         # Print current state information
+    #         print(f"Iteration {iteration}: RCPS duration = {current_duration}, Target = {target_duration}, Current time = {current_time}")
+    #         print(f"Completed activities: {sorted(list(completed_activities))}")
+            
+    #         # Check if target is achieved
+    #         if current_duration <= target_duration:
+    #             print(f"Target duration {target_duration} achieved! Final duration: {current_duration}")
+    #             break
+            
+    #         # Find critical activities in the RCPS schedule
+    #         # These are activities that determine the project's end time
+    #         critical_activities = current_schedule['critical_activities']
+            
+    #         print(f"Critical path in RCPS: {' -> '.join(critical_activities)}")
+            
+    #         if not critical_activities:
+    #             print("No critical activities found. Breaking.")
+    #             break
+            
+    #         # Test crash impact for each critical activity that hasn't finished yet
+    #         crash_options = []
+    #         for activity in critical_activities:
+    #             # Skip if activity is already completed
+    #             if activity in completed_activities:
+    #                 print(f"  Not crashable: {activity} (already completed)")
+    #                 continue
+                    
+    #             # Get current activity data
+    #             current_dur = crashed_G.nodes[activity]['duration']
+    #             min_dur = crashed_G.nodes[activity]['min_duration']
+    #             crash_cost = crashed_G.nodes[activity]['crash_cost']
+    #             max_steps = max_crash_steps.get(activity, None)
+    #             crashed_so_far = crash_counts.get(activity, 0)
+                
+    #             # Get activity schedule data from RCPS
+    #             activity_data = current_schedule['activities'].get(activity, {})
+    #             actual_start = activity_data.get('actual_start', 0)
+    #             actual_finish = activity_data.get('actual_finish', 0)
+                
+    #             # Check if activity is in progress or hasn't started yet
+    #             # Only in-progress activities or future activities can be crashed
+    #             will_finish_soon = (actual_start <= current_time) and (actual_finish > current_time)
+    #             is_future = actual_start > current_time
+                
+    #             # Only allow if:
+    #             # - Under max_crash_steps (or unlimited if None)
+    #             # - Not finished
+    #             # - Has not reached minimum duration
+    #             # - Has a positive crash cost
+    #             can_crash = (current_dur > min_dur and 
+    #                         crash_cost > 0 and
+    #                         (max_steps is None or crashed_so_far < max_steps))
+                
+    #             if can_crash:
+    #                 # Test the impact of crashing this activity by simulating the crash
+    #                 temp_G = crashed_G.copy()
+    #                 temp_G.nodes[activity]['duration'] -= 1
+                    
+    #                 # Generate a new RCPS schedule with the crashed activity
+    #                 temp_schedule = self.generate_rcps_schedule_for_graph(temp_G, resource_limit, priority_rule)
+    #                 temp_duration = temp_schedule['project_duration']
+                    
+    #                 # Calculate the reduction in project duration this crash would achieve
+    #                 duration_reduction = current_duration - temp_duration
+                    
+    #                 # Store this crash option for evaluation
+    #                 crash_options.append({
+    #                     'id': activity,
+    #                     'crash_cost': crash_cost,
+    #                     'current_duration': current_dur,
+    #                     'min_duration': min_dur,
+    #                     'duration_reduction': duration_reduction,
+    #                     'resulting_duration': temp_duration,
+    #                     'efficiency': duration_reduction / crash_cost if crash_cost > 0 else 0,
+    #                     'actual_start': actual_start,
+    #                     'actual_finish': actual_finish - 1,  # Reduced by 1 due to crash
+    #                     'is_in_progress': will_finish_soon
+    #                 })
+                    
+    #                 print(f"  Crashable: {activity} (dur={current_dur}, min={min_dur}, cost={crash_cost}, "
+    #                     f"reduction={duration_reduction}, new_duration={temp_duration})")
+    #             else:
+    #                 print(f"  Not crashable: {activity} (dur={current_dur}, min={min_dur}, already at min or max steps reached)")
+            
+    #         if not crash_options:
+    #             print("No more activities can be crashed. Breaking.")
+    #             break
+            
+    #         # Select activity with lowest crash cost (same logic as in crash_project)
+    #         cheapest_activity = min(crash_options, key=lambda x: x['crash_cost'])
+    #         activity_id = cheapest_activity['id']
+            
+    #         # Add logging for clarity about selection
+    #         if cheapest_activity['is_in_progress']:
+    #             print(f"  Selected activity {activity_id} (in progress) with lowest cost {cheapest_activity['crash_cost']}")
+    #         else:
+    #             print(f"  Selected activity {activity_id} (future) with lowest cost {cheapest_activity['crash_cost']}")
+            
+    #         # Budget check before this specific crash
+    #         if max_budget is not None and total_crash_cost + cheapest_activity['crash_cost'] > max_budget:
+    #             print(f"Next crash would exceed budget: {total_crash_cost} + {cheapest_activity['crash_cost']} > {max_budget}")
+    #             break
+            
+    #         # Crash the selected activity
+    #         crashed_G.nodes[activity_id]['duration'] -= 1
+    #         total_crash_cost += cheapest_activity['crash_cost']
+    #         crash_counts[activity_id] += 1
+            
+    #         print(f"  Crashing {activity_id}: {cheapest_activity['current_duration']} → {crashed_G.nodes[activity_id]['duration']} (Cost: {cheapest_activity['crash_cost']})")
+            
+    #         # Record this crash in the log
+    #         crash_log.append({
+    #             'iteration': iteration,
+    #             'activity': activity_id,
+    #             'crash_cost': cheapest_activity['crash_cost'],
+    #             'new_duration': crashed_G.nodes[activity_id]['duration'],
+    #             'original_duration': original_durations[activity_id],
+    #             'project_duration_reduction': cheapest_activity['duration_reduction'],
+    #             'resulting_project_duration': cheapest_activity['resulting_duration']
+    #         })
+            
+    #         print(f"  New RCPS project duration: {current_duration} → {cheapest_activity['resulting_duration']}")
+            
+    #         # CRITICAL FIX: Uniformly advance time by 1 unit
+    #         current_time += 1
+    #         print(f"  Advanced time to {current_time}")
+        
+    #     # Generate final RCPS schedule for the crashed graph
+    #     final_schedule = self.generate_rcps_schedule_for_graph(crashed_G, resource_limit, priority_rule)
+    #     final_duration = final_schedule['project_duration']
+        
+    #     # Update the crashed graph with final RCPS times
+    #     # This ensures that the graph reflects the resource-feasible schedule
+    #     for activity_id, activity_data in final_schedule['activities'].items():
+    #         if activity_id in crashed_G.nodes:
+    #             crashed_G.nodes[activity_id]['ES'] = activity_data['actual_start']
+    #             crashed_G.nodes[activity_id]['EF'] = activity_data['actual_finish']
+        
+    #     # Calculate LS, LF, and float based on RCPS schedule
+    #     # Set all LF to project duration initially
+    #     for node in crashed_G.nodes():
+    #         crashed_G.nodes[node]['LF'] = final_duration
+    #         crashed_G.nodes[node]['LS'] = final_duration
+        
+    #     # Backward pass for LS/LF calculation only
+    #     for node in reversed(list(nx.topological_sort(crashed_G))):
+    #         if node not in ['START', 'END']:
+    #             duration = crashed_G.nodes[node]['duration']
+                
+    #             # Calculate LF based on successors' LS
+    #             successors = list(crashed_G.successors(node))
+    #             if successors:
+    #                 min_succ_ls = min([crashed_G.nodes[succ]['LS'] for succ in successors])
+    #                 crashed_G.nodes[node]['LF'] = min_succ_ls
+    #             else:
+    #                 crashed_G.nodes[node]['LF'] = final_duration
+                
+    #             # Calculate LS
+    #             crashed_G.nodes[node]['LS'] = crashed_G.nodes[node]['LF'] - duration
+                
+    #             # Calculate float based on RCPS times
+    #             crashed_G.nodes[node]['float'] = crashed_G.nodes[node]['LS'] - crashed_G.nodes[node]['ES']
+        
+    #     print(f"RCPS-integrated crash optimization complete. Final duration: {final_duration}, Total cost: {total_crash_cost}")
+        
+    #     return crashed_G, total_crash_cost, crash_log
     
     def crash_project_with_rcps(self, target_duration, resource_limit, priority_rule='minimum_slack', max_iterations=300, max_budget=None):
         """
@@ -717,11 +925,16 @@ class CPMAnalyzer:
                 print(f"Target duration {target_duration} achieved! Final duration: {current_duration}")
                 break
             
-            # Find critical activities in the RCPS schedule
-            # These are activities that determine the project's end time
-            critical_activities = current_schedule['critical_activities']
+            # Find critical activities using zero float approach (same as CPM)
+            crashed_G_temp = self.forward_pass(crashed_G.copy())
+            crashed_G_temp = self.backward_pass(crashed_G_temp)
+            crashed_G_temp = self.calculate_float(crashed_G_temp)
             
-            print(f"Critical path in RCPS: {' -> '.join(critical_activities)}")
+            # Get critical activities (activities with zero float)
+            critical_activities = [node for node in crashed_G_temp.nodes() 
+                                if crashed_G_temp.nodes[node]['float'] == 0 and node not in ['START', 'END']]
+            
+            print(f"Critical activities (zero float): {' -> '.join(critical_activities)}")
             
             if not critical_activities:
                 print("No critical activities found. Breaking.")
@@ -874,6 +1087,8 @@ class CPMAnalyzer:
         print(f"RCPS-integrated crash optimization complete. Final duration: {final_duration}, Total cost: {total_crash_cost}")
         
         return crashed_G, total_crash_cost, crash_log
+    
+    
     
     def crash_project(self, target_duration, max_iterations=300, max_budget=None):
         """
@@ -1048,55 +1263,6 @@ class CPMAnalyzer:
                 print(f"Target duration {target_duration} achieved!")
                 break
             
-            
-            
-            # # CRITICAL: Advance simulation time to the next event (activity start or finish)
-            # # Find all activities that will start or finish after the current time
-            # future_events = []
-            
-            # # Track activity starts
-            # for node in crashed_G.nodes():
-            #     if node not in ['START', 'END'] and node not in completed_activities:
-            #         es = crashed_G.nodes[node]['ES']
-            #         if es > current_time:
-            #             future_events.append(('start', node, es))
-            
-            # # Track activity finishes
-            # for node in crashed_G.nodes():
-            #     if node not in ['START', 'END'] and node not in completed_activities:
-            #         ef = crashed_G.nodes[node]['EF']
-            #         if ef > current_time:
-            #             future_events.append(('finish', node, ef))
-            
-            # # Sort events by time
-            # future_events.sort(key=lambda x: x[2])
-            
-            # # Advance time to the next event if there is one
-            # if future_events:
-            #     next_event = future_events[0]
-            #     next_time = next_event[2]
-            #     event_type = next_event[0]
-            #     event_activity = next_event[1]
-                
-            #     if next_time > current_time:
-            #         current_time = next_time
-            #         print(f"  Advanced time to {current_time} ({event_type} of activity {event_activity})")
-                    
-            #         # Update completed activities based on new time
-            #         for node in crashed_G.nodes():
-            #             if node not in ['START', 'END'] and crashed_G.nodes[node]['EF'] <= current_time:
-            #                 if node not in completed_activities:
-            #                     completed_activities.add(node)
-            #                     print(f"  Activity {node} completed at time {crashed_G.nodes[node]['EF']}")
-            # else:
-            #     # If no future events (should not happen in normal CPM), advance by 1 time unit
-            #     current_time += 1
-            #     print(f"  No future events found. Advanced time by 1 unit to {current_time}")
-                
-            # if current_duration <= target_duration:
-            #     print(f"Target duration {target_duration} achieved!")
-            #     break
-        
         # Final CPM calculation
         crashed_G = self.forward_pass(crashed_G)
         crashed_G = self.backward_pass(crashed_G)
@@ -1105,6 +1271,109 @@ class CPMAnalyzer:
         print(f"Crash optimization complete. Final duration: {current_duration}, Total cost: {total_crash_cost}")
         
         return crashed_G, total_crash_cost, crash_log
+    
+    # def generate_rcps_schedule_for_graph(self, G, resource_limit, priority_rule='minimum_slack'):
+    #     """
+    #     Generate RCPS schedule for a given graph state and return schedule data.
+        
+    #     This method should perform FULL RCPS scheduling, not just CPM calculations.
+        
+    #     Returns:
+    #         dict: {
+    #             'project_duration': int,
+    #             'activities': dict,  # activity_id -> {actual_start, actual_finish, ...}
+    #             'critical_activities': list
+    #         }
+    #     """
+    #     # DEBUG: Run FULL RCPS scheduling, not just graph updates
+    #     #print(f"DEBUG: Running RCPS scheduling for graph with resource_limit={resource_limit}")
+        
+    #     # Convert graph to DataFrame format for RCPS scheduling
+    #     activities_data = []
+    #     for node in G.nodes():
+    #         if node not in ['START', 'END']:
+    #             # Get predecessors (excluding START)
+    #             predecessors = [pred for pred in G.predecessors(node) if pred != 'START']
+    #             predecessors_str = ','.join(predecessors) if predecessors else ''
+                
+    #             # Use current durations from the graph (which may be crashed)
+    #             current_duration = G.nodes[node]['duration']
+                
+    #             activities_data.append({
+    #                 'id': node,
+    #                 'duration': current_duration,  # Use current (possibly crashed) duration
+    #                 'resource': G.nodes[node].get('resource_demand', 0),
+    #                 'early_start': 0,  # Reset for RCPS calculation
+    #                 'late_finish': 0,  # Reset for RCPS calculation  
+    #                 'float': 0,  # Reset for RCPS calculation
+    #                 'predecessors': predecessors_str
+    #             })
+            
+    #         # DEBUG: Print activity details
+    #         #print(f"DEBUG: Activity {node}: duration={current_duration}, resource_demand={G.nodes[node].get('resource_demand', 0)}")
+        
+    #     df_gantt = pd.DataFrame(activities_data)
+        
+    #     #DEBUG: Print DataFrame structure
+    #     # print(f"DEBUG: RCPS input DataFrame shape: {df_gantt.shape}")
+    #     # print(f"DEBUG: RCPS input DataFrame columns: {list(df_gantt.columns)}")
+        
+    #     # CRITICAL: Run FULL CPM analysis first (to get ES, LF, float for RCPS)
+    #     temp_G = self.build_network_for_rcps(activities_data)  # CHANGED: Updated method name
+    #     temp_G = self.forward_pass(temp_G)
+    #     temp_G = self.backward_pass(temp_G)
+    #     temp_G = self.calculate_float(temp_G)
+        
+    #     # Update DataFrame with CPM results for RCPS input
+    #     for idx, row in df_gantt.iterrows():
+    #         activity_id = row['id']
+    #         if activity_id in temp_G.nodes:
+    #             df_gantt.at[idx, 'early_start'] = temp_G.nodes[activity_id]['ES']
+    #             df_gantt.at[idx, 'late_finish'] = temp_G.nodes[activity_id]['LF']
+    #             df_gantt.at[idx, 'float'] = temp_G.nodes[activity_id]['float']
+        
+    #     # print(f"DEBUG: Running RCPS heuristic scheduling...")
+        
+    #     # Run RCPS scheduling with proper inputs
+    #     rcps_table, actual_starts, critical_ids = self.rcps_heuristic_schedule_table(
+    #         df_gantt, resource_limit, priority_rule
+    #     )
+        
+        
+    #     # # DEBUG: Print RCPS table structure
+    #     # print(f"DEBUG: RCPS completed. Table shape: {rcps_table.shape}")
+        
+    #     # Extract schedule data
+    #     activities = {}
+    #     project_duration = 0
+        
+    #     for idx, row in rcps_table.iterrows():
+    #         if row['id'] not in ['RA', 'RS']:
+    #             activity_id = row['id']
+    #             actual_start = int(row['actual_start']) if not pd.isna(row['actual_start']) else 0
+    #             duration = int(row['duration'])
+    #             actual_finish = actual_start + duration
+                
+    #             activities[activity_id] = {
+    #                 'actual_start': actual_start,
+    #                 'actual_finish': actual_finish,
+    #                 'duration': duration
+    #             }
+                
+    #             project_duration = max(project_duration, actual_finish)
+    #             # # DEBUG: Print activity details
+    #             # print(f"DEBUG: Activity {activity_id}: start={actual_start}, finish={actual_finish}")
+        
+    #     #print(f"DEBUG: Final RCPS project duration: {project_duration}")
+        
+    #     # Find critical path in RCPS schedule
+    #     critical_activities = self.find_critical_path_in_rcps_schedule(activities, G)
+        
+    #     return {
+    #         'project_duration': project_duration,
+    #         'activities': activities,
+    #         'critical_activities': critical_activities
+    #     }
     
     def generate_rcps_schedule_for_graph(self, G, resource_limit, priority_rule='minimum_slack'):
         """
@@ -1119,9 +1388,6 @@ class CPMAnalyzer:
                 'critical_activities': list
             }
         """
-        # DEBUG: Run FULL RCPS scheduling, not just graph updates
-        #print(f"DEBUG: Running RCPS scheduling for graph with resource_limit={resource_limit}")
-        
         # Convert graph to DataFrame format for RCPS scheduling
         activities_data = []
         for node in G.nodes():
@@ -1142,18 +1408,11 @@ class CPMAnalyzer:
                     'float': 0,  # Reset for RCPS calculation
                     'predecessors': predecessors_str
                 })
-            
-            # DEBUG: Print activity details
-            #print(f"DEBUG: Activity {node}: duration={current_duration}, resource_demand={G.nodes[node].get('resource_demand', 0)}")
         
         df_gantt = pd.DataFrame(activities_data)
         
-        #DEBUG: Print DataFrame structure
-        # print(f"DEBUG: RCPS input DataFrame shape: {df_gantt.shape}")
-        # print(f"DEBUG: RCPS input DataFrame columns: {list(df_gantt.columns)}")
-        
         # CRITICAL: Run FULL CPM analysis first (to get ES, LF, float for RCPS)
-        temp_G = self.build_network_for_rcps(activities_data)  # CHANGED: Updated method name
+        temp_G = self.build_network_for_rcps(activities_data)
         temp_G = self.forward_pass(temp_G)
         temp_G = self.backward_pass(temp_G)
         temp_G = self.calculate_float(temp_G)
@@ -1166,16 +1425,10 @@ class CPMAnalyzer:
                 df_gantt.at[idx, 'late_finish'] = temp_G.nodes[activity_id]['LF']
                 df_gantt.at[idx, 'float'] = temp_G.nodes[activity_id]['float']
         
-        # print(f"DEBUG: Running RCPS heuristic scheduling...")
-        
         # Run RCPS scheduling with proper inputs
         rcps_table, actual_starts, critical_ids = self.rcps_heuristic_schedule_table(
             df_gantt, resource_limit, priority_rule
         )
-        
-        
-        # # DEBUG: Print RCPS table structure
-        # print(f"DEBUG: RCPS completed. Table shape: {rcps_table.shape}")
         
         # Extract schedule data
         activities = {}
@@ -1195,13 +1448,10 @@ class CPMAnalyzer:
                 }
                 
                 project_duration = max(project_duration, actual_finish)
-                # # DEBUG: Print activity details
-                # print(f"DEBUG: Activity {activity_id}: start={actual_start}, finish={actual_finish}")
         
-        #print(f"DEBUG: Final RCPS project duration: {project_duration}")
-        
-        # Find critical path in RCPS schedule
-        critical_activities = self.find_critical_path_in_rcps_schedule(activities, G)
+        # Use critical activities from zero float calculation (same as CPM)
+        critical_activities = [node for node in temp_G.nodes() 
+                            if temp_G.nodes[node]['float'] == 0 and node not in ['START', 'END']]
         
         return {
             'project_duration': project_duration,
@@ -1209,74 +1459,263 @@ class CPMAnalyzer:
             'critical_activities': critical_activities
         }
     
-    def find_critical_path_in_rcps_schedule(self, activities, G):
-        """
-        Find the critical path in an RCPS schedule by identifying the path with longest total duration.
+    
+    
+    
+    
+    
+    
+    
+    # def find_critical_path_in_rcps_schedule(self, activities, G):
+    #     """
+    #     Find the critical path in an RCPS schedule by identifying the path with longest total duration.
         
-        Args:
-            activities: Dictionary of activity data with actual_start and actual_finish times
-            G: NetworkX graph of the project network
+    #     Args:
+    #         activities: Dictionary of activity data with actual_start and actual_finish times
+    #         G: NetworkX graph of the project network
                 
-        Returns:
-            List of activity IDs forming the critical path
-        """
-        # Build a graph from the scheduled activities
-        temp_G = nx.DiGraph()
+    #     Returns:
+    #         List of activity IDs forming the critical path
+    #     """
+    #     # Build a graph from the scheduled activities
+    #     temp_G = nx.DiGraph()
         
-        # Add nodes with RCPS timing
-        for node_id, data in activities.items():
-            if node_id not in ['START', 'END']:
-                temp_G.add_node(
-                    node_id, 
-                    duration=data['duration'],
-                    actual_start=data['actual_start'],
-                    actual_finish=data['actual_finish']
-                )
+    #     # Add nodes with RCPS timing
+    #     for node_id, data in activities.items():
+    #         if node_id not in ['START', 'END']:
+    #             temp_G.add_node(
+    #                 node_id, 
+    #                 duration=data['duration'],
+    #                 actual_start=data['actual_start'],
+    #                 actual_finish=data['actual_finish']
+    #             )
         
-        # Add edges based on original graph structure
-        for u, v in G.edges():
-            if u in temp_G.nodes and v in temp_G.nodes:
-                temp_G.add_edge(u, v)
+    #     # Add edges based on original graph structure
+    #     for u, v in G.edges():
+    #         if u in temp_G.nodes and v in temp_G.nodes:
+    #             temp_G.add_edge(u, v)
         
-        # Add artificial start and end nodes if needed
-        start_nodes = [n for n in temp_G.nodes if temp_G.in_degree(n) == 0]
-        end_nodes = [n for n in temp_G.nodes if temp_G.out_degree(n) == 0]
+    #     # Add artificial start and end nodes if needed
+    #     start_nodes = [n for n in temp_G.nodes if temp_G.in_degree(n) == 0]
+    #     end_nodes = [n for n in temp_G.nodes if temp_G.out_degree(n) == 0]
         
-        # Find all possible paths from all start nodes to all end nodes
-        all_paths = []
+    #     # Find all possible paths from all start nodes to all end nodes
+    #     all_paths = []
         
-        for start in start_nodes:
-            for end in end_nodes:
-                try:
-                    paths = list(nx.all_simple_paths(temp_G, start, end))
-                    for path in paths:
-                        path_duration = sum([activities[node]['duration'] for node in path])
-                        path_finish_time = max([activities[node]['actual_finish'] for node in path])
+    #     for start in start_nodes:
+    #         for end in end_nodes:
+    #             try:
+    #                 paths = list(nx.all_simple_paths(temp_G, start, end))
+    #                 for path in paths:
+    #                     path_duration = sum([activities[node]['duration'] for node in path])
+    #                     path_finish_time = max([activities[node]['actual_finish'] for node in path])
                         
-                        all_paths.append({
-                            'path': path,
-                            'duration': path_duration,
-                            'finish_time': path_finish_time
-                        })
-                except nx.NetworkXNoPath:
-                    continue
+    #                     all_paths.append({
+    #                         'path': path,
+    #                         'duration': path_duration,
+    #                         'finish_time': path_finish_time
+    #                     })
+    #             except nx.NetworkXNoPath:
+    #                 continue
         
-        # First sort by finish time (descending), then by duration (descending)
-        # This ensures we get the path that finishes latest and has the longest duration
-        all_paths.sort(key=lambda x: (x['finish_time'], x['duration']), reverse=True)
+    #     # First sort by finish time (descending), then by duration (descending)
+    #     # This ensures we get the path that finishes latest and has the longest duration
+    #     all_paths.sort(key=lambda x: (x['finish_time'], x['duration']), reverse=True)
         
-        # If we found any paths, return only the single longest one
-        if all_paths:
-            longest_path = all_paths[0]['path']
-            # Remove the noisy debug print that's causing the issue
-            # print(f"DEBUG: Found RCPS critical path: {' -> '.join(longest_path)} (total duration: {all_paths[0]['duration']}, finish time: {all_paths[0]['finish_time']})")
-            return longest_path
-        else:
-            # Fallback to simpler approach if no paths found
-            project_duration = max([data['actual_finish'] for data in activities.values()])
-            end_activities = [aid for aid, data in activities.items() if data['actual_finish'] == project_duration]
-            print(f"DEBUG: No complete paths found, using end activities as critical path: {end_activities}")
-            return end_activities
+    #     # If we found any paths, return only the single longest one
+    #     if all_paths:
+    #         longest_path = all_paths[0]['path']
+    #         # Remove the noisy debug print that's causing the issue
+    #         # print(f"DEBUG: Found RCPS critical path: {' -> '.join(longest_path)} (total duration: {all_paths[0]['duration']}, finish time: {all_paths[0]['finish_time']})")
+    #         return longest_path
+    #     else:
+    #         # Fallback to simpler approach if no paths found
+    #         project_duration = max([data['actual_finish'] for data in activities.values()])
+    #         end_activities = [aid for aid, data in activities.items() if data['actual_finish'] == project_duration]
+    #         print(f"DEBUG: No complete paths found, using end activities as critical path: {end_activities}")
+    #         return end_activities
+    
+    # def find_critical_path_in_rcps_schedule(self, activities, G):
+    #     """
+    #     Find the critical path in RCPS schedule by identifying activities with zero float.
+    #     The critical path should be the same as CPM - activities that have zero slack/float.
+        
+    #     Args:
+    #         activities: Dictionary of activity data with actual_start and actual_finish times
+    #         G: NetworkX graph of the project network
+                
+    #     Returns:
+    #         List of activity IDs forming the critical path
+    #     """
+    #     import networkx as nx
+        
+    #     # Build a temporary graph with RCPS timing
+    #     temp_G = nx.DiGraph()
+        
+    #     # Add nodes with RCPS timing
+    #     for node_id, data in activities.items():
+    #         if node_id not in ['START', 'END', 'RA', 'RS']:
+    #             temp_G.add_node(
+    #                 node_id, 
+    #                 duration=data.get('duration', 0),
+    #                 actual_start=data.get('actual_start', 0),
+    #                 actual_finish=data.get('actual_finish', 0)
+    #             )
+        
+    #     # Add edges based on original graph structure (preserve dependencies)
+    #     for u, v in G.edges():
+    #         if u in temp_G.nodes and v in temp_G.nodes:
+    #             temp_G.add_edge(u, v)
+        
+    #     if not activities:
+    #         return []
+        
+    #     # Calculate project completion time
+    #     project_finish_time = max([data.get('actual_finish', 0) for data in activities.values() 
+    #                             if isinstance(data, dict) and 'actual_finish' in data])
+        
+    #     # For each activity, calculate float in RCPS context
+    #     # Float = Latest possible start - Actual start
+    #     critical_activities = []
+        
+    #     for node_id, data in activities.items():
+    #         if node_id not in ['START', 'END', 'RA', 'RS']:
+    #             actual_start = data.get('actual_start', 0)
+    #             actual_finish = data.get('actual_finish', 0)
+    #             duration = data.get('duration', 0)
+                
+    #             # Calculate latest start time for this activity
+    #             # Work backwards from project completion through successors
+    #             latest_start = project_finish_time - duration
+                
+    #             # Check all paths from this activity to the end
+    #             for successor in temp_G.successors(node_id):
+    #                 succ_data = activities.get(successor, {})
+    #                 succ_actual_start = succ_data.get('actual_start', 0)
+                    
+    #                 # This activity must finish before successor starts
+    #                 latest_finish_for_this_successor = succ_actual_start
+    #                 latest_start_for_this_successor = latest_finish_for_this_successor - duration
+                    
+    #                 # Take the most restrictive (earliest) latest start time
+    #                 latest_start = min(latest_start, latest_start_for_this_successor)
+                
+    #             # Calculate float: Latest start - Actual start
+    #             float_time = latest_start - actual_start
+                
+    #             # If float is zero (or very close to zero), it's critical
+    #             if abs(float_time) < 0.001:  # Account for floating point precision
+    #                 critical_activities.append(node_id)
+        
+    #     # If no critical activities found using float calculation, 
+    #     # use activities that finish at project completion time
+    #     if not critical_activities:
+    #         critical_activities = [node_id for node_id, data in activities.items() 
+    #                             if isinstance(data, dict) and 
+    #                             abs(data.get('actual_finish', 0) - project_finish_time) < 0.001 and
+    #                             node_id not in ['START', 'END', 'RA', 'RS']]
+        
+    #     # Sort critical activities to create a logical sequence
+    #     if critical_activities:
+    #         # Sort by actual start time to get proper sequence
+    #         critical_activities.sort(key=lambda x: activities.get(x, {}).get('actual_start', 0))
+            
+    #         # Find the actual connected path through the critical activities
+    #         start_nodes = [n for n in critical_activities if temp_G.in_degree(n) == 0 or 
+    #                     all(pred not in critical_activities for pred in temp_G.predecessors(n))]
+            
+    #         if start_nodes:
+    #             # Trace path from start node through critical activities
+    #             path = []
+    #             current = start_nodes[0]  # Take first start node
+    #             visited = set()
+                
+    #             while current and current not in visited:
+    #                 if current in critical_activities:
+    #                     path.append(current)
+    #                     visited.add(current)
+                    
+    #                 # Find next critical successor
+    #                 next_node = None
+    #                 for successor in temp_G.successors(current):
+    #                     if successor in critical_activities and successor not in visited:
+    #                         next_node = successor
+    #                         break
+                    
+    #                 current = next_node
+                
+    #             return path if path else critical_activities
+        
+    #     return critical_activities
+    
+    # def find_critical_path_in_rcps_schedule(self, activities, G):
+    #     """
+    #     Find critical activities in RCPS schedule by identifying activities with zero float.
+    #     Simply return activities that have zero slack/float - no complex path logic.
+        
+    #     Args:
+    #         activities: Dictionary of activity data with actual_start and actual_finish times
+    #         G: NetworkX graph of the project network
+                
+    #     Returns:
+    #         List of activity IDs that are critical (have zero float)
+    #     """
+    #     if not activities:
+    #         return []
+        
+    #     # Calculate project completion time
+    #     project_finish_time = max([data.get('actual_finish', 0) for data in activities.values() 
+    #                             if isinstance(data, dict) and 'actual_finish' in data])
+        
+    #     # For each activity, calculate float in RCPS context
+    #     # Float = Latest possible start - Actual start
+    #     critical_activities = []
+        
+    #     for node_id, data in activities.items():
+    #         if node_id not in ['START', 'END', 'RA', 'RS']:
+    #             actual_start = data.get('actual_start', 0)
+    #             actual_finish = data.get('actual_finish', 0)
+    #             duration = data.get('duration', 0)
+                
+    #             # Calculate latest start time for this activity
+    #             # Start with latest possible start (project end - duration)
+    #             latest_start = project_finish_time - duration
+                
+    #             # Check constraint from each successor
+    #             for successor in G.successors(node_id):
+    #                 if successor in activities:
+    #                     succ_data = activities.get(successor, {})
+    #                     succ_actual_start = succ_data.get('actual_start', 0)
+                        
+    #                     # This activity must finish before successor starts
+    #                     # So latest start = successor start - duration
+    #                     latest_start_for_successor = succ_actual_start - duration
+                        
+    #                     # Take the most restrictive (earliest) latest start time
+    #                     latest_start = min(latest_start, latest_start_for_successor)
+                
+    #             # Calculate float: Latest start - Actual start
+    #             float_time = latest_start - actual_start
+                
+    #             # If float is zero (or very close to zero), it's critical
+    #             if abs(float_time) < 0.001:  # Account for floating point precision
+    #                 critical_activities.append(node_id)
+        
+    #     # If no critical activities found using float calculation, 
+    #     # use activities that finish at project completion time as fallback
+    #     if not critical_activities:
+    #         critical_activities = [node_id for node_id, data in activities.items() 
+    #                             if isinstance(data, dict) and 
+    #                             abs(data.get('actual_finish', 0) - project_finish_time) < 0.001 and
+    #                             node_id not in ['START', 'END', 'RA', 'RS']]
+        
+    #     # Sort by actual start time for consistent ordering
+    #     critical_activities.sort(key=lambda x: activities.get(x, {}).get('actual_start', 0))
+        
+    #     return critical_activities
+    
+    
+    
     
     def build_network_for_rcps(self, activities):
         """
@@ -2637,10 +3076,6 @@ class CPMDesktopApp:
         self.canvas_critical_path.draw()
     
     ########################################################################
-    
-    
-    ############################################################################
-    
     def create_rcps_tab(self):
         """Create the Resource-Constrained Project Scheduling tab"""
         rcps_frame = ttk.Frame(self.notebook)
@@ -2678,8 +3113,6 @@ class CPMDesktopApp:
         self.canvas_rcps_tables = FigureCanvasTkAgg(self.fig_rcps_tables, results_frame)
         self.canvas_rcps_tables.get_tk_widget().pack(fill=tk.BOTH, expand=True)
     
-    
-    ##TRIALLLLL
     def run_rcps_tables(self):
         """Run CPM Analyzer logic and plot schedule tables in RCPS tab."""
         try:
@@ -2913,14 +3346,6 @@ class CPMDesktopApp:
                 print(f"  {row['id']}: dur={row['duration']}, min_dur={row['min_duration']}, "
                     f"crash_cost={row['crash_cost']}, actual_start={row['actual_start']}")
 
-    
-    
-    
-    
-    
-    
-    ####KEEPS####
-    
     def plot_schedule_tables(self, cpm_table, rcps_table, time_cols, critical_ids, actual_starts, df_gantt):
         """
         Plot the CPM and RCPS schedule tables side by side with highlights in the RCPS tab.
@@ -3098,116 +3523,6 @@ class CPMDesktopApp:
         fig.subplots_adjust(hspace=0.4)
         self.canvas_rcps_tables.draw()
     
-    ### def update_cpm_graph_with_rcps(self):
-    #     """Update CPM graph durations to match RCPS schedule."""
-    #     if not hasattr(self.analyzer, 'G') or self.analyzer.G is None:
-    #         return
-    #     if not hasattr(self, 'last_rcps_table') or self.last_rcps_table is None:
-    #         return
-    #     rcps_df = self.last_rcps_table
-    #     for idx, row in rcps_df.iterrows():
-    #         act_id = row['id']
-    #         if act_id in self.analyzer.G.nodes and act_id not in ['RA', 'RS']:
-    #             try:
-    #                 self.analyzer.G.nodes[act_id]['duration'] = int(row['duration'])
-    #             except Exception:
-    #                 pass
-    
-    # def update_cpm_graph_with_rcps(self):
-    #     """Update CPM graph with RCPS schedule data for crashing optimization."""
-    #     if not hasattr(self.analyzer, 'G') or self.analyzer.G is None:
-    #         return
-    #     if not hasattr(self, 'last_rcps_table') or self.last_rcps_table is None:
-    #         return
-            
-    #     # Make a deep copy of the original graph first
-    #     self.analyzer.G = self.analyzer.G.copy()
-        
-    #     rcps_df = self.last_rcps_table
-        
-    #     # Track which fields have been transferred
-    #     fields_transferred = {
-    #         'duration': 0,
-    #         'ES': 0,
-    #         'EF': 0,
-    #         'activity': 0,
-    #         'min_duration': 0, 
-    #         'crash_cost': 0,
-    #         'resource_demand': 0
-    #     }
-        
-    #     print("DEBUG: Updating CPM graph from RCPS schedule...")
-        
-    #     # First, get the ES and EF values from actual_start and durations
-    #     # since they might not be directly in the table
-    #     if 'actual_start' in rcps_df.columns and 'duration' in rcps_df.columns:
-    #         for idx, row in rcps_df.iterrows():
-    #             act_id = row['id']
-    #             if not pd.isna(row['actual_start']) and not pd.isna(row['duration']):
-    #                 # Calculate ES/EF from actual_start and duration
-    #                 actual_start = int(row['actual_start'])
-    #                 duration = int(row['duration'])
-    #                 rcps_df.at[idx, 'ES'] = actual_start
-    #                 rcps_df.at[idx, 'EF'] = actual_start + duration
-        
-    #     # Now update the graph with all the fields
-    #     for idx, row in rcps_df.iterrows():
-    #         act_id = row['id']
-    #         if act_id in self.analyzer.G.nodes and act_id not in ['RA', 'RS']:
-    #             try:
-    #                 # Update duration in the graph
-    #                 if 'duration' in row and not pd.isna(row['duration']):
-    #                     self.analyzer.G.nodes[act_id]['duration'] = int(row['duration'])
-    #                     fields_transferred['duration'] += 1
-                    
-    #                 # Update ES and EF from the processed values
-    #                 if 'ES' in row and not pd.isna(row['ES']):
-    #                     self.analyzer.G.nodes[act_id]['ES'] = int(row['ES'])
-    #                     fields_transferred['ES'] += 1
-                        
-    #                 if 'EF' in row and not pd.isna(row['EF']):
-    #                     self.analyzer.G.nodes[act_id]['EF'] = int(row['EF'])
-    #                     fields_transferred['EF'] += 1
-                    
-    #                 # Transfer other CPM attributes if available
-    #                 if 'activity' in row and row['activity'] and not pd.isna(row['activity']):
-    #                     self.analyzer.G.nodes[act_id]['activity'] = row['activity']
-    #                     fields_transferred['activity'] += 1
-                        
-    #                 if 'min_duration' in row and not pd.isna(row['min_duration']):
-    #                     self.analyzer.G.nodes[act_id]['min_duration'] = int(row['min_duration'])
-    #                     fields_transferred['min_duration'] += 1
-                        
-    #                 if 'crash_cost' in row and not pd.isna(row['crash_cost']):
-    #                     self.analyzer.G.nodes[act_id]['crash_cost'] = float(row['crash_cost'])
-    #                     fields_transferred['crash_cost'] += 1
-                        
-    #                 if 'resource_demand' in row and not pd.isna(row['resource_demand']):
-    #                     self.analyzer.G.nodes[act_id]['resource_demand'] = int(row['resource_demand'])
-    #                     fields_transferred['resource_demand'] += 1
-    #                 elif 'resource' in row and not pd.isna(row['resource']):
-    #                     self.analyzer.G.nodes[act_id]['resource_demand'] = int(row['resource'])
-    #                     fields_transferred['resource_demand'] += 1
-                    
-    #             except Exception as e:
-    #                 print(f"DEBUG: Error updating node {act_id}: {str(e)}")
-        
-    #     # Print statistics about field transfers
-    #     print("DEBUG: Fields transferred from RCPS to CPM graph:")
-    #     for field, count in fields_transferred.items():
-    #         print(f"  - {field}: {count} nodes updated")
-        
-    #     # Recalculate CPM after updating with RCPS data
-    #     self.analyzer.G = self.analyzer.forward_pass(self.analyzer.G)
-    #     self.analyzer.G = self.analyzer.backward_pass(self.analyzer.G)
-    #     self.analyzer.G = self.analyzer.calculate_float(self.analyzer.G)
-        
-    #     # Recalculate critical path after updates
-    #     _, self.analyzer.critical_activities = self.analyzer.identify_critical_path(self.analyzer.G)
-        
-    #     print("DEBUG: CPM graph successfully updated with RCPS schedule data.")
-    
-    ####TRIAAAAALLLLL
     def update_cpm_graph_with_rcps(self):
         """
         Create a temporary CPM graph updated with RCPS schedule data for crashing optimization.
@@ -3307,15 +3622,7 @@ class CPMDesktopApp:
         print(f"Created temporary graph with RCPS data for crashing (original graph preserved)")
         return updated_G
     
-    
-    
-    
-    ############################################################################################
-    
-    
-    
-    ##############################################################################################
-    
+    ############################################################################
     def create_crashing_tab(self):
         """Create the Crashing Optimization tab with navigation controls always at the bottom."""
         crashing_frame = ttk.Frame(self.notebook)
@@ -3548,72 +3855,6 @@ class CPMDesktopApp:
                             f"({reduction} units, {info['crash_count']} steps, Cost: {info['total_cost']:.2f})")
         
         self.crash_results_text.insert(1.0, "\n".join(lines))
-    
-    
-    #### def generate_crashed_network_diagram(self, crashed_G, crash_log):
-    #     """Show the crashed network diagram"""
-    #     self.fig_crashed.clear()
-    #     ax = self.fig_crashed.add_subplot(111)
-        
-    #     # Create hierarchical layout
-    #     pos = {}
-    #     generations = list(nx.topological_generations(crashed_G))
-    #     for i, gen in enumerate(generations):
-    #         sorted_gen = sorted(gen)
-    #         for j, node in enumerate(sorted_gen):
-    #             y_pos = (j - len(sorted_gen) / 2 + 0.5) * 4
-    #             pos[node] = (i * 3, y_pos)
-
-    #     node_radius = 0.4
-
-    #     # Draw edges
-    #     for u, v in crashed_G.edges():
-    #         x1, y1 = pos[u]
-    #         x2, y2 = pos[v]
-    #         dx = x2 - x1
-    #         dy = y2 - y1
-    #         distance = (dx ** 2 + dy ** 2) ** 0.5
-    #         if distance > 0:
-    #             dx_norm = dx / distance
-    #             dy_norm = dy / distance
-    #             start_x = x1 + node_radius * dx_norm
-    #             start_y = y1 + node_radius * dy_norm
-    #             end_x = x2 - node_radius * dx_norm
-    #             end_y = y2 - node_radius * dy_norm
-    #             ax.annotate("", xy=(end_x, end_y), xytext=(start_x, start_y),
-    #                         arrowprops=dict(arrowstyle="->", color="black", lw=1.5))
-
-    #     # Draw nodes
-    #     critical_activities = [node for node in crashed_G.nodes() if crashed_G.nodes[node]['float'] == 0 and node not in ['START', 'END']]
-    #     for node in crashed_G.nodes():
-    #         x, y = pos[node]
-    #         if node == 'START':
-    #             color = 'lightgreen'
-    #         elif node == 'END':
-    #             color = 'orange'
-    #         elif node in critical_activities:
-    #             color = 'red'
-    #         else:
-    #             color = 'lightblue'
-    #         circle = plt.Circle((x, y), node_radius, fill=True, color=color, alpha=0.7,
-    #                             edgecolor='black', linewidth=1.5)
-    #         ax.add_patch(circle)
-    #         if node in ['START', 'END']:
-    #             display_text = 'Start' if node == 'START' else 'End'
-    #             ax.text(x, y, display_text, ha='center', va='center',
-    #                     fontsize=10, fontweight='bold')
-    #         else:
-    #             ax.plot([x - node_radius, x + node_radius], [y, y],
-    #                     color='black', linewidth=1.2)
-    #             ax.text(x, y + node_radius / 2, node, ha='center', va='center',
-    #                     fontsize=10, fontweight='bold')
-    #             ax.text(x, y - node_radius / 2, str(crashed_G.nodes[node]['duration']),
-    #                     ha='center', va='center', fontsize=9)
-
-    #     ax.set_title("Crashed Project Network Diagram")
-    #     ax.axis('equal')
-    #     ax.axis('off')
-    #     self.canvas_crashed.draw()
     
     def show_crashing_steps_diagrams(self, crashed_G, crash_log):
         """Prepare step diagrams for navigation display."""
@@ -3898,12 +4139,6 @@ class CPMDesktopApp:
         # Store images to prevent garbage collection
         grid_window.step_images = step_images
     
-    ######################################################################################
-    
-    
-    
-    
-    
     ####################################################################################################
     
     def create_rcps_crashing_tab(self):
@@ -3974,288 +4209,6 @@ class CPMDesktopApp:
         self.rcps_current_step = 0
         self.rcps_total_steps = 0
         self.rcps_step_graphs = []
-    
-    
-    
-    #####KEEEEPS#####
-    # def run_rcps_crashing_optimization(self):
-    #     """Run crashing optimization using RCPS schedule as input."""
-    #     try:
-    #         # Clear previous results
-    #         self.rcps_crash_results_text.delete(1.0, tk.END)
-            
-    #         for widget in self.rcps_step_display_frame.winfo_children():
-    #             widget.destroy()
-
-    #         # Check if RCPS table exists (from last RCPS scheduling)
-    #         if not hasattr(self, 'last_rcps_table') or self.last_rcps_table is None:
-    #             messagebox.showwarning("Warning", "Please run the RCPS scheduling first.")
-    #             return
-            
-    #         # DEBUG: Print last RCPS table
-    #         print("DEBUG: Last RCPS Table:\n", self.last_rcps_table)
-
-
-    #         # Get target duration
-    #         try:
-    #             target_duration = float(self.rcps_target_duration_var.get())
-    #         except ValueError:
-    #             messagebox.showerror("Error", "Target duration must be a number.")
-    #             return
-
-    #         # Get crash budget
-    #         try:
-    #             crash_budget = self.rcps_crash_budget_var.get()
-    #             max_budget = float(crash_budget) if crash_budget.strip() else None
-    #         except ValueError:
-    #             messagebox.showerror("Error", "Crash budget must be a number.")
-    #             return
-
-    #         # ----- KEY FIX: Update the graph with RCPS durations first -----
-    #         self.update_cpm_graph_with_rcps()
-            
-    #         # ----- ADDED: Validate target duration against RCPS duration -----
-    #         current_duration = max([self.analyzer.G.nodes[node]['EF'] for node in self.analyzer.G.nodes()])
-    #         if target_duration >= current_duration:
-    #             messagebox.showinfo("Info", f"Target duration ({target_duration}) is already achieved or exceeded. "
-    #                             f"Current RCPS project duration is {current_duration}.")
-    #             return
-            
-    #         # ----- Run crashing on the updated graph -----
-    #         crashed_G, total_crash_cost, crash_log = self.analyzer.crash_project(target_duration, max_budget=max_budget)
-            
-    #         # Display results
-    #         self.display_rcps_crashing_results(crashed_G, total_crash_cost, crash_log, target_duration)
-    #         self.show_rcps_crashing_steps_diagrams(self.analyzer.G, crash_log)
-            
-    #         # Switch to RCPS Crashing tab
-    #         self.notebook.select(self.notebook.tabs()[-1])
-    #         messagebox.showinfo("Success", "RCPS Crashing completed successfully!")
-    #     except Exception as e:
-    #         messagebox.showerror("Error", f"RCPS Crashing failed: {str(e)}")
-    #         import traceback
-    #         print(traceback.format_exc())  # Print detailed error for debugging
-    
-    ###TRIAAAL#####
-    # def run_rcps_crashing_optimization(self):
-    #     """
-    #     Run crashing optimization using RCPS scheduling integrated into the optimization loop.
-    #     """
-    #     try:
-    #         # Clear previous results
-    #         self.rcps_crash_results_text.delete(1.0, tk.END)
-            
-    #         for widget in self.rcps_step_display_frame.winfo_children():
-    #             widget.destroy()
-
-    #         # Check if RCPS analysis has been performed first
-    #         if not hasattr(self, 'last_rcps_table') or self.last_rcps_table is None:
-    #             messagebox.showwarning("Warning", "Please run the RCPS scheduling first in the RCPS tab.")
-    #             return
-                
-    #         # Verify that we have RCPS data with proper duration
-    #         print(f"DEBUG: RCPS table has {len(self.last_rcps_table)} activities for crashing")
-            
-    #         # Check if CPM analysis has been performed
-    #         if not hasattr(self.analyzer, 'G') or self.analyzer.G is None:
-    #             messagebox.showwarning("Warning", "Please run the CPM analysis first.")
-    #             return
-
-    #         # Get target duration and validate
-    #         try:
-    #             target_duration = float(self.rcps_target_duration_var.get())
-    #         except ValueError:
-    #             messagebox.showerror("Error", "Target duration must be a number.")
-    #             return
-
-    #         # Get crash budget
-    #         try:
-    #             crash_budget = self.rcps_crash_budget_var.get()
-    #             max_budget = float(crash_budget) if crash_budget.strip() else None
-    #         except ValueError:
-    #             messagebox.showerror("Error", "Crash budget must be a number.")
-    #             return
-
-    #         # Get resource limit and priority rule from RCPS tab
-    #         try:
-    #             resource_limit = int(self.resource_limit_var.get())
-    #         except ValueError:
-    #             messagebox.showerror("Error", "Please set a valid resource limit in the RCPS tab first.")
-    #             return
-            
-    #         priority_rule = self.priority_rule_var.get()
-
-    #         # CRITICAL FIX: Get the actual RCPS duration BEFORE starting crashing
-    #         print("DEBUG: Original CPM duration:", max([self.analyzer.G.nodes[node]['EF'] for node in self.analyzer.G.nodes()]))
-            
-    #         # Update CPM graph with RCPS schedule data first
-    #         print("DEBUG: Updating CPM graph with RCPS schedule data...")
-    #         update_success = self.update_cpm_graph_with_rcps()
-            
-    #         if not update_success:
-    #             messagebox.showerror("Error", "Failed to update CPM graph with RCPS data.")
-    #             return
-                
-    #         # Get RCPS duration after update
-    #         rcps_duration = max([self.analyzer.G.nodes[node]['EF'] for node in self.analyzer.G.nodes()])
-    #         print(f"DEBUG: RCPS duration after update: {rcps_duration}, Target: {target_duration}")
-            
-    #         # Validate target duration against RCPS duration (not CPM duration)
-    #         if target_duration >= rcps_duration:
-    #             messagebox.showinfo("Info", 
-    #                 f"Target duration ({target_duration}) is already achieved or exceeded.\n"
-    #                 f"Current RCPS project duration is {rcps_duration}.\n"
-    #                 f"Please set a target duration less than {rcps_duration}.")
-    #             return
-
-    #         print("DEBUG: Starting crashing optimization...")
-
-    #         # Run RCPS-integrated crashing optimization
-    #         crashed_G, total_crash_cost, crash_log = self.analyzer.crash_project_with_rcps(
-    #             target_duration, resource_limit, priority_rule, max_budget=max_budget
-    #         )
-
-    #         # Display results and step diagrams
-    #         self.display_rcps_crashing_results(crashed_G, total_crash_cost, crash_log, target_duration)
-    #         self.show_rcps_crashing_steps_diagrams(self.analyzer.G, crash_log)
-
-    #         # Switch to RCPS Crashing tab
-    #         for i, tab_id in enumerate(self.notebook.tabs()):
-    #             if self.notebook.tab(tab_id, "text") == "RCPS Crashing":
-    #                 self.notebook.select(i)
-    #                 break
-
-    #         messagebox.showinfo("Success", "RCPS Crashing completed successfully!")
-
-    #     except Exception as e:
-    #         messagebox.showerror("Error", f"RCPS Crashing failed: {str(e)}")
-    #         import traceback
-    #         print("FULL ERROR TRACEBACK:")
-    #         print(traceback.format_exc())
-    
-    # def run_rcps_crashing_optimization(self):
-    #     """
-    #     Run crashing optimization using RCPS scheduling integrated into the optimization loop.
-    #     """
-    #     try:
-    #         # Clear previous results
-    #         self.rcps_crash_results_text.delete(1.0, tk.END)
-            
-    #         for widget in self.rcps_step_display_frame.winfo_children():
-    #             widget.destroy()
-
-    #         # Check if RCPS analysis has been performed first
-    #         if not hasattr(self, 'last_rcps_table') or self.last_rcps_table is None:
-    #             messagebox.showwarning("Warning", "Please run the RCPS scheduling first in the RCPS tab.")
-    #             return
-                
-    #         # Verify that we have RCPS data with proper duration
-    #         print(f"DEBUG: RCPS table has {len(self.last_rcps_table)} activities for crashing")
-            
-    #         # Check if CPM analysis has been performed
-    #         if not hasattr(self.analyzer, 'G') or self.analyzer.G is None:
-    #             messagebox.showwarning("Warning", "Please run the CPM analysis first.")
-    #             return
-
-    #         # Get target duration and validate
-    #         try:
-    #             target_duration = float(self.rcps_target_duration_var.get())
-    #         except ValueError:
-    #             messagebox.showerror("Error", "Target duration must be a number.")
-    #             return
-
-    #         # Get crash budget
-    #         try:
-    #             crash_budget = self.rcps_crash_budget_var.get()
-    #             max_budget = float(crash_budget) if crash_budget.strip() else None
-    #         except ValueError:
-    #             messagebox.showerror("Error", "Crash budget must be a number.")
-    #             return
-
-    #         # Get resource limit and priority rule from RCPS tab
-    #         try:
-    #             resource_limit = int(self.resource_limit_var.get())
-    #         except ValueError:
-    #             messagebox.showerror("Error", "Please set a valid resource limit in the RCPS tab first.")
-    #             return
-            
-    #         priority_rule = self.priority_rule_var.get()
-
-    #         # CRITICAL FIX: Get the actual RCPS duration BEFORE starting crashing
-    #         print("DEBUG: Original CPM duration:", max([self.analyzer.G.nodes[node]['EF'] for node in self.analyzer.G.nodes()]))
-            
-    #         # CRITICAL FIX: Create temporary graph with RCPS data, don't modify original
-    #         print("DEBUG: Creating temporary graph with RCPS schedule data...")
-    #         rcps_updated_graph = self.update_cpm_graph_with_rcps()
-            
-    #         if rcps_updated_graph is None:
-    #             messagebox.showerror("Error", "Failed to create RCPS-updated graph.")
-    #             return
-            
-    #         # Get RCPS duration after update
-    #         rcps_duration = max([rcps_updated_graph.nodes[node]['EF'] for node in rcps_updated_graph.nodes()])
-    #         print(f"DEBUG: RCPS duration after update: {rcps_duration}, Target: {target_duration}")
-            
-    #         # Validate target duration against RCPS duration (not CPM duration)
-    #         if target_duration >= rcps_duration:
-    #             messagebox.showinfo("Info", 
-    #                 f"Target duration ({target_duration}) is already achieved or exceeded.\n"
-    #                 f"Current RCPS project duration is {rcps_duration}.\n"
-    #                 f"Please set a target duration less than {rcps_duration}.")
-    #             return
-
-    #         print("DEBUG: Starting crashing optimization...")
-            
-    #         # CRITICAL FIX: Use temporary graph for RCPS crashing, preserve original
-    #         original_analyzer_graph = self.analyzer.G  # Store original
-    #         self.analyzer.G = rcps_updated_graph      # Temporarily use RCPS graph
-            
-    #         try:
-    #             # Run RCPS-integrated crashing optimization
-    #             crashed_G, total_crash_cost, crash_log = self.analyzer.crash_project_with_rcps(
-    #                 target_duration, resource_limit, priority_rule, max_budget=max_budget
-    #             )
-                
-    #             # Generate debug report
-    #             debug_report = self.analyzer.debug_rcps_crash_process(
-    #                 crashed_G, crash_log, target_duration, resource_limit, priority_rule
-    #             )
-                
-    #             # Save debug report to file
-    #             debug_filename = "rcps_crash_debug_report.txt"
-    #             with open(debug_filename, 'w') as f:
-    #                 f.write(debug_report)
-                
-    #             print(f"Detailed RCPS debug report saved to {debug_filename}")
-                
-                
-                
-                
-    #             # Display results and step diagrams
-    #             self.display_rcps_crashing_results(crashed_G, total_crash_cost, crash_log, target_duration)
-    #             self.show_rcps_crashing_steps_diagrams(rcps_updated_graph, crash_log)  # Use RCPS base graph
-
-    #         finally:
-    #             # CRITICAL FIX: Always restore the original graph
-    #             self.analyzer.G = original_analyzer_graph
-    #             print("DEBUG: Original CPM graph restored")
-
-    #         # Switch to RCPS Crashing tab
-    #         for i, tab_id in enumerate(self.notebook.tabs()):
-    #             if self.notebook.tab(tab_id, "text") == "RCPS Crashing":
-    #                 self.notebook.select(i)
-    #                 break
-
-    #         messagebox.showinfo("Success", "RCPS Crashing completed successfully!")
-
-    #     except Exception as e:
-    #         # Make sure to restore original graph even if there's an error
-    #         if 'original_analyzer_graph' in locals():
-    #             self.analyzer.G = original_analyzer_graph
-    #         messagebox.showerror("Error", f"RCPS Crashing failed: {str(e)}")
-    #         import traceback
-    #         print("FULL ERROR TRACEBACK:")
-    #         print(traceback.format_exc())
     
     ## without debugging points 
     def run_rcps_crashing_optimization(self):
@@ -4365,10 +4318,6 @@ class CPMDesktopApp:
             import traceback
             traceback.print_exc()
     
-    
-    
-    
-    
     def display_rcps_crashing_results(self, crashed_G, total_crash_cost, crash_log, target_duration):
         """Display crash log and summary in the RCPS Crashing tab (matching desired format)."""
         self.rcps_crash_results_text.delete(1.0, tk.END)
@@ -4462,28 +4411,6 @@ class CPMDesktopApp:
                             f"({reduction} units, {info['crash_count']} steps, Cost: {info['total_cost']:.2f})")
         
         self.rcps_crash_results_text.insert(1.0, "\n".join(lines))
-    
-    
-    
-    ######KKKKKEEEEEPPPSSS####
-    # def display_rcps_crashing_results(self, crashed_G, total_crash_cost, crash_log, target_duration):
-    #     """Display crash log and summary in the RCPS Crashing tab (detailed style)."""
-    #     self.rcps_crash_results_text.delete(1.0, tk.END)
-    #     lines = []
-    #     lines.append("RCPS CRASHING OPTIMIZATION LOG\n" + "="*40)
-    #     for entry in crash_log:
-    #         lines.append(
-    #             f"Step {entry['iteration']}: Activity {entry['activity']} crashed to duration {entry['new_duration']} (Cost: {entry['crash_cost']})"
-    #         )
-    #     lines.append("\nTotal Crash Cost: {:.2f}".format(total_crash_cost))
-    #     new_duration = max([crashed_G.nodes[node]['EF'] for node in crashed_G.nodes()])
-    #     lines.append(f"Achieved Project Duration: {new_duration} (Target: {target_duration})")
-    #     # Show new critical path
-    #     critical_activities = [node for node in crashed_G.nodes() if crashed_G.nodes[node]['float'] == 0 and node not in ['START', 'END']]
-    #     lines.append("New Critical Path: " + " -> ".join(critical_activities))
-    #     self.rcps_crash_results_text.insert(1.0, "\n".join(lines))
-    
-    ###TRIAAAL#####
     
     def show_rcps_crashing_steps_diagrams(self, base_G, crash_log):
         """Prepare step diagrams for RCPS navigation display."""
@@ -4666,21 +4593,6 @@ class CPMDesktopApp:
         
         # Store images to prevent garbage collection
         grid_window.step_images = step_images
-    
-    #########################################################################
-    
-    # DEBUGGING#####################
-    # def debug_widget_tree(self, widget, level=0):
-    #     """Debug function to print widget hierarchy."""
-    #     indent = "  " * level
-    #     print(f"{indent}{widget.__class__.__name__}")
-    #     for child in widget.winfo_children():
-    #         self.debug_widget_tree(child, level + 1)
-    
-    
-    
-    
-    
     
     
     
