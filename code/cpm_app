@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-Critical Path Method (CPM) Analysis Desktop Application
+Critical Path Method (CPM) and PERT Analysis Desktop Application
 
-A simple desktop application with GUI for analyzing project networks using CPM.
+A comprehensive desktop application with GUI for analyzing project networks using 
+both deterministic CPM and probabilistic PERT methods.
 Users can input activities via a table interface or load from CSV.
 """
 
@@ -23,6 +24,11 @@ from PIL import Image, ImageTk
 import textwrap
 import pandas as pd
 from matplotlib.colors import ListedColormap
+import math
+from scipy.stats import norm
+
+# Import PERT analyzer
+from pert_analyzer import PERTAnalyzer
 
 class CPMAnalyzer:
     """Core CPM analysis functionality"""
@@ -59,7 +65,7 @@ class CPMAnalyzer:
             # Process predecessors (comma-separated list)
             predecessors = []
             if row.get('predecessors') and str(row['predecessors']).strip():
-                predecessors = [p.strip() for p in str(row['predecessors']).split(',')]
+                predecessors = [p.strip() for p in str(row['predecessors']).split(',') if p.strip()]
             
             # Get activity name
             activity_name = row.get('activity', '').strip()
@@ -76,10 +82,70 @@ class CPMAnalyzer:
                 'min_duration': min_duration,
                 'crash_cost': crash_cost,
                 'duration': duration,
-                'predecessors': predecessors
+                'predecessors': predecessors,
+                'resource_demand': resource_demand
             })
         
         return activities
+    
+    def load_activities_from_pert_data(self, activities_data):
+        """
+        Load activities from PERT data format
+        Expected data format: list of dicts with keys: id, predecessors, optimistic, most_likely, pessimistic
+        """
+        activities = []
+        
+        for row in activities_data:
+            # Extract PERT time estimates
+            try:
+                optimistic = int(row['optimistic']) if 'optimistic' in row else 0
+                most_likely = int(row['most_likely']) if 'most_likely' in row else 0
+                pessimistic = int(row['pessimistic']) if 'pessimistic' in row else 0
+            except (ValueError, KeyError) as e:
+                raise ValueError(f"Invalid PERT times for activity {row.get('id', 'Unknown')}: {str(e)}")
+            
+            # Calculate expected time and variance
+            expected_time = (optimistic + 4 * most_likely + pessimistic) / 6
+            variance = ((pessimistic - optimistic) / 6) ** 2
+            
+            # Round expected time up (ceil) and variance to 3 decimal places
+            expected_time_ceil = math.ceil(expected_time)
+            variance_rounded = round(variance, 3)
+            
+            # Process predecessors (comma-separated list)
+            predecessors = []
+            if row.get('predecessors') and str(row['predecessors']).strip():
+                predecessors = [p.strip() for p in str(row['predecessors']).split(',') if p.strip()]
+            
+            # Get activity name (optional)
+            activity_name = row.get('activity', '').strip()
+            
+            # Handle additional fields for full PERT support
+            min_duration = int(row.get('min_duration', 1)) if row.get('min_duration') else 1
+            crash_cost = int(row.get('crash_cost', 0)) if row.get('crash_cost') else 0
+            resource_demand = int(row.get('resource_demand', 0)) if row.get('resource_demand') else 0
+            normal_cost = int(row.get('normal_cost', 0)) if row.get('normal_cost') else 0
+            
+            activities.append({
+                'id': row['id'],
+                'activity': activity_name,
+                'optimistic': optimistic,
+                'most_likely': most_likely,
+                'pessimistic': pessimistic,
+                'expected_time': expected_time,
+                'expected_time_ceil': expected_time_ceil,
+                'variance': variance_rounded,
+                'duration': expected_time_ceil,  # Use ceiling for all calculations
+                'predecessors': predecessors,
+                # Additional fields for RCPS and crashing support
+                'min_duration': min_duration,
+                'crash_cost': crash_cost,
+                'resource_demand': resource_demand,
+                'normal_cost': normal_cost
+            })
+        
+        return activities
+    
     
     def build_network(self, activities):
         """Build a directed graph network from activity data"""
@@ -2163,21 +2229,31 @@ class CPMAnalyzer:
 
 
 class CPMDesktopApp:
-    """Main desktop application class"""
+    """Main desktop application class supporting both CPM and PERT analysis"""
     
     def __init__(self, root):
         self.root = root
-        self.root.title("CPM Analysis Tool")
+        self.root.title("CPM and PERT Analysis Tool")
         self.root.geometry("1200x800")
         
-        # Initialize CPM analyzer
-        self.analyzer = CPMAnalyzer()
+        # Initialize analyzers
+        self.cpm_analyzer = CPMAnalyzer()
+        self.pert_analyzer = PERTAnalyzer()
+        
+        # Analysis mode: 'deterministic' or 'probabilistic'
+        self.analysis_mode = None
+        self.current_analyzer = None
         
         # Create GUI
         self.create_widgets()
         
         # Initialize with sample data
         self.load_sample_data()
+    
+    @property
+    def analyzer(self):
+        """Backward compatibility property for self.current_analyzer"""
+        return self.current_analyzer
     
     def create_widgets(self):
         """Create the main GUI widgets"""
@@ -2195,6 +2271,7 @@ class CPMDesktopApp:
         self.create_network_tab()
         self.create_critical_path_tab()
         self.create_gantt_tab()
+        self.create_probability_analysis_tab()  # NEW: Add probability analysis tab
         self.create_rcps_tab()
         self.create_crashing_tab()
         self.create_rcps_crashing_tab()
@@ -2208,44 +2285,35 @@ class CPMDesktopApp:
         button_frame = ttk.Frame(input_frame)
         button_frame.pack(fill=tk.X, pady=(0, 10))
         
-        ttk.Button(button_frame, text="Load from CSV", command=self.load_csv).pack(side=tk.LEFT, padx=(0, 10))
-        ttk.Button(button_frame, text="Add Row", command=self.add_row).pack(side=tk.LEFT, padx=(0, 10))
-        ttk.Button(button_frame, text="Delete Row", command=self.delete_row).pack(side=tk.LEFT, padx=(0, 10))
+        # Data loading buttons
+        ttk.Button(button_frame, text="Load Deterministic Data", command=self.load_deterministic_csv).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Button(button_frame, text="Load Probabilistic Data", command=self.load_probabilistic_csv).pack(side=tk.LEFT, padx=(0, 10))
+        
+        # Row manipulation buttons
+        self.add_row_btn = ttk.Button(button_frame, text="Add Row", command=self.add_row)
+        self.add_row_btn.pack(side=tk.LEFT, padx=(0, 10))
+        
+        self.delete_row_btn = ttk.Button(button_frame, text="Delete Row", command=self.delete_row)
+        self.delete_row_btn.pack(side=tk.LEFT, padx=(0, 10))
+        
         ttk.Button(button_frame, text="Clear All", command=self.clear_all).pack(side=tk.LEFT, padx=(0, 10))
+        
+        # Sample CSV download buttons
+        ttk.Button(button_frame, text="Download Sample Deterministic CSV", command=self.download_sample_deterministic_csv).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Button(button_frame, text="Download Sample Probabilistic CSV", command=self.download_sample_probabilistic_csv).pack(side=tk.LEFT, padx=(0, 10))
+        
+        # Analysis button
         ttk.Button(button_frame, text="Analyze", command=self.analyze_project).pack(side=tk.RIGHT)
-        ttk.Button(button_frame, text="Download CSV", command=self.download_sample_csv).pack(side=tk.LEFT, padx=(0, 10))
         
-        # Create treeview for activity input
-        columns = ("ID", "Activity Name", "Duration", "Predecessors","Min Duration", "Crash Cost", "Resource Demand")
-        self.tree = ttk.Treeview(input_frame, columns=columns, show="headings", height=15)
+        # Mode indicator label
+        self.mode_label = ttk.Label(input_frame, text="Mode: None", font=("Arial", 10, "bold"))
+        self.mode_label.pack(anchor="w", pady=(0, 5))
         
-        # Define column headings and widths
-        column_widths = {
-            "ID": 80,
-            "Activity Name": 150,
-            "Duration": 80,
-            "Min Duration": 90,
-            "Crash Cost": 90,
-            "Predecessors": 120,
-            "Resource Demand": 120
-        }
+        # Create treeview for activity input (will be dynamically configured)
+        self.tree_frame = ttk.Frame(input_frame)
+        self.tree_frame.pack(fill=tk.BOTH, expand=True)
         
-        for col in columns:
-            self.tree.heading(col, text=col)
-            self.tree.column(col, width=column_widths.get(col, 100))
-            
-        # Add scrollbars
-        v_scrollbar = ttk.Scrollbar(input_frame, orient=tk.VERTICAL, command=self.tree.yview)
-        h_scrollbar = ttk.Scrollbar(input_frame, orient=tk.HORIZONTAL, command=self.tree.xview)
-        self.tree.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
-        
-        # Pack treeview and scrollbars
-        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
-        
-        # Double-click to edit
-        self.tree.bind("<Double-1>", self.edit_item)
+        self.setup_deterministic_tree()  # Start with deterministic layout
     
     def create_results_tab(self):
         """Create the results tab for displaying analysis results"""
@@ -2292,8 +2360,240 @@ class CPMDesktopApp:
         self.canvas_gantt = FigureCanvasTkAgg(self.fig_gantt, gantt_frame)
         self.canvas_gantt.get_tk_widget().pack(fill=tk.BOTH, expand=True)
     
+    def create_probability_analysis_tab(self):
+        """Create the probability analysis tab for PERT"""
+        prob_frame = ttk.Frame(self.notebook)
+        self.notebook.add(prob_frame, text="Probability Analysis")
+        
+        # Create main container with scrollable frame
+        canvas = tk.Canvas(prob_frame)
+        scrollbar = ttk.Scrollbar(prob_frame, orient="vertical", command=canvas.yview)
+        scrollable_frame = ttk.Frame(canvas)
+        
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Title and status
+        title_frame = ttk.Frame(scrollable_frame)
+        title_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        ttk.Label(title_frame, text="PERT Probability Analysis", font=("Arial", 14, "bold")).pack(side=tk.LEFT)
+        self.prob_status_label = ttk.Label(title_frame, text="Status: Disabled (Load probabilistic data first)", 
+                                          font=("Arial", 10), foreground="red")
+        self.prob_status_label.pack(side=tk.RIGHT)
+        
+        # Project statistics frame
+        stats_frame = ttk.LabelFrame(scrollable_frame, text="Project Statistics", padding=10)
+        stats_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        self.stats_text = tk.Text(stats_frame, height=8, state=tk.DISABLED, wrap=tk.WORD)
+        self.stats_text.pack(fill=tk.BOTH, expand=True)
+        
+        # Analysis controls frame
+        controls_frame = ttk.LabelFrame(scrollable_frame, text="Probability Calculations", padding=10)
+        controls_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        # Completion probability calculation
+        comp_frame = ttk.Frame(controls_frame)
+        comp_frame.pack(fill=tk.X, pady=5)
+        
+        ttk.Label(comp_frame, text="1. Project Completion Probability:", font=("Arial", 11, "bold")).pack(anchor="w")
+        
+        comp_input_frame = ttk.Frame(comp_frame)
+        comp_input_frame.pack(fill=tk.X, pady=5)
+        
+        ttk.Label(comp_input_frame, text="Target Duration:").pack(side=tk.LEFT)
+        self.target_duration_var = tk.StringVar()
+        self.target_duration_entry = ttk.Entry(comp_input_frame, textvariable=self.target_duration_var, width=10)
+        self.target_duration_entry.pack(side=tk.LEFT, padx=(5, 10))
+        
+        self.calc_prob_btn = ttk.Button(comp_input_frame, text="Calculate Probability", 
+                                       command=self.calculate_completion_probability, state=tk.DISABLED)
+        self.calc_prob_btn.pack(side=tk.LEFT, padx=5)
+        
+        self.prob_result_label = ttk.Label(comp_input_frame, text="", font=("Arial", 10, "bold"))
+        self.prob_result_label.pack(side=tk.LEFT, padx=(10, 0))
+        
+        # Duration for probability calculation
+        dur_frame = ttk.Frame(controls_frame)
+        dur_frame.pack(fill=tk.X, pady=5)
+        
+        ttk.Label(dur_frame, text="2. Required Duration for Given Probability:", font=("Arial", 11, "bold")).pack(anchor="w")
+        
+        dur_input_frame = ttk.Frame(dur_frame)
+        dur_input_frame.pack(fill=tk.X, pady=5)
+        
+        ttk.Label(dur_input_frame, text="Target Probability (0-1):").pack(side=tk.LEFT)
+        self.target_probability_var = tk.StringVar()
+        self.target_probability_entry = ttk.Entry(dur_input_frame, textvariable=self.target_probability_var, width=10)
+        self.target_probability_entry.pack(side=tk.LEFT, padx=(5, 10))
+        
+        self.calc_duration_btn = ttk.Button(dur_input_frame, text="Calculate Duration", 
+                                           command=self.calculate_required_duration, state=tk.DISABLED)
+        self.calc_duration_btn.pack(side=tk.LEFT, padx=5)
+        
+        self.duration_result_label = ttk.Label(dur_input_frame, text="", font=("Arial", 10, "bold"))
+        self.duration_result_label.pack(side=tk.LEFT, padx=(10, 0))
+        
+        # Visualization frame
+        viz_frame = ttk.LabelFrame(scrollable_frame, text="Normal Distribution Visualization", padding=10)
+        viz_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        
+        self.fig_probability = plt.Figure(figsize=(12, 6))
+        self.canvas_probability = FigureCanvasTkAgg(self.fig_probability, viz_frame)
+        self.canvas_probability.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        
+        # Pack canvas and scrollbar
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        # Initially disable the tab
+        self.probability_tab_enabled = False
+    
+    def setup_deterministic_tree(self):
+        """Setup tree view for deterministic (CPM) data"""
+        # Clear existing tree if any
+        for widget in self.tree_frame.winfo_children():
+            widget.destroy()
+        
+        # Create treeview for deterministic input
+        columns = ("ID", "Activity Name", "Duration", "Predecessors", "Min Duration", "Crash Cost", "Resource Demand")
+        self.tree = ttk.Treeview(self.tree_frame, columns=columns, show="headings", height=15)
+        
+        # Define column headings and widths
+        column_widths = {
+            "ID": 80,
+            "Activity Name": 150,
+            "Duration": 80,
+            "Min Duration": 90,
+            "Crash Cost": 90,
+            "Predecessors": 120,
+            "Resource Demand": 120
+        }
+        
+        for col in columns:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, width=column_widths.get(col, 100))
+        
+        # Add scrollbars
+        v_scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.VERTICAL, command=self.tree.yview)
+        h_scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.HORIZONTAL, command=self.tree.xview)
+        self.tree.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
+        
+        # Pack treeview and scrollbars
+        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+        
+        # Enable editing for deterministic mode
+        self.tree.bind("<Double-1>", self.edit_item)
+        
+        # Enable row manipulation buttons
+        self.add_row_btn.config(state=tk.NORMAL)
+        self.delete_row_btn.config(state=tk.NORMAL)
+    
+    # def setup_probabilistic_tree(self):
+    #     """Setup tree view for probabilistic (PERT) data"""
+    #     # Clear existing tree if any
+    #     for widget in self.tree_frame.winfo_children():
+    #         widget.destroy()
+        
+    #     # Create treeview for probabilistic input
+    #     columns = ("ID", "Predecessors", "Optimistic", "Most Likely", "Pessimistic", "Expected Time", "Variance")
+    #     self.tree = ttk.Treeview(self.tree_frame, columns=columns, show="headings", height=15)
+        
+    #     # Define column headings and widths
+    #     column_widths = {
+    #         "ID": 80,
+    #         "Predecessors": 120,
+    #         "Optimistic": 90,
+    #         "Most Likely": 90,
+    #         "Pessimistic": 90,
+    #         "Expected Time": 100,
+    #         "Variance": 80
+    #     }
+        
+    #     for col in columns:
+    #         self.tree.heading(col, text=col)
+    #         self.tree.column(col, width=column_widths.get(col, 100))
+        
+    #     # Add scrollbars
+    #     v_scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.VERTICAL, command=self.tree.yview)
+    #     h_scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.HORIZONTAL, command=self.tree.xview)
+    #     self.tree.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
+        
+    #     # Pack treeview and scrollbars
+    #     self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    #     v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+    #     h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+        
+    #     # Enable editing for probabilistic mode (allow editing like deterministic)
+    #     self.tree.bind("<Double-1>", self.edit_item)
+        
+    #     # Enable row manipulation buttons
+    #     self.add_row_btn.config(state=tk.NORMAL)
+    #     self.delete_row_btn.config(state=tk.NORMAL)
+    
+    def setup_probabilistic_tree(self):
+        """Setup tree view for probabilistic (PERT) data"""
+        # Clear existing tree if any
+        for widget in self.tree_frame.winfo_children():
+            widget.destroy()
+        
+        # Create treeview for probabilistic input with ALL required columns
+        columns = ("ID", "Predecessors", "Optimistic", "Most Likely", "Pessimistic", "Expected Time", "Variance", "Min Duration", "Crash Cost", "Resource Demand", "Normal Cost")
+        self.tree = ttk.Treeview(self.tree_frame, columns=columns, show="headings", height=15)
+        
+        # Define column headings and widths
+        column_widths = {
+            "ID": 60,
+            "Predecessors": 100,
+            "Optimistic": 80,
+            "Most Likely": 80,
+            "Pessimistic": 80,
+            "Expected Time": 90,
+            "Variance": 70,
+            "Min Duration": 80,
+            "Crash Cost": 80,
+            "Resource Demand": 100,
+            "Normal Cost": 80
+        }
+        
+        for col in columns:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, width=column_widths.get(col, 80))
+        
+        # Add scrollbars
+        v_scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.VERTICAL, command=self.tree.yview)
+        h_scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.HORIZONTAL, command=self.tree.xview)
+        self.tree.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
+        
+        # Pack treeview and scrollbars
+        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+        
+        # Enable editing for probabilistic mode (allow editing like deterministic)
+        self.tree.bind("<Double-1>", self.edit_item)
+        
+        # Enable row manipulation buttons
+        self.add_row_btn.config(state=tk.NORMAL)
+        self.delete_row_btn.config(state=tk.NORMAL)
+    
+    
     def load_sample_data(self):
-        """Load sample project data"""
+        """Load sample deterministic project data"""
+        # Set deterministic mode and setup tree
+        self.analysis_mode = 'deterministic'
+        self.current_analyzer = self.cpm_analyzer
+        self.setup_deterministic_tree()
+        self.mode_label.config(text="Mode: Deterministic (CPM) - Sample Data", foreground="blue")
+        
         sample_data = [
             ("A", "Design Phase", "5", "", "1", "300", "2"),
             ("B", "Requirements Analysis", "3", "", "2", "500", "1"),
@@ -2311,50 +2611,21 @@ class CPMDesktopApp:
         for item in sample_data:
             self.tree.insert("", tk.END, values=item)
     
-    def download_sample_csv(self):
-        """Save and download the sample data as a CSV file"""
-        # Define the sample data (same as in load_sample_data)
-        sample_data = [
-            ("A", "Design Phase", "5", "", "1", "300", "2"),
-            ("B", "Requirements Analysis", "3", "", "3", "500", "1"),
-            ("C", "Architecture Design", "4", "A, B", "5", "600", "3"),
-            ("D", "Database Design", "2", "C", "4", "400", "1"),
-            ("E", "Frontend Development", "6", "C", "3", "300", "4"),
-            ("F", "Backend Development", "8", "C", "5", "200", "5"),
-            ("G", "Testing", "3", "D", "3", "800", "2"),
-            ("H", "Deployment", "2", "E, F", "2", "500", "1"),
-            ("I", "Documentation", "4", "G, H", "3", "250", "2"),
-            ("J", "User Training", "3", "I", "4", "250", "1"),
-            ("K", "Post-Deployment Review", "2", "J", "1", "1000", "1"),
-        ]
-        headers = ["id", "activity", "duration", "predecessors", "min_duration", "crash_cost", "resource_demand"]
-        file_path = filedialog.asksaveasfilename(
-            title="Save Sample Data as CSV",
-            defaultextension=".csv",
-            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
-        )
-        if not file_path:
-            return
-        try:
-            with open(file_path, "w", newline='', encoding="utf-8") as f:
-                writer = csv.writer(f)
-                writer.writerow(headers)
-                writer.writerows(sample_data)
-            messagebox.showinfo("Success", f"Sample data saved to:\n{file_path}")
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to save CSV: {e}")
-    
-    def load_csv(self):
-        """Load activities from CSV file"""
+    def load_deterministic_csv(self):
+        """Load activities from deterministic CSV file"""
         file_path = filedialog.askopenfilename(
-            title="Select CSV file",
+            title="Select Deterministic CSV file",
             filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
         )
         
         if file_path:
             try:
-                # Clear existing data
+                # Clear existing data and set deterministic mode
                 self.clear_all()
+                self.analysis_mode = 'deterministic'
+                self.current_analyzer = self.cpm_analyzer
+                self.setup_deterministic_tree()
+                self.mode_label.config(text="Mode: Deterministic (CPM)", foreground="blue")
                 
                 # Load CSV data
                 with open(file_path, 'r', newline='') as file:
@@ -2376,14 +2647,203 @@ class CPMDesktopApp:
                             resource_demand
                         ))
                 
-                messagebox.showinfo("Success", "CSV file loaded successfully!")
+                messagebox.showinfo("Success", "Deterministic CSV file loaded successfully!")
                 
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to load CSV file: {str(e)}")
     
+    
+    def load_probabilistic_csv(self):
+        """Load activities from probabilistic PERT CSV file"""
+        file_path = filedialog.askopenfilename(
+            title="Select Probabilistic (PERT) CSV file",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
+        )
+        
+        if file_path:
+            try:
+                # Clear existing data and set probabilistic mode
+                self.clear_all()
+                self.analysis_mode = 'probabilistic'
+                self.current_analyzer = self.pert_analyzer
+                self.setup_probabilistic_tree()
+                self.mode_label.config(text="Mode: Probabilistic (PERT)", foreground="green")
+                
+                # Load CSV data
+                activities_data = []
+                with open(file_path, 'r', newline='') as file:
+                    reader = csv.DictReader(file)
+                    for row in reader:
+                        # Extract required PERT columns, ignore extra columns
+                        pert_data = {
+                            'id': row['id'],
+                            'predecessors': row.get('predecessors', '').strip(),
+                            'optimistic': self._safe_float_to_int(row['optimistic']),
+                            'most_likely': self._safe_float_to_int(row['most_likely']),
+                            'pessimistic': self._safe_float_to_int(row['pessimistic']),
+                            # Handle optional columns with defaults
+                            'min_duration': self._safe_float_to_int(row.get('min_duration', '1')),
+                            'crash_cost': self._safe_float_to_int(row.get('crash_cost', '0')),
+                            'resource_demand': self._safe_float_to_int(row.get('resource_demand', '0')),
+                            'normal_cost': self._safe_float_to_int(row.get('normal_cost', '0'))
+                        }
+                        activities_data.append(pert_data)
+                
+                # Process through PERT analyzer to get calculated values
+                processed_activities = self.pert_analyzer.load_activities_from_pert_data(activities_data)
+                
+                # Display in tree
+                for activity in processed_activities:
+                    self.tree.insert("", tk.END, values=(
+                        activity['id'],
+                        ', '.join(activity['predecessors']) if activity['predecessors'] else '',
+                        activity['optimistic'],  # Display as integer
+                        activity['most_likely'],  # Display as integer
+                        activity['pessimistic'],  # Display as integer
+                        activity['expected_time_ceil'],  # Ceiling value (integer)
+                        f"{activity['variance']:.3f}",  # 3 decimals for variance only
+                        activity.get('min_duration', 1),  # Integer
+                        activity.get('crash_cost', 0),  # Integer
+                        activity.get('resource_demand', 0),  # Integer
+                        activity.get('normal_cost', 0)  # Integer
+                    ))
+                
+                # Enable probability analysis tab
+                self.enable_probability_analysis()
+                
+                messagebox.showinfo("Success", "Probabilistic CSV file loaded successfully!")
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to load probabilistic CSV file: {str(e)}")
+
+    def _safe_float_to_int(self, value):
+        """Safely convert float string to integer, handling various formats"""
+        try:
+            if value is None or value == '':
+                return 0
+            # Convert to float first, then to int to handle strings like "3.0"
+            return int(float(str(value).strip()))
+        except (ValueError, TypeError):
+            return 0
+    
+    
+    def download_sample_deterministic_csv(self):
+        """Save and download a sample deterministic CSV file"""
+        file_path = filedialog.asksaveasfilename(
+            title="Save Sample Deterministic CSV",
+            defaultextension=".csv",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
+        )
+        
+        if file_path:
+            try:
+                # Define sample deterministic data
+                sample_data = [
+                    ["id", "activity", "duration", "predecessors", "min_duration", "crash_cost", "resource_demand"],
+                    ["A", "Design Phase", "5", "", "1", "300", "2"],
+                    ["B", "Requirements Analysis", "3", "", "2", "500", "1"],
+                    ["C", "Architecture Design", "7", "A,B", "5", "600", "3"],
+                    ["D", "Database Design", "5", "C", "4", "400", "1"],
+                    ["E", "Frontend Development", "6", "C", "3", "300", "4"],
+                    ["F", "Backend Development", "8", "C", "5", "200", "5"],
+                    ["G", "Testing", "3", "D", "3", "800", "2"],
+                    ["H", "Deployment", "4", "E,F", "2", "1000", "1"],
+                ]
+                
+                # Write to CSV file
+                with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerows(sample_data)
+                
+                messagebox.showinfo("Success", f"Sample deterministic CSV saved to:\n{file_path}")
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to save sample CSV: {str(e)}")
+    
+    # def download_sample_probabilistic_csv(self):
+    #     """Save and download a sample probabilistic CSV file"""
+    #     file_path = filedialog.asksaveasfilename(
+    #         title="Save Sample Probabilistic CSV",
+    #         defaultextension=".csv",
+    #         filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
+    #     )
+        
+    #     if file_path:
+    #         try:
+    #             # Define sample probabilistic data (only required PERT columns)
+    #             sample_data = [
+    #                 ["id", "predecessors", "optimistic", "most_likely", "pessimistic"],
+    #                 ["A", "", "3", "4", "7"],
+    #                 ["B", "", "7", "9", "12"],
+    #                 ["C", "A,B", "4", "5", "9"],
+    #                 ["D", "A,B", "10", "11", "16"],
+    #                 ["E", "C,D", "18", "20", "22"],
+    #                 ["F", "E", "12", "16", "17"],
+    #                 ["G", "E", "7", "8", "12"],
+    #                 ["H", "F,G", "11", "15", "17"],
+    #                 ["I", "H", "6", "8", "10"],
+    #                 ["J", "I", "6", "7", "9"]
+    #             ]
+                
+    #             # Write to CSV file
+    #             with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
+    #                 writer = csv.writer(csvfile)
+    #                 writer.writerows(sample_data)
+                
+    #             messagebox.showinfo("Success", f"Sample probabilistic CSV saved to:\n{file_path}")
+                
+    #         except Exception as e:
+    #             messagebox.showerror("Error", f"Failed to save sample CSV: {str(e)}")
+    
+    def download_sample_probabilistic_csv(self):
+        """Save and download a sample probabilistic CSV file"""
+        file_path = filedialog.asksaveasfilename(
+            title="Save Sample Probabilistic CSV",
+            defaultextension=".csv",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
+        )
+        
+        if file_path:
+            try:
+                # Define sample probabilistic data with ALL columns
+                sample_data = [
+                    ["id", "predecessors", "optimistic", "most_likely", "pessimistic", "min_duration", "crash_cost", "resource_demand", "normal_cost"],
+                    ["A", "", "3", "4", "7", "1", "300", "3", "300"],
+                    ["B", "", "7", "9", "12", "2", "600", "4", "300"],
+                    ["C", "A,B", "4", "5", "9", "1", "500", "2", "300"],
+                    ["D", "A,B", "10", "11", "16", "1", "350", "3", "300"],
+                    ["E", "C,D", "18", "20", "22", "2", "400", "1", "300"],
+                    ["F", "E", "12", "16", "17", "1", "200", "4", "300"],
+                    ["G", "E", "7", "8", "12", "1", "550", "3", "300"],
+                    ["H", "F,G", "11", "15", "17", "2", "200", "2", "300"],
+                    ["I", "H", "6", "8", "10", "1", "100", "4", "300"],
+                    ["J", "I", "6", "7", "9", "4", "400", "5", "300"]
+                ]
+                
+                # Write to CSV file
+                with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerows(sample_data)
+                
+                messagebox.showinfo("Success", f"Sample probabilistic CSV saved to:\n{file_path}")
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to save sample CSV: {str(e)}")
+    
+    
+    # def add_row(self):
+    #     """Add a new empty row"""
+    #     self.tree.insert("", tk.END, values=("", "", "", "", "", "", ""))
+    
     def add_row(self):
-        """Add a new empty row"""
-        self.tree.insert("", tk.END, values=("", "", "", "", "", "", ""))
+        """Add a new empty row based on current mode"""
+        if self.analysis_mode == 'probabilistic':
+            # Add row with appropriate number of columns for PERT mode
+            self.tree.insert("", tk.END, values=("", "", "", "", "", "", "", "", "", "", ""))
+        else:
+            # Add row for deterministic mode
+            self.tree.insert("", tk.END, values=("", "", "", "", "", "", ""))
+    
     
     def delete_row(self):
         """Delete selected row"""
@@ -2400,10 +2860,27 @@ class CPMDesktopApp:
         for item in self.tree.get_children():
             self.tree.delete(item)
         
+        # Reset analysis mode
+        self.analysis_mode = None
+        self.current_analyzer = None
+        self.mode_label.config(text="Mode: None", foreground="black")
+        
+        # Reset to deterministic tree layout
+        self.setup_deterministic_tree()
+        
         # Clear analyzer data
-        self.analyzer.G = None
-        self.analyzer.critical_paths = []
-        self.analyzer.critical_activities = []
+        if hasattr(self, 'cpm_analyzer'):
+            self.cpm_analyzer.G = None
+            self.cpm_analyzer.critical_paths = []
+            self.cpm_analyzer.critical_activities = []
+        
+        if hasattr(self, 'pert_analyzer'):
+            self.pert_analyzer.G = None
+            self.pert_analyzer.critical_paths = []
+            self.pert_analyzer.critical_activities = []
+        
+        # Disable probability analysis tab
+        self.disable_probability_analysis()
         
         # Clear results tab
         if hasattr(self, 'results_text'):
@@ -2424,6 +2901,11 @@ class CPMDesktopApp:
             self.fig_gantt.clear()
             self.canvas_gantt.draw()
         
+        # Clear probability chart
+        if hasattr(self, 'fig_probability'):
+            self.fig_probability.clear()
+            self.canvas_probability.draw()
+        
         # Clear RCPS tables
         if hasattr(self, 'fig_rcps_tables'):
             self.fig_rcps_tables.clear()
@@ -2436,10 +2918,6 @@ class CPMDesktopApp:
         # Clear crashing tab
         if hasattr(self, 'crash_results_text'):
             self.crash_results_text.delete(1.0, tk.END)
-        
-        #if hasattr(self, 'fig_crashed'):
-            # self.fig_crashed.clear()
-            # self.canvas_crashed.draw()
         
         # Clear crash step diagrams
         if hasattr(self, 'crash_steps_frame'):
@@ -2522,38 +3000,105 @@ class CPMDesktopApp:
             entry.bind("<Escape>", cancel_edit)
             entry.bind("<FocusOut>", save_edit)
     
+    # def get_activities_data(self):
+    #     """Get activities data from the treeview based on current mode"""
+    #     activities_data = []
+        
+    #     if self.analysis_mode == 'deterministic':
+    #         # Deterministic format: ID, Activity Name, Duration, Predecessors, Min Duration, Crash Cost, Resource Demand
+    #         for item in self.tree.get_children():
+    #             values = self.tree.item(item, 'values')
+    #             if values and values[0]:  # Must have an ID
+    #                 activities_data.append({
+    #                     'id': values[0],
+    #                     'activity': values[1] if len(values) > 1 else '',
+    #                     'duration': values[2] if len(values) > 2 else '0',
+    #                     'predecessors': values[3] if len(values) > 3 else '',
+    #                     'min_duration': values[4] if len(values) > 4 else values[2] if len(values) > 2 else '0',
+    #                     'crash_cost': values[5] if len(values) > 5 else '0',
+    #                     'resource_demand': values[6] if len(values) > 6 else '0'
+    #                 })
+        
+    #     elif self.analysis_mode == 'probabilistic':
+    #         # Probabilistic format: ID, Predecessors, Optimistic, Most Likely, Pessimistic, Expected Time, Variance
+    #         for item in self.tree.get_children():
+    #             values = self.tree.item(item, 'values')
+    #             if values and values[0]:  # Must have an ID
+    #                 activities_data.append({
+    #                     'id': values[0],
+    #                     'predecessors': values[1] if len(values) > 1 else '',
+    #                     'optimistic': int(values[2]) if len(values) > 2 and values[2] else 0,
+    #                     'most_likely': int(values[3]) if len(values) > 3 and values[3] else 0,
+    #                     'pessimistic': int(values[4]) if len(values) > 4 and values[4] else 0
+    #                 })
+        
+    #     return activities_data
+    
     def get_activities_data(self):
-        """Get activities data from the treeview"""
+        """Get activities data from the treeview based on current mode"""
         activities_data = []
-        for item in self.tree.get_children():
-            values = self.tree.item(item, 'values')
-            if values and values[0]:  # Must have an ID
-                activities_data.append({
-                    'id': values[0],
-                    'activity': values[1] if len(values) > 1 else '',
-                    'duration': values[2] if len(values) > 2 else '0',
-                    'predecessors': values[3] if len(values) > 3 else '',
-                    'min_duration': values[4] if len(values) > 4 else values[2] if len(values) > 2 else '0',
-                    'crash_cost': values[5] if len(values) > 5 else '0',
-                    'resource_demand': values[6] if len(values) > 6 else '0',
-                    'max_crash_steps': int(values[7]) if len(values) > 7 and str(values[7]).isdigit() else None
-                })
+        
+        if self.analysis_mode == 'deterministic':
+            # Deterministic format: ID, Activity Name, Duration, Predecessors, Min Duration, Crash Cost, Resource Demand
+            for item in self.tree.get_children():
+                values = self.tree.item(item, 'values')
+                if values and values[0]:  # Must have an ID
+                    activities_data.append({
+                        'id': values[0],
+                        'activity': values[1] if len(values) > 1 else '',
+                        'duration': values[2] if len(values) > 2 else '0',
+                        'predecessors': values[3] if len(values) > 3 else '',
+                        'min_duration': values[4] if len(values) > 4 else values[2] if len(values) > 2 else '0',
+                        'crash_cost': values[5] if len(values) > 5 else '0',
+                        'resource_demand': values[6] if len(values) > 6 else '0'
+                    })
+        
+        elif self.analysis_mode == 'probabilistic':
+            # Probabilistic format: ID, Predecessors, Optimistic, Most Likely, Pessimistic, Expected Time, Variance, Min Duration, Crash Cost, Resource Demand, Normal Cost
+            for item in self.tree.get_children():
+                values = self.tree.item(item, 'values')
+                if values and values[0]:  # Must have an ID
+                    activities_data.append({
+                        'id': values[0],
+                        'predecessors': values[1] if len(values) > 1 else '',
+                        'optimistic': self._safe_float_to_int(values[2]) if len(values) > 2 else 0,
+                        'most_likely': self._safe_float_to_int(values[3]) if len(values) > 3 else 0,
+                        'pessimistic': self._safe_float_to_int(values[4]) if len(values) > 4 else 0,
+                        # Include additional columns for PERT mode
+                        'min_duration': self._safe_float_to_int(values[7]) if len(values) > 7 else 1,
+                        'crash_cost': self._safe_float_to_int(values[8]) if len(values) > 8 else 0,
+                        'resource_demand': self._safe_float_to_int(values[9]) if len(values) > 9 else 0,
+                        'normal_cost': self._safe_float_to_int(values[10]) if len(values) > 10 else 0
+                    })
+        
         return activities_data
     
+    
+    
+    
     def analyze_project(self):
-        """Analyze the project using CPM"""
+        """Analyze the project using CPM or PERT based on current mode"""
         try:
+            if not self.analysis_mode:
+                messagebox.showwarning("Warning", "Please load data first (deterministic or probabilistic).")
+                return
+            
             activities_data = self.get_activities_data()
             
             if not activities_data:
                 messagebox.showwarning("Warning", "Please enter some activities to analyze.")
                 return
             
-            # Perform CPM analysis
-            G, critical_paths, critical_activities = self.analyzer.analyze(activities_data)
+            # Perform analysis based on mode
+            if self.analysis_mode == 'deterministic':
+                G, critical_paths, critical_activities = self.cpm_analyzer.analyze(activities_data)
+                analysis_type = "CPM"
+            else:  # probabilistic
+                G, critical_paths, critical_activities = self.pert_analyzer.analyze(activities_data)
+                analysis_type = "PERT"
             
             # Display results
-            self.display_results(G, critical_paths)
+            self.display_results(G, critical_paths, analysis_type)
             
             # Generate network diagram
             self.generate_network_diagram(G, critical_activities)
@@ -2564,24 +3109,23 @@ class CPMDesktopApp:
             # Generate Gantt chart
             self.generate_gantt_chart(G, critical_activities)
             
+            # Update probability analysis if in PERT mode
+            if self.analysis_mode == 'probabilistic':
+                self.update_probability_analysis()
+            
             # Switch to results tab
             self.notebook.select(1)
             
-            messagebox.showinfo("Success", "Analysis completed successfully!")
+            messagebox.showinfo("Success", f"{analysis_type} analysis completed successfully!")
             
         except Exception as e:
             messagebox.showerror("Error", f"Analysis failed: {str(e)}")
-            
-        # # DEBUG: widget tree for crashing tab
-        # print("DEBUG: Crashing tab widget tree:")
-        # crashing_tab = self.notebook.nametowidget(self.notebook.tabs()[6])  # Crashing tab
-        # self.debug_widget_tree(crashing_tab)
     
     def save_results_csv(self):
         """Save analysis results to CSV file"""
         try:
             # Check if analysis has been performed
-            if not hasattr(self.analyzer, 'G') or self.analyzer.G is None:
+            if not self.current_analyzer or not hasattr(self.current_analyzer, 'G') or self.current_analyzer.G is None:
                 messagebox.showwarning("Warning", "Please run the analysis first before saving results.")
                 return
             
@@ -2595,7 +3139,7 @@ class CPMDesktopApp:
             if not file_path:
                 return  # User cancelled
             
-            G = self.analyzer.G
+            G = self.current_analyzer.G
             
             # Prepare data for CSV
             csv_data = []
@@ -2638,38 +3182,64 @@ class CPMDesktopApp:
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save CSV file: {str(e)}")
     
-    def display_results(self, G, critical_paths):
+    def display_results(self, G, critical_paths, analysis_type="CPM"):
         """Display analysis results in the results tab"""
         # Clear previous results
         self.results_text.delete(1.0, tk.END)
         
         # Prepare data for tabulation
         table_data = []
-        for node in G.nodes():
-            if node not in ['START', 'END']:  # Skip START and END nodes
-                table_data.append([
-                    node,
-                    G.nodes[node]['duration'],
-                    G.nodes[node]['ES'],
-                    G.nodes[node]['EF'],
-                    G.nodes[node]['LS'],
-                    G.nodes[node]['LF'],
-                    G.nodes[node]['float'],
-                    "Yes" if G.nodes[node]['float'] == 0 else "No",
-                    G.nodes[node]['num_predecessors'],
-                    G.nodes[node]['num_immediate_successors'],
-                    G.nodes[node]['num_total_successors'],
-                    G.nodes[node]['resource_demand'],
-                    G.nodes[node]['cumulative_demand'],
-                    G.nodes[node]['grpw']
-                ])
         
-        headers = ["Activity", "Duration", "ES", "EF", "LS", "LF", "Float", "Critical",
-                    "# Pred", "# Imm Succ", "# Total Succ", "Resource", "Cum Demand", "GRPW"]
+        if analysis_type == "PERT":
+            # PERT-specific headers and data
+            for node in G.nodes():
+                if node not in ['START', 'END']:  # Skip START and END nodes
+                    table_data.append([
+                        node,
+                        f"{G.nodes[node]['expected_time']:.2f}",  # Expected time (original)
+                        G.nodes[node]['duration'],  # Expected time (ceil)
+                        f"{G.nodes[node]['variance']:.3f}",  # Variance
+                        G.nodes[node]['ES'],
+                        G.nodes[node]['EF'],
+                        G.nodes[node]['LS'],
+                        G.nodes[node]['LF'],
+                        G.nodes[node]['float'],
+                        "Yes" if G.nodes[node]['float'] == 0 else "No"
+                    ])
+            
+            headers = ["Activity", "Expected Time", "Duration (Ceil)", "Variance", "ES", "EF", "LS", "LF", "Float", "Critical"]
+            
+        else:
+            # CPM-specific headers and data
+            for node in G.nodes():
+                if node not in ['START', 'END']:  # Skip START and END nodes
+                    table_data.append([
+                        node,
+                        G.nodes[node]['duration'],
+                        G.nodes[node]['ES'],
+                        G.nodes[node]['EF'],
+                        G.nodes[node]['LS'],
+                        G.nodes[node]['LF'],
+                        G.nodes[node]['float'],
+                        "Yes" if G.nodes[node]['float'] == 0 else "No",
+                        G.nodes[node].get('num_predecessors', 0),
+                        G.nodes[node].get('num_immediate_successors', 0),
+                        G.nodes[node].get('num_total_successors', 0),
+                        G.nodes[node].get('resource_demand', 0),
+                        G.nodes[node].get('cumulative_demand', 0),
+                        G.nodes[node].get('grpw', 0)
+                    ])
+            
+            headers = ["Activity", "Duration", "ES", "EF", "LS", "LF", "Float", "Critical",
+                      "# Pred", "# Imm Succ", "# Total Succ", "Resource", "Cum Demand", "GRPW"]
+        
+        # Sort by early start time
+        table_data.sort(key=lambda x: int(x[4] if analysis_type == "PERT" else x[2]))
+        
         results_table = tabulate(table_data, headers=headers, tablefmt="grid")
         
         # Display results
-        results_text = "CPM ANALYSIS RESULTS\n"
+        results_text = f"{analysis_type} ANALYSIS RESULTS\n"
         results_text += "=" * 50 + "\n\n"
         results_text += results_table + "\n\n"
         
@@ -2684,6 +3254,11 @@ class CPMDesktopApp:
         # Calculate project duration
         project_duration = max([G.nodes[node]['EF'] for node in G.nodes()])
         results_text += f"\nPROJECT DURATION: {project_duration} time units\n"
+        
+        # Add PERT-specific information
+        if analysis_type == "PERT" and hasattr(self, 'pert_analyzer'):
+            results_text += f"PROJECT VARIANCE: {self.pert_analyzer.project_variance}\n"
+            results_text += f"PROJECT STANDARD DEVIATION: {self.pert_analyzer.project_std}\n"
         
         self.results_text.insert(1.0, results_text)
     
@@ -3117,9 +3692,15 @@ class CPMDesktopApp:
         """Run CPM Analyzer logic and plot schedule tables in RCPS tab."""
         try:
             # Check if analysis has been performed
-            if not hasattr(self.analyzer, 'G') or self.analyzer.G is None:
-                messagebox.showwarning("Warning", "Please run the CPM analysis first.")
+            if not self.current_analyzer or not hasattr(self.current_analyzer, 'G') or self.current_analyzer.G is None:
+                messagebox.showwarning("Warning", "Please run the analysis first.")
                 return
+
+            # Check if current analyzer supports RCPS (support both CPM and PERT)
+            # For PERT mode, we'll use expected_time as duration
+            # if self.analysis_mode != 'deterministic':
+            #     messagebox.showwarning("Warning", "RCPS analysis is only available for deterministic (CPM) data.")
+            #     return
 
             # Get resource limit from user input
             try:
@@ -3135,7 +3716,7 @@ class CPMDesktopApp:
             # --- End validation ---
 
             # Generate CPM Gantt DataFrame
-            df_gantt = self.generate_gantt_chart(self.analyzer.G, self.analyzer.critical_activities)
+            df_gantt = self.generate_gantt_chart(self.current_analyzer.G, self.current_analyzer.critical_activities)
             
             # Calculate RCPS schedule and display tables
             self._calculate_and_display_rcps_tables(df_gantt, resource_limit)
@@ -3156,9 +3737,9 @@ class CPMDesktopApp:
         Returns max_resource_demand if valid, None if invalid.
         """
         max_resource_demand = 0
-        for node in self.analyzer.G.nodes():
+        for node in self.current_analyzer.G.nodes():
             if node not in ['START', 'END']:
-                demand = self.analyzer.G.nodes[node].get('resource_demand', 0)
+                demand = self.current_analyzer.G.nodes[node].get('resource_demand', 0)
                 try:
                     demand = int(demand)
                 except Exception:
@@ -3190,8 +3771,8 @@ class CPMDesktopApp:
         priority_rule = self.priority_rule_var.get()
         
         # Build CPM and RCPS tables for display
-        cpm_table, time_cols, critical_ids = self.analyzer.build_cpm_schedule_table(df_gantt, resource_limit)
-        rcps_table, actual_starts, critical_ids2 = self.analyzer.rcps_heuristic_schedule_table(df_gantt, resource_limit, priority_rule)
+        cpm_table, time_cols, critical_ids = self.current_analyzer.build_cpm_schedule_table(df_gantt, resource_limit)
+        rcps_table, actual_starts, critical_ids2 = self.current_analyzer.rcps_heuristic_schedule_table(df_gantt, resource_limit, priority_rule)
         
         # Pad CPM table columns if RCPS has more time periods
         cpm_table_updated, time_cols_updated = self._pad_cpm_table_columns(cpm_table, rcps_table, time_cols)
@@ -3256,7 +3837,7 @@ class CPMDesktopApp:
         priority_rule = self.priority_rule_var.get()
         
         # Run RCPS scheduling to get actual start times and schedule data
-        rcps_table, actual_starts, _ = self.analyzer.rcps_heuristic_schedule_table(
+        rcps_table, actual_starts, _ = self.current_analyzer.rcps_heuristic_schedule_table(
             df_gantt, resource_limit, priority_rule
         )
         
@@ -3276,8 +3857,8 @@ class CPMDesktopApp:
             
             # Get original activity data from analyzer's graph for reference
             original_data = {}
-            if activity_id in self.analyzer.G.nodes:
-                original_data = self.analyzer.G.nodes[activity_id]
+            if activity_id in self.current_analyzer.G.nodes:
+                original_data = self.current_analyzer.G.nodes[activity_id]
             else:
                 print(f"WARNING: Activity {activity_id} not found in analyzer graph")
                 continue
@@ -3294,8 +3875,8 @@ class CPMDesktopApp:
             
             # Get predecessors from original graph (maintain dependency structure)
             predecessors = []
-            if activity_id in self.analyzer.G.nodes:
-                for pred in self.analyzer.G.predecessors(activity_id):
+            if activity_id in self.current_analyzer.G.nodes:
+                for pred in self.current_analyzer.G.predecessors(activity_id):
                     if pred not in ['START']:
                         predecessors.append(pred)
             
@@ -3530,7 +4111,7 @@ class CPMDesktopApp:
         
         Returns: Updated graph copy for RCPS crashing, or None if failed
         """
-        if not hasattr(self.analyzer, 'G') or self.analyzer.G is None:
+        if not self.current_analyzer or not hasattr(self.current_analyzer, 'G') or self.current_analyzer.G is None:
             print("ERROR: No CPM graph available for updating")
             return None
             
@@ -3539,7 +4120,7 @@ class CPMDesktopApp:
             return None
         
         # CRITICAL FIX: Create a copy instead of modifying the original
-        updated_G = self.analyzer.G.copy()
+        updated_G = self.current_analyzer.G.copy()
         
         rcps_df = self.last_rcps_table
         
@@ -3724,9 +4305,15 @@ class CPMDesktopApp:
             #     print(f"DEBUG: step_info_label size: {self.step_info_label.winfo_width()}x{self.step_info_label.winfo_height()}")
             
             # Check if analysis has been performed
-            if not hasattr(self.analyzer, 'G') or self.analyzer.G is None:
-                messagebox.showwarning("Warning", "Please run the CPM analysis first.")
+            if not self.current_analyzer or not hasattr(self.current_analyzer, 'G') or self.current_analyzer.G is None:
+                messagebox.showwarning("Warning", "Please run the analysis first.")
                 return
+            
+            # Check if current analyzer supports crashing (support both CPM and PERT)
+            # For PERT mode, we'll use expected_time as duration
+            # if self.analysis_mode != 'deterministic':
+            #     messagebox.showwarning("Warning", "Crashing analysis is only available for deterministic (CPM) data.")
+            #     return
 
             # Get target duration
             try:
@@ -3750,7 +4337,7 @@ class CPMDesktopApp:
                     break
 
             # Get current project duration
-            current_duration = max([self.analyzer.G.nodes[node]['EF'] for node in self.analyzer.G.nodes()])
+            current_duration = max([self.current_analyzer.G.nodes[node]['EF'] for node in self.current_analyzer.G.nodes()])
 
             if target_duration >= current_duration:
                 messagebox.showinfo("Info", f"Target duration ({target_duration}) is already achieved or exceeded. "
@@ -3767,20 +4354,7 @@ class CPMDesktopApp:
             
 
             # Run crashing optimization
-            crashed_G, total_crash_cost, crash_log = self.analyzer.crash_project(target_duration, max_budget=max_budget)
-            
-            #DDEBUGGING########
-            # Generate debug report
-            debug_report = self.analyzer.debug_crash_process(crashed_G, crash_log, target_duration)
-            
-            # Save debug report to file
-            debug_filename = "crash_debug_report.txt"
-            with open(debug_filename, 'w') as f:
-                f.write(debug_report)
-            
-            print(f"Detailed debug report saved to {debug_filename}")
-            ############
-            
+            crashed_G, total_crash_cost, crash_log = self.current_analyzer.crash_project(target_duration, max_budget=max_budget)
             
             # Display crash results
             self.display_crash_results(crashed_G, total_crash_cost, crash_log, target_duration)
@@ -3804,7 +4378,7 @@ class CPMDesktopApp:
         lines.append("CRASHING OPTIMIZATION LOG\n" + "="*40)
         
         # Show initial project duration
-        initial_duration = max([self.analyzer.G.nodes[node]['EF'] for node in self.analyzer.G.nodes()])
+        initial_duration = max([self.current_analyzer.G.nodes[node]['EF'] for node in self.current_analyzer.G.nodes()])
         lines.append(f"Initial Project Duration: {initial_duration}")
         lines.append(f"Target Duration: {target_duration}")
         lines.append("-" * 40)
@@ -3837,7 +4411,7 @@ class CPMDesktopApp:
             activity = entry['activity']
             if activity not in crashed_activities:
                 crashed_activities[activity] = {
-                    'original_duration': entry.get('original_duration', self.analyzer.G.nodes[activity]['duration']),
+                    'original_duration': entry.get('original_duration', self.current_analyzer.G.nodes[activity]['duration']),
                     'final_duration': entry['new_duration'],
                     'total_cost': 0,
                     'crash_count': 0
@@ -3863,21 +4437,21 @@ class CPMDesktopApp:
         self.current_step = 0
         
         # Prepare all step graphs
-        G = self.analyzer.G.copy()  # Start with original graph
+        G = self.current_analyzer.G.copy()  # Start with original graph
         
         # Add initial state (before any crashing)
-        G_initial = self.analyzer.forward_pass(G.copy())
-        G_initial = self.analyzer.backward_pass(G_initial)
-        G_initial = self.analyzer.calculate_float(G_initial)
+        G_initial = self.current_analyzer.forward_pass(G.copy())
+        G_initial = self.current_analyzer.backward_pass(G_initial)
+        G_initial = self.current_analyzer.calculate_float(G_initial)
         self.step_graphs.append((0, "Initial", None, G_initial))
         
         # Apply crashes incrementally
         for i, entry in enumerate(crash_log):
             # Apply this crash to the current graph
             G.nodes[entry['activity']]['duration'] = entry['new_duration']
-            G = self.analyzer.forward_pass(G)
-            G = self.analyzer.backward_pass(G)
-            G = self.analyzer.calculate_float(G)
+            G = self.current_analyzer.forward_pass(G)
+            G = self.current_analyzer.backward_pass(G)
+            G = self.current_analyzer.calculate_float(G)
             self.step_graphs.append((i+1, entry['activity'], entry['new_duration'], G.copy()))
         
         self.total_steps = len(self.step_graphs)
@@ -4228,7 +4802,7 @@ class CPMDesktopApp:
                 return
                 
             # Check if CPM analysis has been performed
-            if not hasattr(self.analyzer, 'G') or self.analyzer.G is None:
+            if not hasattr(self.current_analyzer, 'G') or self.current_analyzer.G is None:
                 messagebox.showwarning("Warning", "Please run the CPM analysis first.")
                 return
 
@@ -4275,24 +4849,14 @@ class CPMDesktopApp:
                 return
 
             # Use temporary graph for RCPS crashing, preserve original
-            original_analyzer_graph = self.analyzer.G  # Store original
-            self.analyzer.G = rcps_updated_graph      # Temporarily use RCPS graph
+            original_analyzer_graph = self.current_analyzer.G  # Store original
+            self.current_analyzer.G = rcps_updated_graph      # Temporarily use RCPS graph
             
             try:
                 # Run RCPS-integrated crashing optimization
-                crashed_G, total_crash_cost, crash_log = self.analyzer.crash_project_with_rcps(
+                crashed_G, total_crash_cost, crash_log = self.current_analyzer.crash_project_with_rcps(
                     target_duration, resource_limit, priority_rule, max_budget=max_budget
                 )
-                
-                # Generate debug report
-                debug_report = self.analyzer.debug_rcps_crash_process(
-                    crashed_G, crash_log, target_duration, resource_limit, priority_rule
-                )
-                
-                # Save debug report to file
-                debug_filename = "rcps_crash_debug_report.txt"
-                with open(debug_filename, 'w') as f:
-                    f.write(debug_report)
                 
                 # Display results and step diagrams
                 self.display_rcps_crashing_results(crashed_G, total_crash_cost, crash_log, target_duration)
@@ -4300,7 +4864,7 @@ class CPMDesktopApp:
 
             finally:
                 # Always restore the original graph
-                self.analyzer.G = original_analyzer_graph
+                self.current_analyzer.G = original_analyzer_graph
 
             # Switch to RCPS Crashing tab
             for i, tab_id in enumerate(self.notebook.tabs()):
@@ -4313,7 +4877,7 @@ class CPMDesktopApp:
         except Exception as e:
             # Make sure to restore original graph even if there's an error
             if 'original_analyzer_graph' in locals():
-                self.analyzer.G = original_analyzer_graph
+                self.current_analyzer.G = original_analyzer_graph
             messagebox.showerror("Error", f"RCPS Crashing failed: {str(e)}")
             import traceback
             traceback.print_exc()
@@ -4334,10 +4898,10 @@ class CPMDesktopApp:
                 initial_duration = first_entry['resulting_project_duration'] + first_entry['project_duration_reduction']
             else:
                 # Fallback: calculate from RCPS data
-                initial_duration = max([self.analyzer.G.nodes[node]['EF'] for node in self.analyzer.G.nodes()])
+                initial_duration = max([self.current_analyzer.G.nodes[node]['EF'] for node in self.current_analyzer.G.nodes()])
         else:
             # Fallback: get from current graph state
-            initial_duration = max([self.analyzer.G.nodes[node]['EF'] for node in self.analyzer.G.nodes()])
+            initial_duration = max([self.current_analyzer.G.nodes[node]['EF'] for node in self.current_analyzer.G.nodes()])
         
         lines.append(f"Initial Project Duration: {initial_duration}")
         lines.append(f"Target Duration: {target_duration}")
@@ -4371,7 +4935,7 @@ class CPMDesktopApp:
             priority_rule = self.priority_rule_var.get()
             
             # Generate final RCPS schedule to get correct critical path
-            final_schedule = self.analyzer.generate_rcps_schedule_for_graph(crashed_G, resource_limit, priority_rule)
+            final_schedule = self.current_analyzer.generate_rcps_schedule_for_graph(crashed_G, resource_limit, priority_rule)
             rcps_critical_activities = final_schedule['critical_activities']
             
             if rcps_critical_activities:
@@ -4392,7 +4956,7 @@ class CPMDesktopApp:
             activity = entry['activity']
             if activity not in crashed_activities:
                 crashed_activities[activity] = {
-                    'original_duration': entry.get('original_duration', self.analyzer.G.nodes[activity]['duration']),
+                    'original_duration': entry.get('original_duration', self.current_analyzer.G.nodes[activity]['duration']),
                     'final_duration': entry['new_duration'],
                     'total_cost': 0,
                     'crash_count': 0
@@ -4449,18 +5013,18 @@ class CPMDesktopApp:
         
         
         # Add initial state (before any crashing)
-        G_initial = self.analyzer.forward_pass(G.copy())
-        G_initial = self.analyzer.backward_pass(G_initial)
-        G_initial = self.analyzer.calculate_float(G_initial)
+        G_initial = self.current_analyzer.forward_pass(G.copy())
+        G_initial = self.current_analyzer.backward_pass(G_initial)
+        G_initial = self.current_analyzer.calculate_float(G_initial)
         self.rcps_step_graphs.append((0, "Initial", None, G_initial))
         
         # Apply crashes incrementally
         for i, entry in enumerate(crash_log):
             G = G.copy()
             G.nodes[entry['activity']]['duration'] = entry['new_duration']
-            G = self.analyzer.forward_pass(G)
-            G = self.analyzer.backward_pass(G)
-            G = self.analyzer.calculate_float(G)
+            G = self.current_analyzer.forward_pass(G)
+            G = self.current_analyzer.backward_pass(G)
+            G = self.current_analyzer.calculate_float(G)
             self.rcps_step_graphs.append((i+1, entry['activity'], entry['new_duration'], G))
         
         self.rcps_total_steps = len(self.rcps_step_graphs)
@@ -4594,8 +5158,191 @@ class CPMDesktopApp:
         # Store images to prevent garbage collection
         grid_window.step_images = step_images
     
+    # ======= PROBABILITY ANALYSIS METHODS =======
     
+    def enable_probability_analysis(self):
+        """Enable the probability analysis tab and controls"""
+        self.probability_tab_enabled = True
+        self.prob_status_label.config(text="Status: Enabled (Probabilistic data loaded)", foreground="green")
+        self.calc_prob_btn.config(state=tk.NORMAL)
+        self.calc_duration_btn.config(state=tk.NORMAL)
+        self.target_duration_entry.config(state=tk.NORMAL)
+        self.target_probability_entry.config(state=tk.NORMAL)
     
+    def disable_probability_analysis(self):
+        """Disable the probability analysis tab and controls"""
+        self.probability_tab_enabled = False
+        self.prob_status_label.config(text="Status: Disabled (Load probabilistic data first)", foreground="red")
+        self.calc_prob_btn.config(state=tk.DISABLED)
+        self.calc_duration_btn.config(state=tk.DISABLED)
+        self.target_duration_entry.config(state=tk.DISABLED)
+        self.target_probability_entry.config(state=tk.DISABLED)
+        
+        # Clear results
+        self.prob_result_label.config(text="")
+        self.duration_result_label.config(text="")
+        
+        # Clear plot
+        if hasattr(self, 'fig_probability'):
+            self.fig_probability.clear()
+            self.canvas_probability.draw()
+        
+        # Clear statistics
+        if hasattr(self, 'stats_text'):
+            self.stats_text.config(state=tk.NORMAL)
+            self.stats_text.delete(1.0, tk.END)
+            self.stats_text.config(state=tk.DISABLED)
+    
+    def update_probability_analysis(self):
+        """Update probability analysis display with current PERT results"""
+        if not self.probability_tab_enabled or self.analysis_mode != 'probabilistic':
+            return
+        
+        # Get project statistics
+        stats = self.pert_analyzer.get_project_statistics()
+        if not stats:
+            return
+        
+        # Update statistics display
+        stats_text = f"Project Expected Duration: {stats['expected_duration']:.1f} time units\n"
+        stats_text += f"Project Variance: {stats['variance']:.3f}\n"
+        stats_text += f"Project Standard Deviation: {stats['std_deviation']:.3f}\n\n"
+        
+        stats_text += f"Critical Path: {' -> '.join(stats['critical_path'])}\n\n"
+        
+        stats_text += "Critical Activities Variance Breakdown:\n"
+        stats_text += "-" * 40 + "\n"
+        for activity_info in stats['critical_activities_variance']:
+            stats_text += f"{activity_info['id']}: Variance = {activity_info['variance']:.3f}, "
+            stats_text += f"Expected Time = {activity_info['expected_time']}\n"
+        
+        # Update display
+        self.stats_text.config(state=tk.NORMAL)
+        self.stats_text.delete(1.0, tk.END)
+        self.stats_text.insert(1.0, stats_text)
+        self.stats_text.config(state=tk.DISABLED)
+        
+        # Generate initial probability distribution plot
+        self.plot_probability_distribution()
+    
+    def calculate_completion_probability(self):
+        """Calculate probability of completing project within target duration"""
+        try:
+            target_duration = float(self.target_duration_var.get())
+            probability = self.pert_analyzer.calculate_completion_probability(target_duration)
+            
+            result_text = f"Probability: {probability:.4f} ({probability*100:.2f}%)"
+            self.prob_result_label.config(text=result_text, foreground="blue")
+            
+            # Update plot with this calculation
+            self.plot_probability_distribution(target_duration=target_duration, highlight_prob=probability)
+            
+        except ValueError as e:
+            messagebox.showerror("Error", f"Invalid target duration: {str(e)}")
+        except Exception as e:
+            messagebox.showerror("Error", f"Calculation failed: {str(e)}")
+    
+    def calculate_required_duration(self):
+        """Calculate duration required for given probability"""
+        try:
+            target_probability = float(self.target_probability_var.get())
+            
+            if not (0 <= target_probability <= 1):
+                raise ValueError("Probability must be between 0 and 1")
+            
+            duration = self.pert_analyzer.calculate_duration_for_probability(target_probability)
+            
+            result_text = f"Required Duration: {duration:.2f} time units"
+            self.duration_result_label.config(text=result_text, foreground="blue")
+            
+            # Update plot with this calculation
+            self.plot_probability_distribution(target_probability=target_probability, highlight_duration=duration)
+            
+        except ValueError as e:
+            messagebox.showerror("Error", f"Invalid probability value: {str(e)}")
+        except Exception as e:
+            messagebox.showerror("Error", f"Calculation failed: {str(e)}")
+    
+    def plot_probability_distribution(self, target_duration=None, highlight_prob=None, 
+                                    target_probability=None, highlight_duration=None):
+        """Plot the normal distribution for project completion time"""
+        if not self.probability_tab_enabled or self.analysis_mode != 'probabilistic':
+            return
+        
+        try:
+            # Clear previous plot
+            self.fig_probability.clear()
+            ax = self.fig_probability.add_subplot(111)
+            
+            # Get project statistics
+            stats = self.pert_analyzer.get_project_statistics()
+            if not stats:
+                return
+            
+            expected_duration = stats['expected_duration']
+            std_dev = stats['std_deviation']
+            
+            if std_dev == 0:
+                # No variance - display message
+                ax.text(0.5, 0.5, f"No variance in critical path.\nProject duration is exactly {expected_duration} time units.", 
+                       ha='center', va='center', transform=ax.transAxes, fontsize=12)
+                self.canvas_probability.draw()
+                return
+            
+            # Create range for x-axis (±4 standard deviations)
+            x_min = expected_duration - 4 * std_dev
+            x_max = expected_duration + 4 * std_dev
+            x = np.linspace(x_min, x_max, 1000)
+            
+            # Calculate normal distribution
+            y = norm.pdf(x, expected_duration, std_dev)
+            
+            # Plot the distribution
+            ax.plot(x, y, 'b-', linewidth=2, label='Project Duration Distribution')
+            ax.fill_between(x, y, alpha=0.3, color='lightblue')
+            
+            # Mark expected duration
+            ax.axvline(expected_duration, color='red', linestyle='--', linewidth=2, 
+                      label=f'Expected Duration ({expected_duration:.1f})')
+            
+            # Highlight specific calculations
+            if target_duration is not None and highlight_prob is not None:
+                # Shade area for probability calculation
+                x_shade = x[x <= target_duration]
+                y_shade = norm.pdf(x_shade, expected_duration, std_dev)
+                ax.fill_between(x_shade, y_shade, alpha=0.6, color='green', 
+                               label=f'P(T ≤ {target_duration}) = {highlight_prob:.4f}')
+                ax.axvline(target_duration, color='green', linestyle='-', linewidth=2)
+            
+            if target_probability is not None and highlight_duration is not None:
+                # Mark duration for probability calculation
+                ax.axvline(highlight_duration, color='orange', linestyle='-', linewidth=2,
+                          label=f'Duration for P = {target_probability:.3f}: {highlight_duration:.2f}')
+                
+                # Shade area
+                x_shade = x[x <= highlight_duration]
+                y_shade = norm.pdf(x_shade, expected_duration, std_dev)
+                ax.fill_between(x_shade, y_shade, alpha=0.6, color='orange')
+            
+            # Formatting
+            ax.set_xlabel('Project Duration (time units)', fontsize=10)
+            ax.set_ylabel('Probability Density', fontsize=10)
+            ax.set_title('Project Completion Time Distribution (Normal)', fontsize=12, fontweight='bold')
+            ax.legend(fontsize=9)
+            ax.grid(True, alpha=0.3)
+            
+            # Add statistics text
+            stats_text = f'μ = {expected_duration:.2f}, σ = {std_dev:.3f}, σ² = {stats["variance"]:.3f}'
+            ax.text(0.02, 0.98, stats_text, transform=ax.transAxes, fontsize=9,
+                   verticalalignment='top', bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
+            
+            self.fig_probability.tight_layout()
+            self.canvas_probability.draw()
+            
+        except Exception as e:
+            print(f"Error plotting probability distribution: {str(e)}")
+
+
 def main():
     """Main function to run the application"""
     root = tk.Tk()
