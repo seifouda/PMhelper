@@ -2117,55 +2117,42 @@ class CPMDesktopApp:
                 self.current_analyzer = self.pert_analyzer
                 self.setup_probabilistic_tree()
                 self.mode_label.config(text="Mode: PERT", foreground="green")
-                
+
                 # Load CSV data
                 activities_data = []
                 with open(file_path, 'r', newline='') as file:
                     reader = csv.DictReader(file)
                     for row in reader:
-                        # Extract PERT data including all fields
-                        pert_data = {
-                            'id': row['id'],
-                            'predecessors': row.get('predecessors', '').strip(),
-                            'optimistic': int(float(row['optimistic'])),
-                            'most_likely': int(float(row['most_likely'])),
-                            'pessimistic': int(float(row['pessimistic'])),
-                            'min_duration': self._safe_float_to_int(row.get('min_duration', 1)),
-                            'crash_cost': self._safe_float_to_int(row.get('crash_cost', 0)),
-                            'resource_demand': self._safe_float_to_int(row.get('resource_demand', 0)),
-                            'normal_cost': self._safe_float_to_int(row.get('normal_cost', 0))
-                        }
-                        activities_data.append(pert_data)
-                
+                        try:
+                            pert_data = {
+                                'id': row['id'],
+                                'predecessors': row.get('predecessors', '').strip(),
+                                'optimistic': int(float(row['optimistic'])),
+                                'most_likely': int(float(row['most_likely'])),
+                                'pessimistic': int(float(row['pessimistic'])),
+                                'min_duration': self._safe_float_to_int(row.get('min_duration', 1)),
+                                'crash_cost': self._safe_float_to_int(row.get('crash_cost', 0)),
+                                'resource_demand': self._safe_float_to_int(row.get('resource_demand', 0)),
+                                'normal_cost': self._safe_float_to_int(row.get('normal_cost', 0))
+                            }
+                            activities_data.append(pert_data)
+                        except Exception as row_e:
+                            print(f"Skipping row due to error: {row_e}")
+
                 # Process through PERT analyzer to get calculated values
                 processed_activities = self.pert_analyzer.load_activities_from_pert_data(activities_data)
-                
-            #     # Display in tree with ALL fields
-            #     for activity in processed_activities:
-            #         self.tree.insert("", tk.END, values=(
-            #             activity['id'],
-            #             ', '.join(activity['predecessors']) if activity['predecessors'] else '',
-            #             str(activity['optimistic']),
-            #             str(activity['most_likely']),
-            #             str(activity['pessimistic']),
-            #             str(activity['expected_time_ceil']),
-            #             f"{activity['variance']:.3f}",
-            #             str(activity['min_duration']),
-            #             str(activity['crash_cost']),
-            #             str(activity['resource_demand']),
-            #             str(activity['normal_cost'])
-            #         ))
-                
-            #     # Enable probability analysis tab
-            #     self.enable_probability_analysis()
-                
-            #     messagebox.showinfo("Success", "Probabilistic CSV file loaded successfully!")
-                
-            # except Exception as e:
-            #     messagebox.showerror("Error", f"Failed to load probabilistic CSV file: {str(e)}")
+
+                # Optionally display in tree or enable probability analysis tab here
+                # self.enable_probability_analysis()
+                # messagebox.showinfo("Success", "Probabilistic CSV file loaded successfully!")
+
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to load probabilistic CSV file: {str(e)}")
     
     
     def _safe_float_to_int(self, value):
+        """Safely convert float string to integer, handling various formats"""
+        
         """Safely convert float string to integer, handling various formats"""
         try:
             if value is None or value == '':
