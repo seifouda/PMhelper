@@ -1,0 +1,71 @@
+DETAILED RCPS CRASHING PROCESS EXECUTION
+======================================================================
+
+Starting crash optimization: Initial duration = 33, Target = 28.0
+Iteration 1: Critical path = A -> C -> E -> G -> H -> I
+Current simulation time = 0
+Completed activities: []
+  Crashable: A (dur=3, min=1, cost=300.0, ES=0, EF=3)
+  Crashable: C (dur=2, min=1, cost=500.0, ES=3, EF=5)
+  Crashable: E (dur=6, min=2, cost=400.0, ES=14, EF=20)
+  Crashable: G (dur=4, min=1, cost=550.0, ES=20, EF=24)
+  Crashable: H (dur=5, min=2, cost=200.0, ES=24, EF=29)
+  Crashable: I (dur=3, min=1, cost=100.0, ES=29, EF=32)
+  Selected activity I (future) with lowest cost 100.0
+  Crashing I: 4 -> 3 (Cost: 100.0)
+  New project duration: 32 -> 32
+  Advanced time to 1
+Iteration 2: Critical path = A -> C -> E -> G -> H -> I
+Current simulation time = 1
+Completed activities: []
+  Crashable: A (dur=3, min=1, cost=300.0, ES=0, EF=3)
+  Crashable: C (dur=2, min=1, cost=500.0, ES=3, EF=5)
+  Crashable: E (dur=6, min=2, cost=400.0, ES=14, EF=20)
+  Crashable: G (dur=4, min=1, cost=550.0, ES=20, EF=24)
+  Crashable: H (dur=5, min=2, cost=200.0, ES=24, EF=29)
+  Crashable: I (dur=2, min=1, cost=100.0, ES=29, EF=31)
+  Selected activity I (future) with lowest cost 100.0
+  Crashing I: 4 -> 2 (Cost: 100.0)
+  New project duration: 31 -> 31
+  Advanced time to 2
+Iteration 3: Critical path = A -> C -> E -> G -> H -> I
+Current simulation time = 2
+Completed activities: []
+  Crashable: A (dur=3, min=1, cost=300.0, ES=0, EF=3)
+  Crashable: C (dur=2, min=1, cost=500.0, ES=3, EF=5)
+  Crashable: E (dur=6, min=2, cost=400.0, ES=14, EF=20)
+  Crashable: G (dur=4, min=1, cost=550.0, ES=20, EF=24)
+  Crashable: H (dur=5, min=2, cost=200.0, ES=24, EF=29)
+  Not crashable: I (dur=1, min=1, already at min or max steps reached)
+  Selected activity I (future) with lowest cost 100.0
+  Crashing I: 4 -> 1 (Cost: 100.0)
+  New project duration: 30 -> 30
+  Advanced time to 3
+Iteration 4: Critical path = A -> C -> E -> G -> H -> I
+Current simulation time = 3
+Completed activities: ['A']
+  Not crashable: A (already finished, EF=3 <= current_time=3)
+  Crashable: C (dur=2, min=1, cost=500.0, ES=3, EF=5)
+  Crashable: E (dur=6, min=2, cost=400.0, ES=14, EF=20)
+  Crashable: G (dur=4, min=1, cost=550.0, ES=20, EF=24)
+  Crashable: H (dur=4, min=2, cost=200.0, ES=24, EF=28)
+  Not crashable: I (dur=1, min=1, already at min or max steps reached)
+  Selected activity H (future) with lowest cost 200.0
+  Crashing H: 5 -> 4 (Cost: 200.0)
+  New project duration: 29 -> 29
+  Advanced time to 4
+Iteration 5: Critical path = A -> C -> E -> G -> H -> I
+Current simulation time = 4
+Completed activities: ['A']
+  Not crashable: A (already finished, EF=3 <= current_time=4)
+  Crashable: C (dur=2, min=1, cost=500.0, ES=3, EF=5)
+  Crashable: E (dur=6, min=2, cost=400.0, ES=14, EF=20)
+  Crashable: G (dur=4, min=1, cost=550.0, ES=20, EF=24)
+  Crashable: H (dur=3, min=2, cost=200.0, ES=24, EF=27)
+  Not crashable: I (dur=1, min=1, already at min or max steps reached)
+  Selected activity H (future) with lowest cost 200.0
+  Crashing H: 5 -> 3 (Cost: 200.0)
+  New project duration: 28 -> 28
+  Advanced time to 5
+No more activities can be crashed. Breaking.
+Crash optimization complete. Final duration: 28, Total cost: 700.0

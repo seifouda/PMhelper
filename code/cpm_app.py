@@ -76,6 +76,12 @@ class CPMAnalyzer:
             except (ValueError, TypeError):
                 resource_demand = 0
             
+            # Handle normal cost
+            try:
+                normal_cost = float(row.get('normal_cost', 0))
+            except (ValueError, TypeError):
+                normal_cost = 0
+
             activities.append({
                 'id': row['id'],
                 'activity': activity_name,
@@ -83,69 +89,11 @@ class CPMAnalyzer:
                 'crash_cost': crash_cost,
                 'duration': duration,
                 'predecessors': predecessors,
-                'resource_demand': resource_demand
-            })
-        
-        return activities
-    
-    def load_activities_from_pert_data(self, activities_data):
-        """
-        Load activities from PERT data format
-        Expected data format: list of dicts with keys: id, predecessors, optimistic, most_likely, pessimistic
-        """
-        activities = []
-        
-        for row in activities_data:
-            # Extract PERT time estimates
-            try:
-                optimistic = int(row['optimistic']) if 'optimistic' in row else 0
-                most_likely = int(row['most_likely']) if 'most_likely' in row else 0
-                pessimistic = int(row['pessimistic']) if 'pessimistic' in row else 0
-            except (ValueError, KeyError) as e:
-                raise ValueError(f"Invalid PERT times for activity {row.get('id', 'Unknown')}: {str(e)}")
-            
-            # Calculate expected time and variance
-            expected_time = (optimistic + 4 * most_likely + pessimistic) / 6
-            variance = ((pessimistic - optimistic) / 6) ** 2
-            
-            # Round expected time up (ceil) and variance to 3 decimal places
-            expected_time_ceil = math.ceil(expected_time)
-            variance_rounded = round(variance, 3)
-            
-            # Process predecessors (comma-separated list)
-            predecessors = []
-            if row.get('predecessors') and str(row['predecessors']).strip():
-                predecessors = [p.strip() for p in str(row['predecessors']).split(',') if p.strip()]
-            
-            # Get activity name (optional)
-            activity_name = row.get('activity', '').strip()
-            
-            # Handle additional fields for full PERT support
-            min_duration = int(row.get('min_duration', 1)) if row.get('min_duration') else 1
-            crash_cost = int(row.get('crash_cost', 0)) if row.get('crash_cost') else 0
-            resource_demand = int(row.get('resource_demand', 0)) if row.get('resource_demand') else 0
-            normal_cost = int(row.get('normal_cost', 0)) if row.get('normal_cost') else 0
-            
-            activities.append({
-                'id': row['id'],
-                'activity': activity_name,
-                'optimistic': optimistic,
-                'most_likely': most_likely,
-                'pessimistic': pessimistic,
-                'expected_time': expected_time,
-                'expected_time_ceil': expected_time_ceil,
-                'variance': variance_rounded,
-                'duration': expected_time_ceil,  # Use ceiling for all calculations
-                'predecessors': predecessors,
-                # Additional fields for RCPS and crashing support
-                'min_duration': min_duration,
-                'crash_cost': crash_cost,
                 'resource_demand': resource_demand,
                 'normal_cost': normal_cost
             })
         
         return activities
-    
     
     def build_network(self, activities):
         """Build a directed graph network from activity data"""
@@ -160,7 +108,8 @@ class CPMAnalyzer:
                 min_duration=activity.get('min_duration', activity['duration']),  # NEW
                 crash_cost=activity.get('crash_cost', 0),                         # NEW
                 activity=activity.get('activity', ''),
-                resource_demand=activity.get('resource_demand', 0)
+                resource_demand=activity.get('resource_demand', 0),
+                normal_cost=activity.get('normal_cost', 0)                        # NEW
             )
         
         # Add edges based on predecessor relationships
@@ -328,6 +277,7 @@ class CPMAnalyzer:
         Build the initial CPM-based schedule table.
         Returns: DataFrame (table), list of time units, dict of critical activities
         """
+        print(f"[DEBUG] rcps_heuristic_schedule_table: type(df_gantt)={type(df_gantt)}, value={repr(df_gantt)[:200]}")
         df = df_gantt.copy()
         # Ensure correct columns
         required = ['id', 'duration', 'resource', 'early_start', 'late_finish', 'float', 'predecessors']
@@ -339,6 +289,7 @@ class CPMAnalyzer:
         max_time = int(df['late_finish'].max())
         time_cols = list(range(1, max_time + 1))
         # Build table
+        print(f"[DEBUG] build_cpm_schedule_table: type(df)={type(df)}, value={repr(df)[:200]}")
         table = df[['id', 'duration', 'resource', 'early_start', 'late_finish', 'float']].copy()
         for t in time_cols:
             table[t] = ''
@@ -367,6 +318,8 @@ class CPMAnalyzer:
         Apply RCPS heuristic and build the actual schedule table.
         Returns: DataFrame (table), dict of actual start times, dict of critical activities
         """
+        if df_gantt is None:
+            raise ValueError("No project data available. Please run analysis before running RCPS scheduling.")
         df = df_gantt.copy()
         df['critical'] = df['float'] == 0
         
@@ -530,101 +483,6 @@ class CPMAnalyzer:
         
         return set(max_path)
     
-    # def get_scheduled_critical_path(self, scheduled_activities):
-    #     """
-    #     Find the critical path in the scheduled activities based on RCPS results.
-    #     Returns a set of activity IDs on the critical path.
-    #     """
-    #     import networkx as nx
-        
-    #     # Build a graph from scheduled_activities using their dependencies
-    #     G = nx.DiGraph()
-        
-    #     # Add nodes with scheduling information
-    #     for act_id, data in scheduled_activities.items():
-    #         if act_id not in ['START', 'END', 'RA', 'RS']:  # Skip utility nodes
-    #             G.add_node(act_id, **data)
-        
-    #     # Add edges based on predecessors
-    #     for act_id, data in scheduled_activities.items():
-    #         if act_id not in ['START', 'END', 'RA', 'RS']:
-    #             preds = data.get('predecessors', [])
-    #             if isinstance(preds, str):
-    #                 preds = [p.strip() for p in preds.split(',') if p.strip()]
-    #             elif preds is None:
-    #                 preds = []
-                
-    #             for pred in preds:
-    #                 if pred and pred in G.nodes:
-    #                     G.add_edge(pred, act_id)
-        
-    #     # Find project completion time
-    #     if not scheduled_activities:
-    #         return set()
-        
-    #     # Get finish times, handling different possible key names
-    #     finish_times = {}
-    #     for act_id, data in scheduled_activities.items():
-    #         if act_id not in ['START', 'END', 'RA', 'RS']:
-    #             # Try different possible key names for finish time
-    #             finish_time = (data.get('scheduled_finish') or 
-    #                         data.get('actual_finish') or 
-    #                         data.get('finish_time') or 
-    #                         data.get('EF', 0))
-    #             finish_times[act_id] = finish_time
-        
-    #     if not finish_times:
-    #         return set()
-        
-    #     project_finish_time = max(finish_times.values())
-        
-    #     # Find activities that finish at project completion time
-    #     end_activities = [act_id for act_id, finish_time in finish_times.items() 
-    #                     if finish_time == project_finish_time]
-        
-    #     # Find all paths from start nodes to end activities
-    #     start_nodes = [n for n in G.nodes if G.in_degree(n) == 0]
-    #     if not start_nodes:
-    #         start_nodes = list(G.nodes)  # Fallback if no clear start
-        
-    #     critical_paths = []
-        
-    #     for start in start_nodes:
-    #         for end in end_activities:
-    #             try:
-    #                 # Find all simple paths from start to end
-    #                 paths = list(nx.all_simple_paths(G, start, end))
-    #                 for path in paths:
-    #                     # Calculate path duration (sum of activity durations)
-    #                     path_duration = sum([scheduled_activities[node].get('duration', 0) for node in path])
-    #                     # Calculate path span (finish time - start time)
-    #                     path_start = min([scheduled_activities[node].get('scheduled_start', 
-    #                                     scheduled_activities[node].get('actual_start', 0)) for node in path])
-    #                     path_finish = max([scheduled_activities[node].get('scheduled_finish',
-    #                                     scheduled_activities[node].get('actual_finish', 0)) for node in path])
-    #                     path_span = path_finish - path_start
-                        
-    #                     critical_paths.append({
-    #                         'path': path,
-    #                         'duration': path_duration,
-    #                         'span': path_span,
-    #                         'finish_time': path_finish
-    #                     })
-    #             except nx.NetworkXNoPath:
-    #                 continue
-        
-    #     if not critical_paths:
-    #         # Fallback: return activities that finish at project completion time
-    #         return set(end_activities)
-        
-    #     # Sort by finish time (descending), then by span (descending)
-    #     critical_paths.sort(key=lambda x: (x['finish_time'], x['span']), reverse=True)
-        
-    #     # Return the path that finishes latest and has longest span
-    #     longest_path = critical_paths[0]['path']
-        
-    #     return set(longest_path)
-    
     
     #####TRIAAL###
     def recalculate_with_rcps_constraints(self, G, rcps_start_times):
@@ -672,244 +530,6 @@ class CPMAnalyzer:
                 G_new.nodes[node]['float'] = G_new.nodes[node]['LS'] - G_new.nodes[node]['ES']
         
         return G_new
-    
-    # def crash_project_with_rcps(self, target_duration, resource_limit, priority_rule='minimum_slack', max_iterations=300, max_budget=None):
-    #     """
-    #     Crash the project to achieve target duration while respecting resource constraints.
-        
-    #     This function integrates Resource-Constrained Project Scheduling (RCPS) into the crashing process,
-    #     ensuring that the crashing decisions respect both resource limitations and the chronological
-    #     progression of the project. Activities that have already completed cannot be crashed.
-        
-    #     Args:
-    #         target_duration (float): The desired project duration after crashing
-    #         resource_limit (int): Maximum resource availability per time period
-    #         priority_rule (str): Scheduling rule for resource allocation ('minimum_slack', 'shortest_duration', or 'earliest_start')
-    #         max_iterations (int): Maximum number of crashing iterations to prevent infinite loops
-    #         max_budget (float, optional): Maximum budget available for crashing activities
-        
-    #     Returns:
-    #         tuple: (crashed_graph, total_crash_cost, crash_log)
-    #     """
-    #     if not self.G:
-    #         raise ValueError("No network graph available. Run analysis first.")
-        
-    #     # Store original durations BEFORE any modifications
-    #     original_durations = {node: self.G.nodes[node]['duration'] for node in self.G.nodes()}
-        
-    #     # Create a copy of the graph to modify
-    #     crashed_G = self.G.copy()
-    #     total_crash_cost = 0
-    #     crash_log = []
-        
-    #     # Track how many times each activity has been crashed
-    #     crash_counts = {node: 0 for node in crashed_G.nodes()}
-
-    #     # Get max_crash_steps for each activity (default: unlimited)
-    #     max_crash_steps = {}
-    #     for node in crashed_G.nodes():
-    #         max_crash_steps[node] = crashed_G.nodes[node].get('max_crash_steps', None)
-        
-    #     iteration = 0
-        
-    #     # Initialize simulation time and completed activities tracker
-    #     current_time = 0
-    #     completed_activities = set()
-        
-    #     print(f"Starting RCPS-integrated crash optimization: Target = {target_duration}")
-        
-    #     while iteration < max_iterations:
-            
-    #         # Budget check before any crash
-    #         if max_budget is not None and total_crash_cost >= max_budget:
-    #             print(f"Crash budget reached: {total_crash_cost} >= {max_budget}")
-    #             break
-            
-    #         iteration += 1
-            
-    #         # Debug: Print current activity durations
-    #         for node in crashed_G.nodes():
-    #             if node not in ['START', 'END']:
-    #                 print(f"  {node}: {crashed_G.nodes[node]['duration']}")
-            
-    #         # Generate RCPS schedule for current graph state
-    #         # This creates a resource-feasible schedule considering resource constraints
-    #         current_schedule = self.generate_rcps_schedule_for_graph(crashed_G, resource_limit, priority_rule)
-    #         current_duration = current_schedule['project_duration']
-            
-    #         # Update completed activities based on current simulation time
-    #         for activity_id, activity_data in current_schedule['activities'].items():
-    #             # If activity finishes before or at current simulation time, mark as completed
-    #             if activity_data['actual_finish'] <= current_time:
-    #                 completed_activities.add(activity_id)
-    #                 print(f"DEBUG: Activity {activity_id} completed at time {activity_data['actual_finish']} (current_time: {current_time})")
-            
-    #         # Print current state information
-    #         print(f"Iteration {iteration}: RCPS duration = {current_duration}, Target = {target_duration}, Current time = {current_time}")
-    #         print(f"Completed activities: {sorted(list(completed_activities))}")
-            
-    #         # Check if target is achieved
-    #         if current_duration <= target_duration:
-    #             print(f"Target duration {target_duration} achieved! Final duration: {current_duration}")
-    #             break
-            
-    #         # Find critical activities in the RCPS schedule
-    #         # These are activities that determine the project's end time
-    #         critical_activities = current_schedule['critical_activities']
-            
-    #         print(f"Critical path in RCPS: {' -> '.join(critical_activities)}")
-            
-    #         if not critical_activities:
-    #             print("No critical activities found. Breaking.")
-    #             break
-            
-    #         # Test crash impact for each critical activity that hasn't finished yet
-    #         crash_options = []
-    #         for activity in critical_activities:
-    #             # Skip if activity is already completed
-    #             if activity in completed_activities:
-    #                 print(f"  Not crashable: {activity} (already completed)")
-    #                 continue
-                    
-    #             # Get current activity data
-    #             current_dur = crashed_G.nodes[activity]['duration']
-    #             min_dur = crashed_G.nodes[activity]['min_duration']
-    #             crash_cost = crashed_G.nodes[activity]['crash_cost']
-    #             max_steps = max_crash_steps.get(activity, None)
-    #             crashed_so_far = crash_counts.get(activity, 0)
-                
-    #             # Get activity schedule data from RCPS
-    #             activity_data = current_schedule['activities'].get(activity, {})
-    #             actual_start = activity_data.get('actual_start', 0)
-    #             actual_finish = activity_data.get('actual_finish', 0)
-                
-    #             # Check if activity is in progress or hasn't started yet
-    #             # Only in-progress activities or future activities can be crashed
-    #             will_finish_soon = (actual_start <= current_time) and (actual_finish > current_time)
-    #             is_future = actual_start > current_time
-                
-    #             # Only allow if:
-    #             # - Under max_crash_steps (or unlimited if None)
-    #             # - Not finished
-    #             # - Has not reached minimum duration
-    #             # - Has a positive crash cost
-    #             can_crash = (current_dur > min_dur and 
-    #                         crash_cost > 0 and
-    #                         (max_steps is None or crashed_so_far < max_steps))
-                
-    #             if can_crash:
-    #                 # Test the impact of crashing this activity by simulating the crash
-    #                 temp_G = crashed_G.copy()
-    #                 temp_G.nodes[activity]['duration'] -= 1
-                    
-    #                 # Generate a new RCPS schedule with the crashed activity
-    #                 temp_schedule = self.generate_rcps_schedule_for_graph(temp_G, resource_limit, priority_rule)
-    #                 temp_duration = temp_schedule['project_duration']
-                    
-    #                 # Calculate the reduction in project duration this crash would achieve
-    #                 duration_reduction = current_duration - temp_duration
-                    
-    #                 # Store this crash option for evaluation
-    #                 crash_options.append({
-    #                     'id': activity,
-    #                     'crash_cost': crash_cost,
-    #                     'current_duration': current_dur,
-    #                     'min_duration': min_dur,
-    #                     'duration_reduction': duration_reduction,
-    #                     'resulting_duration': temp_duration,
-    #                     'efficiency': duration_reduction / crash_cost if crash_cost > 0 else 0,
-    #                     'actual_start': actual_start,
-    #                     'actual_finish': actual_finish - 1,  # Reduced by 1 due to crash
-    #                     'is_in_progress': will_finish_soon
-    #                 })
-                    
-    #                 print(f"  Crashable: {activity} (dur={current_dur}, min={min_dur}, cost={crash_cost}, "
-    #                     f"reduction={duration_reduction}, new_duration={temp_duration})")
-    #             else:
-    #                 print(f"  Not crashable: {activity} (dur={current_dur}, min={min_dur}, already at min or max steps reached)")
-            
-    #         if not crash_options:
-    #             print("No more activities can be crashed. Breaking.")
-    #             break
-            
-    #         # Select activity with lowest crash cost (same logic as in crash_project)
-    #         cheapest_activity = min(crash_options, key=lambda x: x['crash_cost'])
-    #         activity_id = cheapest_activity['id']
-            
-    #         # Add logging for clarity about selection
-    #         if cheapest_activity['is_in_progress']:
-    #             print(f"  Selected activity {activity_id} (in progress) with lowest cost {cheapest_activity['crash_cost']}")
-    #         else:
-    #             print(f"  Selected activity {activity_id} (future) with lowest cost {cheapest_activity['crash_cost']}")
-            
-    #         # Budget check before this specific crash
-    #         if max_budget is not None and total_crash_cost + cheapest_activity['crash_cost'] > max_budget:
-    #             print(f"Next crash would exceed budget: {total_crash_cost} + {cheapest_activity['crash_cost']} > {max_budget}")
-    #             break
-            
-    #         # Crash the selected activity
-    #         crashed_G.nodes[activity_id]['duration'] -= 1
-    #         total_crash_cost += cheapest_activity['crash_cost']
-    #         crash_counts[activity_id] += 1
-            
-    #         print(f"  Crashing {activity_id}: {cheapest_activity['current_duration']} → {crashed_G.nodes[activity_id]['duration']} (Cost: {cheapest_activity['crash_cost']})")
-            
-    #         # Record this crash in the log
-    #         crash_log.append({
-    #             'iteration': iteration,
-    #             'activity': activity_id,
-    #             'crash_cost': cheapest_activity['crash_cost'],
-    #             'new_duration': crashed_G.nodes[activity_id]['duration'],
-    #             'original_duration': original_durations[activity_id],
-    #             'project_duration_reduction': cheapest_activity['duration_reduction'],
-    #             'resulting_project_duration': cheapest_activity['resulting_duration']
-    #         })
-            
-    #         print(f"  New RCPS project duration: {current_duration} → {cheapest_activity['resulting_duration']}")
-            
-    #         # CRITICAL FIX: Uniformly advance time by 1 unit
-    #         current_time += 1
-    #         print(f"  Advanced time to {current_time}")
-        
-    #     # Generate final RCPS schedule for the crashed graph
-    #     final_schedule = self.generate_rcps_schedule_for_graph(crashed_G, resource_limit, priority_rule)
-    #     final_duration = final_schedule['project_duration']
-        
-    #     # Update the crashed graph with final RCPS times
-    #     # This ensures that the graph reflects the resource-feasible schedule
-    #     for activity_id, activity_data in final_schedule['activities'].items():
-    #         if activity_id in crashed_G.nodes:
-    #             crashed_G.nodes[activity_id]['ES'] = activity_data['actual_start']
-    #             crashed_G.nodes[activity_id]['EF'] = activity_data['actual_finish']
-        
-    #     # Calculate LS, LF, and float based on RCPS schedule
-    #     # Set all LF to project duration initially
-    #     for node in crashed_G.nodes():
-    #         crashed_G.nodes[node]['LF'] = final_duration
-    #         crashed_G.nodes[node]['LS'] = final_duration
-        
-    #     # Backward pass for LS/LF calculation only
-    #     for node in reversed(list(nx.topological_sort(crashed_G))):
-    #         if node not in ['START', 'END']:
-    #             duration = crashed_G.nodes[node]['duration']
-                
-    #             # Calculate LF based on successors' LS
-    #             successors = list(crashed_G.successors(node))
-    #             if successors:
-    #                 min_succ_ls = min([crashed_G.nodes[succ]['LS'] for succ in successors])
-    #                 crashed_G.nodes[node]['LF'] = min_succ_ls
-    #             else:
-    #                 crashed_G.nodes[node]['LF'] = final_duration
-                
-    #             # Calculate LS
-    #             crashed_G.nodes[node]['LS'] = crashed_G.nodes[node]['LF'] - duration
-                
-    #             # Calculate float based on RCPS times
-    #             crashed_G.nodes[node]['float'] = crashed_G.nodes[node]['LS'] - crashed_G.nodes[node]['ES']
-        
-    #     print(f"RCPS-integrated crash optimization complete. Final duration: {final_duration}, Total cost: {total_crash_cost}")
-        
-    #     return crashed_G, total_crash_cost, crash_log
     
     def crash_project_with_rcps(self, target_duration, resource_limit, priority_rule='minimum_slack', max_iterations=300, max_budget=None):
         """
@@ -1154,8 +774,6 @@ class CPMAnalyzer:
         
         return crashed_G, total_crash_cost, crash_log
     
-    
-    
     def crash_project(self, target_duration, max_iterations=300, max_budget=None):
         """
         Crash the project to achieve target duration with enhanced logging and proper simulation time tracking.
@@ -1338,109 +956,6 @@ class CPMAnalyzer:
         
         return crashed_G, total_crash_cost, crash_log
     
-    # def generate_rcps_schedule_for_graph(self, G, resource_limit, priority_rule='minimum_slack'):
-    #     """
-    #     Generate RCPS schedule for a given graph state and return schedule data.
-        
-    #     This method should perform FULL RCPS scheduling, not just CPM calculations.
-        
-    #     Returns:
-    #         dict: {
-    #             'project_duration': int,
-    #             'activities': dict,  # activity_id -> {actual_start, actual_finish, ...}
-    #             'critical_activities': list
-    #         }
-    #     """
-    #     # DEBUG: Run FULL RCPS scheduling, not just graph updates
-    #     #print(f"DEBUG: Running RCPS scheduling for graph with resource_limit={resource_limit}")
-        
-    #     # Convert graph to DataFrame format for RCPS scheduling
-    #     activities_data = []
-    #     for node in G.nodes():
-    #         if node not in ['START', 'END']:
-    #             # Get predecessors (excluding START)
-    #             predecessors = [pred for pred in G.predecessors(node) if pred != 'START']
-    #             predecessors_str = ','.join(predecessors) if predecessors else ''
-                
-    #             # Use current durations from the graph (which may be crashed)
-    #             current_duration = G.nodes[node]['duration']
-                
-    #             activities_data.append({
-    #                 'id': node,
-    #                 'duration': current_duration,  # Use current (possibly crashed) duration
-    #                 'resource': G.nodes[node].get('resource_demand', 0),
-    #                 'early_start': 0,  # Reset for RCPS calculation
-    #                 'late_finish': 0,  # Reset for RCPS calculation  
-    #                 'float': 0,  # Reset for RCPS calculation
-    #                 'predecessors': predecessors_str
-    #             })
-            
-    #         # DEBUG: Print activity details
-    #         #print(f"DEBUG: Activity {node}: duration={current_duration}, resource_demand={G.nodes[node].get('resource_demand', 0)}")
-        
-    #     df_gantt = pd.DataFrame(activities_data)
-        
-    #     #DEBUG: Print DataFrame structure
-    #     # print(f"DEBUG: RCPS input DataFrame shape: {df_gantt.shape}")
-    #     # print(f"DEBUG: RCPS input DataFrame columns: {list(df_gantt.columns)}")
-        
-    #     # CRITICAL: Run FULL CPM analysis first (to get ES, LF, float for RCPS)
-    #     temp_G = self.build_network_for_rcps(activities_data)  # CHANGED: Updated method name
-    #     temp_G = self.forward_pass(temp_G)
-    #     temp_G = self.backward_pass(temp_G)
-    #     temp_G = self.calculate_float(temp_G)
-        
-    #     # Update DataFrame with CPM results for RCPS input
-    #     for idx, row in df_gantt.iterrows():
-    #         activity_id = row['id']
-    #         if activity_id in temp_G.nodes:
-    #             df_gantt.at[idx, 'early_start'] = temp_G.nodes[activity_id]['ES']
-    #             df_gantt.at[idx, 'late_finish'] = temp_G.nodes[activity_id]['LF']
-    #             df_gantt.at[idx, 'float'] = temp_G.nodes[activity_id]['float']
-        
-    #     # print(f"DEBUG: Running RCPS heuristic scheduling...")
-        
-    #     # Run RCPS scheduling with proper inputs
-    #     rcps_table, actual_starts, critical_ids = self.rcps_heuristic_schedule_table(
-    #         df_gantt, resource_limit, priority_rule
-    #     )
-        
-        
-    #     # # DEBUG: Print RCPS table structure
-    #     # print(f"DEBUG: RCPS completed. Table shape: {rcps_table.shape}")
-        
-    #     # Extract schedule data
-    #     activities = {}
-    #     project_duration = 0
-        
-    #     for idx, row in rcps_table.iterrows():
-    #         if row['id'] not in ['RA', 'RS']:
-    #             activity_id = row['id']
-    #             actual_start = int(row['actual_start']) if not pd.isna(row['actual_start']) else 0
-    #             duration = int(row['duration'])
-    #             actual_finish = actual_start + duration
-                
-    #             activities[activity_id] = {
-    #                 'actual_start': actual_start,
-    #                 'actual_finish': actual_finish,
-    #                 'duration': duration
-    #             }
-                
-    #             project_duration = max(project_duration, actual_finish)
-    #             # # DEBUG: Print activity details
-    #             # print(f"DEBUG: Activity {activity_id}: start={actual_start}, finish={actual_finish}")
-        
-    #     #print(f"DEBUG: Final RCPS project duration: {project_duration}")
-        
-    #     # Find critical path in RCPS schedule
-    #     critical_activities = self.find_critical_path_in_rcps_schedule(activities, G)
-        
-    #     return {
-    #         'project_duration': project_duration,
-    #         'activities': activities,
-    #         'critical_activities': critical_activities
-    #     }
-    
     def generate_rcps_schedule_for_graph(self, G, resource_limit, priority_rule='minimum_slack'):
         """
         Generate RCPS schedule for a given graph state and return schedule data.
@@ -1525,264 +1040,6 @@ class CPMAnalyzer:
             'critical_activities': critical_activities
         }
     
-    
-    
-    
-    
-    
-    
-    
-    # def find_critical_path_in_rcps_schedule(self, activities, G):
-    #     """
-    #     Find the critical path in an RCPS schedule by identifying the path with longest total duration.
-        
-    #     Args:
-    #         activities: Dictionary of activity data with actual_start and actual_finish times
-    #         G: NetworkX graph of the project network
-                
-    #     Returns:
-    #         List of activity IDs forming the critical path
-    #     """
-    #     # Build a graph from the scheduled activities
-    #     temp_G = nx.DiGraph()
-        
-    #     # Add nodes with RCPS timing
-    #     for node_id, data in activities.items():
-    #         if node_id not in ['START', 'END']:
-    #             temp_G.add_node(
-    #                 node_id, 
-    #                 duration=data['duration'],
-    #                 actual_start=data['actual_start'],
-    #                 actual_finish=data['actual_finish']
-    #             )
-        
-    #     # Add edges based on original graph structure
-    #     for u, v in G.edges():
-    #         if u in temp_G.nodes and v in temp_G.nodes:
-    #             temp_G.add_edge(u, v)
-        
-    #     # Add artificial start and end nodes if needed
-    #     start_nodes = [n for n in temp_G.nodes if temp_G.in_degree(n) == 0]
-    #     end_nodes = [n for n in temp_G.nodes if temp_G.out_degree(n) == 0]
-        
-    #     # Find all possible paths from all start nodes to all end nodes
-    #     all_paths = []
-        
-    #     for start in start_nodes:
-    #         for end in end_nodes:
-    #             try:
-    #                 paths = list(nx.all_simple_paths(temp_G, start, end))
-    #                 for path in paths:
-    #                     path_duration = sum([activities[node]['duration'] for node in path])
-    #                     path_finish_time = max([activities[node]['actual_finish'] for node in path])
-                        
-    #                     all_paths.append({
-    #                         'path': path,
-    #                         'duration': path_duration,
-    #                         'finish_time': path_finish_time
-    #                     })
-    #             except nx.NetworkXNoPath:
-    #                 continue
-        
-    #     # First sort by finish time (descending), then by duration (descending)
-    #     # This ensures we get the path that finishes latest and has the longest duration
-    #     all_paths.sort(key=lambda x: (x['finish_time'], x['duration']), reverse=True)
-        
-    #     # If we found any paths, return only the single longest one
-    #     if all_paths:
-    #         longest_path = all_paths[0]['path']
-    #         # Remove the noisy debug print that's causing the issue
-    #         # print(f"DEBUG: Found RCPS critical path: {' -> '.join(longest_path)} (total duration: {all_paths[0]['duration']}, finish time: {all_paths[0]['finish_time']})")
-    #         return longest_path
-    #     else:
-    #         # Fallback to simpler approach if no paths found
-    #         project_duration = max([data['actual_finish'] for data in activities.values()])
-    #         end_activities = [aid for aid, data in activities.items() if data['actual_finish'] == project_duration]
-    #         print(f"DEBUG: No complete paths found, using end activities as critical path: {end_activities}")
-    #         return end_activities
-    
-    # def find_critical_path_in_rcps_schedule(self, activities, G):
-    #     """
-    #     Find the critical path in RCPS schedule by identifying activities with zero float.
-    #     The critical path should be the same as CPM - activities that have zero slack/float.
-        
-    #     Args:
-    #         activities: Dictionary of activity data with actual_start and actual_finish times
-    #         G: NetworkX graph of the project network
-                
-    #     Returns:
-    #         List of activity IDs forming the critical path
-    #     """
-    #     import networkx as nx
-        
-    #     # Build a temporary graph with RCPS timing
-    #     temp_G = nx.DiGraph()
-        
-    #     # Add nodes with RCPS timing
-    #     for node_id, data in activities.items():
-    #         if node_id not in ['START', 'END', 'RA', 'RS']:
-    #             temp_G.add_node(
-    #                 node_id, 
-    #                 duration=data.get('duration', 0),
-    #                 actual_start=data.get('actual_start', 0),
-    #                 actual_finish=data.get('actual_finish', 0)
-    #             )
-        
-    #     # Add edges based on original graph structure (preserve dependencies)
-    #     for u, v in G.edges():
-    #         if u in temp_G.nodes and v in temp_G.nodes:
-    #             temp_G.add_edge(u, v)
-        
-    #     if not activities:
-    #         return []
-        
-    #     # Calculate project completion time
-    #     project_finish_time = max([data.get('actual_finish', 0) for data in activities.values() 
-    #                             if isinstance(data, dict) and 'actual_finish' in data])
-        
-    #     # For each activity, calculate float in RCPS context
-    #     # Float = Latest possible start - Actual start
-    #     critical_activities = []
-        
-    #     for node_id, data in activities.items():
-    #         if node_id not in ['START', 'END', 'RA', 'RS']:
-    #             actual_start = data.get('actual_start', 0)
-    #             actual_finish = data.get('actual_finish', 0)
-    #             duration = data.get('duration', 0)
-                
-    #             # Calculate latest start time for this activity
-    #             # Work backwards from project completion through successors
-    #             latest_start = project_finish_time - duration
-                
-    #             # Check all paths from this activity to the end
-    #             for successor in temp_G.successors(node_id):
-    #                 succ_data = activities.get(successor, {})
-    #                 succ_actual_start = succ_data.get('actual_start', 0)
-                    
-    #                 # This activity must finish before successor starts
-    #                 latest_finish_for_this_successor = succ_actual_start
-    #                 latest_start_for_this_successor = latest_finish_for_this_successor - duration
-                    
-    #                 # Take the most restrictive (earliest) latest start time
-    #                 latest_start = min(latest_start, latest_start_for_this_successor)
-                
-    #             # Calculate float: Latest start - Actual start
-    #             float_time = latest_start - actual_start
-                
-    #             # If float is zero (or very close to zero), it's critical
-    #             if abs(float_time) < 0.001:  # Account for floating point precision
-    #                 critical_activities.append(node_id)
-        
-    #     # If no critical activities found using float calculation, 
-    #     # use activities that finish at project completion time
-    #     if not critical_activities:
-    #         critical_activities = [node_id for node_id, data in activities.items() 
-    #                             if isinstance(data, dict) and 
-    #                             abs(data.get('actual_finish', 0) - project_finish_time) < 0.001 and
-    #                             node_id not in ['START', 'END', 'RA', 'RS']]
-        
-    #     # Sort critical activities to create a logical sequence
-    #     if critical_activities:
-    #         # Sort by actual start time to get proper sequence
-    #         critical_activities.sort(key=lambda x: activities.get(x, {}).get('actual_start', 0))
-            
-    #         # Find the actual connected path through the critical activities
-    #         start_nodes = [n for n in critical_activities if temp_G.in_degree(n) == 0 or 
-    #                     all(pred not in critical_activities for pred in temp_G.predecessors(n))]
-            
-    #         if start_nodes:
-    #             # Trace path from start node through critical activities
-    #             path = []
-    #             current = start_nodes[0]  # Take first start node
-    #             visited = set()
-                
-    #             while current and current not in visited:
-    #                 if current in critical_activities:
-    #                     path.append(current)
-    #                     visited.add(current)
-                    
-    #                 # Find next critical successor
-    #                 next_node = None
-    #                 for successor in temp_G.successors(current):
-    #                     if successor in critical_activities and successor not in visited:
-    #                         next_node = successor
-    #                         break
-                    
-    #                 current = next_node
-                
-    #             return path if path else critical_activities
-        
-    #     return critical_activities
-    
-    # def find_critical_path_in_rcps_schedule(self, activities, G):
-    #     """
-    #     Find critical activities in RCPS schedule by identifying activities with zero float.
-    #     Simply return activities that have zero slack/float - no complex path logic.
-        
-    #     Args:
-    #         activities: Dictionary of activity data with actual_start and actual_finish times
-    #         G: NetworkX graph of the project network
-                
-    #     Returns:
-    #         List of activity IDs that are critical (have zero float)
-    #     """
-    #     if not activities:
-    #         return []
-        
-    #     # Calculate project completion time
-    #     project_finish_time = max([data.get('actual_finish', 0) for data in activities.values() 
-    #                             if isinstance(data, dict) and 'actual_finish' in data])
-        
-    #     # For each activity, calculate float in RCPS context
-    #     # Float = Latest possible start - Actual start
-    #     critical_activities = []
-        
-    #     for node_id, data in activities.items():
-    #         if node_id not in ['START', 'END', 'RA', 'RS']:
-    #             actual_start = data.get('actual_start', 0)
-    #             actual_finish = data.get('actual_finish', 0)
-    #             duration = data.get('duration', 0)
-                
-    #             # Calculate latest start time for this activity
-    #             # Start with latest possible start (project end - duration)
-    #             latest_start = project_finish_time - duration
-                
-    #             # Check constraint from each successor
-    #             for successor in G.successors(node_id):
-    #                 if successor in activities:
-    #                     succ_data = activities.get(successor, {})
-    #                     succ_actual_start = succ_data.get('actual_start', 0)
-                        
-    #                     # This activity must finish before successor starts
-    #                     # So latest start = successor start - duration
-    #                     latest_start_for_successor = succ_actual_start - duration
-                        
-    #                     # Take the most restrictive (earliest) latest start time
-    #                     latest_start = min(latest_start, latest_start_for_successor)
-                
-    #             # Calculate float: Latest start - Actual start
-    #             float_time = latest_start - actual_start
-                
-    #             # If float is zero (or very close to zero), it's critical
-    #             if abs(float_time) < 0.001:  # Account for floating point precision
-    #                 critical_activities.append(node_id)
-        
-    #     # If no critical activities found using float calculation, 
-    #     # use activities that finish at project completion time as fallback
-    #     if not critical_activities:
-    #         critical_activities = [node_id for node_id, data in activities.items() 
-    #                             if isinstance(data, dict) and 
-    #                             abs(data.get('actual_finish', 0) - project_finish_time) < 0.001 and
-    #                             node_id not in ['START', 'END', 'RA', 'RS']]
-        
-    #     # Sort by actual start time for consistent ordering
-    #     critical_activities.sort(key=lambda x: activities.get(x, {}).get('actual_start', 0))
-        
-    #     return critical_activities
-    
-    
-    
-    
     def build_network_for_rcps(self, activities):
         """
         Build a directed graph network from activity data.
@@ -1803,7 +1060,8 @@ class CPMAnalyzer:
                 min_duration=activity.get('min_duration', activity['duration']),
                 crash_cost=activity.get('crash_cost', 0),
                 activity=activity.get('activity', ''),
-                resource_demand=activity.get('resource_demand', 0)
+                resource_demand=activity.get('resource_demand', 0),
+                normal_cost=activity.get('normal_cost', 0)
             )
         
         # Add edges based on predecessor relationships
@@ -2286,6 +1544,7 @@ class CPMDesktopApp:
         button_frame.pack(fill=tk.X, pady=(0, 10))
         
         # Data loading buttons
+        ttk.Button(button_frame, text="Load CPM Data", command=self.load_csv_auto_detect).pack(side=tk.LEFT, padx=(0, 10))
         ttk.Button(button_frame, text="Load Deterministic Data", command=self.load_deterministic_csv).pack(side=tk.LEFT, padx=(0, 10))
         ttk.Button(button_frame, text="Load Probabilistic Data", command=self.load_probabilistic_csv).pack(side=tk.LEFT, padx=(0, 10))
         
@@ -2408,8 +1667,8 @@ class CPMDesktopApp:
         comp_input_frame.pack(fill=tk.X, pady=5)
         
         ttk.Label(comp_input_frame, text="Target Duration:").pack(side=tk.LEFT)
-        self.target_duration_var = tk.StringVar()
-        self.target_duration_entry = ttk.Entry(comp_input_frame, textvariable=self.target_duration_var, width=10)
+        self.prob_target_duration_var = tk.StringVar()
+        self.target_duration_entry = ttk.Entry(comp_input_frame, textvariable=self.prob_target_duration_var, width=10)
         self.target_duration_entry.pack(side=tk.LEFT, padx=(5, 10))
         
         self.calc_prob_btn = ttk.Button(comp_input_frame, text="Calculate Probability", 
@@ -2462,7 +1721,7 @@ class CPMDesktopApp:
             widget.destroy()
         
         # Create treeview for deterministic input
-        columns = ("ID", "Activity Name", "Duration", "Predecessors", "Min Duration", "Crash Cost", "Resource Demand")
+        columns = ("ID", "Activity Name", "Duration", "Predecessors", "Min Duration", "Crash Cost", "Resource Demand", "Normal Cost")
         self.tree = ttk.Treeview(self.tree_frame, columns=columns, show="headings", height=15)
         
         # Define column headings and widths
@@ -2473,7 +1732,8 @@ class CPMDesktopApp:
             "Min Duration": 90,
             "Crash Cost": 90,
             "Predecessors": 120,
-            "Resource Demand": 120
+            "Resource Demand": 120,
+            "Normal Cost": 90
         }
         
         for col in columns:
@@ -2545,8 +1805,9 @@ class CPMDesktopApp:
         for widget in self.tree_frame.winfo_children():
             widget.destroy()
         
-        # Create treeview for probabilistic input with ALL required columns
-        columns = ("ID", "Predecessors", "Optimistic", "Most Likely", "Pessimistic", "Expected Time", "Variance", "Min Duration", "Crash Cost", "Resource Demand", "Normal Cost")
+        # Create treeview for probabilistic input - UPDATED with all fields
+        columns = ("ID", "Predecessors", "Optimistic", "Most Likely", "Pessimistic", 
+                "Expected Time", "Variance", "Min Duration", "Crash Cost", "Resource Demand", "Normal Cost")
         self.tree = ttk.Treeview(self.tree_frame, columns=columns, show="headings", height=15)
         
         # Define column headings and widths
@@ -2585,32 +1846,165 @@ class CPMDesktopApp:
         self.add_row_btn.config(state=tk.NORMAL)
         self.delete_row_btn.config(state=tk.NORMAL)
     
-    
     def load_sample_data(self):
         """Load sample deterministic project data"""
         # Set deterministic mode and setup tree
         self.analysis_mode = 'deterministic'
         self.current_analyzer = self.cpm_analyzer
         self.setup_deterministic_tree()
-        self.mode_label.config(text="Mode: Deterministic (CPM) - Sample Data", foreground="blue")
+        self.mode_label.config(text="Mode: CPM", foreground="blue")
         
         sample_data = [
-            ("A", "Design Phase", "5", "", "1", "300", "2"),
-            ("B", "Requirements Analysis", "3", "", "2", "500", "1"),
-            ("C", "Architecture Design", "7", "A, B", "5", "600", "3"),
-            ("D", "Database Design", "5", "C", "4", "400", "1"),
-            ("E", "Frontend Development", "6", "C", "3", "300", "4"),
-            ("F", "Backend Development", "8", "C", "5", "200", "5"),
-            ("G", "Testing", "3", "D", "3", "800", "2"),
-            ("H", "Deployment", "4", "E, F", "2", "1000", "1"),
-            ("I", "Documentation", "3", "G, H", "2", "250", "2"),
-            ("J", "User Training", "4", "I", "2", "250", "1"),
-            ("K", "Post-Deployment Review", "2", "J", "1", "500", "1"),
+            ("A", "Design Phase", "5", "", "1", "300", "2", "100"),
+            ("B", "Requirements Analysis", "3", "", "2", "500", "1", "150"),
+            ("C", "Architecture Design", "7", "A, B", "5", "600", "3", "200"),
+            ("D", "Database Design", "5", "C", "4", "400", "1", "120"),
+            ("E", "Frontend Development", "6", "C", "3", "300", "4", "180"),
+            ("F", "Backend Development", "8", "C", "5", "200", "5", "250"),
+            ("G", "Testing", "3", "D", "3", "800", "2", "90"),
+            ("H", "Deployment", "4", "E, F", "2", "1000", "1", "110"),
+            ("I", "Documentation", "3", "G, H", "2", "250", "2", "80"),
+            ("J", "User Training", "4", "I", "2", "250", "1", "100"),
+            ("K", "Post-Deployment Review", "2", "J", "1", "500", "1", "75"),
         ]
         
         for item in sample_data:
             self.tree.insert("", tk.END, values=item)
     
+    def auto_detect_mode(self, csv_headers):
+        """
+        Automatically detect analysis mode based on CSV column headers
+        
+        Args:
+            csv_headers (list): List of column headers from CSV
+            
+        Returns:
+            str: 'deterministic' for CPM mode, 'probabilistic' for PERT mode
+        """
+        # Convert headers to lowercase for case-insensitive comparison
+        headers_lower = [header.lower().strip() for header in csv_headers]
+        
+        # Check for PERT-specific columns (optimistic, pessimistic, most_likely)
+        pert_indicators = ['optimistic', 'pessimistic', 'most_likely']
+        has_pert_columns = any(indicator in headers_lower for indicator in pert_indicators)
+        
+        # Check for CPM-specific column (duration)
+        has_duration = 'duration' in headers_lower
+        
+        # Decision logic
+        if has_pert_columns:
+            return 'probabilistic'
+        elif has_duration:
+            return 'deterministic'
+        else:
+            # Default to deterministic if ambiguous
+            return 'deterministic'
+    
+    def load_csv_auto_detect(self):
+        """Load CSV with automatic mode detection based on column headers"""
+        file_path = filedialog.askopenfilename(
+            title="Select CSV file (Auto-detect mode)",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
+        )
+        
+        if file_path:
+            try:
+                # Read CSV headers to detect mode
+                with open(file_path, 'r', newline='') as file:
+                    reader = csv.DictReader(file)
+                    headers = reader.fieldnames
+                    
+                    if not headers:
+                        messagebox.showerror("Error", "CSV file appears to be empty or invalid.")
+                        return
+                    
+                    # Auto-detect mode based on headers
+                    detected_mode = self.auto_detect_mode(headers)
+                    
+                    # Clear existing data but don't reset mode yet
+                    self.clear_all(reset_mode=False)
+                    
+                    if detected_mode == 'probabilistic':
+                        # Set PERT mode
+                        self.analysis_mode = 'probabilistic'
+                        self.current_analyzer = self.pert_analyzer
+                        self.setup_probabilistic_tree()
+                        self.mode_label.config(text="Mode: PERT (Auto-detected)", foreground="green")
+                        
+                        # Load PERT data
+                        activities_data = []
+                        file.seek(0)  # Reset file pointer
+                        reader = csv.DictReader(file)
+                        for row in reader:
+                            pert_data = {
+                                'id': row['id'],
+                                'predecessors': row.get('predecessors', '').strip(),
+                                'optimistic': int(float(row['optimistic'])),
+                                'most_likely': int(float(row['most_likely'])),
+                                'pessimistic': int(float(row['pessimistic'])),
+                                'min_duration': self._safe_float_to_int(row.get('min_duration', 1)),
+                                'crash_cost': self._safe_float_to_int(row.get('crash_cost', 0)),
+                                'resource_demand': self._safe_float_to_int(row.get('resource_demand', 0)),
+                                'normal_cost': self._safe_float_to_int(row.get('normal_cost', 0))
+                            }
+                            activities_data.append(pert_data)
+                        
+                        # Process through PERT analyzer
+                        processed_activities = self.pert_analyzer.load_activities_from_pert_data(activities_data)
+                        
+                        # Display in tree
+                        for activity in processed_activities:
+                            self.tree.insert("", tk.END, values=(
+                                activity['id'],
+                                ', '.join(activity['predecessors']) if activity['predecessors'] else '',
+                                str(activity['optimistic']),
+                                str(activity['most_likely']),
+                                str(activity['pessimistic']),
+                                str(activity['expected_time_ceil']),
+                                f"{activity['variance']:.3f}",
+                                str(activity['min_duration']),
+                                str(activity['crash_cost']),
+                                str(activity['resource_demand']),
+                                str(activity['normal_cost'])
+                            ))
+                        
+                        # Enable probability analysis
+                        self.enable_probability_analysis()
+                        
+                    else:  # deterministic mode
+                        # Set CPM mode
+                        self.analysis_mode = 'deterministic'
+                        self.current_analyzer = self.cpm_analyzer
+                        self.setup_deterministic_tree()
+                        self.mode_label.config(text="Mode: CPM (Auto-detected)", foreground="blue")
+                        
+                        # Load CPM data
+                        file.seek(0)  # Reset file pointer
+                        reader = csv.DictReader(file)
+                        for row in reader:
+                            activity_name = row.get('activity', '').strip()
+                            predecessors = row.get('predecessors', '').strip()
+                            min_duration = row.get('min_duration', '').strip()
+                            crash_cost = row.get('crash_cost', '0').strip()
+                            resource_demand = row.get('resource_demand', '0').strip()
+                            normal_cost = row.get('normal_cost', '0').strip()
+                            
+                            self.tree.insert("", tk.END, values=(
+                                row['id'],
+                                activity_name,
+                                row['duration'],
+                                predecessors,
+                                min_duration,
+                                crash_cost,
+                                resource_demand,
+                                normal_cost
+                            ))
+                
+                messagebox.showinfo("Success", f"CSV file loaded successfully!\nMode: {detected_mode.title()}")
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to load CSV file: {str(e)}")
+
     def load_deterministic_csv(self):
         """Load activities from deterministic CSV file"""
         file_path = filedialog.askopenfilename(
@@ -2620,12 +2014,12 @@ class CPMDesktopApp:
         
         if file_path:
             try:
-                # Clear existing data and set deterministic mode
-                self.clear_all()
+                # Clear existing data but preserve mode, then set deterministic mode
+                self.clear_all(reset_mode=False)
                 self.analysis_mode = 'deterministic'
                 self.current_analyzer = self.cpm_analyzer
                 self.setup_deterministic_tree()
-                self.mode_label.config(text="Mode: Deterministic (CPM)", foreground="blue")
+                self.mode_label.config(text="Mode: CPM", foreground="blue")
                 
                 # Load CSV data
                 with open(file_path, 'r', newline='') as file:
@@ -2636,6 +2030,7 @@ class CPMDesktopApp:
                         min_duration = row.get('min_duration', '').strip()
                         crash_cost = row.get('crash_cost', '0').strip()
                         resource_demand = row.get('resource_demand', '0').strip()
+                        normal_cost = row.get('normal_cost', '0').strip()
                         
                         self.tree.insert("", tk.END, values=(
                             row['id'],
@@ -2644,7 +2039,8 @@ class CPMDesktopApp:
                             predecessors,
                             min_duration,
                             crash_cost,
-                            resource_demand
+                            resource_demand,
+                            normal_cost
                         ))
                 
                 messagebox.showinfo("Success", "Deterministic CSV file loaded successfully!")
@@ -2652,7 +2048,60 @@ class CPMDesktopApp:
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to load CSV file: {str(e)}")
     
-    
+    # def load_probabilistic_csv(self):
+    #     """Load activities from probabilistic PERT CSV file"""
+    #     file_path = filedialog.askopenfilename(
+    #         title="Select Probabilistic (PERT) CSV file",
+    #         filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
+    #     )
+        
+    #     if file_path:
+    #         try:
+    #             # Clear existing data and set probabilistic mode
+    #             self.clear_all()
+    #             self.analysis_mode = 'probabilistic'
+    #             self.current_analyzer = self.pert_analyzer
+    #             self.setup_probabilistic_tree()
+    #             self.mode_label.config(text="Mode: Probabilistic (PERT)", foreground="green")
+                
+    #             # Load CSV data
+    #             activities_data = []
+    #             with open(file_path, 'r', newline='') as file:
+    #                 reader = csv.DictReader(file)
+    #                 for row in reader:
+    #                     # Extract only required PERT columns, ignore extra columns
+    #                     pert_data = {
+    #                         'id': row['id'],
+    #                         'predecessors': row.get('predecessors', '').strip(),
+    #                         'optimistic': int(float(row['optimistic'])),  # Convert to int
+    #                         'most_likely': int(float(row['most_likely'])),  # Convert to int  
+    #                         'pessimistic': int(float(row['pessimistic']))  # Convert to int
+    #                     }
+    #                     activities_data.append(pert_data)
+                
+    #             # Process through PERT analyzer to get calculated values
+    #             processed_activities = self.pert_analyzer.load_activities_from_pert_data(activities_data)
+                
+    #             # Display in tree
+    #             for activity in processed_activities:
+    #                 self.tree.insert("", tk.END, values=(
+    #                     activity['id'],
+    #                     ', '.join(activity['predecessors']) if activity['predecessors'] else '',
+    #                     str(activity['optimistic']),  # Display as integer
+    #                     str(activity['most_likely']),  # Display as integer
+    #                     str(activity['pessimistic']),  # Display as integer
+    #                     str(activity['expected_time_ceil']),  # Ceiling value
+    #                     f"{activity['variance']:.3f}"
+    #                 ))
+                
+    #             # Enable probability analysis tab
+    #             self.enable_probability_analysis()
+                
+    #             messagebox.showinfo("Success", "Probabilistic CSV file loaded successfully!")
+                
+    #         except Exception as e:
+    #             messagebox.showerror("Error", f"Failed to load probabilistic CSV file: {str(e)}")
+
     def load_probabilistic_csv(self):
         """Load activities from probabilistic PERT CSV file"""
         file_path = filedialog.askopenfilename(
@@ -2662,60 +2111,60 @@ class CPMDesktopApp:
         
         if file_path:
             try:
-                # Clear existing data and set probabilistic mode
-                self.clear_all()
+                # Clear existing data but preserve mode, then set probabilistic mode
+                self.clear_all(reset_mode=False)
                 self.analysis_mode = 'probabilistic'
                 self.current_analyzer = self.pert_analyzer
                 self.setup_probabilistic_tree()
-                self.mode_label.config(text="Mode: Probabilistic (PERT)", foreground="green")
+                self.mode_label.config(text="Mode: PERT", foreground="green")
                 
                 # Load CSV data
                 activities_data = []
                 with open(file_path, 'r', newline='') as file:
                     reader = csv.DictReader(file)
                     for row in reader:
-                        # Extract required PERT columns, ignore extra columns
+                        # Extract PERT data including all fields
                         pert_data = {
                             'id': row['id'],
                             'predecessors': row.get('predecessors', '').strip(),
-                            'optimistic': self._safe_float_to_int(row['optimistic']),
-                            'most_likely': self._safe_float_to_int(row['most_likely']),
-                            'pessimistic': self._safe_float_to_int(row['pessimistic']),
-                            # Handle optional columns with defaults
-                            'min_duration': self._safe_float_to_int(row.get('min_duration', '1')),
-                            'crash_cost': self._safe_float_to_int(row.get('crash_cost', '0')),
-                            'resource_demand': self._safe_float_to_int(row.get('resource_demand', '0')),
-                            'normal_cost': self._safe_float_to_int(row.get('normal_cost', '0'))
+                            'optimistic': int(float(row['optimistic'])),
+                            'most_likely': int(float(row['most_likely'])),
+                            'pessimistic': int(float(row['pessimistic'])),
+                            'min_duration': self._safe_float_to_int(row.get('min_duration', 1)),
+                            'crash_cost': self._safe_float_to_int(row.get('crash_cost', 0)),
+                            'resource_demand': self._safe_float_to_int(row.get('resource_demand', 0)),
+                            'normal_cost': self._safe_float_to_int(row.get('normal_cost', 0))
                         }
                         activities_data.append(pert_data)
                 
                 # Process through PERT analyzer to get calculated values
                 processed_activities = self.pert_analyzer.load_activities_from_pert_data(activities_data)
                 
-                # Display in tree
-                for activity in processed_activities:
-                    self.tree.insert("", tk.END, values=(
-                        activity['id'],
-                        ', '.join(activity['predecessors']) if activity['predecessors'] else '',
-                        activity['optimistic'],  # Display as integer
-                        activity['most_likely'],  # Display as integer
-                        activity['pessimistic'],  # Display as integer
-                        activity['expected_time_ceil'],  # Ceiling value (integer)
-                        f"{activity['variance']:.3f}",  # 3 decimals for variance only
-                        activity.get('min_duration', 1),  # Integer
-                        activity.get('crash_cost', 0),  # Integer
-                        activity.get('resource_demand', 0),  # Integer
-                        activity.get('normal_cost', 0)  # Integer
-                    ))
+            #     # Display in tree with ALL fields
+            #     for activity in processed_activities:
+            #         self.tree.insert("", tk.END, values=(
+            #             activity['id'],
+            #             ', '.join(activity['predecessors']) if activity['predecessors'] else '',
+            #             str(activity['optimistic']),
+            #             str(activity['most_likely']),
+            #             str(activity['pessimistic']),
+            #             str(activity['expected_time_ceil']),
+            #             f"{activity['variance']:.3f}",
+            #             str(activity['min_duration']),
+            #             str(activity['crash_cost']),
+            #             str(activity['resource_demand']),
+            #             str(activity['normal_cost'])
+            #         ))
                 
-                # Enable probability analysis tab
-                self.enable_probability_analysis()
+            #     # Enable probability analysis tab
+            #     self.enable_probability_analysis()
                 
-                messagebox.showinfo("Success", "Probabilistic CSV file loaded successfully!")
+            #     messagebox.showinfo("Success", "Probabilistic CSV file loaded successfully!")
                 
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to load probabilistic CSV file: {str(e)}")
-
+            # except Exception as e:
+            #     messagebox.showerror("Error", f"Failed to load probabilistic CSV file: {str(e)}")
+    
+    
     def _safe_float_to_int(self, value):
         """Safely convert float string to integer, handling various formats"""
         try:
@@ -2725,7 +2174,6 @@ class CPMDesktopApp:
             return int(float(str(value).strip()))
         except (ValueError, TypeError):
             return 0
-    
     
     def download_sample_deterministic_csv(self):
         """Save and download a sample deterministic CSV file"""
@@ -2739,15 +2187,15 @@ class CPMDesktopApp:
             try:
                 # Define sample deterministic data
                 sample_data = [
-                    ["id", "activity", "duration", "predecessors", "min_duration", "crash_cost", "resource_demand"],
-                    ["A", "Design Phase", "5", "", "1", "300", "2"],
-                    ["B", "Requirements Analysis", "3", "", "2", "500", "1"],
-                    ["C", "Architecture Design", "7", "A,B", "5", "600", "3"],
-                    ["D", "Database Design", "5", "C", "4", "400", "1"],
-                    ["E", "Frontend Development", "6", "C", "3", "300", "4"],
-                    ["F", "Backend Development", "8", "C", "5", "200", "5"],
-                    ["G", "Testing", "3", "D", "3", "800", "2"],
-                    ["H", "Deployment", "4", "E,F", "2", "1000", "1"],
+                    ["id", "activity", "duration", "predecessors", "min_duration", "crash_cost", "resource_demand", "normal_cost"],
+                    ["A", "Design Phase", "5", "", "1", "300", "2", "100"],
+                    ["B", "Requirements Analysis", "3", "", "2", "500", "1", "150"],
+                    ["C", "Architecture Design", "7", "A,B", "5", "600", "3", "200"],
+                    ["D", "Database Design", "5", "C", "4", "400", "1", "120"],
+                    ["E", "Frontend Development", "6", "C", "3", "300", "4", "180"],
+                    ["F", "Backend Development", "8", "C", "5", "200", "5", "250"],
+                    ["G", "Testing", "3", "D", "3", "800", "2", "90"],
+                    ["H", "Deployment", "4", "E,F", "2", "1000", "1", "110"],
                 ]
                 
                 # Write to CSV file
@@ -2805,19 +2253,20 @@ class CPMDesktopApp:
         
         if file_path:
             try:
-                # Define sample probabilistic data with ALL columns
+                # UPDATED: Define sample probabilistic data with ALL fields
                 sample_data = [
-                    ["id", "predecessors", "optimistic", "most_likely", "pessimistic", "min_duration", "crash_cost", "resource_demand", "normal_cost"],
-                    ["A", "", "3", "4", "7", "1", "300", "3", "300"],
-                    ["B", "", "7", "9", "12", "2", "600", "4", "300"],
-                    ["C", "A,B", "4", "5", "9", "1", "500", "2", "300"],
-                    ["D", "A,B", "10", "11", "16", "1", "350", "3", "300"],
-                    ["E", "C,D", "18", "20", "22", "2", "400", "1", "300"],
-                    ["F", "E", "12", "16", "17", "1", "200", "4", "300"],
-                    ["G", "E", "7", "8", "12", "1", "550", "3", "300"],
-                    ["H", "F,G", "11", "15", "17", "2", "200", "2", "300"],
-                    ["I", "H", "6", "8", "10", "1", "100", "4", "300"],
-                    ["J", "I", "6", "7", "9", "4", "400", "5", "300"]
+                    ["id", "predecessors", "optimistic", "most_likely", "pessimistic", 
+                    "min_duration", "crash_cost", "resource_demand", "normal_cost"],
+                    ["A", "", "3", "4", "7", "1", "300", "2", "100"],
+                    ["B", "", "7", "9", "12", "2", "500", "1", "150"],
+                    ["C", "A,B", "4", "5", "9", "2", "600", "3", "200"],
+                    ["D", "A,B", "10", "11", "16", "3", "400", "1", "120"],
+                    ["E", "C,D", "18", "20", "22", "5", "300", "4", "180"],
+                    ["F", "E", "12", "16", "17", "3", "200", "5", "160"],
+                    ["G", "E", "7", "8", "12", "2", "800", "2", "140"],
+                    ["H", "F,G", "11", "15", "17", "4", "1000", "1", "250"],
+                    ["I", "H", "6", "8", "10", "2", "250", "2", "80"],
+                    ["J", "I", "6", "7", "9", "1", "250", "1", "90"]
                 ]
                 
                 # Write to CSV file
@@ -2831,19 +2280,15 @@ class CPMDesktopApp:
                 messagebox.showerror("Error", f"Failed to save sample CSV: {str(e)}")
     
     
-    # def add_row(self):
-    #     """Add a new empty row"""
-    #     self.tree.insert("", tk.END, values=("", "", "", "", "", "", ""))
     
     def add_row(self):
-        """Add a new empty row based on current mode"""
+        """Add a new empty row"""
         if self.analysis_mode == 'probabilistic':
-            # Add row with appropriate number of columns for PERT mode
+            # Add row with correct number of columns for PERT
             self.tree.insert("", tk.END, values=("", "", "", "", "", "", "", "", "", "", ""))
         else:
-            # Add row for deterministic mode
-            self.tree.insert("", tk.END, values=("", "", "", "", "", "", ""))
-    
+            # Add row for deterministic mode (8 columns including Normal Cost)
+            self.tree.insert("", tk.END, values=("", "", "", "", "", "", "", ""))
     
     def delete_row(self):
         """Delete selected row"""
@@ -2854,16 +2299,17 @@ class CPMDesktopApp:
         else:
             messagebox.showwarning("Warning", "Please select a row to delete.")
     
-    def clear_all(self):
+    def clear_all(self, reset_mode=True):
         """Clear all data from input table and all tabs"""
         # Clear the input table
         for item in self.tree.get_children():
             self.tree.delete(item)
         
-        # Reset analysis mode
-        self.analysis_mode = None
-        self.current_analyzer = None
-        self.mode_label.config(text="Mode: None", foreground="black")
+        # Reset analysis mode only if requested
+        if reset_mode:
+            self.analysis_mode = None
+            self.current_analyzer = None
+            self.mode_label.config(text="Mode: None", foreground="black")
         
         # Reset to deterministic tree layout
         self.setup_deterministic_tree()
@@ -3020,16 +2466,20 @@ class CPMDesktopApp:
     #                 })
         
     #     elif self.analysis_mode == 'probabilistic':
-    #         # Probabilistic format: ID, Predecessors, Optimistic, Most Likely, Pessimistic, Expected Time, Variance
+    #         # Probabilistic format: ID, Predecessors, Optimistic, Most Likely, Pessimistic, Expected Time, Variance, Min Duration, Crash Cost, Resource Demand, Normal Cost
     #         for item in self.tree.get_children():
     #             values = self.tree.item(item, 'values')
     #             if values and values[0]:  # Must have an ID
     #                 activities_data.append({
     #                     'id': values[0],
     #                     'predecessors': values[1] if len(values) > 1 else '',
-    #                     'optimistic': int(values[2]) if len(values) > 2 and values[2] else 0,
-    #                     'most_likely': int(values[3]) if len(values) > 3 and values[3] else 0,
-    #                     'pessimistic': int(values[4]) if len(values) > 4 and values[4] else 0
+    #                     'optimistic': self._safe_float_to_int(values[2]) if len(values) > 2 else 0,
+    #                     'most_likely': self._safe_float_to_int(values[3]) if len(values) > 3 else 0,
+    #                     'pessimistic': self._safe_float_to_int(values[4]) if len(values) > 4 else 0,
+    #                     'min_duration': self._safe_float_to_int(values[7]) if len(values) > 7 else 1,
+    #                     'crash_cost': self._safe_float_to_int(values[8]) if len(values) > 8 else 0,
+    #                     'resource_demand': self._safe_float_to_int(values[9]) if len(values) > 9 else 0,
+    #                     'normal_cost': self._safe_float_to_int(values[10]) if len(values) > 10 else 0
     #                 })
         
     #     return activities_data
@@ -3039,7 +2489,7 @@ class CPMDesktopApp:
         activities_data = []
         
         if self.analysis_mode == 'deterministic':
-            # Deterministic format: ID, Activity Name, Duration, Predecessors, Min Duration, Crash Cost, Resource Demand
+            # Deterministic format: ID, Activity Name, Duration, Predecessors, Min Duration, Crash Cost, Resource Demand, Normal Cost
             for item in self.tree.get_children():
                 values = self.tree.item(item, 'values')
                 if values and values[0]:  # Must have an ID
@@ -3050,11 +2500,12 @@ class CPMDesktopApp:
                         'predecessors': values[3] if len(values) > 3 else '',
                         'min_duration': values[4] if len(values) > 4 else values[2] if len(values) > 2 else '0',
                         'crash_cost': values[5] if len(values) > 5 else '0',
-                        'resource_demand': values[6] if len(values) > 6 else '0'
+                        'resource_demand': values[6] if len(values) > 6 else '0',
+                        'normal_cost': values[7] if len(values) > 7 else '0'
                     })
         
         elif self.analysis_mode == 'probabilistic':
-            # Probabilistic format: ID, Predecessors, Optimistic, Most Likely, Pessimistic, Expected Time, Variance, Min Duration, Crash Cost, Resource Demand, Normal Cost
+            # UPDATED: Probabilistic format with ALL fields
             for item in self.tree.get_children():
                 values = self.tree.item(item, 'values')
                 if values and values[0]:  # Must have an ID
@@ -3064,7 +2515,7 @@ class CPMDesktopApp:
                         'optimistic': self._safe_float_to_int(values[2]) if len(values) > 2 else 0,
                         'most_likely': self._safe_float_to_int(values[3]) if len(values) > 3 else 0,
                         'pessimistic': self._safe_float_to_int(values[4]) if len(values) > 4 else 0,
-                        # Include additional columns for PERT mode
+                        # Skip expected_time (index 5) and variance (index 6) as they're calculated
                         'min_duration': self._safe_float_to_int(values[7]) if len(values) > 7 else 1,
                         'crash_cost': self._safe_float_to_int(values[8]) if len(values) > 8 else 0,
                         'resource_demand': self._safe_float_to_int(values[9]) if len(values) > 9 else 0,
@@ -3072,8 +2523,6 @@ class CPMDesktopApp:
                     })
         
         return activities_data
-    
-    
     
     
     def analyze_project(self):
@@ -3897,6 +3346,9 @@ class CPMDesktopApp:
             except (ValueError, TypeError):
                 actual_start = 0
             
+            # Get normal cost from original graph data
+            normal_cost = original_data.get('normal_cost', 0)
+            
             # Create activity dictionary in the format expected by load_activities_from_data
             activity_dict = {
                 'id': activity_id,
@@ -3906,6 +3358,7 @@ class CPMDesktopApp:
                 'min_duration': min_duration,
                 'crash_cost': crash_cost,
                 'resource_demand': resource_demand,
+                'normal_cost': normal_cost,
                 'actual_start': actual_start,
                 'ES': actual_start,  # Early Start = Actual Start in RCPS
                 'EF': actual_start + duration,  # Early Finish = Actual Start + Duration
@@ -3920,12 +3373,24 @@ class CPMDesktopApp:
         # print(f"DEBUG: RCPS data prepared for crashing. {len(activities_list)} activities processed.")
         # print(f"DEBUG: Fields in last_rcps_table: {list(self.last_rcps_table.columns)}")
         
-        # Debug: Print sample of prepared data
+        # Debug: Print complete table of prepared data
         if not self.last_rcps_table.empty:
-            print("DEBUG: Sample of prepared RCPS data:")
-            for idx, row in self.last_rcps_table.head(3).iterrows():
-                print(f"  {row['id']}: dur={row['duration']}, min_dur={row['min_duration']}, "
-                    f"crash_cost={row['crash_cost']}, actual_start={row['actual_start']}")
+            print("\nDEBUG: Complete RCPS Activity Data:")
+            print("+" + "-" * 78 + "+")
+            print(f"| {'ID':<4} | {'Duration':<8} | {'Min Dur':<8} | {'Crash $':<8} | {'Resource':<8} | {'Start':<8} | {'Normal $':<8} |")
+            print("+" + "-" * 78 + "+")
+            
+            for idx, row in self.last_rcps_table.iterrows():
+                normal_cost = row.get('normal_cost', 0)
+                print(f"| {row['id']:<4} | {row['duration']:<8} | {row['min_duration']:<8} | "
+                      f"{row['crash_cost']:<8.0f} | {row['resource_demand']:<8} | "
+                      f"{row['actual_start']:<8} | {normal_cost:<8.0f} |")
+            
+            print("+" + "-" * 78 + "+")
+            print(f"Total Activities: {len(self.last_rcps_table)}")
+            print()
+        
+        print("RCPS scheduling completed successfully.")
 
     def plot_schedule_tables(self, cpm_table, rcps_table, time_cols, critical_ids, actual_starts, df_gantt):
         """
@@ -4279,6 +3744,23 @@ class CPMDesktopApp:
                                             textvariable=self.step_select_var,
                                             command=self.show_selected_step)
         self.step_select_spinbox.pack(side=tk.LEFT, padx=2)
+        
+        # Go to step controls - FIX THE IMPLEMENTATION
+        step_frame = ttk.Frame(control_frame)
+        step_frame.pack(fill=tk.X, pady=5)
+        
+        ttk.Label(step_frame, text="Go to Step:").pack(side=tk.LEFT)
+        self.goto_step_var = tk.StringVar()
+        self.goto_step_entry = ttk.Entry(step_frame, textvariable=self.goto_step_var, width=10)
+        self.goto_step_entry.pack(side=tk.LEFT, padx=5)
+        
+        # Bind Enter key to go to step function
+        self.goto_step_entry.bind('<Return>', lambda event: self.goto_crash_step())
+        
+        self.goto_step_btn = ttk.Button(step_frame, text="Go", command=self.goto_crash_step)
+        self.goto_step_btn.pack(side=tk.LEFT, padx=5)
+        
+        
 
         # Show all steps button
         ttk.Button(step_nav_frame, text="Show All Steps", command=self.show_all_steps_grid).pack(side=tk.RIGHT, padx=2)
@@ -4286,6 +3768,42 @@ class CPMDesktopApp:
         # Initialize step tracking
         self.current_step = 0
         self.total_steps = 0
+    
+    def goto_crash_step(self):
+        """Navigate to specific step in crash optimization"""
+        try:
+            target_step = int(self.goto_step_var.get())
+            
+            # Check if we have crash log data
+            if not hasattr(self, 'crash_log') or not self.crash_log:
+                messagebox.showerror("Error", "No crash optimization results available. Run optimization first.")
+                return
+            
+            # Validate step number
+            max_step = len(self.crash_log)
+            if target_step < 0 or target_step > max_step:
+                messagebox.showerror("Error", f"Step must be between 0 and {max_step}")
+                return
+            
+            # Update the step slider to the target step
+            if hasattr(self, 'crash_step_var'):
+                self.crash_step_var.set(target_step)
+                
+            # Update the display for the target step
+            self.show_crash_step(target_step)
+            
+            # Update step display
+            if hasattr(self, 'crash_step_label'):
+                self.crash_step_label.config(text=f"Step: {target_step}/{max_step}")
+            
+            messagebox.showinfo("Success", f"Navigated to step {target_step}")
+            
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid step number")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to navigate to step: {str(e)}")
+    
+    
     
     def run_crashing_optimization(self, max_budget=None):
         """Run project crashing optimization"""
@@ -4365,14 +3883,25 @@ class CPMDesktopApp:
             # Show crashing steps diagrams
             self.show_crashing_steps_diagrams(crashed_G, crash_log)
 
-            # Switch to crashing tab
-            self.notebook.select(6)  # Crashing tab index
             messagebox.showinfo("Success", "Project crashing completed successfully!")
         except Exception as e:
             messagebox.showerror("Error", f"Crashing optimization failed: {str(e)}")
     
+    def _get_normal_cost(self, activity_id):
+        """Helper function to extract normal cost for an activity"""
+        try:
+            # First check if normal_cost exists in the graph nodes
+            if (hasattr(self, 'current_analyzer') and 
+                hasattr(self.current_analyzer, 'G') and 
+                self.current_analyzer.G and 
+                activity_id in self.current_analyzer.G.nodes):
+                return float(self.current_analyzer.G.nodes[activity_id].get('normal_cost', 0))
+            return 0.0
+        except (ValueError, TypeError, KeyError):
+            return 0.0
+
     def display_crash_results(self, crashed_G, total_crash_cost, crash_log, target_duration):
-        """Display crash log and summary in the crashing tab"""
+        """Display crash log and summary in the crashing tab with comprehensive cost tracking"""
         self.crash_results_text.delete(1.0, tk.END)
         lines = []
         lines.append("CRASHING OPTIMIZATION LOG\n" + "="*40)
@@ -4383,17 +3912,61 @@ class CPMDesktopApp:
         lines.append(f"Target Duration: {target_duration}")
         lines.append("-" * 40)
         
-        # Show each crash step
+        # Enhanced cost tracking
+        cumulative_crash_cost = 0.0
+        cumulative_step_cost = 0.0
+        total_normal_cost = 0.0
+        
+        # Show each crash step with comprehensive cost breakdown
         for entry in crash_log:
-            lines.append(f"Step {entry['iteration']}: Activity {entry['activity']} crashed to duration {entry['new_duration']} (Cost: {entry['crash_cost']})")
+            activity_id = entry['activity']
+            crash_cost = float(entry['crash_cost'])
+            normal_cost = self._get_normal_cost(activity_id)
+            step_cost = crash_cost + normal_cost
+            
+            # Update cumulative costs BEFORE displaying
+            cumulative_crash_cost += crash_cost
+            cumulative_step_cost += step_cost
+            total_normal_cost += normal_cost
+            
+            # Enhanced step display
+            lines.append(f"Step {entry['iteration']}: Activity {activity_id} crashed to duration {entry['new_duration']}")
+            lines.append(f"  - Crash Cost: ${crash_cost:,.2f}")
+            lines.append(f"  - Normal Cost: ${normal_cost:,.2f}")
+            lines.append(f"  - Step Cost: ${step_cost:,.2f}")
+            lines.append(f"  - Cumulative Crash: ${cumulative_crash_cost:,.2f}")
+            lines.append(f"  - Cumulative Step: ${cumulative_step_cost:,.2f}")
+            lines.append("")
         
         lines.append("-" * 40)
-        lines.append(f"Total Crash Cost: {total_crash_cost:.2f}")
+        lines.append("-" * 40)
+        
+        # Enhanced cost summary
+        total_step_cost = cumulative_step_cost
+        crash_percentage = (total_crash_cost / total_step_cost * 100) if total_step_cost > 0 else 0
+        normal_percentage = (total_normal_cost / total_step_cost * 100) if total_step_cost > 0 else 0
+        
+        lines.append("COST BREAKDOWN SUMMARY:")
+        lines.append(f"Total Crash Cost: ${total_crash_cost:,.2f}")
+        lines.append(f"Total Normal Cost: ${total_normal_cost:,.2f}")
+        lines.append(f"Total Step Cost: ${total_step_cost:,.2f}")
+        lines.append(f"Cost Composition: {crash_percentage:.1f}% Crash, {normal_percentage:.1f}% Normal")
+        lines.append("")
         
         # Calculate final project duration
         new_duration = max([crashed_G.nodes[node]['EF'] for node in crashed_G.nodes()])
         lines.append(f"Final Project Duration: {new_duration}")
         lines.append(f"Duration Reduction: {initial_duration - new_duration} units")
+        
+        # Cost efficiency metrics
+        duration_reduction = initial_duration - new_duration
+        if duration_reduction > 0:
+            cost_per_unit_reduction = total_crash_cost / duration_reduction
+            step_cost_per_unit_reduction = total_step_cost / duration_reduction
+            lines.append(f"Crash Cost per Unit Reduction: ${cost_per_unit_reduction:,.2f}")
+            lines.append(f"Total Cost per Unit Reduction: ${step_cost_per_unit_reduction:,.2f}")
+        
+        lines.append("")
         
         # Show success/failure status
         if new_duration <= target_duration:
@@ -4405,7 +3978,7 @@ class CPMDesktopApp:
         critical_activities = [node for node in crashed_G.nodes() if crashed_G.nodes[node]['float'] == 0 and node not in ['START', 'END']]
         lines.append(f"Final Critical Path: {' -> '.join(critical_activities)}")
         
-        # Show crashed activities summary
+        # Enhanced crashed activities summary with cost details
         crashed_activities = {}
         for entry in crash_log:
             activity = entry['activity']
@@ -4413,20 +3986,28 @@ class CPMDesktopApp:
                 crashed_activities[activity] = {
                     'original_duration': entry.get('original_duration', self.current_analyzer.G.nodes[activity]['duration']),
                     'final_duration': entry['new_duration'],
-                    'total_cost': 0,
+                    'total_crash_cost': 0,
+                    'total_normal_cost': 0,
+                    'total_step_cost': 0,
                     'crash_count': 0
                 }
             crashed_activities[activity]['final_duration'] = entry['new_duration']
-            crashed_activities[activity]['total_cost'] += entry['crash_cost']
+            crashed_activities[activity]['total_crash_cost'] += entry['crash_cost']
+            crashed_activities[activity]['total_normal_cost'] += self._get_normal_cost(activity)
+            crashed_activities[activity]['total_step_cost'] += (entry['crash_cost'] + self._get_normal_cost(activity))
             crashed_activities[activity]['crash_count'] += 1
         
         if crashed_activities:
             lines.append("\nCRASHED ACTIVITIES SUMMARY:")
-            lines.append("-" * 30)
+            lines.append("-" * 50)
             for activity, info in crashed_activities.items():
                 reduction = info['original_duration'] - info['final_duration']
                 lines.append(f"Activity {activity}: {info['original_duration']} → {info['final_duration']} "
-                            f"({reduction} units, {info['crash_count']} steps, Cost: {info['total_cost']:.2f})")
+                            f"({reduction} units, {info['crash_count']} steps)")
+                lines.append(f"  - Crash Cost: ${info['total_crash_cost']:,.2f}")
+                lines.append(f"  - Normal Cost: ${info['total_normal_cost']:,.2f}")
+                lines.append(f"  - Total Cost: ${info['total_step_cost']:,.2f}")
+                lines.append("")
         
         self.crash_results_text.insert(1.0, "\n".join(lines))
     
@@ -4465,6 +4046,120 @@ class CPMDesktopApp:
         
         # Show initial step
         self.show_step(0)
+    
+    def show_crash_step(self, step_value):
+        """Show specific crash optimization step"""
+        try:
+            step = int(step_value)
+            
+            if not hasattr(self, 'crash_log') or not self.crash_log:
+                return
+            
+            # Clear current display
+            for widget in self.crash_results_frame.winfo_children():
+                widget.destroy()
+            
+            # Create main container
+            main_frame = ttk.Frame(self.crash_results_frame)
+            main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+            
+            if step == 0:
+                # Show initial state (before any crashing)
+                ttk.Label(main_frame, text="Initial Project State (Step 0)", 
+                        font=('Arial', 12, 'bold')).pack(pady=5)
+                
+                # Show original project info
+                if hasattr(self, 'G') and self.G:
+                    original_duration = max([self.G.nodes[node]['EF'] for node in self.G.nodes()])
+                    ttk.Label(main_frame, text=f"Original Duration: {original_duration}").pack()
+                    ttk.Label(main_frame, text="No activities crashed yet").pack()
+            else:
+                # Show specific crash step
+                if step <= len(self.crash_log):
+                    crash_entry = self.crash_log[step - 1]
+                    
+                    ttk.Label(main_frame, text=f"Crash Step {step}", 
+                            font=('Arial', 12, 'bold')).pack(pady=5)
+                    
+                    # Show crash details
+                    info_frame = ttk.LabelFrame(main_frame, text="Crash Details")
+                    info_frame.pack(fill=tk.X, pady=5)
+                    
+                    ttk.Label(info_frame, text=f"Activity Crashed: {crash_entry['activity']}").pack(anchor=tk.W)
+                    ttk.Label(info_frame, text=f"Crash Cost: ${crash_entry['crash_cost']:,.2f}").pack(anchor=tk.W)
+                    ttk.Label(info_frame, text=f"New Duration: {crash_entry['new_duration']}").pack(anchor=tk.W)
+                    ttk.Label(info_frame, text=f"Original Duration: {crash_entry['original_duration']}").pack(anchor=tk.W)
+                    
+                    # Calculate cumulative cost up to this step
+                    cumulative_cost = sum([entry['crash_cost'] for entry in self.crash_log[:step]])
+                    ttk.Label(info_frame, text=f"Cumulative Cost: ${cumulative_cost:,.2f}").pack(anchor=tk.W)
+            
+            # Update step counter
+            max_steps = len(self.crash_log)
+            if hasattr(self, 'crash_step_label'):
+                self.crash_step_label.config(text=f"Step: {step}/{max_steps}")
+                
+        except Exception as e:
+            print(f"Error showing crash step: {e}")
+
+    def show_rcps_crash_step(self, step_value):
+        """Show specific RCPS crash optimization step"""
+        try:
+            step = int(step_value)
+            
+            if not hasattr(self, 'rcps_crash_log') or not self.rcps_crash_log:
+                return
+            
+            # Clear current display
+            for widget in self.rcps_crash_results_frame.winfo_children():
+                widget.destroy()
+            
+            # Create main container
+            main_frame = ttk.Frame(self.rcps_crash_results_frame)
+            main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+            
+            if step == 0:
+                # Show initial state (before any crashing)
+                ttk.Label(main_frame, text="Initial RCPS Project State (Step 0)", 
+                        font=('Arial', 12, 'bold')).pack(pady=5)
+                
+                ttk.Label(main_frame, text="No activities crashed yet").pack()
+            else:
+                # Show specific crash step
+                if step <= len(self.rcps_crash_log):
+                    crash_entry = self.rcps_crash_log[step - 1]
+                    
+                    ttk.Label(main_frame, text=f"RCPS Crash Step {step}", 
+                            font=('Arial', 12, 'bold')).pack(pady=5)
+                    
+                    # Show crash details
+                    info_frame = ttk.LabelFrame(main_frame, text="RCPS Crash Details")
+                    info_frame.pack(fill=tk.X, pady=5)
+                    
+                    ttk.Label(info_frame, text=f"Activity Crashed: {crash_entry['activity']}").pack(anchor=tk.W)
+                    ttk.Label(info_frame, text=f"Crash Cost: ${crash_entry['crash_cost']:,.2f}").pack(anchor=tk.W)
+                    ttk.Label(info_frame, text=f"New Duration: {crash_entry['new_duration']}").pack(anchor=tk.W)
+                    ttk.Label(info_frame, text=f"Original Duration: {crash_entry['original_duration']}").pack(anchor=tk.W)
+                    
+                    # Show RCPS-specific info if available
+                    if 'project_duration_reduction' in crash_entry:
+                        ttk.Label(info_frame, text=f"Project Duration Reduction: {crash_entry['project_duration_reduction']}").pack(anchor=tk.W)
+                    if 'resulting_project_duration' in crash_entry:
+                        ttk.Label(info_frame, text=f"Resulting Project Duration: {crash_entry['resulting_project_duration']}").pack(anchor=tk.W)
+                    
+                    # Calculate cumulative cost up to this step
+                    cumulative_cost = sum([entry['crash_cost'] for entry in self.rcps_crash_log[:step]])
+                    ttk.Label(info_frame, text=f"Cumulative Cost: ${cumulative_cost:,.2f}").pack(anchor=tk.W)
+            
+            # Update step counter
+            max_steps = len(self.rcps_crash_log)
+            if hasattr(self, 'rcps_crash_step_label'):
+                self.rcps_crash_step_label.config(text=f"Step: {step}/{max_steps}")
+                
+        except Exception as e:
+            print(f"Error showing RCPS crash step: {e}")
+    
+    
     
     def _draw_network_diagram_on_ax(self, ax, G):
         """Draw a CPM network diagram on the given matplotlib axis."""
@@ -4772,6 +4467,23 @@ class CPMDesktopApp:
                                                 command=self.show_rcps_selected_step)
         self.rcps_step_select_spinbox.pack(side=tk.LEFT, padx=2)
         
+        # Go to step controls - FIX THE IMPLEMENTATION
+        step_frame = ttk.Frame(control_frame)
+        step_frame.pack(fill=tk.X, pady=5)
+        
+        ttk.Label(step_frame, text="Go to Step:").pack(side=tk.LEFT)
+        self.rcps_goto_step_var = tk.StringVar()
+        self.rcps_goto_step_entry = ttk.Entry(step_frame, textvariable=self.rcps_goto_step_var, width=10)
+        self.rcps_goto_step_entry.pack(side=tk.LEFT, padx=5)
+        
+        # Bind Enter key to go to step function
+        self.rcps_goto_step_entry.bind('<Return>', lambda event: self.goto_rcps_crash_step())
+        
+        self.rcps_goto_step_btn = ttk.Button(step_frame, text="Go", command=self.goto_rcps_crash_step)
+        self.rcps_goto_step_btn.pack(side=tk.LEFT, padx=5)
+        
+        
+        
         # Show all steps button
         ttk.Button(rcps_step_nav_frame, text="Show All Steps", command=self.show_rcps_all_steps_grid).pack(side=tk.RIGHT, padx=2)
         
@@ -4784,7 +4496,42 @@ class CPMDesktopApp:
         self.rcps_total_steps = 0
         self.rcps_step_graphs = []
     
+    def goto_rcps_crash_step(self):
+        """Navigate to specific step in RCPS crash optimization"""
+        try:
+            target_step = int(self.rcps_goto_step_var.get())
+            
+            # Check if we have RCPS crash log data
+            if not hasattr(self, 'rcps_crash_log') or not self.rcps_crash_log:
+                messagebox.showerror("Error", "No RCPS crash optimization results available. Run optimization first.")
+                return
+            
+            # Validate step number
+            max_step = len(self.rcps_crash_log)
+            if target_step < 0 or target_step > max_step:
+                messagebox.showerror("Error", f"Step must be between 0 and {max_step}")
+                return
+            
+            # Update the step slider to the target step
+            if hasattr(self, 'rcps_crash_step_var'):
+                self.rcps_crash_step_var.set(target_step)
+                
+            # Update the display for the target step
+            self.show_rcps_crash_step(target_step)
+            
+            # Update step display
+            if hasattr(self, 'rcps_crash_step_label'):
+                self.rcps_crash_step_label.config(text=f"Step: {target_step}/{max_step}")
+            
+            messagebox.showinfo("Success", f"Navigated to step {target_step}")
+            
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid step number")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to navigate to step: {str(e)}")
+
     ## without debugging points 
+    
     def run_rcps_crashing_optimization(self):
         """
         Run crashing optimization using RCPS scheduling integrated into the optimization loop.
@@ -4883,7 +4630,7 @@ class CPMDesktopApp:
             traceback.print_exc()
     
     def display_rcps_crashing_results(self, crashed_G, total_crash_cost, crash_log, target_duration):
-        """Display crash log and summary in the RCPS Crashing tab (matching desired format)."""
+        """Display crash log and summary in the RCPS Crashing tab with enhanced cost tracking."""
         self.rcps_crash_results_text.delete(1.0, tk.END)
         lines = []
         lines.append("RCPS CRASHING OPTIMIZATION LOG")
@@ -4907,12 +4654,44 @@ class CPMDesktopApp:
         lines.append(f"Target Duration: {target_duration}")
         lines.append("-" * 40)
         
-        # Show each crash step (simple format)
-        for entry in crash_log:
-            lines.append(f"Step {entry['iteration']}: Activity {entry['activity']} crashed to duration {entry['new_duration']} (Cost: {entry['crash_cost']})")
+        # Enhanced step-by-step cost tracking
+        cumulative_crash_cost = 0
+        cumulative_step_cost = 0
+        total_normal_cost = 0
+        total_crash_cost = 0
+        
+        for i, entry in enumerate(crash_log, 1):
+            crash_cost = entry['crash_cost']
+            normal_cost = self._get_normal_cost(entry['activity'])
+            step_cost = crash_cost + normal_cost
+            
+            # Update cumulative costs
+            cumulative_crash_cost += crash_cost
+            cumulative_step_cost += step_cost
+            total_crash_cost += crash_cost
+            total_normal_cost += normal_cost
+            
+            lines.append(f"Step {i}: Activity {entry['activity']} crashed to duration {entry['new_duration']}")
+            lines.append(f"  - Crash Cost: ${crash_cost:,.2f}")
+            lines.append(f"  - Normal Cost: ${normal_cost:,.2f}")
+            lines.append(f"  - Step Cost: ${step_cost:,.2f}")
+            lines.append(f"  - Cumulative Crash: ${cumulative_crash_cost:,.2f}")
+            lines.append(f"  - Cumulative Step: ${cumulative_step_cost:,.2f}")
+            lines.append("")
         
         lines.append("-" * 40)
-        lines.append(f"Total Crash Cost: {total_crash_cost:.2f}")
+        
+        # Enhanced cost summary
+        total_step_cost = cumulative_step_cost
+        crash_percentage = (total_crash_cost / total_step_cost * 100) if total_step_cost > 0 else 0
+        normal_percentage = (total_normal_cost / total_step_cost * 100) if total_step_cost > 0 else 0
+        
+        lines.append("COST BREAKDOWN SUMMARY:")
+        lines.append(f"Total Crash Cost: ${total_crash_cost:,.2f}")
+        lines.append(f"Total Normal Cost: ${total_normal_cost:,.2f}")
+        lines.append(f"Total Step Cost: ${total_step_cost:,.2f}")
+        lines.append(f"Cost Composition: {crash_percentage:.1f}% Crash, {normal_percentage:.1f}% Normal")
+        lines.append("")
         
         # Calculate final project duration
         new_duration = max([crashed_G.nodes[node]['EF'] for node in crashed_G.nodes()])
@@ -4921,6 +4700,15 @@ class CPMDesktopApp:
         # CRITICAL FIX: Calculate duration reduction correctly
         duration_reduction = initial_duration - new_duration
         lines.append(f"Duration Reduction: {duration_reduction} units")
+        
+        # Cost efficiency metrics
+        if duration_reduction > 0:
+            cost_per_unit_reduction = total_crash_cost / duration_reduction
+            step_cost_per_unit_reduction = total_step_cost / duration_reduction
+            lines.append(f"Crash Cost per Unit Reduction: ${cost_per_unit_reduction:,.2f}")
+            lines.append(f"Total Cost per Unit Reduction: ${step_cost_per_unit_reduction:,.2f}")
+        
+        lines.append("")
         
         # Show success/failure status
         if new_duration <= target_duration:
@@ -4950,7 +4738,7 @@ class CPMDesktopApp:
             critical_activities = [node for node in crashed_G.nodes() if crashed_G.nodes[node]['float'] == 0 and node not in ['START', 'END']]
             lines.append(f"Final Critical Path: {' -> '.join(critical_activities)}")
         
-        # Show crashed activities summary
+        # Enhanced crashed activities summary with cost details
         crashed_activities = {}
         for entry in crash_log:
             activity = entry['activity']
@@ -4958,21 +4746,28 @@ class CPMDesktopApp:
                 crashed_activities[activity] = {
                     'original_duration': entry.get('original_duration', self.current_analyzer.G.nodes[activity]['duration']),
                     'final_duration': entry['new_duration'],
-                    'total_cost': 0,
+                    'total_crash_cost': 0,
+                    'total_normal_cost': 0,
+                    'total_step_cost': 0,
                     'crash_count': 0
                 }
             crashed_activities[activity]['final_duration'] = entry['new_duration']
-            crashed_activities[activity]['total_cost'] += entry['crash_cost']
+            crashed_activities[activity]['total_crash_cost'] += entry['crash_cost']
+            crashed_activities[activity]['total_normal_cost'] += self._get_normal_cost(activity)
+            crashed_activities[activity]['total_step_cost'] += (entry['crash_cost'] + self._get_normal_cost(activity))
             crashed_activities[activity]['crash_count'] += 1
         
         if crashed_activities:
-            lines.append("")
-            lines.append("CRASHED ACTIVITIES SUMMARY:")
-            lines.append("-" * 30)
+            lines.append("\nCRASHED ACTIVITIES SUMMARY:")
+            lines.append("-" * 50)
             for activity, info in crashed_activities.items():
                 reduction = info['original_duration'] - info['final_duration']
                 lines.append(f"Activity {activity}: {info['original_duration']} → {info['final_duration']} "
-                            f"({reduction} units, {info['crash_count']} steps, Cost: {info['total_cost']:.2f})")
+                            f"({reduction} units, {info['crash_count']} steps)")
+                lines.append(f"  - Crash Cost: ${info['total_crash_cost']:,.2f}")
+                lines.append(f"  - Normal Cost: ${info['total_normal_cost']:,.2f}")
+                lines.append(f"  - Total Cost: ${info['total_step_cost']:,.2f}")
+                lines.append("")
         
         self.rcps_crash_results_text.insert(1.0, "\n".join(lines))
     
@@ -5228,7 +5023,15 @@ class CPMDesktopApp:
     def calculate_completion_probability(self):
         """Calculate probability of completing project within target duration"""
         try:
-            target_duration = float(self.target_duration_var.get())
+            target_duration = float(self.prob_target_duration_var.get())
+            
+            # Check if PERT analyzer exists and has data
+            if not hasattr(self, 'pert_analyzer') or not self.pert_analyzer:
+                raise ValueError("PERT analyzer not initialized")
+            
+            if not self.pert_analyzer.G:
+                raise ValueError("No PERT analysis has been performed")
+            
             probability = self.pert_analyzer.calculate_completion_probability(target_duration)
             
             result_text = f"Probability: {probability:.4f} ({probability*100:.2f}%)"

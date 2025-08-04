@@ -1,0 +1,27 @@
+PMHelperAPP IDEAS
+A place for potential features 
+################################
+three point distribution viz 
+# Visualize PERT distributions
+fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+axes = axes.flatten()
+
+for i, (_, row) in enumerate(pert_analysis.iterrows()):
+    if i < 6:  # Limit to 6 activities for visualization
+        a, m, b = row['a'], row['m'], row['b']
+        
+        # Create beta distribution approximation
+        x = np.linspace(a, b, 100)
+        # Simple triangular distribution for visualization
+        y = np.where(x <= m, 2*(x-a)/((b-a)*(m-a)), 2*(b-x)/((b-a)*(b-m)))
+        
+        axes[i].plot(x, y, 'b-', linewidth=2)
+        axes[i].axvline(row['TE'], color='red', linestyle='--', label=f'TE={row["TE"]:.0f}')
+        axes[i].fill_between(x, y, alpha=0.3)
+        axes[i].set_title(f'Activity {row["Activity"]}')
+        axes[i].set_xlabel('Duration (weeks)')
+        axes[i].legend()
+
+plt.tight_layout()
+plt.suptitle('PERT Duration Distributions', fontsize=16, y=1.02)
+plt.show()
