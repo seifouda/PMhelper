@@ -309,16 +309,13 @@ class RCPSTab:
                 sheet.hide("x_scrollbar")
             except Exception:
                 pass
-        # Enable only vertical navigation and editing, no horizontal scroll or left/right arrow
-        sheet.enable_bindings((
-            "single_select", "row_select", "column_select", "right_click_popup_menu", "rc_select", "copy", "cut", "paste", "delete", "undo", "edit_cell"
-        ))
-        # Disable left/right arrow and horizontal scroll if method exists
+        # Disable all horizontal navigation and scrolling
         if hasattr(sheet, 'disable_bindings'):
             try:
                 sheet.disable_bindings(("left_arrow", "right_arrow", "horizontal_scroll"))
             except Exception:
                 pass
+        # Do NOT enable any horizontal movement bindings
         sheet.grid(row=1, column=0, sticky="nsew")
         frame.grid_rowconfigure(1, weight=1)
         frame.grid_columnconfigure(0, weight=1)
@@ -327,18 +324,44 @@ class RCPSTab:
         def adjust_column_widths(event=None):
             frame.update_idletasks()
             frame_width = frame.winfo_width() or 1000  # fallback if not yet rendered
+            min_col_width = 1  # Minimum width is 1 pixel
+            # Identify timeline columns (integer column names)
+            timeline_cols = [col for col in display_columns if isinstance(col, int)]
+            n_timeline = len(timeline_cols)
+            # Table type detection
+            is_cpm = label.lower().startswith("initial cpm")
+            if is_cpm:
+                fixed_col_count = 6
+                # CPM fixed width is based on RCPS: 7*45=315px, so each CPM col is 315//6=52px
+                fixed_col_width = 41
+                fixed_total_width = fixed_col_count * fixed_col_width
+            else:
+                fixed_col_count = 7
+                fixed_col_width = 35
+                fixed_total_width = fixed_col_count * fixed_col_width
             num_cols = len(display_columns)
-            min_col_width = 1
             if num_cols == 0:
                 return
-            # Always distribute the width exactly, with minimal col width = 1
-            col_width = int(frame_width / num_cols)
-            widths = [col_width] * num_cols
-            # Distribute any leftover pixels to the last column
-            total_width = sum(widths)
-            if total_width < frame_width:
-                widths[-1] += frame_width - total_width
-            # If too many columns, all will be 1px
+            # Build widths: fixed for first N, rest for timeline
+            widths = []
+            for i, col in enumerate(display_columns):
+                if (is_cpm and i < 6) or (not is_cpm and i < 7):
+                    widths.append(fixed_col_width)
+                else:
+                    # Timeline columns: handled below
+                    break
+            n_fixed = len(widths)
+            n_timeline = num_cols - n_fixed
+            timeline_widths = []
+            if n_timeline > 0:
+                timeline_total_width = max(frame_width - fixed_total_width, n_timeline * min_col_width)
+                timeline_col_width = int(timeline_total_width / n_timeline)
+                timeline_widths = [max(min_col_width, timeline_col_width)] * n_timeline
+                # Distribute any leftover pixels to the last timeline column
+                total_width = fixed_total_width + sum(timeline_widths)
+                if total_width < frame_width:
+                    timeline_widths[-1] += frame_width - total_width
+            widths.extend(timeline_widths)
             sheet.set_column_widths(widths)
 
         # Bind to frame resize events for live adjustment
