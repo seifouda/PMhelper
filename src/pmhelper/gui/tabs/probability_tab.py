@@ -125,11 +125,10 @@ class ProbabilityTab:
     def create_statistics_frame(self, parent):
         """Create project statistics display frame"""
         stats_frame = ttk.LabelFrame(parent, text="Project Statistics", padding="10")
-        stats_frame.pack(fill=tk.X, pady=(0, 10))
+        stats_frame.pack(fill=tk.X, pady=(0, 5))
         
         # Project duration statistics
-        self.expected_duration_label = ttk.Label(stats_frame, text="Expected Duration: --", 
-                                               font=("Arial", 10, "bold"))
+        self.expected_duration_label = ttk.Label(stats_frame, text="Expected Duration: --", font=("Arial", 10, "bold"))
         self.expected_duration_label.pack(anchor="w", pady=2)
         
         self.variance_label = ttk.Label(stats_frame, text="Project Variance: --")
@@ -142,7 +141,7 @@ class ProbabilityTab:
         self.confidence_interval_label.pack(anchor="w", pady=2)
         
         # Critical path statistics
-        ttk.Separator(stats_frame, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=10)
+        ttk.Separator(stats_frame, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=5)
         
         self.critical_path_label = ttk.Label(stats_frame, text="Critical Path Length: --")
         self.critical_path_label.pack(anchor="w", pady=2)
@@ -153,52 +152,79 @@ class ProbabilityTab:
     def create_calculator_frame(self, parent):
         """Create probability calculator frame"""
         calc_frame = ttk.LabelFrame(parent, text="Completion Probability Calculator", padding="10")
-        calc_frame.pack(fill=tk.X, pady=(0, 10))
+        calc_frame.pack(fill=tk.X, pady=(0, 5))
         
-        # Target duration input
+        # Target duration input (row 1)
         target_frame = ttk.Frame(calc_frame)
-        target_frame.pack(fill=tk.X, pady=(0, 10))
+        target_frame.pack(fill=tk.X, pady=(0, 2))
         
-        ttk.Label(target_frame, text="Target Duration:").pack(side=tk.LEFT)
+        ttk.Label(target_frame, text="Target Duration:   ").pack(side=tk.LEFT)
         self.target_duration_var = tk.StringVar()
-        target_entry = ttk.Entry(target_frame, textvariable=self.target_duration_var, width=10)
+        target_entry = ttk.Entry(target_frame, textvariable=self.target_duration_var, width=6)
         target_entry.pack(side=tk.LEFT, padx=(10, 5))
         ttk.Label(target_frame, text="days").pack(side=tk.LEFT)
         
-        # Calculate button
-        ttk.Button(calc_frame, text="Calculate Probability", 
-                  command=self.calculate_completion_probability).pack(pady=5)
+        # Calculate Probability button (moved to right of target duration field)
+        ttk.Button(target_frame, text="Calculate Probability",
+                   command=self.calculate_completion_probability).pack(side=tk.LEFT, padx=(10, 0))
+        
+        # Target percentage input and Calculate Duration button (row 2, just below target duration)
+        percent_frame = ttk.Frame(calc_frame)
+        percent_frame.pack(fill=tk.X, pady=(0, 2))
+        
+        ttk.Label(percent_frame, text="Target Percentage:").pack(side=tk.LEFT)
+        self.target_percentage_var = tk.StringVar()
+        percentage_entry = ttk.Entry(percent_frame, textvariable=self.target_percentage_var, width=6)
+        percentage_entry.pack(side=tk.LEFT, padx=(5, 0))
+        ttk.Label(percent_frame, text="%       ").pack(side=tk.LEFT)
+
+        ttk.Button(percent_frame, text="Calculate Duration",
+                   command=self.calculate_duration_for_probability).pack(side=tk.LEFT, padx=(10, 0))
+
+        # Clear Fields button (replaces old Calculate Probability button above results)
+        ttk.Button(percent_frame, text="Clear Fields",
+                   command=self.clear_calculator_fields).pack(pady=5, side=tk.RIGHT)
         
         # Results display
-        self.probability_result_label = ttk.Label(calc_frame, text="Completion Probability: --", 
-                                                font=("Arial", 10, "bold"))
+        self.probability_result_label = ttk.Label(calc_frame, text="Completion Probability: --", font=("Arial", 10, "bold"))
         self.probability_result_label.pack(anchor="w", pady=5)
+        
+        self.duration_result_label = ttk.Label(calc_frame, text="Required Duration: --", font=("Arial", 10, "bold"))
+        self.duration_result_label.pack(anchor="w", pady=2)
         
         # Common probability scenarios
         scenarios_frame = ttk.LabelFrame(calc_frame, text="Common Scenarios", padding="5")
-        scenarios_frame.pack(fill=tk.X, pady=(10, 0))
+        scenarios_frame.pack(fill=tk.X, pady=(5, 0))
         
         # Quick calculation buttons
         button_frame1 = ttk.Frame(scenarios_frame)
         button_frame1.pack(fill=tk.X, pady=2)
         
-        ttk.Button(button_frame1, text="P(≤ Expected)", width=12,
-                  command=lambda: self.quick_probability("expected")).pack(side=tk.LEFT, padx=2)
-        ttk.Button(button_frame1, text="P(≤ Expected+1σ)", width=12,
-                  command=lambda: self.quick_probability("plus_1sigma")).pack(side=tk.LEFT, padx=2)
-        
-        button_frame2 = ttk.Frame(scenarios_frame)
-        button_frame2.pack(fill=tk.X, pady=2)
-        
-        ttk.Button(button_frame2, text="P(≤ Expected-1σ)", width=12,
-                  command=lambda: self.quick_probability("minus_1sigma")).pack(side=tk.LEFT, padx=2)
-        ttk.Button(button_frame2, text="P(≤ Expected+2σ)", width=12,
-                  command=lambda: self.quick_probability("plus_2sigma")).pack(side=tk.LEFT, padx=2)
+        button_row = ttk.Frame(scenarios_frame)
+        button_row.pack(fill=tk.X, pady=2)
+
+        ttk.Button(button_row, text="Expected", width=10,
+                   command=lambda: self.quick_probability("expected")).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_row, text="+1σ", width=10,
+                   command=lambda: self.quick_probability("plus_1sigma")).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_row, text="-1σ", width=10,
+                   command=lambda: self.quick_probability("minus_1sigma")).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_row, text="+2σ", width=10,
+                   command=lambda: self.quick_probability("plus_2sigma")).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_row, text="-2σ", width=10,
+                   command=lambda: self.quick_probability("minus_2sigma")).pack(side=tk.LEFT, padx=2)
+    
+    def clear_calculator_fields(self):
+        """Clear only target duration and target percentage fields"""
+        self.target_duration_var.set("")
+        self.target_percentage_var.set("")
+        self.probability_result_label.config(text="Completion Probability: --")
+        self.duration_result_label.config(text="Required Duration: --")
     
     def create_risk_frame(self, parent):
         """Create risk analysis frame"""
         risk_frame = ttk.LabelFrame(parent, text="Risk Analysis", padding="10")
-        risk_frame.pack(fill=tk.X, pady=(0, 10))
+        risk_frame.pack(fill=tk.X, pady=(0, 5))
         
         # Risk level indicators
         self.risk_level_label = ttk.Label(risk_frame, text="Overall Risk Level: --", 
@@ -223,7 +249,7 @@ class ProbabilityTab:
         
         # Export buttons
         export_frame = ttk.Frame(parent)
-        export_frame.pack(fill=tk.X, pady=(10, 0))
+        export_frame.pack(fill=tk.X, pady=(5, 0))
         
         ttk.Button(export_frame, text="Export Analysis", 
                   command=self.export_probability_analysis).pack(side=tk.LEFT, padx=(0, 5))
@@ -234,39 +260,36 @@ class ProbabilityTab:
         """Create matplotlib plot area"""
         plot_frame = ttk.Frame(self.paned_window)
         self.paned_window.add(plot_frame, weight=2)
-        
-        # Create matplotlib figure
-        self.figure = Figure(figsize=(10, 8), dpi=100)
-        self.figure.patch.set_facecolor('white')
-        
-        # Create canvas
-        self.canvas = FigureCanvasTkAgg(self.figure, plot_frame)
-        self.canvas.draw()
-        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-        
-        # Create toolbar
-        toolbar_frame = ttk.Frame(plot_frame)
-        toolbar_frame.pack(fill=tk.X)
-        
-        self.toolbar = NavigationToolbar2Tk(self.canvas, toolbar_frame)
-        self.toolbar.update()
-        
-        # Chart type selection
+
+        # Chart controls frame (pack at TOP)
         chart_frame = ttk.Frame(plot_frame)
-        chart_frame.pack(fill=tk.X, pady=5)
-        
+        chart_frame.pack(fill=tk.X, side=tk.TOP, pady=2)
+
         ttk.Label(chart_frame, text="Chart Type:").pack(side=tk.LEFT, padx=(0, 10))
-        
+
         self.chart_type_var = tk.StringVar(value="distribution")
         chart_combo = ttk.Combobox(chart_frame, textvariable=self.chart_type_var, width=20,
                                   values=["distribution", "cumulative", "sensitivity", "monte_carlo"])
         chart_combo.pack(side=tk.LEFT, padx=(0, 10))
         chart_combo.bind('<<ComboboxSelected>>', lambda e: self.update_visualization())
-        
+
         ttk.Button(chart_frame, text="Update Chart", 
                   command=self.update_visualization).pack(side=tk.LEFT, padx=10)
-        
-        # Initialize with empty plot
+
+        # Create matplotlib figure and canvas
+        self.figure = Figure(figsize=(10, 8), dpi=100)
+        self.figure.patch.set_facecolor('white')
+
+        self.canvas = FigureCanvasTkAgg(self.figure, plot_frame)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, side=tk.TOP)
+
+        # Toolbar (optional, below chart controls)
+        toolbar_frame = ttk.Frame(plot_frame)
+        toolbar_frame.pack(fill=tk.X, side=tk.BOTTOM)
+        self.toolbar = NavigationToolbar2Tk(self.canvas, toolbar_frame)
+        self.toolbar.update()
+
         self.create_empty_plot()
     
     def create_empty_plot(self):
@@ -363,7 +386,13 @@ class ProbabilityTab:
         
         critical_variance = sum(a.get('variance', 0) for a in critical_activities)
         
-        self.critical_path_label.config(text=f"Critical Path Length: {len(critical_path)} activities")
+        # Format critical path sequence for display
+        if critical_path and isinstance(critical_path, (list, tuple)):
+            path_str = " → ".join(str(a) for a in critical_path)
+        else:
+            path_str = "--"
+        
+        self.critical_path_label.config(text=f"Critical Path Length: {len(critical_path)} activities    [Critical Path: {path_str}]")
         self.critical_variance_label.config(text=f"Critical Path Variance: {critical_variance:.3f}")
     
     def calculate_completion_probability(self):
@@ -398,6 +427,35 @@ class ProbabilityTab:
         if self.chart_type_var.get() == "distribution":
             self.update_visualization(target_duration)
     
+    def calculate_duration_for_probability(self):
+        """Calculate required duration for a given completion probability percentage"""
+        if not self.results_data:
+            messagebox.showwarning("Warning", "No analysis data available.")
+            return
+
+        try:
+            percentage = float(self.target_percentage_var.get())
+            if not (0 < percentage < 100):
+                raise ValueError
+            probability = percentage / 100.0
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid percentage between 0 and 100.")
+            return
+
+        expected_duration = self.results_data.get('expected_duration', 0)
+        std_deviation = self.results_data.get('standard_deviation', 0)
+
+        if std_deviation <= 0:
+            messagebox.showerror("Error", "Invalid standard deviation.")
+            return
+
+        # Calculate required duration using inverse normal CDF
+        duration = stats.norm.ppf(probability, expected_duration, std_deviation)
+
+        self.duration_result_label.config(
+            text=f"Required Duration: {duration:.1f} days for {percentage:.1f}% probability"
+        )
+    
     def quick_probability(self, scenario):
         """Calculate probability for common scenarios"""
         if not self.results_data:
@@ -414,11 +472,25 @@ class ProbabilityTab:
             target = expected_duration - std_deviation
         elif scenario == "plus_2sigma":
             target = expected_duration + 2 * std_deviation
+        elif scenario == "minus_2sigma":
+            target = expected_duration - 2 * std_deviation
         else:
             return
         
-        self.target_duration_var.set(f"{target:.1f}")
-        self.calculate_completion_probability()
+        # Directly calculate probability for the scenario target
+        probability = ProbabilityCalculations.calculate_completion_probability(
+            target, expected_duration, std_deviation
+        )
+        self.probability_result_label.config(
+            text=f"Completion Probability: {probability:.1%}"
+        )
+        # Optionally update chart
+        if self.chart_type_var.get() == "distribution":
+            self.update_visualization(target)
+        
+        
+        # self.target_duration_var.set(f"{target:.1f}")
+        # self.calculate_completion_probability()
     
     def update_visualization(self, target_duration=None):
         """Update the probability visualization"""
