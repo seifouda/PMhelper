@@ -26,6 +26,7 @@ from .tabs.pert_diagram_tab import PertDiagramTab
 from .tabs.gantt_tab import GanttTab
 from .tabs.probability_tab import ProbabilityTab
 from .tabs.rcps_tab import RCPSTab
+from .tabs.crashing_tab import CrashingTab
 
 
 class MainWindow:
@@ -117,6 +118,8 @@ class MainWindow:
         self.gantt_tab = GanttTab(self.notebook, self)
         self.probability_tab = ProbabilityTab(self.notebook, self)
         self.rcps_tab = None
+        self.crashing_tab = CrashingTab(self.notebook, self)
+        self.notebook.add(self.crashing_tab, text="Crashing")
         
         # CRITICAL FIX 3: Add tab communication event handling
         self.setup_tab_communication()
@@ -139,15 +142,12 @@ class MainWindow:
     
     def setup_tab_communication(self):
         """CRITICAL FIX 3: Setup automatic tab communication and event handling"""
-        try:
-            if hasattr(self, 'notebook'):
-                # Bind tab selection event for automatic chart updates
-                self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_selected)
-                print("DEBUG: Tab communication event handling setup completed")
-            else:
-                print("WARNING: Notebook not available for tab communication setup")
-        except Exception as e:
-            print(f"ERROR: Failed to setup tab communication: {e}")
+        if hasattr(self, 'notebook'):
+            # Bind tab selection event for automatic chart updates
+            self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_selected)
+            print("DEBUG: Tab communication event handling setup completed")
+        else:
+            print("WARNING: Notebook not available for tab communication setup")
 
     def on_tab_selected(self, event):
         """CRITICAL FIX 3: Handle tab selection events for automatic chart updates"""
@@ -569,10 +569,53 @@ class MainWindow:
             self.set_status("Analysis failed")
             messagebox.showerror("Error", f"Analysis failed: {str(e)}")
     
+    # def show_crashing_tab(self):
+    #     """Show the project crashing tab (ENABLED)"""
+
+    #     # Robust import: add code/ to sys.path if needed
+    #     import sys, os
+    #     code_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../code'))
+    #     if code_dir not in sys.path:
+    #         sys.path.insert(0, code_dir)
+    #     try:
+    #         from enhanced_crashing_integration import integrate_enhanced_crashing
+    #     except ImportError:
+    #         messagebox.showerror("Error", "Enhanced Project Crashing integration module not found.")
+    #         return
+
+    #     # Integrate enhanced crashing tabs if not already present
+    #     if not hasattr(self, 'enhanced_crashing_manager') or self.enhanced_crashing_manager is None:
+    #         try:
+    #             self.enhanced_crashing_manager = integrate_enhanced_crashing(self)
+    #             if self.enhanced_crashing_manager:
+    #                 self.set_status("Enhanced Project Crashing features enabled.")
+    #             else:
+    #                 messagebox.showerror("Error", "Failed to enable Enhanced Project Crashing features.")
+    #                 return
+    #         except Exception as e:
+    #             messagebox.showerror("Error", f"Failed to enable Enhanced Project Crashing: {e}")
+    #             return
+
+    #     # Switch to the Enhanced Crashing tab
+    #     for i in range(self.notebook.index('end')):
+    #         tab_text = self.notebook.tab(i, 'text')
+    #         if 'Enhanced Crashing' in tab_text:
+    #             self.notebook.select(i)
+    #             return
+    #     # If not found, show info
+    #     messagebox.showinfo("Info", "Enhanced Crashing tab not found. Please check integration.")
+    
     def show_crashing_tab(self):
-        """Show the project crashing tab"""
-        # This would be implemented when crashing functionality is added
-        messagebox.showinfo("Info", "Project crashing functionality will be available in future versions.")
+        """Show the project crashing tab (NO MENU CHANGES, just switch tab if exists)"""
+        # Switch to the Enhanced Crashing tab
+        for i in range(self.notebook.index('end')):
+            tab_text = self.notebook.tab(i, 'text')
+            if 'Crashing' in tab_text:
+                self.notebook.select(i)
+                return
+        # If not found, show info
+        messagebox.showinfo("Info", "Crashing tab not found. Please check integration.")
+    
     
     def show_rcps_tab(self):
         """Show the resource-constrained project scheduling tab"""

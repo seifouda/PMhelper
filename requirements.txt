@@ -15,6 +15,9 @@ networkx>=2.6
 # Visualization
 matplotlib>=3.4.0
 
+# Interactive Visualization
+plotly>=5.0.0
+
 # Table Formatting
 tabulate>=0.8.9
 
