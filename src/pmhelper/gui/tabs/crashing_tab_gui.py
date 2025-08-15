@@ -105,20 +105,296 @@ class CrashingTabGUIManager:
         self.metrics_text.delete('1.0', tk.END)
         self.metrics_text.insert('1.0', str(result.efficiency_metrics))
 
+    # def update_visualization(self, result):
+    #     """Update the matplotlib plots with the new crashing analysis results."""
+    #     # Clear previous step data
+    #     self.step_graphs = []
+        
+    #     print(f"[DEBUG] Crashing result: {result}")
+    #     print(f"[DEBUG] Crash log: {getattr(result, 'crash_log', 'No crash_log')}")
+        
+    #     if result and hasattr(result, 'crash_log') and result.crash_log:
+    #         # Extract step graphs from crash_log
+    #         for i, step_data in enumerate(result.crash_log):
+    #             step_num = i
+    #             activity = step_data.get('activity', 'Unknown') if isinstance(step_data, dict) else 'Unknown'
+    #             new_duration = step_data.get('new_duration', 0) if isinstance(step_data, dict) else 0
+    #             G_step = step_data.get('graph', None) if isinstance(step_data, dict) else None
+                
+    #             if G_step:
+    #                 self.step_graphs.append((step_num, activity, new_duration, G_step))
+        
+    #     print(f"[DEBUG] Step graphs populated: {len(self.step_graphs)}")
+        
+    #     # Update navigation controls
+    #     self.total_steps = len(self.step_graphs)
+    #     self.step_select_spinbox.config(to=max(0, self.total_steps-1))
+        
+    #     # Show first step if available
+    #     if self.step_graphs:
+    #         self.show_step(0)
+    #     else:
+    #         # Clear visualization frame
+    #         for widget in self.step_display_frame.winfo_children():
+    #             widget.destroy()
+    #         # Show "No visualization data" message
+    #         tk.Label(self.step_display_frame, text="No visualization data available").pack()
+
+    # def update_visualization(self, result):
+    #     """Update the matplotlib plots with the new crashing analysis results."""
+    #     # Clear previous step data
+    #     self.step_graphs = []
+        
+    #     print(f"[DEBUG] Crashing result: {result}")
+    #     print(f"[DEBUG] Crash log: {getattr(result, 'crash_log', 'No crash_log')}")
+        
+    #     # Try to get a base project graph from the application/analyzer to synthesize step graphs
+    #     base_graph = None
+    #     base_analyzer = getattr(self.app, "current_analyzer", None) or getattr(self.app, "base_analyzer", None)
+    #     if base_analyzer is not None and hasattr(base_analyzer, 'graph'):
+    #         try:
+    #             base_graph = getattr(base_analyzer, 'graph')
+    #         except Exception:
+    #             base_graph = None
+        
+    #     # DEBUG: inspect base_graph and node labels/types
+    #     print(f"[DEBUG] base_graph is None? {base_graph is None}")
+    #     if base_graph is not None:
+    #         try:
+    #             nodes_list = list(base_graph.nodes())
+    #             print(f"[DEBUG] base_graph type: {type(base_graph)}, nodes_count: {len(nodes_list)}")
+    #             print(f"[DEBUG] base_graph nodes repr: {[repr(n) for n in nodes_list]}")
+    #             # show types of the first few node labels
+    #             print(f"[DEBUG] base_graph node types sample: {[type(n) for n in nodes_list[:10]]}")
+    #         except Exception as _e:
+    #             print(f"[DEBUG] Error inspecting base_graph nodes: {_e}")
+        
+    #     if result and hasattr(result, 'crash_log') and result.crash_log:
+    #         # Extract step graphs from crash_log; if an entry lacks a 'graph' key, synthesize one
+    #         for i, step_data in enumerate(result.crash_log):
+    #             step_num = i
+    #             activity = step_data.get('activity', 'Unknown') if isinstance(step_data, dict) else 'Unknown'
+    #             # prefer explicit new_duration, fallback to 'duration' key in crash_log entry
+    #             new_duration = step_data.get('new_duration', None) if isinstance(step_data, dict) else None
+    #             if new_duration is None:
+    #                 new_duration = step_data.get('duration', None) if isinstance(step_data, dict) else None
+    #             G_step = step_data.get('graph', None) if isinstance(step_data, dict) else None
+                
+    #             # Synthesize a graph for visualization when none provided, using base_graph as template
+    #             if G_step is None and base_graph is not None:
+    #                 try:
+    #                     G_step = base_graph.copy()
+    #                     # Apply duration update for the crashed activity if present
+    #                     if activity in G_step.nodes():
+    #                         if new_duration is not None:
+    #                             G_step.nodes[activity]['duration'] = new_duration
+    #                     # Mark critical nodes if crash log provides a critical_path
+    #                     cp = step_data.get('critical_path', None) if isinstance(step_data, dict) else None
+    #                     if cp:
+    #                         for n in G_step.nodes():
+    #                             # float == 0 indicates critical
+    #                             G_step.nodes[n]['float'] = 0 if n in cp else G_step.nodes[n].get('float', 1)
+    #                     else:
+    #                         # Ensure nodes have a 'float' attribute (non-critical default)
+    #                         for n in G_step.nodes():
+    #                             if 'float' not in G_step.nodes[n]:
+    #                                 G_step.nodes[n]['float'] = G_step.nodes[n].get('float', 1)
+    #                 except Exception as e:
+    #                     print(f"[DEBUG] Failed to synthesize G_step for step {step_num}: {e}")
+    #                     G_step = None
+                
+    #             if G_step:
+    #                 self.step_graphs.append((step_num, activity, new_duration if new_duration is not None else 0, G_step))
+        
+    #     print(f"[DEBUG] Step graphs populated: {len(self.step_graphs)}")
+        
+    #     # Update navigation controls
+    #     self.total_steps = len(self.step_graphs)
+    #     self.step_select_spinbox.config(to=max(0, self.total_steps-1))
+        
+    #     # Show first step if available
+    #     if self.step_graphs:
+    #         self.show_step(0)
+    #     else:
+    #         # Clear visualization frame
+    #         for widget in self.step_display_frame.winfo_children():
+    #             widget.destroy()
+    #         # Show "No visualization data" message
+    #         tk.Label(self.step_display_frame, text="No visualization data available").pack()
+
+    
+    
+    # def update_visualization(self, result):
+    #     """Update the matplotlib plots with the new crashing analysis results."""
+    #     # Clear previous step data
+    #     self.step_graphs = []
+        
+    #     print(f"[DEBUG] Crashing result: {result}")
+    #     print(f"[DEBUG] Crash log: {getattr(result, 'crash_log', 'No crash_log')}")
+        
+    #     # Prefer any graph produced by the crashing run (CrashingResult.crashed_graph),
+    #     # then fall back to analyzer.graph if available.
+    #     base_graph = None
+    #     if hasattr(result, 'crashed_graph') and getattr(result, 'crashed_graph', None) is not None:
+    #         base_graph = getattr(result, 'crashed_graph')
+    #         print("[DEBUG] Using result.crashed_graph for visualization")
+    #     else:
+    #         base_analyzer = getattr(self.app, "current_analyzer", None) or getattr(self.app, "base_analyzer", None)
+    #         if base_analyzer is not None:
+    #             if hasattr(base_analyzer, 'graph'):
+    #                 try:
+    #                     base_graph = getattr(base_analyzer, 'graph')
+    #                 except Exception:
+    #                     base_graph = None
+    #             elif hasattr(base_analyzer, 'crashed_graph'):
+    #                 base_graph = getattr(base_analyzer, 'crashed_graph')
+        
+    #     print(f"[DEBUG] base_graph is None? {base_graph is None}")
+    #     if base_graph is not None:
+    #         try:
+    #             nodes_list = list(base_graph.nodes())
+    #             print(f"[DEBUG] base_graph type: {type(base_graph)}, nodes_count: {len(nodes_list)}")
+    #             print(f"[DEBUG] base_graph nodes repr: {[repr(n) for n in nodes_list]}")
+    #             print(f"[DEBUG] base_graph node types sample: {[type(n) for n in nodes_list[:10]]}")
+    #         except Exception as _e:
+    #             print(f"[DEBUG] Error inspecting base_graph nodes: {_e}")
+        
+    #     if result and hasattr(result, 'crash_log') and result.crash_log:
+    #         # Extract step graphs from crash_log; if an entry lacks a 'graph' key, synthesize one
+    #         for i, step_data in enumerate(result.crash_log):
+    #             step_num = i
+    #             activity = step_data.get('activity', 'Unknown') if isinstance(step_data, dict) else 'Unknown'
+    #             new_duration = step_data.get('new_duration', None) if isinstance(step_data, dict) else None
+    #             if new_duration is None:
+    #                 new_duration = step_data.get('duration', None) if isinstance(step_data, dict) else None
+    #             G_step = step_data.get('graph', None) if isinstance(step_data, dict) else None
+                
+    #             # Use base_graph (prefer result.crashed_graph) to synthesize step diagram when needed
+    #             if G_step is None and base_graph is not None:
+    #                 try:
+    #                     G_step = base_graph.copy()
+    #                     # Apply duration update for the crashed activity if present
+    #                     if activity in G_step.nodes():
+    #                         if new_duration is not None:
+    #                             G_step.nodes[activity]['duration'] = new_duration
+    #                     # Mark critical nodes if crash log provides a critical_path
+    #                     cp = step_data.get('critical_path', None) if isinstance(step_data, dict) else None
+    #                     if cp:
+    #                         for n in G_step.nodes():
+    #                             G_step.nodes[n]['float'] = 0 if n in cp else G_step.nodes[n].get('float', 1)
+    #                     else:
+    #                         for n in G_step.nodes():
+    #                             if 'float' not in G_step.nodes[n]:
+    #                                 G_step.nodes[n]['float'] = G_step.nodes[n].get('float', 1)
+    #                 except Exception as e:
+    #                     print(f"[DEBUG] Failed to synthesize G_step for step {step_num}: {e}")
+    #                     G_step = None
+                
+    #             if G_step:
+    #                 self.step_graphs.append((step_num, activity, new_duration if new_duration is not None else 0, G_step))
+        
+    #     print(f"[DEBUG] Step graphs populated: {len(self.step_graphs)}")
+        
+    #     # Update navigation controls
+    #     self.total_steps = len(self.step_graphs)
+    #     self.step_select_spinbox.config(to=max(0, self.total_steps-1))
+        
+    #     # Show first step if available
+    #     if self.step_graphs:
+    #         self.show_step(0)
+    #     else:
+    #         # Clear visualization frame
+    #         for widget in self.step_display_frame.winfo_children():
+    #             widget.destroy()
+    #         # Show "No visualization data" message
+    #         tk.Label(self.step_display_frame, text="No visualization data available").pack()
+    
+    
     def update_visualization(self, result):
-        """
-        Update the matplotlib plots with the new crashing analysis results.
-        """
-        # Step-by-step visualization: show first step if available
-        if hasattr(self, 'step_graphs') and self.step_graphs:
+        """Update the matplotlib plots with the new crashing analysis results."""
+        # Clear previous step data
+        self.step_graphs = []
+        
+        print(f"[DEBUG] Crashing result: {result}")
+        print(f"[DEBUG] Crash log: {getattr(result, 'crash_log', 'No crash_log')}")
+        
+        # Prefer any graph produced by the crashing run (CrashingResult.crashed_graph),
+        # then fall back to analyzer.graph if available.
+        base_graph = None
+        if hasattr(result, 'crashed_graph') and getattr(result, 'crashed_graph', None) is not None:
+            base_graph = getattr(result, 'crashed_graph')
+            print("[DEBUG] Using result.crashed_graph for visualization")
+        else:
+            base_analyzer = getattr(self.app, "current_analyzer", None) or getattr(self.app, "base_analyzer", None)
+            if base_analyzer is not None:
+                if hasattr(base_analyzer, 'graph'):
+                    try:
+                        base_graph = getattr(base_analyzer, 'graph')
+                    except Exception:
+                        base_graph = None
+                elif hasattr(base_analyzer, 'crashed_graph'):
+                    base_graph = getattr(base_analyzer, 'crashed_graph')
+        
+        print(f"[DEBUG] base_graph is None? {base_graph is None}")
+        if base_graph is not None:
+            try:
+                nodes_list = list(base_graph.nodes())
+                print(f"[DEBUG] base_graph type: {type(base_graph)}, nodes_count: {len(nodes_list)}")
+                print(f"[DEBUG] base_graph nodes repr: {[repr(n) for n in nodes_list]}")
+                print(f"[DEBUG] base_graph node types sample: {[type(n) for n in nodes_list[:10]]}")
+            except Exception as _e:
+                print(f"[DEBUG] Error inspecting base_graph nodes: {_e}")
+        
+        if result and hasattr(result, 'crash_log') and result.crash_log:
+            # Extract step graphs from crash_log; if an entry lacks a 'graph' key, synthesize one
+            for i, step_data in enumerate(result.crash_log):
+                step_num = i
+                activity = step_data.get('activity', 'Unknown') if isinstance(step_data, dict) else 'Unknown'
+                new_duration = step_data.get('new_duration', None) if isinstance(step_data, dict) else None
+                if new_duration is None:
+                    new_duration = step_data.get('duration', None) if isinstance(step_data, dict) else None
+                G_step = step_data.get('graph', None) if isinstance(step_data, dict) else None
+                
+                # Use base_graph (prefer result.crashed_graph) to synthesize step diagram when needed
+                if G_step is None and base_graph is not None:
+                    try:
+                        G_step = base_graph.copy()
+                        # Apply duration update for the crashed activity if present
+                        if activity in G_step.nodes():
+                            if new_duration is not None:
+                                G_step.nodes[activity]['duration'] = new_duration
+                        # Mark critical nodes if crash log provides a critical_path
+                        cp = step_data.get('critical_path', None) if isinstance(step_data, dict) else None
+                        if cp:
+                            for n in G_step.nodes():
+                                G_step.nodes[n]['float'] = 0 if n in cp else G_step.nodes[n].get('float', 1)
+                        else:
+                            for n in G_step.nodes():
+                                if 'float' not in G_step.nodes[n]:
+                                    G_step.nodes[n]['float'] = G_step.nodes[n].get('float', 1)
+                    except Exception as e:
+                        print(f"[DEBUG] Failed to synthesize G_step for step {step_num}: {e}")
+                        G_step = None
+                
+                if G_step:
+                    self.step_graphs.append((step_num, activity, new_duration if new_duration is not None else 0, G_step))
+        
+        print(f"[DEBUG] Step graphs populated: {len(self.step_graphs)}")
+        
+        # Update navigation controls
+        self.total_steps = len(self.step_graphs)
+        self.step_select_spinbox.config(to=max(0, self.total_steps-1))
+        
+        # Show first step if available
+        if self.step_graphs:
             self.show_step(0)
         else:
-            # Clear previous plots if no steps
-            for ax in self.axes.flatten():
-                ax.clear()
-            self.fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-            self.canvas.draw()
-
+            # Clear visualization frame
+            for widget in self.step_display_frame.winfo_children():
+                widget.destroy()
+            # Show "No visualization data" message
+            tk.Label(self.step_display_frame, text="No visualization data available").pack()
+    
     def export_results(self):
         """
         Export the current crashing results to a file.
@@ -213,29 +489,29 @@ class CrashingTabGUIManager:
 
         # Results Section
         results_frame = ttk.LabelFrame(self.tab, text="Crashing Results")
-        results_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        results_frame.pack(fill=tk.X, expand=False, padx=5, pady=5)
 
         self.results_notebook = ttk.Notebook(results_frame)
-        self.results_notebook.pack(fill=tk.BOTH, expand=True)
+        self.results_notebook.pack(fill=tk.X, expand=False, pady=5)
 
         summary_frame = ttk.Frame(self.results_notebook)
         self.results_notebook.add(summary_frame, text="Summary")
         self.summary_text = scrolledtext.ScrolledText(
-            summary_frame, wrap=tk.WORD, height=10, width=80
+            summary_frame, wrap=tk.WORD, height=6, width=80
         )
         self.summary_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         log_frame = ttk.Frame(self.results_notebook)
         self.results_notebook.add(log_frame, text="Detailed Log")
         self.log_text = scrolledtext.ScrolledText(
-            log_frame, wrap=tk.WORD, height=10, width=80
+            log_frame, wrap=tk.WORD, height=6, width=80
         )
         self.log_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         metrics_frame = ttk.Frame(self.results_notebook)
         self.results_notebook.add(metrics_frame, text="Metrics")
         self.metrics_text = scrolledtext.ScrolledText(
-            metrics_frame, wrap=tk.WORD, height=10, width=80
+            metrics_frame, wrap=tk.WORD, height=6, width=80
         )
         self.metrics_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
@@ -243,33 +519,11 @@ class CrashingTabGUIManager:
         viz_frame = ttk.LabelFrame(self.tab, text="Crashing Visualization")
         viz_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        self.fig, self.axes = plt.subplots(2, 2, figsize=(12, 8))
-        self.fig.suptitle("Crashing Analysis")
-
-        self.axes[0, 0].set_title("Cost vs Duration Reduction")
-        self.axes[0, 0].set_xlabel("Duration Reduction")
-        self.axes[0, 0].set_ylabel("Crash Cost")
-
-        self.axes[0, 1].set_title("Crashing Efficiency")
-        self.axes[0, 1].set_xlabel("Iteration")
-        self.axes[0, 1].set_ylabel("Efficiency Score")
-
-        self.axes[1, 0].set_title("Activity Crash Frequency")
-        self.axes[1, 0].set_xlabel("Activities")
-        self.axes[1, 0].set_ylabel("Times Crashed")
-
-        self.axes[1, 1].set_title("Cumulative Cost")
-        self.axes[1, 1].set_xlabel("Iteration")
-        self.axes[1, 1].set_ylabel("Cumulative Cost")
-
-        self.canvas = FigureCanvasTkAgg(self.fig, viz_frame)
-        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+    # Removed old chart code. Network diagram will be shown in step_display_frame only.
         # --- Step Visualization State and Navigation ---
         self.step_graphs = []  # List of (step_num, activity, new_duration, G_step)
         self.current_step = 0
         self.total_steps = 0
-        self.step_display_frame = ttk.Frame(viz_frame)
-        self.step_display_frame.pack(fill=tk.BOTH, expand=True)
         # Navigation controls
         nav_frame = ttk.Frame(viz_frame)
         nav_frame.pack(fill=tk.X, side=tk.BOTTOM)
@@ -286,26 +540,9 @@ class CrashingTabGUIManager:
                             command=self.show_selected_step)
         self.step_select_spinbox.pack(side=tk.LEFT, padx=2)
         ttk.Button(nav_frame, text="Show All Steps", command=self.show_all_steps_grid).pack(side=tk.RIGHT, padx=2)
-        self.current_step = 0
-        self.total_steps = 0
+        
         self.step_display_frame = ttk.Frame(viz_frame)
         self.step_display_frame.pack(fill=tk.BOTH, expand=True)
-        # Navigation controls
-        nav_frame = ttk.Frame(viz_frame)
-        nav_frame.pack(fill=tk.X, side=tk.BOTTOM)
-        ttk.Button(nav_frame, text="◀◀ First", command=self.show_first_step).pack(side=tk.LEFT, padx=2)
-        ttk.Button(nav_frame, text="◀ Previous", command=self.show_previous_step).pack(side=tk.LEFT, padx=2)
-        self.step_info_label = ttk.Label(nav_frame, text="Step 0 of 0")
-        self.step_info_label.pack(side=tk.LEFT, padx=10)
-        ttk.Button(nav_frame, text="Next ▶", command=self.show_next_step).pack(side=tk.LEFT, padx=2)
-        ttk.Button(nav_frame, text="Last ▶▶", command=self.show_last_step).pack(side=tk.LEFT, padx=2)
-        ttk.Label(nav_frame, text="Go to step:").pack(side=tk.LEFT, padx=(20, 5))
-        self.step_select_var = tk.StringVar(value="0")
-        self.step_select_spinbox = ttk.Spinbox(nav_frame, from_=0, to=0, width=5,
-                            textvariable=self.step_select_var,
-                            command=self.show_selected_step)
-        self.step_select_spinbox.pack(side=tk.LEFT, padx=2)
-        ttk.Button(nav_frame, text="Show All Steps", command=self.show_all_steps_grid).pack(side=tk.RIGHT, padx=2)
 
     # --- CPM Crashing Step Visualization Integration ---
     def _draw_network_diagram_on_ax(self, ax, G):
