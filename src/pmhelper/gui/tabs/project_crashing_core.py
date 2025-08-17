@@ -110,119 +110,91 @@ class ProjectCrashing:
 
         # Initial CPM calculation
         # Use a local forward_pass for project crashing to ensure ES/EF are recalculated using current durations
-        def _crash_forward_pass(G):
-            for n in nx.topological_sort(G):
-                preds = list(G.predecessors(n))
-                if preds:
-                    G.nodes[n]['ES'] = max(G.nodes[p]['EF'] for p in preds)
-                else:
-                    G.nodes[n]['ES'] = 0
-                G.nodes[n]['EF'] = G.nodes[n]['ES'] + G.nodes[n]['duration']
-        _crash_forward_pass(G)
-        if hasattr(analyzer, 'backward_pass'): analyzer.backward_pass(G)
-        if hasattr(analyzer, 'calculate_float'): analyzer.calculate_float(G)
+        # --- PROMPT: CPM recalculation now uses NetworkBuilder for consistency ---
+        # Use CPM logic from cpm_analyzer.py (forward_pass, backward_pass, calculate_float)
+        network_builder = getattr(analyzer, 'network_builder', None)
+        if network_builder is None:
+            from src.pmhelper.core.network_builder import NetworkBuilder
+            network_builder = NetworkBuilder()
+        G = network_builder.forward_pass(G)
+        G = network_builder.backward_pass(G)
+        G = network_builder.calculate_float(G)
         # Use max EF for project duration
         ef_dict = nx.get_node_attributes(G, 'EF')
         original_duration = int(round(max(ef_dict.values()))) if ef_dict else 0
         current_duration = original_duration
-
-
-        # Main crashing loop: stop immediately if current_duration <= target_duration after each crash
-        while (target_duration is None or current_duration > target_duration):
-            print(f"[DEBUG] Iteration {iterations}: current_duration={current_duration}, target_duration={target_duration}")
-            # Debug: print durations of all activities before crash
+        current_time = 1
+        completed_activities = set()
+        while current_duration > target_duration and iterations < max_iterations:
+            print(f"[DEBUG] Iteration {iterations}: current_duration={current_duration}, target_duration={target_duration}, current_time={current_time}")
             print(f"[DEBUG] Activity durations before crash: {[ (n, G.nodes[n].get('duration', '?')) for n in G.nodes ]}")
-            if max_iterations is not None and iterations >= max_iterations:
-                termination_reason = 'Max iterations reached'
-                break
-            # Find critical path
-            if hasattr(analyzer, 'find_critical_path'):
-                critical_path = analyzer.find_critical_path(G)
-            else:
-                # fallback: path with max EF
-                end_node = max(G.nodes, key=lambda n: G.nodes[n].get('EF', 0))
-                critical_path = nx.shortest_path(G, source=list(G.nodes)[0], target=end_node)
-
-            # Find crashable activities on critical path
+            # Mark completed activities (EF <= current_time)
+            completed_activities = {n for n in G.nodes if G.nodes[n].get('EF', 0) <= current_time}
+            print(f"[DEBUG] Completed activities at time {current_time}: {completed_activities}")
+            # Build crashable list: critical path, not completed, not at min duration, crash_cost > 0, EF > current_time
             crashable = []
-            for node in critical_path:
-                data = G.nodes[node]
-                dur = int(round(data.get('duration', 0)))
-                min_dur = int(round(data.get('min_duration', dur)))
-                crash_cost = data.get('crash_cost', 0)
-                normal_cost = data.get('normal_cost', 0)
-                ef = int(round(data.get('EF', 0)))
-                # Only crash if activity is not finished (iteration < EF)
-                if dur > min_dur and crash_cost > 0 and iterations < ef:
-                    crashable.append((node, crash_cost, dur, min_dur, normal_cost))
-            print(f"[DEBUG] Crashable activities: {crashable}")
-
+            for node in G.nodes:
+                if (
+                    G.nodes[node].get('float', 0) == 0
+                    and node not in ['START', 'END']
+                    and node not in completed_activities
+                ):
+                    data = G.nodes[node]
+                    dur = int(round(data.get('duration', 0)))
+                    min_dur = int(round(data.get('min_duration', dur)))
+                    crash_cost = data.get('crash_cost', 0)
+                    normal_cost = data.get('normal_cost', 0)
+                    ef = int(round(data.get('EF', 0)))
+                    # Only crash if duration > min_duration and crash_cost > 0 and EF strictly greater than current_time
+                    if dur > min_dur and crash_cost > 0 and ef > current_time:
+                        crashable.append((node, crash_cost, dur, min_dur, normal_cost, ef))
+            print(f"[DEBUG] Crashable activities (filtered for critical path, in-progress): {crashable}")
             if not crashable:
                 print("[DEBUG] No more crashable activities on critical path. Stopping.")
                 termination_reason = 'No more crashable activities on critical path'
                 break
-
-            # Select activity with lowest crash cost per unit
+            # Prioritize only truly crashable activities by lowest crash cost
             crashable.sort(key=lambda x: x[1])
-            node, crash_cost, dur, min_dur, normal_cost = crashable[0]
-            crash_amount = min(1, dur - min_dur)  # Crash by 1 unit (int) or to min
+            # Find the first crashable activity that is eligible (EF strictly greater than current_time)
+            selected = None
+            for candidate in crashable:
+                node, crash_cost, dur, min_dur, normal_cost, ef = candidate
+                if dur > min_dur and crash_cost > 0 and ef > current_time:
+                    selected = candidate
+                    break
+            if selected is None:
+                print("[DEBUG] No eligible crashable activity found after sorting. Skipping iteration.")
+                continue
+            node, crash_cost, dur, min_dur, normal_cost, ef = selected
+            if dur <= min_dur:
+                print(f"[DEBUG] Activity {node} is already at minimum duration ({min_dur}). Skipping.")
+                continue
+            crash_amount = min(1, dur - min_dur)
             cost = crash_cost * crash_amount
-            print(f"[DEBUG] Crashing activity {node}: crash_amount={crash_amount}, cost={cost}, dur={dur}, min_dur={min_dur}")
+            print(f"[DEBUG] Crashing activity {node}: crash_amount={crash_amount}, cost={cost}, dur={dur}, min_dur={min_dur}, EF={ef}")
             if max_budget is not None and (total_crash_cost + cost) > max_budget:
                 print(f"[DEBUG] Max budget reached. Stopping. total_crash_cost={total_crash_cost}, cost={cost}, max_budget={max_budget}")
                 termination_reason = 'Max budget reached'
                 break
-
-            # Apply crash (ensure int)
-            G.nodes[node]['duration'] = int(round(G.nodes[node]['duration'])) - crash_amount
+            # Update duration, ensuring it does not go below min_dur
+            new_duration = max(min_dur, dur - crash_amount)
+            print(f"[DEBUG] Setting duration of {node} to {new_duration} (was {dur})")
+            G.nodes[node]['duration'] = new_duration
             G.nodes[node]['crash_cost'] = crash_cost
             G.nodes[node]['normal_cost'] = normal_cost
             total_crash_cost += cost
             iterations += 1
             print(f"[DEBUG] Activity durations after crash: {[ (n, G.nodes[n].get('duration', '?')) for n in G.nodes ]}")
             print(f"[DEBUG] Recalculating CPM after crash...")
-
-
-            # Recalculate CPM (ES, EF, LS, LF, float) after each crash
-            _crash_forward_pass(G)
-            if hasattr(analyzer, 'backward_pass'): analyzer.backward_pass(G)
-            if hasattr(analyzer, 'calculate_float'): analyzer.calculate_float(G)
-
-            # Explicitly update END node ES/EF after CPM recalculation
-            if 'END' in G.nodes:
-                preds = list(G.predecessors('END'))
-                if preds:
-                    G.nodes['END']['ES'] = max(G.nodes[p]['EF'] for p in preds)
-                else:
-                    G.nodes['END']['ES'] = 0
-                G.nodes['END']['EF'] = G.nodes['END']['ES']
-                print(f"[DEBUG] [EXPLICIT] END node ES set to: {G.nodes['END']['ES']}, EF set to: {G.nodes['END']['EF']}")
-                print("[DEBUG] END node predecessors and their EF/duration:")
-                for p in preds:
-                    print(f"  {p}: EF={G.nodes[p]['EF']}, duration={G.nodes[p]['duration']}")
-
-            # Debug: print CPM values for all activities
-            es_dict = nx.get_node_attributes(G, 'ES')
+            # Recalculate CPM using NetworkBuilder
+            G = network_builder.forward_pass(G)
+            G = network_builder.backward_pass(G)
+            G = network_builder.calculate_float(G)
             ef_dict = nx.get_node_attributes(G, 'EF')
-            ls_dict = nx.get_node_attributes(G, 'LS')
-            lf_dict = nx.get_node_attributes(G, 'LF')
-            float_dict = nx.get_node_attributes(G, 'float')
-            print("[DEBUG] CPM values after recalculation:")
-            for n in G.nodes:
-                print(f"  Activity {n}: ES={es_dict.get(n)}, EF={ef_dict.get(n)}, LS={ls_dict.get(n)}, LF={lf_dict.get(n)}, float={float_dict.get(n)}")
-            if 'END' in ef_dict:
-                print(f"[DEBUG] END node EF after recalculation: {ef_dict['END']}")
             current_duration = int(round(max(ef_dict.values()))) if ef_dict else 0
             print(f"[DEBUG] Project duration after CPM recalculation: {current_duration}")
-
-            # Stop immediately if target duration is reached or exceeded (before logging step)
             print(f"[DEBUG] After crash: current_duration={current_duration}, target_duration={target_duration}")
-            if target_duration is not None and current_duration <= target_duration:
-                print(f"[DEBUG] Target duration reached. Stopping. current_duration={current_duration}, target_duration={target_duration}")
-                termination_reason = 'Target duration reached'
-                break
-
-            # Log step (ensure int for durations)
+            # Record crash log BEFORE incrementing current_time
             crash_log.append({
                 'iteration': iterations,
                 'activity': node,
@@ -231,21 +203,26 @@ class ProjectCrashing:
                 'duration': int(round(G.nodes[node]['duration'])),
                 'current_project_duration': current_duration,
                 'total_crash_cost': total_crash_cost,
-                'critical_path': list(critical_path),
-                'normal_cost': normal_cost
+                'critical_path': [n for n in G.nodes if G.nodes[n].get('float', 0) == 0 and n not in ['START', 'END']],
+                'normal_cost': normal_cost,
+                'EF': ef,
+                'current_time': current_time  # This shows the time when the decision was made
             })
-
+            # Advance simulation time
+            current_time += 1
+            if target_duration is not None and current_duration <= target_duration:
+                print(f"[DEBUG] Target duration reached. Stopping. current_duration={current_duration}, target_duration={target_duration}")
+                termination_reason = 'Target duration reached'
+                break
         if not termination_reason:
             if target_duration is not None and current_duration <= target_duration:
                 termination_reason = 'Target duration reached'
             else:
                 termination_reason = 'Completed'
-
         computation_time = time_mod.time() - start_time
         final_duration = current_duration
         total_normal_cost = sum(G.nodes[n].get('normal_cost', 0) for n in G.nodes)
         efficiency_metrics = {'cost_per_unit_time': total_crash_cost / (original_duration - final_duration) if final_duration < original_duration else 0}
-
         return CrashingResult(
             crashed_graph=G,
             original_duration=original_duration,
