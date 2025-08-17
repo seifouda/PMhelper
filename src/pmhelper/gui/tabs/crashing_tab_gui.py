@@ -16,7 +16,7 @@ from .project_crashing_core import (
     ProjectCrashing, RCPSProjectCrashing, CrashingStrategy, OptimizationObjective, CrashingResult,
     compare_crashing_results, generate_crashing_report
 )
-from .crashing_visualization import draw_network_diagram_on_ax, draw_network_diagram_on_ax_small
+from pmhelper.core.crashing_visualization import draw_network_diagram_on_ax, draw_network_diagram_on_ax_small
 
 class CrashingTabGUIManager:
     def run_crashing(self):
@@ -318,22 +318,53 @@ class CrashingTabGUIManager:
         print(f"[DEBUG] Crashing result: {result}")
         print(f"[DEBUG] Crash log: {getattr(result, 'crash_log', 'No crash_log')}")
         
-        # Prefer any graph produced by the crashing run (CrashingResult.crashed_graph),
-        # then fall back to analyzer.graph if available.
+        # Use the ORIGINAL network from base_analyzer for step visualization,
+        # NOT the crashed network, to ensure initial state shows uncrashed network
         base_graph = None
-        if hasattr(result, 'crashed_graph') and getattr(result, 'crashed_graph', None) is not None:
-            base_graph = getattr(result, 'crashed_graph')
-            print("[DEBUG] Using result.crashed_graph for visualization")
-        else:
-            base_analyzer = getattr(self.app, "current_analyzer", None) or getattr(self.app, "base_analyzer", None)
-            if base_analyzer is not None:
-                if hasattr(base_analyzer, 'graph'):
+        base_analyzer = getattr(self.app, "current_analyzer", None) or getattr(self.app, "base_analyzer", None)
+        if base_analyzer is not None:
+            print(f"[DEBUG] base_analyzer type: {type(base_analyzer)}")
+            print(f"[DEBUG] base_analyzer attributes: {dir(base_analyzer)}")
+            
+            # Try different possible attribute names for the original network
+            for attr_name in ['graph', 'G', 'network', 'original_graph', 'build_network']:
+                if hasattr(base_analyzer, attr_name):
                     try:
-                        base_graph = getattr(base_analyzer, 'graph')
-                    except Exception:
-                        base_graph = None
-                elif hasattr(base_analyzer, 'crashed_graph'):
-                    base_graph = getattr(base_analyzer, 'crashed_graph')
+                        attr_value = getattr(base_analyzer, attr_name)
+                        if attr_value is not None:
+                            # If it's a method, try calling it
+                            if callable(attr_value):
+                                if hasattr(base_analyzer, 'activities'):
+                                    base_graph = attr_value(base_analyzer.activities)
+                                    print(f"[DEBUG] Using base_analyzer.{attr_name}(activities) for visualization")
+                                else:
+                                    base_graph = attr_value()
+                                    print(f"[DEBUG] Using base_analyzer.{attr_name}() for visualization")
+                            else:
+                                base_graph = attr_value
+                                print(f"[DEBUG] Using base_analyzer.{attr_name} for visualization")
+                            break
+                    except Exception as e:
+                        print(f"[DEBUG] Failed to get {attr_name} from base_analyzer: {e}")
+                        continue
+            
+            # Final fallback: check if we can build network from activities
+            if base_graph is None and hasattr(base_analyzer, 'activities'):
+                try:
+                    # Try to build network using the same logic as the analyzer
+                    if hasattr(base_analyzer, 'build_network'):
+                        base_graph = base_analyzer.build_network(base_analyzer.activities)
+                        print("[DEBUG] Built network using base_analyzer.build_network(activities)")
+                    elif hasattr(base_analyzer, '__class__') and hasattr(base_analyzer.__class__, 'build_network'):
+                        base_graph = base_analyzer.__class__.build_network(base_analyzer.activities)
+                        print("[DEBUG] Built network using analyzer class build_network method")
+                except Exception as e:
+                    print(f"[DEBUG] Failed to build network from activities: {e}")
+        
+        # Last resort: use the crashed graph from result if no original found
+        if base_graph is None and hasattr(result, 'crashed_graph') and getattr(result, 'crashed_graph', None) is not None:
+            base_graph = getattr(result, 'crashed_graph')
+            print("[DEBUG] Fallback to result.crashed_graph (will show wrong initial state)")
         
         print(f"[DEBUG] base_graph is None? {base_graph is None}")
         if base_graph is not None:
@@ -346,38 +377,55 @@ class CrashingTabGUIManager:
                 print(f"[DEBUG] Error inspecting base_graph nodes: {_e}")
         
         if result and hasattr(result, 'crash_log') and result.crash_log:
-            # Extract step graphs from crash_log; if an entry lacks a 'graph' key, synthesize one
+            # Step 0: Add the original, uncrashed network state
+            if base_graph is not None:
+                original_G = base_graph.copy()
+                self.step_graphs.append((0, 'Initial', None, original_G))
+                print("[DEBUG] Added step 0: Initial network state")
+            
+            # Steps 1-N: Create network state after each crash step
+            # Each step shows the cumulative result of all crashes up to that point
             for i, step_data in enumerate(result.crash_log):
-                step_num = i
+                step_num = i + 1  # Navigation step numbers start from 1
                 activity = step_data.get('activity', 'Unknown') if isinstance(step_data, dict) else 'Unknown'
                 new_duration = step_data.get('new_duration', None) if isinstance(step_data, dict) else None
                 if new_duration is None:
                     new_duration = step_data.get('duration', None) if isinstance(step_data, dict) else None
-                G_step = step_data.get('graph', None) if isinstance(step_data, dict) else None
                 
-                # Use base_graph (prefer result.crashed_graph) to synthesize step diagram when needed
-                if G_step is None and base_graph is not None:
+                # Always build from the original graph and apply all crashes up to this step
+                if base_graph is not None:
                     try:
                         G_step = base_graph.copy()
-                        # Apply duration update for the crashed activity if present
-                        if activity in G_step.nodes():
-                            if new_duration is not None:
-                                G_step.nodes[activity]['duration'] = new_duration
-                        # Mark critical nodes if crash log provides a critical_path
+                        
+                        # Apply ALL crashes from crash_log[0] to crash_log[i] (inclusive)
+                        for j in range(i + 1):
+                            crash_entry = result.crash_log[j]
+                            if isinstance(crash_entry, dict):
+                                crashed_activity = crash_entry.get('activity', None)
+                                crashed_duration = crash_entry.get('new_duration', None) or crash_entry.get('duration', None)
+                                if crashed_activity and crashed_activity in G_step.nodes() and crashed_duration is not None:
+                                    G_step.nodes[crashed_activity]['duration'] = crashed_duration
+                                    print(f"[DEBUG] Step {step_num}: Applied crash {j+1} - {crashed_activity} to duration {crashed_duration}")
+                        
+                        # Recalculate CPM for this step to get correct float values
+                        network_builder = getattr(getattr(self.app, "current_analyzer", None) or getattr(self.app, "base_analyzer", None), 'network_builder', None)
+                        if network_builder:
+                            G_step = network_builder.forward_pass(G_step)
+                            G_step = network_builder.backward_pass(G_step)
+                            G_step = network_builder.calculate_float(G_step)
+                        
+                        # Use critical path from crash log if available, otherwise calculate
                         cp = step_data.get('critical_path', None) if isinstance(step_data, dict) else None
                         if cp:
                             for n in G_step.nodes():
                                 G_step.nodes[n]['float'] = 0 if n in cp else G_step.nodes[n].get('float', 1)
-                        else:
-                            for n in G_step.nodes():
-                                if 'float' not in G_step.nodes[n]:
-                                    G_step.nodes[n]['float'] = G_step.nodes[n].get('float', 1)
+                        
+                        self.step_graphs.append((step_num, activity, new_duration if new_duration is not None else 0, G_step))
+                        print(f"[DEBUG] Added step {step_num}: {activity} crashed to {new_duration}")
+                        
                     except Exception as e:
                         print(f"[DEBUG] Failed to synthesize G_step for step {step_num}: {e}")
-                        G_step = None
-                
-                if G_step:
-                    self.step_graphs.append((step_num, activity, new_duration if new_duration is not None else 0, G_step))
+                        continue
         
         print(f"[DEBUG] Step graphs populated: {len(self.step_graphs)}")
         
@@ -659,10 +707,11 @@ class CrashingTabGUIManager:
                 widget.destroy()
             fig = plt.Figure(figsize=(10, 6))
             ax = fig.add_subplot(111)
-            draw_network_diagram_on_ax(ax, G_step)
             if step_num == 0:
+                draw_network_diagram_on_ax(ax, G_step, initial=True)
                 ax.set_title("Initial Network", fontsize=14, fontweight='bold')
             else:
+                draw_network_diagram_on_ax(ax, G_step)
                 ax.set_title(f"Step {step_num}: Activity {activity} crashed to {new_duration}", fontsize=14, fontweight='bold')
             canvas = FigureCanvasTkAgg(fig, self.step_display_frame)
             canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
