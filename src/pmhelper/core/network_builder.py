@@ -81,15 +81,18 @@ class NetworkBuilder:
         
         for node in nx.topological_sort(G):
             duration = G.nodes[node]['duration']
-            
             if node in start_activities:
                 G.nodes[node]['ES'] = 0
             else:
                 pred_ef = [G.nodes[pred]['EF'] for pred in G.predecessors(node)]
                 G.nodes[node]['ES'] = max(pred_ef) if pred_ef else 0
-            
             G.nodes[node]['EF'] = G.nodes[node]['ES'] + duration
-        
+
+        # Ensure END node ES/EF is set as max EF of its predecessors
+        if 'END' in G.nodes:
+            preds = list(G.predecessors('END'))
+            G.nodes['END']['ES'] = max([G.nodes[p]['EF'] for p in preds]) if preds else 0
+            G.nodes['END']['EF'] = G.nodes['END']['ES']
         return G
     
     @staticmethod
