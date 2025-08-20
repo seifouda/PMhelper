@@ -132,7 +132,11 @@ class InputTab:
                 self.tree.column(col, width=120, minwidth=100)
             else:
                 self.tree.column(col, width=150, minwidth=120)
-        
+        # Add only vertical scrollbar
+        v_scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.VERTICAL, command=self.tree.yview)
+        self.tree.configure(yscrollcommand=v_scrollbar.set)
+        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.tree.bind('<Double-1>', self.edit_item)
         self.current_mode = 'probabilistic'
     
@@ -147,21 +151,15 @@ class InputTab:
         # This ensures visual consistency and proper synchronization
         
         if mode == 'deterministic':
-            # Only recreate tree if mode actually changed to avoid unnecessary work
             if mode != self.current_mode:
                 self.setup_deterministic_tree()
             self.mode_label.config(text="Mode: CPM (Deterministic)")
-            # Don't call main_window.set_analysis_mode here to avoid circular calls
+            self.current_mode = 'deterministic'
         elif mode == 'probabilistic':
-            # Add only vertical scrollbar
-            v_scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.VERTICAL, command=self.tree.yview)
-            self.tree.configure(yscrollcommand=v_scrollbar.set)
-            self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-            v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-            self.mode_label.config(text="Mode: None")
             if mode != self.current_mode:
-                # Clear the tree for unknown mode
-                self.clear_tree_frame()
+                self.setup_probabilistic_tree()
+            self.mode_label.config(text="Mode: PERT (Probabilistic)")
+            self.current_mode = 'probabilistic'
     
     def load_deterministic_data(self):
         """Load deterministic (CPM) data from file with validation"""
@@ -376,11 +374,7 @@ class InputTab:
     
     def populate_tree(self, activities_data):
         """Populate the treeview with data"""
-        # Always recreate the treeview before populating
-        if self.current_mode == 'deterministic':
-            self.setup_deterministic_tree()
-        else:
-            self.setup_probabilistic_tree()
+    # Only insert data into the existing treeview; do not recreate it
         # Add new data
         for activity in activities_data:
             if self.current_mode == 'deterministic':
