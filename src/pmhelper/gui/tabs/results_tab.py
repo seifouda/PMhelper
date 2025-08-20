@@ -90,18 +90,14 @@ class ResultsTab:
         # Create treeview for activities
         self.activities_tree = ttk.Treeview(activities_frame, height=12)
         
-        # Add scrollbars
+        # Add only vertical scrollbar
         v_scrollbar = ttk.Scrollbar(activities_frame, orient=tk.VERTICAL, 
-                                   command=self.activities_tree.yview)
-        h_scrollbar = ttk.Scrollbar(activities_frame, orient=tk.HORIZONTAL, 
-                                   command=self.activities_tree.xview)
-        self.activities_tree.configure(yscrollcommand=v_scrollbar.set, 
-                                      xscrollcommand=h_scrollbar.set)
+                                command=self.activities_tree.yview)
+        self.activities_tree.configure(yscrollcommand=v_scrollbar.set)
         
-        # Pack treeview and scrollbars
+        # Pack treeview and vertical scrollbar
         self.activities_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
         
         # Configure treeview for CPM mode by default
         self.setup_cpm_activities_tree()
