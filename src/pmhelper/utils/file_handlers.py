@@ -271,7 +271,8 @@ class FileHandler:
                 "predecessors": "",
                 "min_duration": "1",
                 "crash_cost": "300",
-                "resource_demand": "2"
+                "resource_demand": "2",
+                "normal_cost": "1000"
             },
             {
                 "id": "B",
@@ -282,7 +283,8 @@ class FileHandler:
                 "predecessors": "",
                 "min_duration": "2",
                 "crash_cost": "500",
-                "resource_demand": "1"
+                "resource_demand": "1",
+                "normal_cost": "800"
             },
             {
                 "id": "C",
@@ -293,7 +295,8 @@ class FileHandler:
                 "predecessors": "A, B",
                 "min_duration": "5",
                 "crash_cost": "600",
-                "resource_demand": "3"
+                "resource_demand": "3",
+                "normal_cost": "1200"
             },
             {
                 "id": "D",
@@ -304,7 +307,8 @@ class FileHandler:
                 "predecessors": "C",
                 "min_duration": "4",
                 "crash_cost": "400",
-                "resource_demand": "1"
+                "resource_demand": "1",
+                "normal_cost": "700"
             },
             {
                 "id": "E",
@@ -315,6 +319,7 @@ class FileHandler:
                 "predecessors": "C",
                 "min_duration": "3",
                 "crash_cost": "300",
-                "resource_demand": "4"
+                "resource_demand": "4",
+                "normal_cost": "900"
             }
         ]

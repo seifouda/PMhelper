@@ -38,7 +38,7 @@ class InputTab:
         
         # Create mode indicator
         self.mode_label = ttk.Label(self.input_frame, text="Mode: None", 
-                                   font=("Arial", 10, "bold"))
+                                font=("Arial", 10, "bold"))
         self.mode_label.pack(anchor="w", pady=(0, 5))
         
         # Create tree frame (will contain the treeview)
@@ -55,11 +55,11 @@ class InputTab:
         
         # File loading buttons
         ttk.Button(button_frame, text="Load CPM Data", 
-                  command=self.load_deterministic_data).pack(side=tk.LEFT, padx=(0, 10))
+                command=self.load_deterministic_data).pack(side=tk.LEFT, padx=(0, 10))
         ttk.Button(button_frame, text="Load PERT Data", 
-                  command=self.load_probabilistic_data).pack(side=tk.LEFT, padx=(0, 10))
+                command=self.load_probabilistic_data).pack(side=tk.LEFT, padx=(0, 10))
         ttk.Button(button_frame, text="Auto-Detect CSV", 
-                  command=self.load_csv_auto_detect).pack(side=tk.LEFT, padx=(0, 10))
+                command=self.load_csv_auto_detect).pack(side=tk.LEFT, padx=(0, 10))
         
         # Row manipulation buttons
         ttk.Button(button_frame, text="Add Row", 
@@ -102,16 +102,11 @@ class InputTab:
                 self.tree.column(col, width=120, minwidth=100)
             else:
                 self.tree.column(col, width=150, minwidth=120)
-        
-        # Add scrollbars
+        # Add only vertical scrollbar
         v_scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.VERTICAL, command=self.tree.yview)
-        h_scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.HORIZONTAL, command=self.tree.xview)
-        self.tree.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
-        
-        # Pack everything
+        self.tree.configure(yscrollcommand=v_scrollbar.set)
         self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
         
         # Bind double-click for editing
         self.tree.bind('<Double-1>', self.edit_item)
@@ -122,39 +117,23 @@ class InputTab:
         """Setup treeview for probabilistic (PERT) data"""
         self.clear_tree_frame()
         
-        # PERT columns
-        columns = ("ID", "Activity", "Optimistic", "Most Likely", "Pessimistic", 
-                  "Predecessors", "Min Duration", "Crash Cost", "Resource Demand")
-        
+        # PERT columns (add normal_cost)
+        columns = ("ID", "Activity", "Optimistic", "Most Likely", "Pessimistic", "Predecessors", "Min Duration", "Crash Cost", "Resource Demand", "Normal Cost")
         self.tree = ttk.Treeview(self.tree_frame, columns=columns, show='headings', height=15)
-        
-        # Configure columns
         for col in columns:
             self.tree.heading(col, text=col)
             if col in ["ID"]:
                 self.tree.column(col, width=50, minwidth=50)
             elif col in ["Optimistic", "Most Likely", "Pessimistic", "Min Duration", "Resource Demand"]:
                 self.tree.column(col, width=80, minwidth=70)
-            elif col in ["Crash Cost"]:
+            elif col in ["Crash Cost", "Normal Cost"]:
                 self.tree.column(col, width=100, minwidth=80)
             elif col == "Predecessors":
                 self.tree.column(col, width=120, minwidth=100)
             else:
                 self.tree.column(col, width=150, minwidth=120)
         
-        # Add scrollbars
-        v_scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.VERTICAL, command=self.tree.yview)
-        h_scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.HORIZONTAL, command=self.tree.xview)
-        self.tree.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
-        
-        # Pack everything
-        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
-        
-        # Bind double-click for editing
         self.tree.bind('<Double-1>', self.edit_item)
-        
         self.current_mode = 'probabilistic'
     
     def clear_tree_frame(self):
@@ -174,12 +153,11 @@ class InputTab:
             self.mode_label.config(text="Mode: CPM (Deterministic)")
             # Don't call main_window.set_analysis_mode here to avoid circular calls
         elif mode == 'probabilistic':
-            # Only recreate tree if mode actually changed to avoid unnecessary work
-            if mode != self.current_mode:
-                self.setup_probabilistic_tree()
-            self.mode_label.config(text="Mode: PERT (Probabilistic)")
-            # Don't call main_window.set_analysis_mode here to avoid circular calls
-        else:
+            # Add only vertical scrollbar
+            v_scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.VERTICAL, command=self.tree.yview)
+            self.tree.configure(yscrollcommand=v_scrollbar.set)
+            self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+            v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
             self.mode_label.config(text="Mode: None")
             if mode != self.current_mode:
                 # Clear the tree for unknown mode
@@ -398,10 +376,11 @@ class InputTab:
     
     def populate_tree(self, activities_data):
         """Populate the treeview with data"""
-        # Clear existing data
-        for item in self.tree.get_children():
-            self.tree.delete(item)
-        
+        # Always recreate the treeview before populating
+        if self.current_mode == 'deterministic':
+            self.setup_deterministic_tree()
+        else:
+            self.setup_probabilistic_tree()
         # Add new data
         for activity in activities_data:
             if self.current_mode == 'deterministic':
@@ -425,7 +404,8 @@ class InputTab:
                     activity.get('predecessors', ''),
                     activity.get('min_duration', ''),
                     activity.get('crash_cost', ''),
-                    activity.get('resource_demand', '')
+                    activity.get('resource_demand', ''),
+                    activity.get('normal_cost', '')
                 )
             self.tree.insert("", tk.END, values=values)
     
@@ -434,7 +414,7 @@ class InputTab:
         if self.current_mode == 'deterministic':
             values = ("", "", "", "", "", "", "", "")
         else:  # probabilistic
-            values = ("", "", "", "", "", "", "", "", "")
+            values = ("", "", "", "", "", "", "", "", "", "")
         self.tree.insert("", tk.END, values=values)
     
     def delete_row(self):
@@ -451,8 +431,12 @@ class InputTab:
         """Clear all data"""
         result = messagebox.askyesno("Clear All", "Are you sure you want to clear all data?")
         if result:
-            for item in self.tree.get_children():
-                self.tree.delete(item)
+            try:
+                if self.tree and self.tree.winfo_exists():
+                    for item in self.tree.get_children():
+                        self.tree.delete(item)
+            except Exception as e:
+                print(f"Warning: Tried to clear tree but it was not valid. Error: {e}")
     
     def edit_item(self, event):
         """Handle double-click editing"""
@@ -517,11 +501,11 @@ class InputTab:
         self.main_window.set_status("Loaded sample CPM data")
     
     def load_sample_pert(self):
-        """Load sample PERT data"""
+        """Load sample PERT data and display in the treeview"""
+        self.clear_tree_frame()  # Destroy old widgets
+        self.setup_probabilistic_tree()  # Recreate treeview for PERT columns
         sample_data = FileHandler.get_sample_pert_data()
-        self.set_mode('probabilistic')
-        self.populate_tree(sample_data)
-        # Update main window analysis mode (single call, no duplicate)
+        self.populate_tree(sample_data)  # Now safe to populate
         self.main_window.set_analysis_mode('probabilistic')
         self.main_window.set_status("Loaded sample PERT data")
     
@@ -557,29 +541,67 @@ class InputTab:
                     'predecessors': values[5] if len(values) > 5 else '',
                     'min_duration': values[6] if len(values) > 6 else '',
                     'crash_cost': values[7] if len(values) > 7 else '',
-                    'resource_demand': values[8] if len(values) > 8 else ''
+                    'resource_demand': values[8] if len(values) > 8 else '',
+                    'normal_cost': values[9] if len(values) > 9 else ''
                 }
             activities_data.append(activity_dict)
-        
-        # Check for missing resource_demand in probabilistic mode
-        if self.current_mode == 'probabilistic':
-            for act in activities_data:
-                if not act.get('resource_demand'):
-                    print(f"[WARNING] Activity '{act.get('id', '')}' is missing resource_demand!")
-
-        
-        # Debug: print sample fields and check for required keys
-        if activities_data:
-            sample = activities_data[0]
-            print("\n[DEBUG] InputTab: Sample activity fields:")
-            print("Fields:", list(sample.keys()))
-            print("Has 'resource':", 'resource' in sample)
-            print("Has 'resource_demand':", 'resource_demand' in sample)
-            print("Has 'min_duration':", 'min_duration' in sample)
-            print("Has 'crash_cost':", 'crash_cost' in sample)
-            print("[DEBUG] First 3 activities:")
-            for act in activities_data[:3]:
-                print(act)
-        else:
-            print("[DEBUG] InputTab: No activities entered.")
         return activities_data
+
+    def load_csv_auto_detect(self):
+        """Load CSV with automatic mode detection based on column headers"""
+        filename = filedialog.askopenfilename(
+            title="Select CSV file (Auto-detect mode)",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
+        )
+        if filename:
+            try:
+                with open(filename, 'r', newline='', encoding='utf-8') as file:
+                    reader = csv.DictReader(file)
+                    headers = reader.fieldnames
+                    if not headers:
+                        messagebox.showerror("Error", "CSV file appears to be empty or invalid.")
+                        return
+                    detected_mode = self.auto_detect_mode(headers)
+                    self.clear_tree_frame()
+                    if detected_mode == 'probabilistic':
+                        self.setup_probabilistic_tree()
+                    else:
+                        self.setup_deterministic_tree()
+                    activities_data = []
+                    file.seek(0)
+                    reader = csv.DictReader(file)
+                    for row in reader:
+                        if detected_mode == 'probabilistic':
+                            activity_dict = {
+                                'id': row.get('id', ''),
+                                'activity': row.get('activity', ''),
+                                'optimistic': row.get('optimistic', ''),
+                                'most_likely': row.get('most_likely', ''),
+                                'pessimistic': row.get('pessimistic', ''),
+                                'predecessors': row.get('predecessors', ''),
+                                'min_duration': row.get('min_duration', ''),
+                                'crash_cost': row.get('crash_cost', ''),
+                                'resource_demand': row.get('resource_demand', ''),
+                                'normal_cost': row.get('normal_cost', '')
+                            }
+                        else:
+                            activity_dict = {
+                                'id': row.get('id', ''),
+                                'activity': row.get('activity', ''),
+                                'duration': row.get('duration', ''),
+                                'predecessors': row.get('predecessors', ''),
+                                'min_duration': row.get('min_duration', ''),
+                                'crash_cost': row.get('crash_cost', ''),
+                                'resource_demand': row.get('resource_demand', ''),
+                                'normal_cost': row.get('normal_cost', '')
+                            }
+                        activities_data.append(activity_dict)
+                    self.populate_tree(activities_data)
+                    self.main_window.set_analysis_mode(detected_mode)
+                    messagebox.showinfo("Success", 
+                                        f"CSV file loaded successfully!\n"
+                                        f"Mode: {detected_mode.title()} (Auto-detected)\n"
+                                        f"Activities loaded: {len(activities_data)}")
+                    self.main_window.set_status(f"Loaded {len(activities_data)} activities with auto-detected {detected_mode} mode")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to load CSV file: {str(e)}")
