@@ -125,12 +125,9 @@ class NetworkTab:
         button_frame = ttk.Frame(control_frame)
         button_frame.pack(side=tk.RIGHT)
         
-        ttk.Button(button_frame, text="Refresh", 
-                  command=self.update_diagram).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="Save Image", 
                   command=self.save_diagram).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Reset View", 
-                  command=self.reset_view).pack(side=tk.LEFT, padx=5)
+        # Removed Refresh and Reset View buttons
     
     def create_plot_area(self):
         """Create matplotlib plot area"""
@@ -355,23 +352,22 @@ class NetworkTab:
         for u, v in G.edges():
             x1, y1 = pos[u]
             x2, y2 = pos[v]
-            
             # Calculate arrow start/end points
             dx = x2 - x1
             dy = y2 - y1
             distance = (dx ** 2 + dy ** 2) ** 0.5
-            
             if distance > 0:
                 dx_norm = dx / distance
                 dy_norm = dy / distance
-                
                 start_x = x1 + node_radius * dx_norm
                 start_y = y1 + node_radius * dy_norm
                 end_x = x2 - node_radius * dx_norm
                 end_y = y2 - node_radius * dy_norm
-                
-                self.ax.annotate("", xy=(end_x, end_y), xytext=(start_x, start_y),
-                               arrowprops=dict(arrowstyle="->", color="black", lw=1.5))
+                self.ax.annotate(
+                    "", xy=(end_x, end_y), xytext=(start_x, start_y),
+                    arrowprops=dict(arrowstyle="->", color="black", lw=1.5),
+                    zorder=1  # Ensure arrows are under nodes
+                )
     
     def draw_network_nodes(self, G, pos, critical_activities):
         """Draw nodes with corrected critical path highlighting"""
