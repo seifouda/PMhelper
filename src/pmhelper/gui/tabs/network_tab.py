@@ -51,10 +51,9 @@ class NetworkTab:
             self.create_no_matplotlib_message()
             return
         
-        # Create control frame
+        # Create control frame at the top
         self.create_control_frame()
-        
-        # Create matplotlib figure and canvas
+        # Create plot area (canvas and toolbar frames)
         self.create_plot_area()
     
     def create_no_matplotlib_message(self):
@@ -131,38 +130,64 @@ class NetworkTab:
     
     def create_plot_area(self):
         """Create matplotlib plot area"""
+        # Create a dedicated plot area frame inside network_frame
+        plot_area_frame = ttk.Frame(self.network_frame)
+        plot_area_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        # CRITICAL FIX: Pack toolbar frame FIRST at bottom (like PERT tab)
+        toolbar_frame = ttk.Frame(plot_area_frame)
+        toolbar_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+        # Then pack canvas frame at top with expand (like PERT tab)
+        canvas_frame = ttk.Frame(plot_area_frame)
+        canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
         # Create matplotlib figure
-        self.figure = Figure(figsize=(12, 8), dpi=100)
+        self.figure = Figure(figsize=(12, 8), dpi=100, constrained_layout=True)
         self.figure.patch.set_facecolor('white')
-        
-        # Create canvas
-        canvas_frame = ttk.Frame(self.network_frame)
-        canvas_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
+
+        # Create canvas in canvas_frame
         self.canvas = FigureCanvasTkAgg(self.figure, canvas_frame)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-        
-        # Create toolbar
-        toolbar_frame = ttk.Frame(canvas_frame)
-        toolbar_frame.pack(fill=tk.X)
-        
+
+        # Create toolbar in toolbar_frame (exactly like PERT tab)
         self.toolbar = NavigationToolbar2Tk(self.canvas, toolbar_frame)
         self.toolbar.update()
-        
+
         # Initialize with empty plot
+        self.figure.tight_layout()
         self.create_empty_plot()
-    
+
+        # Bind resize event to dynamically resize figure
+        canvas_frame.bind('<Configure>', self.on_canvas_resize)
+    def on_canvas_resize(self, event):
+        """Dynamically resize the matplotlib figure to fit the canvas_frame."""
+        # Get current frame dimensions
+        width = event.width
+        height = event.height
+        dpi = self.figure.dpi
+        # Avoid zero size
+        if width < 10 or height < 10:
+            return
+        # Set figure size in inches
+        fig_width = width / dpi
+        fig_height = height / dpi
+        self.figure.set_size_inches(fig_width, fig_height, forward=True)
+        # Redraw chart
+        self.canvas.draw()
+        
     def create_empty_plot(self):
         """Create empty plot with instruction message"""
         self.figure.clear()
         ax = self.figure.add_subplot(111)
         ax.text(0.5, 0.5, 'Run project analysis to display network diagram', 
-                horizontalalignment='center', verticalalignment='center',
-                transform=ax.transAxes, fontsize=14, color='gray')
+            horizontalalignment='center', verticalalignment='center',
+            transform=ax.transAxes, fontsize=14, color='gray')
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
         ax.axis('off')
+        self.figure.tight_layout()
         self.canvas.draw()
     
     def update_network(self, results_data, analysis_mode):

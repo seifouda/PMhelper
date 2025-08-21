@@ -50,76 +50,30 @@ class PertDiagramTab:
         """Create the PERT diagram tab"""
         self.main_frame = ttk.Frame(self.notebook)
         self.notebook.add(self.main_frame, text="PERT Diagram")
-        
+
         if not MATPLOTLIB_AVAILABLE:
             self.create_no_matplotlib_message()
             return
-        
+
         # Create control frame
-        self.create_control_frame()
-        
-        # Create matplotlib figure and canvas
-        self.create_plot_area()
-    
-    def create_no_matplotlib_message(self):
-        """Create message when matplotlib is not available"""
-        message_frame = ttk.Frame(self.main_frame)
-        message_frame.pack(fill=tk.BOTH, expand=True)
-        
-        message_label = ttk.Label(
-            message_frame,
-            text="PERT diagrams require matplotlib.\\nPlease install matplotlib to view PERT diagrams.",
-            font=("Arial", 12),
-            justify=tk.CENTER
-        )
-        message_label.pack(expand=True)
-    
-    def create_control_frame(self):
-        """Create control buttons frame - BASED ON NetworkTab but without Show Times"""
         control_frame = ttk.Frame(self.main_frame)
-        control_frame.pack(fill=tk.X, pady=(5, 0))
-        
-        # Display options frame
-        options_frame = ttk.LabelFrame(control_frame, text="Display Options", padding="5")
-        options_frame.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
-        
-        # Display option variables - REMOVED show_edge_labels
-        self.highlight_critical = tk.BooleanVar(value=True)
-        self.show_float = tk.BooleanVar(value=False)
-        # REMOVED: self.show_edge_labels = tk.BooleanVar(value=False)
-        # NOTE: Removed show_times option as requested
-        
-        # Checkboxes for display options - REMOVED edge labels checkbox
-        ttk.Checkbutton(options_frame, text="Highlight Critical Path", 
-                       variable=self.highlight_critical, 
-                       command=self.update_diagram).pack(side=tk.LEFT, padx=5)
-        ttk.Checkbutton(options_frame, text="Show Float Values", 
-                       variable=self.show_float, 
-                       command=self.update_diagram).pack(side=tk.LEFT, padx=5)
-        # REMOVED: Show Edge Labels checkbox
-        
-        # Action buttons
-        button_frame = ttk.Frame(control_frame)
-        button_frame.pack(side=tk.RIGHT)
-        
-        ttk.Button(button_frame, text="Refresh", 
-                  command=self.update_diagram).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Save Image", 
-                  command=self.save_diagram).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Reset View", 
-                  command=self.reset_view).pack(side=tk.LEFT, padx=5)
-    
-    def create_plot_area(self):
-        """Create matplotlib plot area using pack layout to keep toolbar visible"""
-        # Create a frame for plot area
+        control_frame.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+
+        # Create plot area and pass control_frame
+        self.create_plot_area(control_frame)
+
+    def create_plot_area(self, control_frame):
+        """Create matplotlib plot area and control widgets"""
         plot_frame = ttk.Frame(self.main_frame)
         plot_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # Create canvas frame and toolbar frame
-        canvas_frame = ttk.Frame(plot_frame)
-        canvas_frame.pack(fill=tk.BOTH, expand=True)
+        # Create toolbar frame and pack at the bottom
         toolbar_frame = ttk.Frame(plot_frame)
-        toolbar_frame.pack(fill=tk.X, side=tk.BOTTOM)
+        toolbar_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+        # Create canvas frame and pack above toolbar
+        canvas_frame = ttk.Frame(plot_frame)
+        canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # Create matplotlib figure and canvas
         self.figure = Figure(figsize=(14, 10), dpi=100)
@@ -134,6 +88,35 @@ class PertDiagramTab:
 
         # Initialize with empty plot
         self.create_empty_plot()
+
+        # Display option variables
+        self.highlight_critical = tk.BooleanVar(value=True)
+        self.show_float = tk.BooleanVar(value=False)
+
+        # Create display options frame
+        options_frame = ttk.LabelFrame(control_frame, text="Display Options", padding="5")
+        options_frame.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
+
+        # Checkboxes for display options
+        ttk.Checkbutton(options_frame, text="Highlight Critical Path", 
+                variable=self.highlight_critical, 
+                command=self.update_diagram).pack(side=tk.LEFT, padx=5)
+        ttk.Checkbutton(options_frame, text="Show Float Values", 
+                variable=self.show_float, 
+                command=self.update_diagram).pack(side=tk.LEFT, padx=5)
+
+        # Action buttons
+        button_frame = ttk.Frame(control_frame)
+        button_frame.pack(side=tk.RIGHT)
+
+        ttk.Button(button_frame, text="Refresh", 
+            command=self.update_diagram).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Save Image", 
+            command=self.save_diagram).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Reset View", 
+            command=self.reset_view).pack(side=tk.LEFT, padx=5)
+    
+    # Removed duplicate create_plot_area method
     
     def create_empty_plot(self):
         """Create empty plot with instruction message"""
