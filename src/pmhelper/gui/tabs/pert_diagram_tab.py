@@ -110,26 +110,28 @@ class PertDiagramTab:
                   command=self.reset_view).pack(side=tk.LEFT, padx=5)
     
     def create_plot_area(self):
-        """Create matplotlib plot area"""
-        # Create matplotlib figure
+        """Create matplotlib plot area using pack layout to keep toolbar visible"""
+        # Create a frame for plot area
+        plot_frame = ttk.Frame(self.main_frame)
+        plot_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        # Create canvas frame and toolbar frame
+        canvas_frame = ttk.Frame(plot_frame)
+        canvas_frame.pack(fill=tk.BOTH, expand=True)
+        toolbar_frame = ttk.Frame(plot_frame)
+        toolbar_frame.pack(fill=tk.X, side=tk.BOTTOM)
+
+        # Create matplotlib figure and canvas
         self.figure = Figure(figsize=(14, 10), dpi=100)
         self.figure.patch.set_facecolor('white')
-        
-        # Create canvas
-        canvas_frame = ttk.Frame(self.main_frame)
-        canvas_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
-        self.canvas = FigureCanvasTkAgg(self.figure, canvas_frame)
+        self.canvas = FigureCanvasTkAgg(self.figure, master=canvas_frame)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-        
-        # Create toolbar
-        toolbar_frame = ttk.Frame(canvas_frame)
-        toolbar_frame.pack(fill=tk.X)
-        
+
+        # Create and pack the toolbar
         self.toolbar = NavigationToolbar2Tk(self.canvas, toolbar_frame)
         self.toolbar.update()
-        
+
         # Initialize with empty plot
         self.create_empty_plot()
     
@@ -196,9 +198,9 @@ class PertDiagramTab:
                 expected_duration = self.results_data.get('expected_duration', 'Unknown')
                 if isinstance(expected_duration, (int, float)):
                     expected_duration = f"{expected_duration:.1f}"
-                title = f"PERT Network Diagram\\nScheduling Duration: {project_duration}, Expected Duration: {expected_duration}"
+                title = f"PERT Network Diagram\nScheduling Duration: {project_duration}, Expected Duration: {expected_duration}"
             else:
-                title = f"PERT Network Diagram\\nProject Duration: {project_duration}"
+                title = f"PERT Network Diagram\nProject Duration: {project_duration}"
             
             self.ax.set_title(title, fontsize=14, fontweight='bold', pad=20)
             
@@ -247,15 +249,15 @@ class PertDiagramTab:
             LF = activity.get('LF', activity.get('latest_finish', duration))
             
             G.add_node(activity_id, 
-                      duration=duration,
-                      critical=activity.get('critical', False),
-                      float=float_value,
-                      ES=ES,
-                      EF=EF,
-                      LS=LS,
-                      LF=LF,
-                      activity=activity.get('activity', activity.get('name', '')),
-                      id=activity_id)
+                    duration=duration,
+                    critical=activity.get('critical', False),
+                    float=float_value,
+                    ES=ES,
+                    EF=EF,
+                    LS=LS,
+                    LF=LF,
+                    activity=activity.get('activity', activity.get('name', '')),
+                    id=activity_id)
         
         # Add predecessor relationships
         for activity in activities:
@@ -322,7 +324,7 @@ class PertDiagramTab:
         
         # 6. Add node format legend
         self.figure.text(0.01, 0.01, "Node Format:", fontsize=9)
-        self.figure.text(0.12, 0.01, "ID | ES | EF\\nDur | LS | LF", fontsize=9)
+        self.figure.text(0.07, 0.01, "ID   | ES | EF\nDur | LS | LF", fontsize=9)
         
         self.ax.set_title("PERT Network Diagram")
         self.ax.axis('equal')
@@ -428,8 +430,8 @@ class PertDiagramTab:
             # Special handling for START and END nodes (circles)
             if node in ['START', 'END']:
                 circle = plt.Circle((x, y), node_radius,
-                                  fill=True, color=color, alpha=0.7,
-                                  edgecolor='black', linewidth=1.5, zorder=3)
+                                fill=True, color=color, alpha=0.7,
+                                edgecolor='black', linewidth=1.5, zorder=3)
                 self.ax.add_patch(circle)
                 
                 display_text = 'Start' if node == 'START' else 'End'
@@ -499,28 +501,19 @@ class PertDiagramTab:
                     wrapped_lines = self.wrap_activity_name(activity_name)
                     
                     # Display each line separately, stacked vertically
-                    line_height = 0.15
+                    line_height = 0.3
                     start_y = y + height / 2 + 0.2
                     
                     for i, line in enumerate(wrapped_lines):
-                        self.ax.text(x, start_y + (i * line_height), line,
+                        self.ax.text(x - 0.2, start_y + (i * line_height), line,
                                     horizontalalignment='center', verticalalignment='bottom',
                                     fontsize=8, color='purple', fontweight='bold', zorder=5)
-
-    def wrap_activity_name(self, text, max_words_per_line=2):
-        """Wrap activity name by splitting on spaces, no \\n characters"""
+    
+    def wrap_activity_name(self, text, max_chars_per_line=12):
+        """Wrap activity name by character count, returns lines split for display"""
         if not text:
             return []
-        
-        # Split on spaces and group into lines
-        words = text.split()
-        lines = []
-        
-        for i in range(0, len(words), max_words_per_line):
-            line_words = words[i:i + max_words_per_line]
-            lines.append(' '.join(line_words))
-        
-        return lines
+        return text.split()
     
     def add_network_legend(self):
         """Add simplified legend without START/END entries - COPIED FROM NetworkTab"""
