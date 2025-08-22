@@ -50,6 +50,20 @@ class CrashingTabGUIManager:
             messagebox.showerror("Input Error", "Max Budget must be an integer or blank.")
             return
 
+        max_crash_cost = self.max_crash_cost_var.get()
+        try:
+            max_crash_cost = int(round(float(max_crash_cost))) if max_crash_cost else None
+        except ValueError:
+            messagebox.showerror("Input Error", "Max Crashing Cost must be an integer or blank.")
+            return
+
+        max_normal_cost = self.max_normal_cost_var.get()
+        try:
+            max_normal_cost = int(round(float(max_normal_cost))) if max_normal_cost else None
+        except ValueError:
+            messagebox.showerror("Input Error", "Max Normal Cost must be an integer or blank.")
+            return
+
         max_iterations = 300  # Fixed as per requirements
 
         # 2. Retrieve project data (base_analyzer) from main app
@@ -76,6 +90,8 @@ class CrashingTabGUIManager:
                 strategy=strategy,
                 objective=objective,
                 max_budget=max_budget,
+                max_crash_cost=max_crash_cost,
+                max_normal_cost=max_normal_cost,
                 max_iterations=max_iterations
             )
         else:
@@ -93,17 +109,59 @@ class CrashingTabGUIManager:
         if result is None:
             self.summary_text.delete('1.0', tk.END)
             self.summary_text.insert('1.0', "No results to display.")
+            self.log_text.delete('1.0', tk.END)
+            self.log_text.insert('1.0', "No results to display.")
+            self.metrics_text.delete('1.0', tk.END)
+            self.metrics_text.insert('1.0', "No results to display.")
             return
+
+        # Summary Report
         report = generate_crashing_report(result)
         if not isinstance(report, str):
             report = str(report) if report is not None else "No report generated."
         self.summary_text.delete('1.0', tk.END)
         self.summary_text.insert('1.0', report)
-        # Log and metrics (stub, expand as needed)
+
+        # Detailed Log
+        log_lines = []
+        for entry in result.crash_log:
+            line = f"--- Time Step {entry.get('current_time')} (Iteration {entry.get('iteration')}) ---\n"
+            activity = entry.get('activity', 'None')
+            if activity != 'None':
+                line += f"  Action: Crashed '{activity}' to duration {entry.get('duration')}\n"
+                line += f"  Crash Cost Incurred: ${entry.get('cost', 0):,.2f}\n"
+            else:
+                line += "  Action: No crash occurred.\n"
+            
+            active_tasks = entry.get('active_activities', [])
+            line += f"  Active Tasks: {', '.join(active_tasks) if active_tasks else 'None'}\n"
+            line += f"  Normal Cost for this Step: ${entry.get('step_normal_cost', 0):,.2f}\n"
+            line += f"  Accumulated Normal Cost: ${entry.get('total_normal_cost_accumulated', 0):,.2f}\n"
+            line += f"  Accumulated Crash Cost: ${entry.get('total_crash_cost', 0):,.2f}\n"
+            line += f"  Project Duration at this point: {entry.get('current_project_duration')}\n\n"
+            log_lines.append(line)
+        
         self.log_text.delete('1.0', tk.END)
-        self.log_text.insert('1.0', str(result.crash_log))
+        self.log_text.insert('1.0', "".join(log_lines))
+
+        # Metrics
+        metrics_lines = []
+        total_project_cost = result.total_normal_cost + result.total_crash_cost
+        avg_cost_per_unit = total_project_cost / result.final_duration if result.final_duration > 0 else 0
+        
+        metrics_lines.append("--- Final Cost & Efficiency Metrics ---\n")
+        metrics_lines.append(f"Total Accumulated Normal Cost: ${result.total_normal_cost:,.2f}\n")
+        metrics_lines.append(f"Total Accumulated Crash Cost: ${result.total_crash_cost:,.2f}\n")
+        metrics_lines.append("="*40 + "\n")
+        metrics_lines.append(f"Final Total Project Cost: ${total_project_cost:,.2f}\n")
+        metrics_lines.append("="*40 + "\n\n")
+        metrics_lines.append(f"Original Duration: {result.original_duration} time units\n")
+        metrics_lines.append(f"Final Duration: {result.final_duration} time units\n")
+        metrics_lines.append(f"Time Saved: {result.original_duration - result.final_duration} time units\n\n")
+        metrics_lines.append(f"Average Cost Per Time Unit: ${avg_cost_per_unit:,.2f}\n")
+        
         self.metrics_text.delete('1.0', tk.END)
-        self.metrics_text.insert('1.0', str(result.efficiency_metrics))
+        self.metrics_text.insert('1.0', "".join(metrics_lines))
 
     # def update_visualization(self, result):
     #     """Update the matplotlib plots with the new crashing analysis results."""
@@ -486,7 +544,7 @@ class CrashingTabGUIManager:
         # Row 0: Target Duration, Strategy, Objective, Max Budget, Buttons
         ttk.Label(params_frame, text="Target Duration:").grid(row=0, column=0, padx=5, pady=2, sticky="w")
         self.target_duration_var = tk.StringVar(value="25")
-        ttk.Entry(params_frame, textvariable=self.target_duration_var, width=10).grid(row=0, column=1, padx=5, pady=2)
+        ttk.Entry(params_frame, textvariable=self.target_duration_var, width=6).grid(row=0, column=1, padx=5, pady=2)
 
         ttk.Label(params_frame, text="Strategy:").grid(row=0, column=2, padx=5, pady=2, sticky="w")
         self.strategy_var = tk.StringVar(value=CrashingStrategy.LOWEST_COST.value)
@@ -504,7 +562,15 @@ class CrashingTabGUIManager:
 
         ttk.Label(params_frame, text="Max Budget:").grid(row=0, column=6, padx=5, pady=2, sticky="w")
         self.budget_var = tk.StringVar(value="")
-        ttk.Entry(params_frame, textvariable=self.budget_var, width=10).grid(row=0, column=7, padx=5, pady=2)
+        ttk.Entry(params_frame, textvariable=self.budget_var, width=6).grid(row=0, column=7, padx=5, pady=2)
+
+        ttk.Label(params_frame, text="Max Crashing Cost:").grid(row=0, column=8, padx=5, pady=2, sticky="w")
+        self.max_crash_cost_var = tk.StringVar(value="")
+        ttk.Entry(params_frame, textvariable=self.max_crash_cost_var, width=6).grid(row=0, column=9, padx=5, pady=2)
+
+        ttk.Label(params_frame, text="Max Normal Cost:").grid(row=0, column=10, padx=5, pady=2, sticky="w")
+        self.max_normal_cost_var = tk.StringVar(value="")
+        ttk.Entry(params_frame, textvariable=self.max_normal_cost_var, width=6).grid(row=0, column=11, padx=5, pady=2)
 
         # Set max_iterations to 300 (no advanced parameters UI)
         self.max_iterations_var = tk.StringVar(value="300")
@@ -514,14 +580,14 @@ class CrashingTabGUIManager:
             params_frame,
             text="Run Crashing",
             command=self.run_crashing
-        ).grid(row=0, column=8, padx=10, pady=2, sticky="e")
+        ).grid(row=0, column=12, padx=10, pady=2, sticky="e")
 
         # Add a stretchable empty column to push right buttons to the far end
-        params_frame.grid_columnconfigure(9, weight=1)
+        params_frame.grid_columnconfigure(13, weight=1)
 
         # Frame for far right buttons
         right_buttons_frame = ttk.Frame(params_frame)
-        right_buttons_frame.grid(row=0, column=10, padx=0, pady=2, sticky="e")
+        right_buttons_frame.grid(row=0, column=14, padx=0, pady=2, sticky="e")
 
         ttk.Button(
             right_buttons_frame,
@@ -587,6 +653,8 @@ class CrashingTabGUIManager:
                             textvariable=self.step_select_var,
                             command=self.show_selected_step)
         self.step_select_spinbox.pack(side=tk.LEFT, padx=2)
+        # Bind Enter key to go to selected step
+        self.step_select_spinbox.bind('<Return>', lambda event: self.show_selected_step())
         ttk.Button(nav_frame, text="Show All Steps", command=self.show_all_steps_grid).pack(side=tk.RIGHT, padx=2)
         
         self.step_display_frame = ttk.Frame(viz_frame)
@@ -712,7 +780,12 @@ class CrashingTabGUIManager:
                 ax.set_title("Initial Network", fontsize=14, fontweight='bold')
             else:
                 draw_network_diagram_on_ax(ax, G_step)
-                ax.set_title(f"Step {step_num}: Activity {activity} crashed to {new_duration}", fontsize=14, fontweight='bold')
+                title = f"Time Step {step_num}"
+                if activity and activity != 'None':
+                    title += f": Activity {activity} crashed to {new_duration}"
+                else:
+                    title += ": No Crash"
+                ax.set_title(title, fontsize=14, fontweight='bold')
             canvas = FigureCanvasTkAgg(fig, self.step_display_frame)
             canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
             canvas.draw()
@@ -747,7 +820,7 @@ class CrashingTabGUIManager:
             return
         grid_window = tk.Toplevel(self.tab)
         grid_window.title("All Crashing Steps")
-        grid_window.geometry("1200x800")
+        grid_window.state('zoomed')
         canvas = tk.Canvas(grid_window)
         scrollbar = ttk.Scrollbar(grid_window, orient="vertical", command=canvas.yview)
         scrollable_frame = ttk.Frame(canvas)
@@ -757,10 +830,16 @@ class CrashingTabGUIManager:
         )
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
+        
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        
+        canvas.bind_all("<MouseWheel>", _on_mousewheel)
+
         cols = 3
         step_images = []
         for idx, (step_num, activity, new_duration, G_step) in enumerate(self.step_graphs):
-            fig = plt.Figure(figsize=(4, 3))
+            fig = plt.Figure(figsize=(5, 4))
             ax = fig.add_subplot(111)
             draw_network_diagram_on_ax_small(ax, G_step)
             if step_num == 0:
@@ -780,3 +859,8 @@ class CrashingTabGUIManager:
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
         grid_window.step_images = step_images
+
+        def _on_destroy(event):
+            if event.widget == grid_window:
+                canvas.unbind_all("<MouseWheel>")
+        grid_window.bind("<Destroy>", _on_destroy)
