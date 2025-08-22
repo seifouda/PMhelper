@@ -109,12 +109,8 @@ class PertDiagramTab:
         button_frame = ttk.Frame(control_frame)
         button_frame.pack(side=tk.RIGHT)
 
-        ttk.Button(button_frame, text="Refresh", 
-            command=self.update_diagram).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="Save Image", 
             command=self.save_diagram).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Reset View", 
-            command=self.reset_view).pack(side=tk.LEFT, padx=5)
     
     # Removed duplicate create_plot_area method
     
@@ -545,7 +541,7 @@ class PertDiagramTab:
             float_y = y - 1.2  # Changed from y + 1.0 to y - 1.2
             
             # LARGER font, NO "F" prefix, just the number
-            self.ax.text(x, float_y, float_text, ha='center', va='center',
+            self.ax.text(x - 0.3, float_y, float_text, ha='center', va='center',
                         fontsize=12, fontweight='bold', color='darkblue',
                         bbox=dict(boxstyle='round,pad=0.3', facecolor='white', 
                                  alpha=0.8, edgecolor='darkblue'))
