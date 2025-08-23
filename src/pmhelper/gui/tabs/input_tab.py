@@ -168,6 +168,8 @@ class InputTab:
             filetypes=[("CSV files", "*.csv"), ("Excel files", "*.xlsx"), ("All files", "*.*")]
         )
         if filename:
+            # Clear all data before loading new file
+            self.clear_all_without_confirmation()
             # Validate that the file contains CPM data before loading
             if self.validate_file_format(filename, 'deterministic'):
                 self.load_file(filename, 'deterministic')
@@ -336,6 +338,8 @@ class InputTab:
             filetypes=[("CSV files", "*.csv"), ("Excel files", "*.xlsx"), ("All files", "*.*")]
         )
         if filename:
+            # Clear all data before loading new file
+            self.clear_all_without_confirmation()
             # Validate that the file contains PERT data before loading
             if self.validate_file_format(filename, 'probabilistic'):
                 self.load_file(filename, 'probabilistic')
