@@ -2,7 +2,15 @@
 """
 Main Window Module
 
-Contains the main application window and overall GUI structure for PMHelper.
+Contains the main application w        # Analysis menu
+        analysis_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Analysis", menu=analysis_menu)
+        analysis_menu.add_command(label="Run CPM Analysis", command=self.run_cpm_analysis)
+        analysis_menu.add_command(label="Run PERT Analysis", command=self.run_pert_analysis)
+        analysis_menu.add_separator()
+        analysis_menu.add_command(label="Project Crashing", command=self.show_crashing_tab)
+        analysis_menu.add_command(label="Resource Scheduling", command=self.show_rcps_tab)
+        analysis_menu.add_command(label="RCPS Crashing", command=self.show_rcps_crashing_tab)d overall GUI structure for PMHelper.
 Manages the main interface, tab navigation, and overall application state.
 """
 
@@ -27,6 +35,7 @@ from .tabs.gantt_tab import GanttTab
 from .tabs.probability_tab import ProbabilityTab
 from .tabs.rcps_tab import RCPSTab
 from .tabs.crashing_tab import CrashingTab
+from .tabs.rcps_crashing_tab import RCPSCrashingTab
 
 
 class MainWindow:
@@ -87,6 +96,7 @@ class MainWindow:
         analysis_menu.add_separator()
         analysis_menu.add_command(label="Project Crashing", command=self.show_crashing_tab)
         analysis_menu.add_command(label="Resource Scheduling", command=self.show_rcps_tab)
+        analysis_menu.add_command(label="RCPS Crashing", command=self.show_rcps_crashing_tab)
         
         # Tools menu
         tools_menu = tk.Menu(menubar, tearoff=0)
@@ -121,11 +131,24 @@ class MainWindow:
         self.crashing_tab = CrashingTab(self.notebook, self)
         self.notebook.add(self.crashing_tab, text="Crashing")
         
+        # Add RCPS Crashing tab
+        self.rcps_crashing_tab = RCPSCrashingTab(self.notebook, self)
+        self.notebook.add(self.rcps_crashing_tab, text="RCPS Crashing")
+        
+        # Setup tab references for data sharing
+        self.setup_tab_references()
+        
         # CRITICAL FIX 3: Add tab communication event handling
         self.setup_tab_communication()
         
         # Bind tab change event
         self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
+    
+    def setup_tab_references(self):
+        """Setup cross-references between tabs for data sharing"""
+        # This method will be called after RCPS tab is created
+        # For now, store the reference for later linking
+        self.rcps_crashing_tab_needs_linking = True
     
     def create_status_bar(self):
         """Create the status bar"""
@@ -145,7 +168,7 @@ class MainWindow:
         if hasattr(self, 'notebook'):
             # Bind tab selection event for automatic chart updates
             self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_selected)
-            print("DEBUG: Tab communication event handling setup completed")
+            # print("DEBUG: Tab communication event handling setup completed")
         else:
             print("WARNING: Notebook not available for tab communication setup")
 
@@ -156,7 +179,7 @@ class MainWindow:
             selected_tab = event.widget.select()
             tab_text = event.widget.tab(selected_tab, "text")
             
-            print(f"DEBUG: Tab selected: {tab_text}")
+            # print(f"DEBUG: Tab selected: {tab_text}")
             
             # If Gantt Chart tab is selected and we have analysis results, ensure chart is displayed
             if ("Gantt" in tab_text or "gantt" in tab_text.lower()):
@@ -168,7 +191,7 @@ class MainWindow:
     def handle_gantt_tab_selection(self):
         """CRITICAL FIX 3: Handle Gantt tab selection with automatic chart update"""
         try:
-            print("DEBUG: Gantt tab selected - checking for data and updating chart")
+            # print("DEBUG: Gantt tab selected - checking for data and updating chart")
             
             # Check if Gantt tab exists
             if not (hasattr(self, 'gantt_tab') and self.gantt_tab):
@@ -177,19 +200,19 @@ class MainWindow:
             
             # Check if we have analysis results
             if hasattr(self, 'results_data') and self.results_data:
-                print("DEBUG: Analysis results available - updating Gantt chart")
+                # print("DEBUG: Analysis results available - updating Gantt chart")
                 
                 # Ensure Gantt tab has the latest data
                 if not hasattr(self.gantt_tab, 'results_data') or not self.gantt_tab.results_data:
-                    print("DEBUG: Sending analysis results to Gantt tab")
+                    # print("DEBUG: Sending analysis results to Gantt tab")
                     self.gantt_tab.update_data(self.results_data, getattr(self, 'analysis_mode', 'deterministic'))
                 
                 # Force chart update to ensure visibility
-                print("DEBUG: Forcing chart update for Gantt tab visibility")
+                # print("DEBUG: Forcing chart update for Gantt tab visibility")
                 self.gantt_tab.update_chart()
                 
             else:
-                print("DEBUG: No analysis results available for Gantt chart")
+                # print("DEBUG: No analysis results available for Gantt chart")
                 # Show empty plot with instruction message
                 if hasattr(self.gantt_tab, 'create_empty_plot'):
                     self.gantt_tab.create_empty_plot()
@@ -312,17 +335,17 @@ class MainWindow:
     def update_gantt_chart_after_analysis(self, results):
         """CRITICAL FIX 1: Automatically update Gantt chart after analysis"""
         try:
-            print("DEBUG: Triggering automatic Gantt chart update...")
+            # print("DEBUG: Triggering automatic Gantt chart update...")
             
             # Check if Gantt tab exists
             if hasattr(self, 'gantt_tab') and self.gantt_tab:
                 # Send results to Gantt tab
                 self.gantt_tab.update_data(results, self.analysis_mode)
-                print("DEBUG: Gantt tab updated with analysis results")
+                # print("DEBUG: Gantt tab updated with analysis results")
                 
                 # Force chart generation
                 self.gantt_tab.update_chart()
-                print("DEBUG: Gantt chart generation triggered")
+                # print("DEBUG: Gantt chart generation triggered")
                 
                 # Optional: Switch to Gantt tab to show results
                 self.show_gantt_tab_after_analysis()
@@ -344,9 +367,9 @@ class MainWindow:
                     tab_text = self.notebook.tab(i, "text")
                     if "Gantt" in tab_text or "gantt" in tab_text.lower():
                         self.notebook.select(i)
-                        print("DEBUG: Automatically switched to Gantt Chart tab")
+                        # print("DEBUG: Automatically switched to Gantt Chart tab")
                         return
-            print("DEBUG: Gantt tab not found for automatic switching")
+            # print("DEBUG: Gantt tab not found for automatic switching")
         except Exception as e:
             print(f"ERROR: Failed to switch to Gantt tab: {e}")
 
@@ -508,10 +531,10 @@ class MainWindow:
                 else:
                     self.current_data = None
                 # Debug printout for RCPS input verification
-                print("\n[DEBUG] PERT Analysis: DataFrame for RCPS (first 10 rows):")
+                # print("\n[DEBUG] PERT Analysis: DataFrame for RCPS (first 10 rows):")
                 print(self.current_data.head(10))
-                print("[DEBUG] Columns:", list(self.current_data.columns))
-                print("[DEBUG] Dtypes:\n", self.current_data.dtypes)
+                # print("[DEBUG] Columns:", list(self.current_data.columns))
+                # print("[DEBUG] Dtypes:\n", self.current_data.dtypes)
             except Exception as e:
                 print(f"[RCPS] Failed to set current_data: {e}")
                 self.current_data = None
@@ -621,11 +644,34 @@ class MainWindow:
         """Show the resource-constrained project scheduling tab"""
         if self.rcps_tab is None:
             self.rcps_tab = RCPSTab(self.notebook, self)
+            
+            # Link RCPS Crashing tab to RCPS tab now that both exist
+            if hasattr(self, 'rcps_crashing_tab') and hasattr(self, 'rcps_crashing_tab_needs_linking'):
+                self.rcps_crashing_tab.set_rcps_tab_reference(self.rcps_tab)
+                self.rcps_tab.rcps_crashing_tab = self.rcps_crashing_tab
+                delattr(self, 'rcps_crashing_tab_needs_linking')
+                # print("[DEBUG] RCPS tabs linked successfully")
+        
         # Switch to the RCPS tab
         for i in range(self.notebook.index('end')):
             if self.notebook.tab(i, 'text') == 'RCPS Schedule':
                 self.notebook.select(i)
                 break
+    
+    def show_rcps_crashing_tab(self):
+        """Show the RCPS crashing tab"""
+        # Ensure RCPS tab is created first (required for data access)
+        if self.rcps_tab is None:
+            self.show_rcps_tab()  # This will create and link the tabs
+        
+        # Switch to the RCPS Crashing tab
+        for i in range(self.notebook.index('end')):
+            if self.notebook.tab(i, 'text') == 'RCPS Crashing':
+                self.notebook.select(i)
+                return
+        
+        # If not found, show info
+        messagebox.showinfo("Info", "RCPS Crashing tab not found. Please check integration.")
     
     def generate_sample_cpm(self):
         """Generate and save sample CPM data"""

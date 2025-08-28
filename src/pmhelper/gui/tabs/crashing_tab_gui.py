@@ -73,14 +73,52 @@ class CrashingTabGUIManager:
             base_analyzer = getattr(self.app, "base_analyzer", None)
         if base_analyzer is None:
             messagebox.showerror("Data Error", "No project data loaded.")
-            print("[DEBUG] No project data loaded. self.app:", self.app)
+            # print("[DEBUG] No project data loaded. self.app:", self.app)
             return
         # Debug: print input data summary
-        print("[DEBUG] base_analyzer:", base_analyzer)
+        # print("[DEBUG] base_analyzer:", base_analyzer)
         if hasattr(base_analyzer, 'activities'):
-            print("[DEBUG] base_analyzer.activities:", getattr(base_analyzer, 'activities'))
-        if hasattr(base_analyzer, 'graph'):
-            print("[DEBUG] base_analyzer.graph nodes:", getattr(base_analyzer, 'graph').nodes())
+            # print("[DEBUG] base_analyzer.activities:", getattr(base_analyzer, 'activities', 'Not found'))
+            pass
+        if hasattr(base_analyzer, 'G'):
+            # print("[DEBUG] base_analyzer.G nodes:", getattr(base_analyzer, 'G').nodes() if getattr(base_analyzer, 'G') else 'No graph')
+            pass
+
+        # Validate target duration against original project duration
+        if hasattr(base_analyzer, 'G') and base_analyzer.G is not None:
+            try:
+                # Calculate original project duration using maximum EF value
+                ef_values = [base_analyzer.G.nodes[node].get('EF', 0) for node in base_analyzer.G.nodes()]
+                # Check if analysis has been run (EF values should be > 0 for at least one node)
+                if not any(ef > 0 for ef in ef_values):
+                    messagebox.showwarning(
+                        "Analysis Required", 
+                        "Please run CPM or PERT analysis first before using project crashing.\n\n"
+                        "Go to Analysis menu and run the appropriate analysis."
+                    )
+                    return
+                
+                original_duration = max(ef_values) if ef_values else 0
+                
+                if target_duration >= original_duration:
+                    messagebox.showwarning(
+                        "Invalid Target Duration", 
+                        f"Target duration ({target_duration}) must be less than the original project duration ({original_duration}).\n\n"
+                        f"Please enter a target duration less than {original_duration}."
+                    )
+                    return
+            except Exception as e:
+                # print(f"[DEBUG] Error calculating original duration: {e}")
+                # If we can't calculate the original duration, proceed with warning
+                messagebox.showwarning("Duration Check", "Could not validate target duration against original project duration.")
+        else:
+            # No graph available - user probably hasn't run analysis yet
+            messagebox.showwarning(
+                "Analysis Required", 
+                "Please run CPM or PERT analysis first before using project crashing.\n\n"
+                "Go to Analysis menu and run the appropriate analysis."
+            )
+            return
 
         # 3. Instantiate ProjectCrashing and run analysis
         crashing_engine = ProjectCrashing(base_analyzer)
@@ -373,16 +411,16 @@ class CrashingTabGUIManager:
         # Clear previous step data
         self.step_graphs = []
         
-        print(f"[DEBUG] Crashing result: {result}")
-        print(f"[DEBUG] Crash log: {getattr(result, 'crash_log', 'No crash_log')}")
+        # print(f"[DEBUG] Crashing result: {result}")
+        # print(f"[DEBUG] Crash log: {getattr(result, 'crash_log', 'No crash_log')}")
         
         # Use the ORIGINAL network from base_analyzer for step visualization,
         # NOT the crashed network, to ensure initial state shows uncrashed network
         base_graph = None
         base_analyzer = getattr(self.app, "current_analyzer", None) or getattr(self.app, "base_analyzer", None)
         if base_analyzer is not None:
-            print(f"[DEBUG] base_analyzer type: {type(base_analyzer)}")
-            print(f"[DEBUG] base_analyzer attributes: {dir(base_analyzer)}")
+            # print(f"[DEBUG] base_analyzer type: {type(base_analyzer)}")
+            # print(f"[DEBUG] base_analyzer attributes: {dir(base_analyzer)}")
             
             # Try different possible attribute names for the original network
             for attr_name in ['graph', 'G', 'network', 'original_graph', 'build_network']:
@@ -394,16 +432,16 @@ class CrashingTabGUIManager:
                             if callable(attr_value):
                                 if hasattr(base_analyzer, 'activities'):
                                     base_graph = attr_value(base_analyzer.activities)
-                                    print(f"[DEBUG] Using base_analyzer.{attr_name}(activities) for visualization")
+                                    # print(f"[DEBUG] Using base_analyzer.{attr_name}(activities) for visualization")
                                 else:
                                     base_graph = attr_value()
-                                    print(f"[DEBUG] Using base_analyzer.{attr_name}() for visualization")
+                                    # print(f"[DEBUG] Using base_analyzer.{attr_name}() for visualization")
                             else:
                                 base_graph = attr_value
-                                print(f"[DEBUG] Using base_analyzer.{attr_name} for visualization")
+                                # print(f"[DEBUG] Using base_analyzer.{attr_name} for visualization")
                             break
                     except Exception as e:
-                        print(f"[DEBUG] Failed to get {attr_name} from base_analyzer: {e}")
+                        # print(f"[DEBUG] Failed to get {attr_name} from base_analyzer: {e}")
                         continue
             
             # Final fallback: check if we can build network from activities
@@ -412,34 +450,36 @@ class CrashingTabGUIManager:
                     # Try to build network using the same logic as the analyzer
                     if hasattr(base_analyzer, 'build_network'):
                         base_graph = base_analyzer.build_network(base_analyzer.activities)
-                        print("[DEBUG] Built network using base_analyzer.build_network(activities)")
+                        # print("[DEBUG] Built network using base_analyzer.build_network(activities)")
                     elif hasattr(base_analyzer, '__class__') and hasattr(base_analyzer.__class__, 'build_network'):
                         base_graph = base_analyzer.__class__.build_network(base_analyzer.activities)
-                        print("[DEBUG] Built network using analyzer class build_network method")
+                        # print("[DEBUG] Built network using analyzer class build_network method")
                 except Exception as e:
-                    print(f"[DEBUG] Failed to build network from activities: {e}")
+                    # print(f"[DEBUG] Failed to build network from activities: {e}")
+                    pass
         
         # Last resort: use the crashed graph from result if no original found
         if base_graph is None and hasattr(result, 'crashed_graph') and getattr(result, 'crashed_graph', None) is not None:
             base_graph = getattr(result, 'crashed_graph')
-            print("[DEBUG] Fallback to result.crashed_graph (will show wrong initial state)")
+            # print("[DEBUG] Fallback to result.crashed_graph (will show wrong initial state)")
         
-        print(f"[DEBUG] base_graph is None? {base_graph is None}")
+        # print(f"[DEBUG] base_graph is None? {base_graph is None}")
         if base_graph is not None:
             try:
                 nodes_list = list(base_graph.nodes())
-                print(f"[DEBUG] base_graph type: {type(base_graph)}, nodes_count: {len(nodes_list)}")
-                print(f"[DEBUG] base_graph nodes repr: {[repr(n) for n in nodes_list]}")
-                print(f"[DEBUG] base_graph node types sample: {[type(n) for n in nodes_list[:10]]}")
+                # print(f"[DEBUG] base_graph type: {type(base_graph)}, nodes_count: {len(nodes_list)}")
+                # print(f"[DEBUG] base_graph nodes repr: {[repr(n) for n in nodes_list]}")
+                # print(f"[DEBUG] base_graph node types sample: {[type(n) for n in nodes_list[:10]]}")
             except Exception as _e:
-                print(f"[DEBUG] Error inspecting base_graph nodes: {_e}")
+                # print(f"[DEBUG] Error inspecting base_graph nodes: {_e}")
+                pass
         
         if result and hasattr(result, 'crash_log') and result.crash_log:
             # Step 0: Add the original, uncrashed network state
             if base_graph is not None:
                 original_G = base_graph.copy()
                 self.step_graphs.append((0, 'Initial', None, original_G))
-                print("[DEBUG] Added step 0: Initial network state")
+                # print("[DEBUG] Added step 0: Initial network state")
             
             # Steps 1-N: Create network state after each crash step
             # Each step shows the cumulative result of all crashes up to that point
@@ -463,7 +503,7 @@ class CrashingTabGUIManager:
                                 crashed_duration = crash_entry.get('new_duration', None) or crash_entry.get('duration', None)
                                 if crashed_activity and crashed_activity in G_step.nodes() and crashed_duration is not None:
                                     G_step.nodes[crashed_activity]['duration'] = crashed_duration
-                                    print(f"[DEBUG] Step {step_num}: Applied crash {j+1} - {crashed_activity} to duration {crashed_duration}")
+                                    # print(f"[DEBUG] Step {step_num}: Applied crash {j+1} - {crashed_activity} to duration {crashed_duration}")
                         
                         # Recalculate CPM for this step to get correct float values
                         network_builder = getattr(getattr(self.app, "current_analyzer", None) or getattr(self.app, "base_analyzer", None), 'network_builder', None)
@@ -479,13 +519,13 @@ class CrashingTabGUIManager:
                                 G_step.nodes[n]['float'] = 0 if n in cp else G_step.nodes[n].get('float', 1)
                         
                         self.step_graphs.append((step_num, activity, new_duration if new_duration is not None else 0, G_step))
-                        print(f"[DEBUG] Added step {step_num}: {activity} crashed to {new_duration}")
+                        # print(f"[DEBUG] Added step {step_num}: {activity} crashed to {new_duration}")
                         
                     except Exception as e:
-                        print(f"[DEBUG] Failed to synthesize G_step for step {step_num}: {e}")
+                        # print(f"[DEBUG] Failed to synthesize G_step for step {step_num}: {e}")
                         continue
         
-        print(f"[DEBUG] Step graphs populated: {len(self.step_graphs)}")
+        # print(f"[DEBUG] Step graphs populated: {len(self.step_graphs)}")
         
         # Update navigation controls
         self.total_steps = len(self.step_graphs)
@@ -504,18 +544,238 @@ class CrashingTabGUIManager:
     def export_results(self):
         """
         Export the current crashing results to a file.
-        TODO: Implement export logic.
         """
-        messagebox.showinfo("Export Results", "Export functionality would run here.")
+        try:
+            # Check if there are results to export
+            summary_content = self.summary_text.get('1.0', tk.END).strip()
+            if not summary_content or summary_content == "No results to display.":
+                messagebox.showwarning("No Results", "No crashing results to export. Please run crashing analysis first.")
+                return
+            
+            from tkinter import filedialog
+            import os
+            from datetime import datetime
+            
+            # Ask user for file location
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            default_filename = f"crashing_results_{timestamp}.txt"
+            
+            file_path = filedialog.asksaveasfilename(
+                defaultextension=".txt",
+                filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
+                initialfilename=default_filename,
+                title="Export Crashing Results"
+            )
+            
+            if file_path:
+                # Combine all results into one file
+                log_content = self.log_text.get('1.0', tk.END).strip()
+                metrics_content = self.metrics_text.get('1.0', tk.END).strip()
+                
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write("="*60 + "\n")
+                    f.write("PROJECT CRASHING ANALYSIS RESULTS\n")
+                    f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                    f.write("="*60 + "\n\n")
+                    
+                    f.write("SUMMARY REPORT\n")
+                    f.write("-"*40 + "\n")
+                    f.write(summary_content + "\n\n")
+                    
+                    f.write("DETAILED LOG\n")
+                    f.write("-"*40 + "\n")
+                    f.write(log_content + "\n\n")
+                    
+                    f.write("COST METRICS\n")
+                    f.write("-"*40 + "\n")
+                    f.write(metrics_content + "\n")
+                
+                messagebox.showinfo("Success", f"Results exported successfully to:\n{file_path}")
+                
+        except Exception as e:
+            messagebox.showerror("Export Error", f"Failed to export results:\n{str(e)}")
 
     def clear_results(self):
         """
         Clear all displayed results and reset the UI.
-        TODO: Implement clear logic.
         """
         self.summary_text.delete('1.0', tk.END)
         self.log_text.delete('1.0', tk.END)
         self.metrics_text.delete('1.0', tk.END)
+        
+        # Clear visualization
+        for widget in self.step_display_frame.winfo_children():
+            widget.destroy()
+        
+        # Reset step navigation
+        self.step_graphs = []
+        self.current_step = 0
+        self.total_steps = 0
+        self.step_select_spinbox.config(to=0)
+        self.step_info_label.config(text="Step 0 of 0")
+        self.step_select_var.set("0")
+        
+        # Show "No results" message
+        tk.Label(self.step_display_frame, text="No crashing results to display").pack()
+
+    def open_results_in_new_window(self):
+        """
+        Open the crashing results (summary, log, metrics) in a new window for better visibility.
+        Similar to the "Show All Steps" functionality but for text results.
+        """
+        # Check if there are any results to display
+        summary_content = self.summary_text.get('1.0', tk.END).strip()
+        log_content = self.log_text.get('1.0', tk.END).strip()
+        metrics_content = self.metrics_text.get('1.0', tk.END).strip()
+        
+        if not summary_content or summary_content == "No results to display.":
+            messagebox.showwarning("No Results", "No crashing results to display. Please run crashing analysis first.")
+            return
+        
+        # Create new window
+        results_window = tk.Toplevel(self.tab)
+        results_window.title("Crashing Analysis Results - Detailed View")
+        results_window.geometry("1200x800")
+        results_window.state('normal')  # Start normal, user can maximize if needed
+        
+        # Create notebook for the three tabs
+        results_notebook = ttk.Notebook(results_window)
+        results_notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        # Summary Tab
+        summary_frame = ttk.Frame(results_notebook)
+        results_notebook.add(summary_frame, text="📊 Summary Report")
+        
+        summary_scroll = scrolledtext.ScrolledText(
+            summary_frame, 
+            wrap=tk.WORD, 
+            font=("Consolas", 10),
+            padx=10,
+            pady=10
+        )
+        summary_scroll.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        summary_scroll.insert('1.0', summary_content)
+        summary_scroll.config(state=tk.DISABLED)  # Make read-only
+        
+        # Detailed Log Tab
+        log_frame = ttk.Frame(results_notebook)
+        results_notebook.add(log_frame, text="📋 Detailed Log")
+        
+        log_scroll = scrolledtext.ScrolledText(
+            log_frame, 
+            wrap=tk.WORD, 
+            font=("Consolas", 9),
+            padx=10,
+            pady=10
+        )
+        log_scroll.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        log_scroll.insert('1.0', log_content)
+        log_scroll.config(state=tk.DISABLED)  # Make read-only
+        
+        # Metrics Tab
+        metrics_frame = ttk.Frame(results_notebook)
+        results_notebook.add(metrics_frame, text="📈 Cost Metrics")
+        
+        metrics_scroll = scrolledtext.ScrolledText(
+            metrics_frame, 
+            wrap=tk.WORD, 
+            font=("Consolas", 10),
+            padx=10,
+            pady=10
+        )
+        metrics_scroll.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        metrics_scroll.insert('1.0', metrics_content)
+        metrics_scroll.config(state=tk.DISABLED)  # Make read-only
+        
+        # Add control buttons at the bottom
+        button_frame = ttk.Frame(results_window)
+        button_frame.pack(fill=tk.X, padx=10, pady=(0, 10))
+        
+        ttk.Button(
+            button_frame,
+            text="💾 Save All Results",
+            command=lambda: self.save_results_from_window(summary_content, log_content, metrics_content)
+        ).pack(side=tk.LEFT, padx=5)
+        
+        ttk.Button(
+            button_frame,
+            text="📋 Copy Current Tab",
+            command=lambda: self.copy_current_tab_content(results_notebook)
+        ).pack(side=tk.LEFT, padx=5)
+        
+        ttk.Button(
+            button_frame,
+            text="❌ Close",
+            command=results_window.destroy
+        ).pack(side=tk.RIGHT, padx=5)
+        
+        # Focus on the new window
+        results_window.focus_force()
+        results_window.lift()
+        
+        # print("[DEBUG] Opened crashing results in new window")
+
+    def save_results_from_window(self, summary_content, log_content, metrics_content):
+        """Save all results from the new window to files"""
+        from tkinter import filedialog
+        import os
+        from datetime import datetime
+        
+        try:
+            # Ask user for directory to save files
+            save_dir = filedialog.askdirectory(title="Choose directory to save results")
+            if not save_dir:
+                return
+            
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            
+            # Save summary
+            summary_file = os.path.join(save_dir, f"crashing_summary_{timestamp}.txt")
+            with open(summary_file, 'w', encoding='utf-8') as f:
+                f.write(summary_content)
+            
+            # Save log
+            log_file = os.path.join(save_dir, f"crashing_log_{timestamp}.txt")
+            with open(log_file, 'w', encoding='utf-8') as f:
+                f.write(log_content)
+            
+            # Save metrics
+            metrics_file = os.path.join(save_dir, f"crashing_metrics_{timestamp}.txt")
+            with open(metrics_file, 'w', encoding='utf-8') as f:
+                f.write(metrics_content)
+            
+            messagebox.showinfo("Success", 
+                f"Results saved successfully!\n\n"
+                f"Files saved in: {save_dir}\n"
+                f"- crashing_summary_{timestamp}.txt\n"
+                f"- crashing_log_{timestamp}.txt\n"
+                f"- crashing_metrics_{timestamp}.txt")
+                
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to save results: {str(e)}")
+
+    def copy_current_tab_content(self, notebook):
+        """Copy the content of the currently selected tab to clipboard"""
+        try:
+            current_tab = notebook.select()
+            tab_text = notebook.tab(current_tab, "text")
+            
+            # Get the scrolled text widget from the current tab
+            current_frame = notebook.nametowidget(current_tab)
+            for widget in current_frame.winfo_children():
+                if isinstance(widget, scrolledtext.ScrolledText):
+                    content = widget.get('1.0', tk.END)
+                    # Copy to clipboard
+                    notebook.clipboard_clear()
+                    notebook.clipboard_append(content)
+                    messagebox.showinfo("Copied", f"Content from '{tab_text}' copied to clipboard!")
+                    return
+            
+            messagebox.showwarning("Error", "Could not find content to copy.")
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to copy content: {str(e)}")
+
     """
     Manager for Project Crashing GUI Components
     Handles all controls, result displays, and visualizations for the Crashing tab.
@@ -544,7 +804,7 @@ class CrashingTabGUIManager:
         # Row 0: Target Duration, Strategy, Objective, Max Budget, Buttons
         ttk.Label(params_frame, text="Target Duration:").grid(row=0, column=0, padx=5, pady=2, sticky="w")
         self.target_duration_var = tk.StringVar(value="25")
-        ttk.Entry(params_frame, textvariable=self.target_duration_var, width=6).grid(row=0, column=1, padx=5, pady=2)
+        ttk.Entry(params_frame, textvariable=self.target_duration_var, width=10).grid(row=0, column=1, padx=5, pady=2)
 
         ttk.Label(params_frame, text="Strategy:").grid(row=0, column=2, padx=5, pady=2, sticky="w")
         self.strategy_var = tk.StringVar(value=CrashingStrategy.LOWEST_COST.value)
@@ -562,15 +822,15 @@ class CrashingTabGUIManager:
 
         ttk.Label(params_frame, text="Max Budget:").grid(row=0, column=6, padx=5, pady=2, sticky="w")
         self.budget_var = tk.StringVar(value="")
-        ttk.Entry(params_frame, textvariable=self.budget_var, width=6).grid(row=0, column=7, padx=5, pady=2)
+        ttk.Entry(params_frame, textvariable=self.budget_var, width=10).grid(row=0, column=7, padx=5, pady=2)
 
         ttk.Label(params_frame, text="Max Crashing Cost:").grid(row=0, column=8, padx=5, pady=2, sticky="w")
         self.max_crash_cost_var = tk.StringVar(value="")
-        ttk.Entry(params_frame, textvariable=self.max_crash_cost_var, width=6).grid(row=0, column=9, padx=5, pady=2)
+        ttk.Entry(params_frame, textvariable=self.max_crash_cost_var, width=10).grid(row=0, column=9, padx=5, pady=2)
 
         ttk.Label(params_frame, text="Max Normal Cost:").grid(row=0, column=10, padx=5, pady=2, sticky="w")
         self.max_normal_cost_var = tk.StringVar(value="")
-        ttk.Entry(params_frame, textvariable=self.max_normal_cost_var, width=6).grid(row=0, column=11, padx=5, pady=2)
+        ttk.Entry(params_frame, textvariable=self.max_normal_cost_var, width=10).grid(row=0, column=11, padx=5, pady=2)
 
         # Set max_iterations to 300 (no advanced parameters UI)
         self.max_iterations_var = tk.StringVar(value="300")
@@ -605,8 +865,18 @@ class CrashingTabGUIManager:
         results_frame = ttk.LabelFrame(self.tab, text="Crashing Results")
         results_frame.pack(fill=tk.X, expand=False, padx=5, pady=5)
 
-        self.results_notebook = ttk.Notebook(results_frame)
-        self.results_notebook.pack(fill=tk.X, expand=False, pady=5)
+        # Notebook with integrated button
+        notebook_frame = ttk.Frame(results_frame)
+        notebook_frame.pack(fill=tk.X, expand=False, padx=5, pady=5)
+        
+        self.results_notebook = ttk.Notebook(notebook_frame)
+        self.results_notebook.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        
+        ttk.Button(
+            notebook_frame,
+            text="Open Results in New Window",
+            command=self.open_results_in_new_window
+        ).pack(side=tk.RIGHT, padx=(5, 0))
 
         summary_frame = ttk.Frame(self.results_notebook)
         self.results_notebook.add(summary_frame, text="Summary")
@@ -653,119 +923,10 @@ class CrashingTabGUIManager:
                             textvariable=self.step_select_var,
                             command=self.show_selected_step)
         self.step_select_spinbox.pack(side=tk.LEFT, padx=2)
-        # Bind Enter key to go to selected step
-        self.step_select_spinbox.bind('<Return>', lambda event: self.show_selected_step())
         ttk.Button(nav_frame, text="Show All Steps", command=self.show_all_steps_grid).pack(side=tk.RIGHT, padx=2)
         
         self.step_display_frame = ttk.Frame(viz_frame)
         self.step_display_frame.pack(fill=tk.BOTH, expand=True)
-
-    # --- CPM Crashing Step Visualization Integration ---
-    def _draw_network_diagram_on_ax(self, ax, G):
-        import networkx as nx
-        import matplotlib.pyplot as plt
-        pos = {}
-        generations = list(nx.topological_generations(G))
-        for i, gen in enumerate(generations):
-            sorted_gen = sorted(gen)
-            for j, node in enumerate(sorted_gen):
-                y_pos = (j - len(sorted_gen) / 2 + 0.5) * 4
-                pos[node] = (i * 3, y_pos)
-        node_radius = 0.4
-        for u, v in G.edges():
-            x1, y1 = pos[u]
-            x2, y2 = pos[v]
-            dx = x2 - x1
-            dy = y2 - y1
-            distance = (dx ** 2 + dy ** 2) ** 0.5
-            if distance > 0:
-                dx_norm = dx / distance
-                dy_norm = dy / distance
-                start_x = x1 + node_radius * dx_norm
-                start_y = y1 + node_radius * dy_norm
-                end_x = x2 - node_radius * dx_norm
-                end_y = y2 - node_radius * dy_norm
-                ax.annotate("", xy=(end_x, end_y), xytext=(start_x, start_y),
-                            arrowprops=dict(arrowstyle="->", color="black", lw=1.5))
-        critical_activities = [node for node in G.nodes() if G.nodes[node].get('float', None) == 0 and node not in ['START', 'END']]
-        for node in G.nodes():
-            x, y = pos[node]
-            if node == 'START':
-                color = 'lightgreen'
-            elif node == 'END':
-                color = 'orange'
-            elif node in critical_activities:
-                color = 'red'
-            else:
-                color = 'lightblue'
-            circle = plt.Circle((x, y), node_radius, fill=True, color=color, alpha=0.7,
-                                edgecolor='black', linewidth=1.5)
-            ax.add_patch(circle)
-            if node in ['START', 'END']:
-                display_text = 'Start' if node == 'START' else 'End'
-                ax.text(x, y, display_text, ha='center', va='center',
-                        fontsize=10, fontweight='bold')
-            else:
-                ax.plot([x - node_radius, x + node_radius], [y, y],
-                        color='black', linewidth=1.2)
-                ax.text(x, y + node_radius / 2, node, ha='center', va='center',
-                        fontsize=10, fontweight='bold')
-                ax.text(x, y - node_radius / 2, str(G.nodes[node].get('duration', '')), ha='center', va='center', fontsize=9)
-        ax.set_axis_off()
-        ax.set_aspect('equal')
-
-    def _draw_network_diagram_on_ax_small(self, ax, G):
-        import networkx as nx
-        import matplotlib.pyplot as plt
-        pos = {}
-        generations = list(nx.topological_generations(G))
-        for i, gen in enumerate(generations):
-            sorted_gen = sorted(gen)
-            for j, node in enumerate(sorted_gen):
-                y_pos = (j - len(sorted_gen) / 2 + 0.5) * 2
-                pos[node] = (i * 2, y_pos)
-        node_radius = 0.3
-        for u, v in G.edges():
-            x1, y1 = pos[u]
-            x2, y2 = pos[v]
-            dx = x2 - x1
-            dy = y2 - y1
-            distance = (dx ** 2 + dy ** 2) ** 0.5
-            if distance > 0:
-                dx_norm = dx / distance
-                dy_norm = dy / distance
-                start_x = x1 + node_radius * dx_norm
-                start_y = y1 + node_radius * dy_norm
-                end_x = x2 - node_radius * dx_norm
-                end_y = y2 - node_radius * dy_norm
-                ax.annotate("", xy=(end_x, end_y), xytext=(start_x, start_y),
-                            arrowprops=dict(arrowstyle="->", color="black", lw=1))
-        critical_activities = [node for node in G.nodes() if G.nodes[node].get('float', None) == 0 and node not in ['START', 'END']]
-        for node in G.nodes():
-            x, y = pos[node]
-            if node == 'START':
-                color = 'lightgreen'
-            elif node == 'END':
-                color = 'orange'
-            elif node in critical_activities:
-                color = 'red'
-            else:
-                color = 'lightblue'
-            circle = plt.Circle((x, y), node_radius, fill=True, color=color, alpha=0.7,
-                                edgecolor='black', linewidth=1)
-            ax.add_patch(circle)
-            if node in ['START', 'END']:
-                display_text = 'Start' if node == 'START' else 'End'
-                ax.text(x, y, display_text, ha='center', va='center',
-                        fontsize=7, fontweight='bold')
-            else:
-                ax.plot([x - node_radius, x + node_radius], [y, y],
-                        color='black', linewidth=0.8)
-                ax.text(x, y + node_radius / 2, node, ha='center', va='center',
-                        fontsize=7, fontweight='bold')
-                ax.text(x, y - node_radius / 2, str(G.nodes[node].get('duration', '')), ha='center', va='center', fontsize=6)
-        ax.set_axis_off()
-        ax.set_aspect('equal')
 
     def show_step(self, step_index):
         if 0 <= step_index < len(self.step_graphs):

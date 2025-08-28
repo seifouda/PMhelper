@@ -3,7 +3,7 @@
 RCPS Tab Module
 
 Displays resource-constrained project scheduling (RCPS) results and resource utilization charts.
-This module provides GUI components for v            # Display hybrid layout with tables and Gantt charts
+This module provides GUI components for v            # Displa                                  # Store data for f            # Store            # Store            # S            # Displ                     # Display hybrid layout with tables and Gantt charts
             print("[DEBUG] Using HYBRID LAYOUT with tables + Gantt charts")
             self.display_hybrid_schedule_view(self.tables_frame, cmp_table_aligned, rcps_table, df_gantt)
             
@@ -11,7 +11,154 @@ This module provides GUI components for v            # Display hybrid layout wit
             self.cmp_table_data = cmp_table_aligned
             self.rcps_table_data = rcps_table
             self.gantt_data = df_gantt
-            self.fullscreen_btn.config(state='normal')alizing resource-constrained project schedules,
+            self.fullscreen_btn.config(state='normal')
+            
+            # Build and store network graph for RCPS Crashing feature
+            print("[DEBUG STORAGE] Building network graph for RCPS Crashing...")
+            self.rcps_network_graph = self._build_rcps_network_graph(df_gantt)
+            self.rcps_analyzer = analyzer
+            print(f"[DEBUG STORAGE] Network graph built: {self.rcps_network_graph is not None}")
+            print(f"[DEBUG STORAGE] Analyzer stored: {self.rcps_analyzer is not None}")
+            
+        except ValueError as ve:data for fullscreen comparison and enable button
+            self.cmp_table_data = cmp_table_aligned
+            self.rcps_table_data = rcps_table
+            self.gantt_data = df_gantt
+            self.fullscreen_btn.config(state='normal')
+            
+            # CRITICAL: Build and store network graph for RCPS Crashing
+            print("[DEBUG STORAGE] Building and storing network graph for RCPS Crashing...")
+            self.rcps_network_graph = self._build_rcps_network_graph(df_gantt, analyzer)
+            self.rcps_analyzer = analyzer
+            print(f"[DEBUG STORAGE] Network graph stored: {self.rcps_network_graph is not None}")
+            print(f"[DEBUG STORAGE] Analyzer stored: {self.rcps_analyzer is not None}")
+            
+        except ValueError as ve:id layout with tables and Gantt charts
+            print("[DEBUG] Using HYBRID LAYOUT with tables + Gantt charts")
+            self.display_hybrid_schedule_view(self.tables_frame, cmp_table_aligned, rcps_table, df_gantt)
+            
+            # Store data for fullscreen comparison and enable button
+            self.cmp_table_data = cmp_table_aligned
+            self.rcps_table_data = rcps_table
+            self.gantt_data = df_gantt
+            self.fullscreen_btn.config(state='normal')
+            
+            # CRITICAL: Build and store network graph for RCPS Crashing
+            print("[DEBUG STORAGE] Building and storing network graph for RCPS Crashing...")
+            self.rcps_network_graph = self._build_rcps_network_graph(df_gantt, analyzer)
+            self.rcps_analyzer = analyzer
+            print(f"[DEBUG STORAGE] Network graph stored: {self.rcps_network_graph is not None}")
+            print(f"[DEBUG STORAGE] Analyzer stored: {self.rcps_analyzer is not None}") for fullscreen comparison and enable button
+            self.cmp_table_data = cmp_table_aligned
+            self.rcps_table_data = rcps_table
+            self.gantt_data = df_gantt
+            self.fullscreen_btn.config(state='normal')
+            
+            # Convert RCPS table back to NetworkX graph for RCPS Crashing
+            print(f"[DEBUG] About to store RCPS network graph and analyzer")
+            try:
+                self.rcps_network_graph = self._build_rcps_network_graph(rcps_table, df_gantt, analyzer)
+                self.rcps_analyzer = analyzer
+                print(f"[DEBUG] RCPS network graph stored: {type(self.rcps_network_graph)}")
+                print(f"[DEBUG] RCPS analyzer stored: {type(self.rcps_analyzer)}")
+                print(f"[DEBUG] RCPS network graph and analyzer stored for RCPS Crashing")
+            except Exception as e:
+                print(f"[DEBUG] Error storing RCPS data: {e}")
+                import traceback
+                traceback.print_exc()
+            
+        except ValueError as ve:or fullscreen comparison and enable button
+            self.cmp_table_data = cmp_table_aligned
+            self.rcps_table_data = rcps_table
+            self.gantt_data = df_gantt
+            self.fullscreen_btn.config(state='normal')
+            
+            # Convert RCPS table back to NetworkX graph for RCPS Crashing
+            print(f"[DEBUG] About to store RCPS network graph and analyzer")
+            try:
+                self.rcps_network_graph = self._build_rcps_network_graph(rcps_table, df_gantt, analyzer)
+                self.rcps_analyzer = analyzer
+                print(f"[DEBUG] RCPS network graph stored: {type(self.rcps_network_graph)}")
+                print(f"[DEBUG] RCPS analyzer stored: {type(self.rcps_analyzer)}")
+                print(f"[DEBUG] RCPS network graph and analyzer stored for RCPS Crashing")
+            except Exception as e:
+                print(f"[DEBUG] Error storing RCPS data: {e}")
+                import traceback
+                traceback.print_exc()
+            
+        except ValueError as ve:or fullscreen comparison and enable button
+            self.cmp_table_data = cmp_table_aligned
+            self.rcps_table_data = rcps_table
+            self.gantt_data = df_gantt
+            self.fullscreen_btn.config(state='normal')
+            
+            # Convert RCPS table back to NetworkX graph for RCPS Crashing
+            print(f"[DEBUG] About to store RCPS network graph and analyzer")
+            try:
+                self.rcps_network_graph = self._build_rcps_network_graph(rcps_table, df_gantt, analyzer)
+                self.rcps_analyzer = analyzer
+                print(f"[DEBUG] RCPS network graph stored: {type(self.rcps_network_graph)}")
+                print(f"[DEBUG] RCPS analyzer stored: {type(self.rcps_analyzer)}")
+                print(f"[DEBUG] RCPS network graph and analyzer stored for RCPS Crashing")
+            except Exception as e:
+                print(f"[DEBUG] Error storing RCPS data: {e}")
+                import traceback
+                traceback.print_exc()
+            
+        except ValueError as ve:en comparison and enable button
+            self.cmp_table_data = cmp_table_aligned
+            self.rcps_table_data = rcps_table
+            self.gantt_data = df_gantt
+            self.fullscreen_btn.config(state='normal')
+            
+            # Convert RCPS table back to NetworkX graph for RCPS Crashing
+            print(f"[DEBUG] About to store RCPS network graph and analyzer")
+            try:
+                self.rcps_network_graph = self._build_rcps_network_graph(rcps_table, df_gantt, analyzer)
+                self.rcps_analyzer = analyzer
+                print(f"[DEBUG] RCPS network graph stored: {type(self.rcps_network_graph)}")
+                print(f"[DEBUG] RCPS analyzer stored: {type(self.rcps_analyzer)}")
+                print(f"[DEBUG] RCPS network graph and analyzer stored for RCPS Crashing")
+            except Exception as e:
+                print(f"[DEBUG] Error storing RCPS data: {e}")
+                import traceback
+                traceback.print_exc()
+            
+        except ValueError as ve:e data for fullscreen comparison and enable button
+            self.cmp_table_data = cmp_table_aligned
+            self.rcps_table_data = rcps_table
+            self.gantt_data = df_gantt
+            self.fullscreen_btn.config(state='normal')
+            
+            # Convert RCPS table back to NetworkX graph for RCPS Crashing
+            self.rcps_network_graph = self._build_rcps_network_graph(rcps_table, df_gantt, analyzer)
+            self.rcps_analyzer = analyzer
+            print(f"[DEBUG] RCPS network graph and analyzer stored for RCPS Crashing")
+            
+        except ValueError as ve:e data for fullscreen comparison and enable button
+            self.cmp_table_data = cmp_table_aligned
+            self.rcps_table_data = rcps_table
+            self.gantt_data = df_gantt
+            self.fullscreen_btn.config(state='normal')
+            
+            # Convert RCPS table back to NetworkX graph for RCPS Crashing
+            self.rcps_network_graph = self._build_rcps_network_graph(rcps_table, df_gantt, analyzer)
+            self.rcps_analyzer = analyzer
+            print(f"[DEBUG] RCPS network graph and analyzer stored for RCPS Crashing")
+            
+        except ValueError as ve:d layout with tables and Gantt charts
+            print("[DEBUG] Using HYBRID LAYOUT with tables + Gantt charts")
+            self.display_hybrid_schedule_view(self.tables_frame, cmp_table_aligned, rcps_table, df_gantt)
+            
+            # Store data for fullscreen comparison and enable button
+            self.cmp_table_data = cmp_table_aligned
+            self.rcps_table_data = rcps_table
+            self.gantt_data = df_gantt
+            self.fullscreen_btn.config(state='normal')
+            
+            # Convert RCPS table back to NetworkX graph for RCPS Crashing
+            self.rcps_network_graph = self._build_rcps_network_graph(rcps_table, df_gantt, analyzer)
+            self.rcps_analyzer = analyzeralizing resource-constrained project schedules,
 comparing CPM/PERT theoretical schedules with realistic resource-limited schedules.
 """
 
@@ -41,6 +188,10 @@ class RCPSTab:
         self.cmp_table_data = None
         self.rcps_table_data = None
         self.gantt_data = None
+        # Add storage for RCPS network data
+        self.rcps_network_graph = None
+        self.rcps_analyzer = None
+        self.rcps_crashing_tab = None  # Reference to RCPS Crashing tab
         self.create_tab()
 
     def create_tab(self):
@@ -136,14 +287,22 @@ class RCPSTab:
 
     def run_rcps(self):
         """Execute RCPS analysis with comprehensive error handling"""
+        print("[DEBUG] run_rcps method called - starting execution")
         try:
             # Get input parameters
             resource_limit = self.resource_limit_var.get()
             priority_rule = self.priority_rule_var.get()
             df_gantt = self.main_window.current_data
+            print(f"[DEBUG] Got inputs: resource_limit={resource_limit}, priority_rule={priority_rule}, df_gantt shape={df_gantt.shape if df_gantt is not None else 'None'}")
             
             # Validate inputs
-            self.validate_rcps_inputs(df_gantt, resource_limit, priority_rule)
+            print("[DEBUG] About to validate inputs")
+            try:
+                self.validate_rcps_inputs(df_gantt, resource_limit, priority_rule)
+                print("[DEBUG] Input validation completed")
+            except Exception as e:
+                print(f"[DEBUG] Input validation failed: {e}")
+                raise
             
             # Validate resource limit against max resource demand
             if 'resource' in df_gantt.columns:
@@ -156,7 +315,10 @@ class RCPSTab:
                         "Resource Limit Too Low",
                         f"Resource limit cannot be less than the maximum resource assigned to a single activity (max: {max_resource})."
                     )
+                    print("[DEBUG] Resource limit too low - returning early")
                     return
+            
+            print("[DEBUG] Resource limit validation passed")
             
             # Select analyzer based on analysis mode
             analysis_mode = getattr(self.main_window, 'analysis_mode', None)
@@ -203,6 +365,76 @@ class RCPSTab:
             self.gantt_data = df_gantt
             self.fullscreen_btn.config(state='normal')
             
+
+            # Build and store network graph for RCPS Crashing feature
+            # CRITICAL FIX: Use actual_start as ES for resource-aware crashing
+            import networkx as nx
+            G = nx.DiGraph()
+            
+            # Add nodes with RCPS-specific attributes
+            for _, row in rcps_table.iterrows():
+                if row['id'] not in ['RA', 'RS']:  # Skip resource rows
+                    # FIXED: Use actual_start as ES for crashing logic (resource-constrained schedule)
+                    actual_start = row['actual_start'] if 'actual_start' in row and row['actual_start'] != '' else row['early_start']
+                    duration = row['duration']
+                    early_finish = actual_start + duration
+                    
+                    node_attrs = {
+                        'duration': duration,
+                        'early_start': actual_start,  # ES is now actual_start from RCPS
+                        'late_finish': row['late_finish'],
+                        'float': row['float'],
+                        'EF': early_finish,           # EF based on actual_start (resource-constrained)
+                        'ES': actual_start            # For crashing, ES is actual_start (resource-aware)
+                    }
+                    
+                    # Add resource information if available
+                    if 'resource' in row:
+                        node_attrs['resource'] = row['resource']
+                    
+                    # Store actual_start explicitly for debugging and verification
+                    node_attrs['actual_start'] = actual_start
+                    
+                    # Add crash cost information if available in original data
+                    if hasattr(analyzer, 'activities'):
+                        for activity in analyzer.activities:
+                            if activity.get('id') == row['id']:
+                                if 'crash_cost' in activity:
+                                    node_attrs['crash_cost'] = activity['crash_cost']
+                                if 'min_duration' in activity:
+                                    node_attrs['min_duration'] = activity['min_duration']
+                                break
+                    
+                    G.add_node(row['id'], **node_attrs)
+            
+            # Rebuild edges from original project dependencies
+            if hasattr(analyzer, 'G') and analyzer.G is not None:
+                # Copy edges from original analyzer graph
+                for u, v in analyzer.G.edges():
+                    if u in G.nodes() and v in G.nodes():
+                        G.add_edge(u, v)
+            elif hasattr(analyzer, 'activities'):
+                # Build edges from activities data
+                for activity in analyzer.activities:
+                    activity_id = activity.get('id')
+                    predecessors = activity.get('predecessors', [])
+                    if activity_id in G.nodes():
+                        for pred in predecessors:
+                            if pred in G.nodes():
+                                G.add_edge(pred, activity_id)
+            
+            self.rcps_network_graph = G
+            self.rcps_analyzer = analyzer
+            
+            # DEBUG: Verify that ES values use actual_start (resource-constrained)
+            print(f"[DEBUG VERIFICATION] RCPS Network Graph built with {len(G.nodes())} nodes")
+            for node_id, attrs in G.nodes(data=True):
+                if 'actual_start' in attrs and 'ES' in attrs:
+                    print(f"[DEBUG] Node {node_id}: ES={attrs['ES']}, actual_start={attrs['actual_start']}, early_start={attrs.get('early_start', 'N/A')}")
+                    if attrs['ES'] != attrs['actual_start']:
+                        print(f"[WARNING] Node {node_id}: ES != actual_start! This will cause incorrect crashing analysis.")
+            print("[DEBUG] RCPS network graph stored for RCPS Crashing - using actual_start as ES")
+        
         except ValueError as ve:
             # User input errors - show user-friendly message
             messagebox.showerror("Input Error", str(ve))
@@ -681,6 +913,67 @@ class FullscreenComparisonWindow:
         from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
         toolbar = NavigationToolbar2Tk(canvas, frame)
         toolbar.update()
+
+    def _build_rcps_network_graph(self, rcps_table, df_gantt, analyzer):
+        """Convert RCPS table back to NetworkX graph with actual start times"""
+        import networkx as nx
+        
+        G = nx.DiGraph()
+        
+        # Add nodes with RCPS-specific attributes
+        for _, row in rcps_table.iterrows():
+            if row['id'] not in ['RA', 'RS']:  # Skip resource rows
+                node_attrs = {
+                    'duration': row['duration'],
+                    'early_start': row['early_start'],
+                    'late_finish': row['late_finish'],
+                    'float': row['float']
+                }
+                
+                # Add resource information if available
+                if 'resource' in row:
+                    node_attrs['resource'] = row['resource']
+                
+                # Add actual start time from RCPS if available
+                if 'actual_start' in row:
+                    node_attrs['actual_start'] = row['actual_start']
+                else:
+                    node_attrs['actual_start'] = row['early_start']
+                
+                # Add crash cost information if available in original data
+                if hasattr(analyzer, 'activities'):
+                    for activity in analyzer.activities:
+                        if activity.get('id') == row['id']:
+                            if 'crash_cost' in activity:
+                                node_attrs['crash_cost'] = activity['crash_cost']
+                            if 'min_duration' in activity:
+                                node_attrs['min_duration'] = activity['min_duration']
+                            break
+                
+                G.add_node(row['id'], **node_attrs)
+        
+        # Rebuild edges from original project dependencies
+        if hasattr(analyzer, 'G') and analyzer.G is not None:
+            # Copy edges from original analyzer graph
+            for u, v in analyzer.G.edges():
+                if u in G.nodes() and v in G.nodes():
+                    G.add_edge(u, v)
+        elif hasattr(analyzer, 'activities'):
+            # Build edges from activities data
+            for activity in analyzer.activities:
+                activity_id = activity.get('id')
+                predecessors = activity.get('predecessors', [])
+                if activity_id in G.nodes():
+                    for pred in predecessors:
+                        if pred in G.nodes():
+                            G.add_edge(pred, activity_id)
+        
+        print(f"[DEBUG] Built RCPS network graph with {len(G.nodes())} nodes and {len(G.edges())} edges")
+        return G
+    
+    def get_rcps_analyzer(self):
+        """Return the current RCPS analyzer"""
+        return getattr(self, 'rcps_analyzer', None)
     
     def close_window(self):
         """Close the fullscreen window"""

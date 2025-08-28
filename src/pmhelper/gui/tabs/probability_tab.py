@@ -311,14 +311,14 @@ class ProbabilityTab:
         It accepts the same results_data format as other tabs.
         """
         try:
-            print("DEBUG: ProbabilityTab.update_analysis() called")
+            # print("DEBUG: ProbabilityTab.update_analysis() called")
             
             if not results_data:
-                print("DEBUG: No results data provided to ProbabilityTab")
+                # print("DEBUG: No results data provided to ProbabilityTab")
                 self.update_probability(None, 'probabilistic')
                 return
             
-            print(f"DEBUG: ProbabilityTab updating with PERT results")
+            # print(f"DEBUG: ProbabilityTab updating with PERT results")
             print(f"       Activities: {len(results_data.get('activities', []))}")
             print(f"       Project Duration: {results_data.get('project_duration', 'N/A')}")
             print(f"       Project Variance: {results_data.get('project_variance', 'N/A')}")
@@ -326,7 +326,7 @@ class ProbabilityTab:
             # Delegate to the existing update_probability method
             self.update_probability(results_data, 'probabilistic')
             
-            print("DEBUG: ProbabilityTab update completed successfully")
+            # print("DEBUG: ProbabilityTab update completed successfully")
             
         except Exception as e:
             print(f"ERROR: ProbabilityTab.update_analysis() failed: {e}")
