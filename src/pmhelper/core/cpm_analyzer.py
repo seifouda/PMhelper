@@ -92,6 +92,8 @@ class CPMAnalyzer:
     def analyze(self, activities_data):
         """Perform complete CPM analysis"""
         activities = self.load_activities_from_data(activities_data)
+        # Store activities in analyzer for RCPS crashing access
+        self.activities = activities
         self.G = self.network_builder.build_network(activities)
         self.G = self.network_builder.forward_pass(self.G)
         self.G = self.network_builder.backward_pass(self.G)

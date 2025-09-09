@@ -177,6 +177,7 @@ class FileHandler:
                 "predecessors": "",
                 "min_duration": "1",
                 "crash_cost": "300",
+                "normal_cost": "100",
                 "resource_demand": "2"
             },
             {
@@ -186,6 +187,7 @@ class FileHandler:
                 "predecessors": "",
                 "min_duration": "2",
                 "crash_cost": "500",
+                "normal_cost": "150",
                 "resource_demand": "1"
             },
             {
@@ -195,6 +197,7 @@ class FileHandler:
                 "predecessors": "A, B",
                 "min_duration": "5",
                 "crash_cost": "600",
+                "normal_cost": "350",
                 "resource_demand": "3"
             },
             {
@@ -204,6 +207,7 @@ class FileHandler:
                 "predecessors": "C",
                 "min_duration": "4",
                 "crash_cost": "400",
+                "normal_cost": "200",
                 "resource_demand": "1"
             },
             {
@@ -213,6 +217,7 @@ class FileHandler:
                 "predecessors": "C",
                 "min_duration": "3",
                 "crash_cost": "300",
+                "normal_cost": "180",
                 "resource_demand": "4"
             },
             {
@@ -222,6 +227,7 @@ class FileHandler:
                 "predecessors": "C",
                 "min_duration": "5",
                 "crash_cost": "200",
+                "normal_cost": "240",
                 "resource_demand": "5"
             },
             {
@@ -231,6 +237,7 @@ class FileHandler:
                 "predecessors": "D",
                 "min_duration": "3",
                 "crash_cost": "800",
+                "normal_cost": "90",
                 "resource_demand": "2"
             },
             {
@@ -240,6 +247,7 @@ class FileHandler:
                 "predecessors": "E, F",
                 "min_duration": "2",
                 "crash_cost": "1000",
+                "normal_cost": "120",
                 "resource_demand": "1"
             },
             {
@@ -249,6 +257,7 @@ class FileHandler:
                 "predecessors": "G, H",
                 "min_duration": "2",
                 "crash_cost": "250",
+                "normal_cost": "90",
                 "resource_demand": "2"
             }
         ]
