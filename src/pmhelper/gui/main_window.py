@@ -127,9 +127,14 @@ class MainWindow:
         self.pert_diagram_tab = PertDiagramTab(self.notebook, self)
         self.gantt_tab = GanttTab(self.notebook, self)
         self.probability_tab = ProbabilityTab(self.notebook, self)
-        self.rcps_tab = None
+        
+        # PRODUCTION FIX: Always create and show RCPS tab in correct order
         self.crashing_tab = CrashingTab(self.notebook, self)
         self.notebook.add(self.crashing_tab, text="Crashing")
+        
+        # RCPS tab - always visible between Crashing and RCPS Crashing
+        self.rcps_tab = RCPSTab(self.notebook, self)
+        self.notebook.add(self.rcps_tab.rcps_frame, text="RCPS")  # Add the frame, not the object
         
         # Add RCPS Crashing tab
         self.rcps_crashing_tab = RCPSCrashingTab(self.notebook, self)
@@ -146,9 +151,10 @@ class MainWindow:
     
     def setup_tab_references(self):
         """Setup cross-references between tabs for data sharing"""
-        # This method will be called after RCPS tab is created
-        # For now, store the reference for later linking
-        self.rcps_crashing_tab_needs_linking = True
+        # PRODUCTION FIX: Since RCPS tab is now always created, establish the links immediately
+        if hasattr(self, 'rcps_tab') and hasattr(self, 'rcps_crashing_tab'):
+            self.rcps_crashing_tab.set_rcps_tab_reference(self.rcps_tab)
+            self.rcps_tab.rcps_crashing_tab = self.rcps_crashing_tab
     
     def create_status_bar(self):
         """Create the status bar"""
@@ -641,28 +647,19 @@ class MainWindow:
     
     
     def show_rcps_tab(self):
-        """Show the resource-constrained project scheduling tab"""
-        if self.rcps_tab is None:
-            self.rcps_tab = RCPSTab(self.notebook, self)
-            
-            # Link RCPS Crashing tab to RCPS tab now that both exist
-            if hasattr(self, 'rcps_crashing_tab') and hasattr(self, 'rcps_crashing_tab_needs_linking'):
-                self.rcps_crashing_tab.set_rcps_tab_reference(self.rcps_tab)
-                self.rcps_tab.rcps_crashing_tab = self.rcps_crashing_tab
-                delattr(self, 'rcps_crashing_tab_needs_linking')
-                # print("[DEBUG] RCPS tabs linked successfully")
-        
-        # Switch to the RCPS tab
+        """Switch to the RCPS tab (now always visible)"""
+        # PRODUCTION FIX: RCPS tab is now always visible, just switch to it
         for i in range(self.notebook.index('end')):
-            if self.notebook.tab(i, 'text') == 'RCPS Schedule':
+            if self.notebook.tab(i, 'text') == 'RCPS':
                 self.notebook.select(i)
-                break
+                return
+        
+        # Fallback (should not be needed since tab is always visible)
+        messagebox.showinfo("Info", "RCPS tab not found. Please check integration.")
     
     def show_rcps_crashing_tab(self):
         """Show the RCPS crashing tab"""
-        # Ensure RCPS tab is created first (required for data access)
-        if self.rcps_tab is None:
-            self.show_rcps_tab()  # This will create and link the tabs
+        # PRODUCTION FIX: Since RCPS tab is now always created, no need to check or create it
         
         # Switch to the RCPS Crashing tab
         for i in range(self.notebook.index('end')):
