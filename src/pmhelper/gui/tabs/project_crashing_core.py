@@ -107,6 +107,44 @@ class ProjectCrashing:
         if G is None:
             raise ValueError("No project graph found in analyzer.")
 
+        # 🔍 DEBUG: Check cost data in graph at start of crashing
+        print("\n🔍 [CRASHING DEBUG] COST DATA INVESTIGATION")
+        print("=" * 60)
+        print(f"📊 Analyzer type: {type(analyzer)}")
+        print(f"📊 Graph nodes count: {len(G.nodes())}")
+        print(f"📊 Graph nodes: {list(G.nodes())}")
+        
+        print(f"\n💰 COST DATA IN GRAPH NODES:")
+        cost_data_found = 0
+        cost_data_missing = 0
+        for node_id, node_data in G.nodes(data=True):
+            if node_id not in ['START', 'END']:
+                crash_cost = node_data.get('crash_cost', 'MISSING')
+                normal_cost = node_data.get('normal_cost', 'MISSING')
+                duration = node_data.get('duration', 'MISSING')
+                min_duration = node_data.get('min_duration', 'MISSING')
+                
+                if crash_cost != 'MISSING' and normal_cost != 'MISSING':
+                    cost_data_found += 1
+                    status = "✅"
+                else:
+                    cost_data_missing += 1
+                    status = "❌"
+                
+                print(f"   {status} {node_id}: crash_cost={crash_cost}, normal_cost={normal_cost}, duration={duration}, min_duration={min_duration}")
+        
+        print(f"\n📈 COST DATA SUMMARY:")
+        print(f"   ✅ Nodes with cost data: {cost_data_found}")
+        print(f"   ❌ Nodes missing cost data: {cost_data_missing}")
+        
+        if cost_data_missing > 0:
+            print(f"\n🚨 WARNING: {cost_data_missing} nodes are missing cost data!")
+            print(f"   This will cause zero cost calculations in crashing optimization")
+        else:
+            print(f"\n✅ SUCCESS: All nodes have cost data - crashing should work correctly")
+        
+        print("=" * 60)
+
         start_time = time_mod.time()
         crash_log = []
         total_crash_cost = 0.0
@@ -167,6 +205,53 @@ class ProjectCrashing:
             # print(f"[DEBUG] Completed activities at time {current_time}: {completed_activities}")
             # Build crashable list: critical path, not completed, not at min duration, crash_cost > 0, EF > current_time
             crashable = []
+            
+            # 🔍 DEBUG: Investigate crashable activities
+            print(f"\n🔨 [ITERATION {iterations}] CRASHABLE ACTIVITY ANALYSIS")
+            print(f"   Current time: {current_time}, Target duration: {target_duration}")
+            print(f"   Current duration: {current_duration}")
+            
+            critical_activities = []
+            non_critical_activities = []
+            
+            for node in G.nodes:
+                if node not in ['START', 'END'] and node not in completed_activities:
+                    data = G.nodes[node]
+                    dur = int(round(data.get('duration', 0)))
+                    min_dur = int(round(data.get('min_duration', dur)))
+                    crash_cost = data.get('crash_cost', 0)
+                    normal_cost = data.get('normal_cost', 0)
+                    ef = int(round(data.get('EF', 0)))
+                    float_val = data.get('float', 0)
+                    
+                    activity_info = {
+                        'node': node,
+                        'duration': dur,
+                        'min_duration': min_dur,
+                        'crash_cost': crash_cost,
+                        'normal_cost': normal_cost,
+                        'ef': ef,
+                        'float': float_val,
+                        'is_critical': float_val == 0,
+                        'can_crash': dur > min_dur and crash_cost > 0 and ef > current_time
+                    }
+                    
+                    if float_val == 0:
+                        critical_activities.append(activity_info)
+                        if activity_info['can_crash']:
+                            crashable.append((node, crash_cost, dur, min_dur, normal_cost, ef))
+                    else:
+                        non_critical_activities.append(activity_info)
+            
+            print(f"   🎯 Critical activities:")
+            for activity in critical_activities:
+                status = "✅ CRASHABLE" if activity['can_crash'] else "❌ NOT CRASHABLE"
+                print(f"      {status} {activity['node']}: crash_cost={activity['crash_cost']}, duration={activity['duration']}, min_duration={activity['min_duration']}")
+            
+            print(f"   📋 Non-critical activities: {len(non_critical_activities)}")
+            
+            print(f"   🔨 Final crashable list: {[item[0] for item in crashable]}")
+            
             for node in G.nodes:
                 if (
                     G.nodes[node].get('float', 0) == 0
@@ -276,24 +361,22 @@ class ProjectCrashing:
                 })
 
             else:
-                # print("[DEBUG] No crashable activities on critical path for this time step. Advancing time.")
-                # Even if nothing is crashed, we still log the costs for this time step
-                crash_log.append({
-                    'iteration': iterations + 1,
-                    'activity': 'None',
-                    'crash_amount': 0,
-                    'cost': 0,
-                    'duration': None,
-                    'current_project_duration': current_duration,
-                    'total_crash_cost': total_crash_cost,
-                    'critical_path': [n for n in G.nodes if G.nodes[n].get('float', 0) == 0 and n not in ['START', 'END']],
-                    'normal_cost': 0,
-                    'EF': None,
-                    'current_time': current_time,
-                    'step_normal_cost': step_normal_cost,
-                    'total_normal_cost_accumulated': total_normal_cost_accumulated,
-                    'active_activities': active_activities_this_step
-                })
+                # No crashable activities found - check if we should continue or terminate
+                print(f"⚠️  [ITERATION {iterations + 1}] No more activities can be crashed")
+                print(f"   Current duration: {current_duration}, Target: {target_duration}")
+                print(f"   All critical path activities have reached minimum duration or cannot be crashed")
+                
+                # If no activities can be crashed and we haven't reached target, terminate early
+                if target_duration is not None and current_duration > target_duration:
+                    print(f"   🛑 EARLY TERMINATION: Target duration ({target_duration}) is not achievable")
+                    print(f"   Best achievable duration: {current_duration}")
+                    termination_reason = 'Target duration not achievable - all activities at minimum'
+                    break
+                
+                # FIXED: Don't log "Activity None" entries - just advance time and terminate
+                print(f"   ⏭️  No more crashing possible - terminating early")
+                termination_reason = 'No more activities can be crashed'
+                break
 
             iterations += 1
             # print(f"[DEBUG] Activity durations after crash decision: {[ (n, G.nodes[n].get('duration', '?')) for n in G.nodes ]}")
@@ -539,24 +622,20 @@ class RCPSProjectCrashing(ProjectCrashing):
                     'resource_limit': self.resource_limit  # Add RCPS-specific info
                 })
             else:
-                # print("[DEBUG] RCPS No crashable activities (resource constraints considered)")
-                crash_log.append({
-                    'iteration': iterations + 1,
-                    'activity': 'None',
-                    'crash_amount': 0,
-                    'cost': 0,
-                    'duration': None,
-                    'current_project_duration': current_duration,
-                    'total_crash_cost': total_crash_cost,
-                    'critical_path': [n for n in G.nodes if G.nodes[n].get('float', 0) == 0 and n not in ['START', 'END']],
-                    'normal_cost': 0,
-                    'EF': None,
-                    'current_time': current_time,
-                    'step_normal_cost': step_normal_cost,
-                    'total_normal_cost_accumulated': total_normal_cost_accumulated,
-                    'active_activities': active_activities_this_step,
-                    'resource_limit': self.resource_limit
-                })
+                # No crashable activities found in RCPS - check if we should continue or terminate
+                print(f"⚠️  [RCPS ITERATION {iterations + 1}] No more activities can be crashed (resource constraints considered)")
+                print(f"   Current duration: {current_duration}, Target: {target_duration}")
+                print(f"   All activities have reached minimum duration or resource constraints prevent crashing")
+                
+                # If no activities can be crashed and we haven't reached target, terminate early
+                if target_duration is not None and current_duration > target_duration:
+                    print(f"   🛑 EARLY TERMINATION: Target duration ({target_duration}) is not achievable with resource constraints")
+                    print(f"   Best achievable duration: {current_duration}")
+                    termination_reason = 'Target duration not achievable - resource constraints'
+                    break
+                
+                # Don't log "Activity None" entries - just advance time silently
+                print(f"   ⏭️  Advancing time without logging null activity")
 
             iterations += 1
             current_time += 1
@@ -839,28 +918,19 @@ class RCPSProjectCrashing(ProjectCrashing):
                 print(f"[PHASE2] Crash completed. New project duration: {current_duration}")
                 
             else:
-                print(f"[PHASE2] No viable crash candidates found")
+                print(f"⚠️  [PHASE2 ITERATION {iterations}] No viable crash candidates found")
+                print(f"   Current duration: {current_duration}, Target: {target_duration}")
+                print(f"   No activities can be crashed due to resource/schedule constraints")
                 
-                # Log no-crash iteration
-                crash_log.append({
-                    'iteration': iterations,
-                    'activity': 'None',
-                    'crash_amount': 0,
-                    'cost': 0,
-                    'duration': None,
-                    'current_project_duration': current_duration,
-                    'total_crash_cost': total_crash_cost,
-                    'critical_path': critical_activities,
-                    'current_time': current_time,
-                    'step_normal_cost': step_normal_cost,
-                    'total_normal_cost_accumulated': total_normal_cost_accumulated,
-                    'active_activities': active_activities_this_step,
-                    'resource_limit': self.resource_limit,
-                    'activity_status': activity_status['summary'],
-                    'duration_reduction': 0,
-                    'cost_effectiveness': 0,
-                    'schedule_feasible': True
-                })
+                # If no activities can be crashed and we haven't reached target, terminate early
+                if target_duration is not None and current_duration > target_duration:
+                    print(f"   🛑 EARLY TERMINATION: Target duration ({target_duration}) is not achievable")
+                    print(f"   Best achievable duration: {current_duration}")
+                    termination_reason = 'Target duration not achievable - no viable candidates'
+                    break
+                
+                # Don't log "Activity None" entries for Phase 2
+                print(f"   ⏭️  Advancing time without logging null activity")
                 
                 # If no crashes possible, advance time simulation
                 if activity_status['in_progress'] or activity_status['future']:
@@ -2032,24 +2102,32 @@ def generate_crashing_report(result: CrashingResult) -> str:
     lines.append("-"*50)
     cumulative_crash_cost = 0.0
     cumulative_step_cost = 0.0
-    for entry in result.crash_log:
-        activity_id = entry.get('activity', '?')
-        crash_cost = float(entry.get('cost', 0))
-        # Use 'step_normal_cost' for the report, which is the sum of costs for all active tasks in that step.
-        step_normal_cost = float(entry.get('step_normal_cost', 0))
-        step_total_cost = crash_cost + step_normal_cost
-        cumulative_crash_cost += crash_cost
-        cumulative_step_cost += step_total_cost
-        
-        lines.append(f"Step {entry.get('iteration', '?')}: Activity {activity_id} crashed to duration {entry.get('duration', '?') if activity_id != 'None' else 'N/A'}")
-        lines.append(f"  - Crash Cost: ${crash_cost:,.2f}")
-        lines.append(f"  - Step Normal Cost (Active Tasks): ${step_normal_cost:,.2f}")
-        lines.append(f"  - Step Total Cost: ${step_total_cost:,.2f}")
-        lines.append(f"  - Cumulative Crash Cost: ${cumulative_crash_cost:,.2f}")
-        lines.append(f"  - Cumulative Project Cost: ${cumulative_step_cost:,.2f}")
-        lines.append(f"  - Project Duration: {entry.get('current_project_duration', '?')}")
-        lines.append(f"  - Critical Path: {entry.get('critical_path', [])}")
+    
+    # Filter out "Activity None" entries for cleaner reporting
+    meaningful_entries = [entry for entry in result.crash_log if entry.get('activity') != 'None']
+    
+    if not meaningful_entries:
+        lines.append("No activities were crashed during the optimization process.")
         lines.append("")
+    else:
+        for entry in meaningful_entries:
+            activity_id = entry.get('activity', '?')
+            crash_cost = float(entry.get('cost', 0))
+            # Use 'step_normal_cost' for the report, which is the sum of costs for all active tasks in that step.
+            step_normal_cost = float(entry.get('step_normal_cost', 0))
+            step_total_cost = crash_cost + step_normal_cost
+            cumulative_crash_cost += crash_cost
+            cumulative_step_cost += step_total_cost
+            
+            lines.append(f"Step {entry.get('iteration', '?')}: Activity {activity_id} crashed to duration {entry.get('duration', '?')}")
+            lines.append(f"  - Crash Cost: ${crash_cost:,.2f}")
+            lines.append(f"  - Step Normal Cost (Active Tasks): ${step_normal_cost:,.2f}")
+            lines.append(f"  - Step Total Cost: ${step_total_cost:,.2f}")
+            lines.append(f"  - Cumulative Crash Cost: ${cumulative_crash_cost:,.2f}")
+            lines.append(f"  - Cumulative Project Cost: ${cumulative_step_cost:,.2f}")
+            lines.append(f"  - Project Duration: {entry.get('current_project_duration', '?')}")
+            lines.append(f"  - Critical Path: {entry.get('critical_path', [])}")
+            lines.append("")
     lines.append("="*50)
     lines.append("SUMMARY BREAKDOWN")
     lines.append("-"*50)
@@ -2071,19 +2149,27 @@ def generate_crashing_report(result: CrashingResult) -> str:
     # Final critical path (if available)
     if result.crash_log:
         lines.append(f"Final Critical Path: {result.crash_log[-1].get('critical_path', [])}")
-    # Crashed activities summary
+    # Crashed activities summary - exclude "None" activities
     lines.append("-"*50)
     lines.append("Crashed Activities Summary:")
     activity_summary = {}
     for entry in result.crash_log:
         act = entry.get('activity', '?')
+        # Skip "None" activities in the summary
+        if act == 'None':
+            continue
+            
         if act not in activity_summary:
             activity_summary[act] = {'crash_cost': 0.0, 'crash_count': 0, 'final_duration': entry.get('duration', '?')}
         activity_summary[act]['crash_cost'] += float(entry.get('cost', 0))
         activity_summary[act]['crash_count'] += 1
         activity_summary[act]['final_duration'] = entry.get('duration', '?')
-    for act, info in activity_summary.items():
-        lines.append(f"  - Activity {act}: Crashed {info['crash_count']}x, Total Crash Cost: ${info['crash_cost']:,.2f}, Final Duration: {info['final_duration']}")
+    
+    if not activity_summary:
+        lines.append("  - No activities were crashed during optimization")
+    else:
+        for act, info in activity_summary.items():
+            lines.append(f"  - Activity {act}: Crashed {info['crash_count']}x, Total Crash Cost: ${info['crash_cost']:,.2f}, Final Duration: {info['final_duration']}")
     lines.append("="*50)
     return "\n".join(lines)
 

@@ -317,6 +317,9 @@ class PERTAnalyzer:
             self.project_variance = statistical_results['project_variance']
             self.project_std = statistical_results['project_std_dev']
             
+            # 🔧 FIX: Store activities for RCPS/Crashing integration
+            self.activities = activities
+            
             # Return combined results
             return scheduling_results['network'], scheduling_results['critical_paths'], scheduling_results['critical_activities']
             

@@ -186,6 +186,7 @@ from src.pmhelper.core.rcps_analyzer import RCPSAnalyzer
 try:
     from tksheet import Sheet
     TKSHEET_AVAILABLE = True
+    print("SUCCESS: tksheet imported successfully, TKSHEET_AVAILABLE =", TKSHEET_AVAILABLE)
 except ImportError:
     TKSHEET_AVAILABLE = False
     print("Warning: tksheet not available - using basic table display")
@@ -412,13 +413,23 @@ class RCPSTab:
                     
                     # Add crash cost information if available in original data
                     if hasattr(analyzer, 'activities'):
+                        cost_found = False
                         for activity in analyzer.activities:
                             if activity.get('id') == row['id']:
                                 if 'crash_cost' in activity:
                                     node_attrs['crash_cost'] = activity['crash_cost']
+                                    cost_found = True
+                                if 'normal_cost' in activity:
+                                    node_attrs['normal_cost'] = activity['normal_cost']
                                 if 'min_duration' in activity:
                                     node_attrs['min_duration'] = activity['min_duration']
                                 break
+                        
+                        # 🔍 DEBUG: Track cost copying in RCPS manual graph building
+                        if row['id'] not in ['RA', 'RS']:
+                            crash_cost = node_attrs.get('crash_cost', 'MISSING')
+                            normal_cost = node_attrs.get('normal_cost', 'MISSING')
+                            print(f"[RCPS MANUAL] Activity {row['id']}: cost_found={cost_found}, crash_cost={crash_cost}, normal_cost={normal_cost}")
                     
                     G.add_node(row['id'], **node_attrs)
             
@@ -710,7 +721,15 @@ class RCPSTab:
             timeline_cols = [col for col in display_columns if isinstance(col, int)]
             n_timeline = len(timeline_cols)
             # Table type detection
-            is_cmp = label.lower().startswith("initial cmp")
+            is_cmp = label.lower().startswith("initial cpm")
+            
+            # DEBUG: Print table identification and parameters
+            print(f"[DEBUG COLUMN WIDTH] Table: '{label}' -> is_cmp={is_cmp}")
+            print(f"[DEBUG COLUMN WIDTH] Label.lower(): '{label.lower()}'")
+            print(f"[DEBUG COLUMN WIDTH] Starts with 'initial cpm': {label.lower().startswith('initial cpm')}")
+            print(f"[DEBUG COLUMN WIDTH] Frame width: {frame_width}, Display columns: {len(display_columns)}")
+            print(f"[DEBUG COLUMN WIDTH] Timeline columns: {n_timeline}")
+            
             if is_cmp:
                 fixed_col_count = 6
                 # CPM fixed width is based on RCPS: 7*45=315px, so each CPM col is 315//6=52px
@@ -720,6 +739,9 @@ class RCPSTab:
                 fixed_col_count = 7
                 fixed_col_width = 35
                 fixed_total_width = fixed_col_count * fixed_col_width
+                
+            print(f"[DEBUG COLUMN WIDTH] Fixed cols: {fixed_col_count}, Fixed width: {fixed_col_width}, Total fixed: {fixed_total_width}")
+            
             num_cols = len(display_columns)
             if num_cols == 0:
                 return
@@ -743,6 +765,8 @@ class RCPSTab:
                 if total_width < frame_width:
                     timeline_widths[-1] += frame_width - total_width
             widths.extend(timeline_widths)
+            
+            print(f"[DEBUG COLUMN WIDTH] Final widths: {widths[:10]}... (showing first 10)")
             sheet.set_column_widths(widths)
 
         # Bind to frame resize events for live adjustment
@@ -797,7 +821,7 @@ class RCPSTab:
         num_cols = len(table.columns)
         
         # Determine column width based on table type
-        is_cmp = label.lower().startswith("initial cmp")
+        is_cmp = label.lower().startswith("initial cpm")
         if is_cmp:
             # CPM has 6 columns (no AS column)
             col_width = 42  # Slightly larger for readability
@@ -1116,36 +1140,41 @@ class FullscreenComparisonWindow:
         charts_frame.grid_rowconfigure(1, weight=1)  # RCPS chart
         charts_frame.grid_columnconfigure(0, weight=1)  # Single column
         
-        # Create the two Gantt charts
+        # Create the two Gantt charts with embedded resource usage
         self.create_fullscreen_gantt_chart(charts_frame, self.cmp_table, 
                                          "CPM Timeline (Theoretical)", row=0, is_cmp=True)
         self.create_fullscreen_gantt_chart(charts_frame, self.rcps_table, 
                                          "RCPS Timeline (Resource-Constrained)", row=1, is_cmp=False)
     
     def create_fullscreen_gantt_chart(self, parent, table, title, row, is_cmp=False):
-        """Create a large Gantt chart optimized for fullscreen viewing"""
+        """Create a large Gantt chart with overlaid resource usage line on secondary y-axis"""
         # Create frame for this chart
         frame = ttk.Frame(parent)
         frame.grid(row=row, column=0, sticky="nsew", padx=5, pady=5)
         
-        # Chart title
-        title_label = tk.Label(frame, text=title, font=("Arial", 14, "bold"))
-        title_label.pack(fill=tk.X, pady=(0, 10))
+        # No title label as requested - titles removed
         
-        # Create matplotlib figure with larger size for fullscreen
-        fig = Figure(figsize=(16, 8), dpi=100)
-        ax = fig.add_subplot(111)
-        
-        # Adjust subplot parameters for better space utilization
-        fig.subplots_adjust(left=0.08, right=0.95, top=0.92, bottom=0.1)
-        
-        # Filter out resource rows
-        activities = table[~table['id'].isin(['RA', 'RS'])].copy()
-        
-        if activities.empty:
-            ax.text(0.5, 0.5, 'No activities to display', ha='center', va='center', 
-                   transform=ax.transAxes, fontsize=14)
-        else:
+        try:
+            # Create matplotlib figure with single subplot
+            fig = Figure(figsize=(16, 8), dpi=100)
+            ax_gantt = fig.add_subplot(111)
+            
+            # Adjust subplot parameters for better space utilization
+            fig.subplots_adjust(left=0.08, right=0.85, top=0.92, bottom=0.1)
+            
+            # Filter out resource rows
+            activities = table[~table['id'].isin(['RA', 'RS'])].copy()
+            
+            if activities.empty:
+                ax_gantt.text(0.5, 0.5, 'No activities to display', ha='center', va='center', 
+                       transform=ax_gantt.transAxes, fontsize=14)
+                ax_gantt.set_title(title, fontsize=16, weight='bold', pad=20)
+                fig.tight_layout()
+                canvas = FigureCanvasTkAgg(fig, frame)
+                canvas.draw()
+                canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+                return
+            
             # Get timeline columns and max time
             timeline_cols = [col for col in table.columns if isinstance(col, int)]
             max_time = max(timeline_cols) if timeline_cols else 10
@@ -1183,16 +1212,9 @@ class FullscreenComparisonWindow:
                                 delay = actual_start - early_start
                                 
                                 if delay > 0:
-                                    # Color intensity based on delay amount
-                                    if delay >= 3:
-                                        color = '#FF4757'  # Bright red for significant delay
-                                        alpha = 0.9
-                                    elif delay >= 1:
-                                        color = '#FFA726'  # Orange for moderate delay
-                                        alpha = 0.8
-                                    else:
-                                        color = '#FFD93D'  # Yellow for minor delay
-                                        alpha = 0.7
+                                    # All delays use the same color - simplified
+                                    color = '#FF6B6B'  # Red for any delay
+                                    alpha = 0.8
                                 else:
                                     color = '#6BCF7F'  # Green for on-time
                                     alpha = 0.8
@@ -1204,27 +1226,24 @@ class FullscreenComparisonWindow:
                             alpha = 0.7
                     
                     # Draw the bar
-                    bar = ax.barh(i, duration, left=start, height=bar_height, 
+                    bar = ax_gantt.barh(i, duration, left=start, height=bar_height, 
                                 color=color, alpha=alpha, edgecolor='black', linewidth=1)
                     
-                    # Add activity ID and duration text on the bar
+                    # Add only resource demand text on the bar (just the number)
                     text_x = start + duration/2
                     text_y = i
                     
-                    # Activity ID (bold)
-                    ax.text(text_x, text_y + 0.1, activity['id'], ha='center', va='center', 
+                    # Resource demand (just the number, centered on bar)
+                    resource_demand = activity.get('resource', 'N/A')
+                    ax_gantt.text(text_x, text_y, f"{resource_demand}", ha='center', va='center', 
                            fontsize=10, fontweight='bold', color='black')
-                    
-                    # Duration (smaller text below ID)
-                    ax.text(text_x, text_y - 0.1, f"({duration})", ha='center', va='center', 
-                           fontsize=8, color='black')
                     
                     # Add delay indicator for RCPS
                     if not is_cmp and 'actual_start' in activity and 'early_start' in activity:
                         try:
                             delay = int(activity['actual_start']) - int(activity['early_start'])
                             if delay > 0:
-                                ax.text(start - 0.5, i, f"+{delay}", ha='right', va='center', 
+                                ax_gantt.text(start - 0.5, i, f"+{delay}", ha='right', va='center', 
                                        fontsize=8, color='red', fontweight='bold')
                         except:
                             pass
@@ -1233,37 +1252,188 @@ class FullscreenComparisonWindow:
                     print(f"Error plotting activity {activity['id']}: {e}")
                     continue
             
-            # Customize the chart with better formatting
-            ax.set_yticks(y_pos)
-            ax.set_yticklabels(activity_labels, fontsize=10)
-            ax.set_xlabel('Time (Days)', fontsize=12, fontweight='bold')
-            ax.set_ylabel('Activities', fontsize=12, fontweight='bold')
-            ax.set_xlim(0, max_time + 1)
-            ax.grid(True, alpha=0.3, linestyle='--')
-            ax.invert_yaxis()  # Activities from top to bottom
+            # Customize the Gantt chart
+            ax_gantt.set_yticks(y_pos)
+            ax_gantt.set_yticklabels(activity_labels, fontsize=10)
+            ax_gantt.set_xlabel('Time (Days)', fontsize=12, fontweight='bold')
+            ax_gantt.set_ylabel('Activities', fontsize=12, fontweight='bold')
+            ax_gantt.set_xlim(0, max_time + 1)
+            ax_gantt.grid(True, alpha=0.3, linestyle='--')
+            ax_gantt.invert_yaxis()  # Activities from top to bottom
+            # Title removed as requested
             
-            # Add title to the subplot
-            ax.set_title(title, fontsize=14, fontweight='bold', pad=15)
+            # Add resource usage overlay as dashed line with secondary y-axis
+            try:
+                # Calculate resource usage over time
+                resource_usage = {}
+                for time_point in range(0, max_time + 1):
+                    usage = 0
+                    for _, activity in activities.iterrows():
+                        try:
+                            if is_cmp:
+                                start = int(activity['early_start'])
+                            else:
+                                start = int(activity['actual_start']) if 'actual_start' in activity and activity['actual_start'] != '' else int(activity['early_start'])
+                            
+                            duration = int(activity['duration'])
+                            finish = start + duration
+                            
+                            # Fix: Activity is active from start (inclusive) to finish (exclusive)
+                            # This matches the range(start, start + duration) logic
+                            if start <= time_point < finish:
+                                # Get resource requirement for this activity
+                                resource_req = activity.get('resource', 0)
+                                if isinstance(resource_req, (int, float)):
+                                    usage += resource_req
+                                elif isinstance(resource_req, str) and resource_req.isdigit():
+                                    usage += int(resource_req)
+                        except (ValueError, TypeError, KeyError):
+                            pass
+                    resource_usage[time_point] = usage
+                
+                # Create secondary y-axis for resource usage on the far right
+                ax_resource = ax_gantt.twinx()
+                
+                # Plot resource usage as square wave (vertical steps)
+                time_points = sorted(resource_usage.keys())
+                usage_values = [resource_usage[t] for t in time_points]
+                
+                # Create square wave pattern by adding intermediate points
+                square_wave_times = []
+                square_wave_usage = []
+                
+                for i, time_point in enumerate(time_points):
+                    if i == 0:
+                        # Start point
+                        square_wave_times.append(time_point)
+                        square_wave_usage.append(usage_values[i])
+                    else:
+                        # Add vertical drop/rise at time boundaries
+                        square_wave_times.append(time_point)
+                        square_wave_usage.append(usage_values[i-1])  # Previous value
+                        square_wave_times.append(time_point)
+                        square_wave_usage.append(usage_values[i])    # New value
+                
+                # Plot square wave resource usage
+                resource_line = ax_resource.plot(square_wave_times, square_wave_usage, 
+                                               color='#2E86AB', linewidth=3, linestyle='--', 
+                                               marker='o', markersize=4, alpha=0.8, 
+                                               label='Resource Usage')
+                
+                # Add resource limit line if available
+                resource_limit_line = None
+                try:
+                    if hasattr(self, 'project_data') and self.project_data:
+                        resource_limit = self.project_data.get('resource_limit', None)
+                        if resource_limit:
+                            resource_limit_line = ax_resource.axhline(y=resource_limit, color='red', 
+                                                                    linestyle=':', linewidth=2, alpha=0.8, 
+                                                                    label=f'Resource Limit: {resource_limit}')
+                except:
+                    pass
+                
+                # Format resource axis
+                ax_resource.set_ylabel('Resource Usage', fontsize=12, fontweight='bold', color='#2E86AB')
+                ax_resource.tick_params(axis='y', labelcolor='#2E86AB')
+                if usage_values:
+                    ax_resource.set_ylim(0, max(usage_values) * 1.2)
+                
+            except Exception as e:
+                print(f"Error creating resource usage overlay: {e}")
             
-            # Add legend for color coding
+            # Create combined legend in top right with both color coding and resource info
+            legend_elements = []
+            
+            # Add Gantt color coding elements
             if is_cmp:
                 from matplotlib.patches import Patch
-                legend_elements = [
+                legend_elements.extend([
                     Patch(facecolor='#FF6B6B', alpha=0.9, label='Critical Path'),
                     Patch(facecolor='#4ECDC4', alpha=0.7, label='Non-Critical')
-                ]
-                ax.legend(handles=legend_elements, loc='upper right', fontsize=10)
+                ])
             else:
                 from matplotlib.patches import Patch
-                legend_elements = [
+                legend_elements.extend([
                     Patch(facecolor='#6BCF7F', alpha=0.8, label='On Time'),
-                    Patch(facecolor='#FFD93D', alpha=0.7, label='Minor Delay'),
-                    Patch(facecolor='#FFA726', alpha=0.8, label='Moderate Delay'),
-                    Patch(facecolor='#FF4757', alpha=0.9, label='Significant Delay')
-                ]
-                ax.legend(handles=legend_elements, loc='upper right', fontsize=10)
+                    Patch(facecolor='#FF6B6B', alpha=0.8, label='Delay')
+                ])
+            
+            # Add resource usage elements to legend if they exist
+            try:
+                if 'resource_line' in locals():
+                    legend_elements.append(resource_line[0])  # Resource usage line
+                if 'resource_limit_line' in locals() and resource_limit_line:
+                    legend_elements.append(resource_limit_line)  # Resource limit line
+            except:
+                pass
+            
+            # Create single combined legend in top right
+            ax_gantt.legend(handles=legend_elements, loc='upper right', fontsize=10, 
+                           bbox_to_anchor=(1.0, 1.0))
+            
+            # Apply tight layout for optimal space usage
+            fig.tight_layout()
+            
+            # Embed in tkinter
+            canvas = FigureCanvasTkAgg(fig, frame)
+            canvas.draw()
+            canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+            
+            # Add toolbar for zooming and panning
+            from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
+            toolbar = NavigationToolbar2Tk(canvas, frame)
+            toolbar.update()
+            
+        except Exception as e:
+            print(f"Error creating fullscreen Gantt chart: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def create_resource_usage_chart(self, parent, cmp_table, rcps_table, row):
+        """Create a resource usage comparison chart"""
+        # Create frame for this chart
+        frame = ttk.Frame(parent)
+        frame.grid(row=row, column=0, sticky="nsew", padx=5, pady=5)
         
-        # Apply tight layout for optimal space usage
+        # Chart title
+        title_label = tk.Label(frame, text="Resource Usage Comparison", font=("Arial", 14, "bold"))
+        title_label.pack(fill=tk.X, pady=(0, 10))
+        
+        # Create matplotlib figure
+        fig = Figure(figsize=(16, 6), dpi=100)
+        ax = fig.add_subplot(111)
+        
+        # Adjust subplot parameters
+        fig.subplots_adjust(left=0.08, right=0.95, top=0.92, bottom=0.15)
+        
+        # Calculate resource usage over time for both schedules
+        cmp_usage, rcps_usage, max_time = self.calculate_resource_usage(cmp_table, rcps_table)
+        
+        # Create time axis
+        time_points = list(range(max_time + 1))
+        
+        # Plot resource usage
+        ax.plot(time_points, [cmp_usage.get(t, 0) for t in time_points], 
+               label='CPM Resource Usage', color='#4ECDC4', linewidth=3, marker='o')
+        ax.plot(time_points, [rcps_usage.get(t, 0) for t in time_points], 
+               label='RCPS Resource Usage', color='#FF6B6B', linewidth=3, marker='s')
+        
+        # Add resource limit line if available
+        if hasattr(self, 'resource_limit_var'):
+            resource_limit = self.resource_limit_var.get()
+            ax.axhline(y=resource_limit, color='red', linestyle='--', linewidth=2, 
+                      label=f'Resource Limit ({resource_limit})')
+        
+        # Customize the chart
+        ax.set_xlabel('Time (Days)', fontsize=12, fontweight='bold')
+        ax.set_ylabel('Resource Units', fontsize=12, fontweight='bold')
+        ax.set_title('Resource Usage Over Time', fontsize=14, fontweight='bold', pad=15)
+        ax.grid(True, alpha=0.3, linestyle='--')
+        ax.legend(loc='upper right', fontsize=10)
+        ax.set_xlim(0, max_time + 1)
+        ax.set_ylim(0, max(max(cmp_usage.values(), default=0), max(rcps_usage.values(), default=0)) + 1)
+        
+        # Apply tight layout
         fig.tight_layout()
         
         # Embed in tkinter
@@ -1271,10 +1441,51 @@ class FullscreenComparisonWindow:
         canvas.draw()
         canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
         
-        # Add toolbar for zooming and panning
+        # Add toolbar
         from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
         toolbar = NavigationToolbar2Tk(canvas, frame)
         toolbar.update()
+
+    def calculate_resource_usage(self, cmp_table, rcps_table):
+        """Calculate resource usage over time for both schedules"""
+        cmp_usage = {}
+        rcps_usage = {}
+        
+        # Filter out resource rows
+        cmp_activities = cmp_table[~cmp_table['id'].isin(['RA', 'RS'])].copy()
+        rcps_activities = rcps_table[~rcps_table['id'].isin(['RA', 'RS'])].copy()
+        
+        # Get timeline columns
+        timeline_cols = [col for col in cmp_table.columns if isinstance(col, int)]
+        max_time = max(timeline_cols) if timeline_cols else 10
+        
+        # Calculate CPM resource usage
+        for _, activity in cmp_activities.iterrows():
+            try:
+                start = int(activity['early_start'])
+                duration = int(activity['duration'])
+                resource_demand = int(activity.get('resource', 0))
+                
+                for t in range(start, start + duration):
+                    if t <= max_time:
+                        cmp_usage[t] = cmp_usage.get(t, 0) + resource_demand
+            except:
+                continue
+        
+        # Calculate RCPS resource usage
+        for _, activity in rcps_activities.iterrows():
+            try:
+                start = int(activity.get('actual_start', activity.get('early_start', 0)))
+                duration = int(activity['duration'])
+                resource_demand = int(activity.get('resource', 0))
+                
+                for t in range(start, start + duration):
+                    if t <= max_time:
+                        rcps_usage[t] = rcps_usage.get(t, 0) + resource_demand
+            except:
+                continue
+        
+        return cmp_usage, rcps_usage, max_time
 
     def close_window(self):
         """Close the fullscreen window"""
@@ -1343,6 +1554,8 @@ class FullscreenComparisonWindow:
                     if activity.get('id') == row_id:
                         if 'crash_cost' in activity:
                             node_attrs['crash_cost'] = activity['crash_cost']
+                        if 'normal_cost' in activity:
+                            node_attrs['normal_cost'] = activity['normal_cost']
                         if 'min_duration' in activity:
                             node_attrs['min_duration'] = activity['min_duration']
                         break
@@ -1430,5 +1643,19 @@ class FullscreenComparisonWindow:
             print(f"      B in rcps_table: {b_in_rcps_table}")
         
         print(f"\n✅ [RCPS NETWORK BUILDER] Built RCPS network graph with {len(G.nodes())} nodes and {len(G.edges())} edges")
+        
+        # Ensure all nodes have required crashing attributes (including cost defaults)
+        print(f"\n🔧 [COST VALIDATION] Ensuring all nodes have proper cost attributes...")
+        self._ensure_crashing_attributes(G)
+        
+        # Debug: Print cost attributes for verification
+        print(f"\n💰 [COST VERIFICATION] Final cost attributes:")
+        for node_id, node_data in G.nodes(data=True):
+            if node_id not in ['RA', 'RS', 'START', 'END']:
+                crash_cost = node_data.get('crash_cost', 'MISSING')
+                normal_cost = node_data.get('normal_cost', 'MISSING')
+                min_duration = node_data.get('min_duration', 'MISSING')
+                print(f"   {node_id}: crash_cost={crash_cost}, normal_cost={normal_cost}, min_duration={min_duration}")
+        
         print("=" * 70)
         return G

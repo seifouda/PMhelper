@@ -392,10 +392,50 @@ class MainWindow:
                 messagebox.showwarning("Warning", "Please select an analysis mode (CPM or PERT).")
                 return
             
+            # 🔍 DEBUG: Check analysis mode and data
+            print(f"\n🔍 [MAIN WINDOW] ANALYSIS DEBUG")
+            print(f"   Analysis mode: {self.analysis_mode}")
+            print(f"   Current analyzer: {type(self.current_analyzer)}")
+            print(f"   Activities data count: {len(activities_data)}")
+            print(f"   Sample activity data: {activities_data[0] if activities_data else 'None'}")
+            
             self.set_status("Running analysis...")
             
             # Perform analysis
             G, critical_paths, critical_activities = self.current_analyzer.analyze(activities_data)
+            
+            # 🔍 DEBUG: Check analysis results
+            print(f"\n💰 [ANALYSIS RESULTS] COST DATA CHECK")
+            print(f"   Graph created: {G is not None}")
+            if G:
+                print(f"   Graph nodes: {list(G.nodes())}")
+                for node_id, node_data in G.nodes(data=True):
+                    if node_id not in ['START', 'END']:
+                        crash_cost = node_data.get('crash_cost', 'MISSING')
+                        normal_cost = node_data.get('normal_cost', 'MISSING')
+                        print(f"   {node_id}: crash_cost={crash_cost}, normal_cost={normal_cost}")
+            
+            # 🔍 DEBUG: Check analyzer state after analysis
+            print(f"\n📊 [ANALYZER STATE] AFTER ANALYSIS")
+            if hasattr(self.current_analyzer, 'activities'):
+                print(f"   Analyzer has activities: {len(self.current_analyzer.activities)}")
+                for activity in self.current_analyzer.activities[:3]:  # Show first 3
+                    print(f"   Activity: {activity}")
+            else:
+                print(f"   Analyzer has NO activities attribute")
+            
+            if hasattr(self.current_analyzer, 'G'):
+                print(f"   Analyzer has graph G: {self.current_analyzer.G is not None}")
+            else:
+                print(f"   Analyzer has NO graph G")
+            
+            # Store analyzer references for RCPS/Crashing
+            if self.analysis_mode == 'probabilistic':
+                self.pert_analyzer = self.current_analyzer
+                print(f"   ✅ PERT analyzer stored in main window")
+            else:
+                self.cmp_analyzer = self.current_analyzer
+                print(f"   ✅ CPM analyzer stored in main window")
             
             # Optional debug output (comment out for production)
             # print("=" * 80)

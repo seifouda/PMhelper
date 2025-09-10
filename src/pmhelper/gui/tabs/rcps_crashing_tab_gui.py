@@ -42,6 +42,100 @@ class RCPSCrashingTabGUIManager(CrashingTabGUIManager):
         # Add initial message to help users
         self._add_initial_instructions()
     
+    def _recalculate_critical_path_for_step(self, G_step, step_data=None):
+        """
+        RCPS-specific critical path recalculation for a single step.
+        This method ensures proper critical path highlighting in RCPS context.
+        """
+        try:
+            # RCPS-SPECIFIC: Use RCPS analyzer methods if available
+            rcps_analyzer = self.get_rcps_analyzer()
+            if rcps_analyzer:
+                # Use RCPS-specific CPM calculation methods
+                # Create a working copy to avoid modifying the original
+                G_work = G_step.copy()
+                
+                G_work = rcps_analyzer.forward_pass(G_work)
+                G_work = rcps_analyzer.backward_pass(G_work)
+                G_work = rcps_analyzer.calculate_float(G_work)
+                
+                # Copy the recalculated values back to the original graph
+                for node in G_step.nodes():
+                    if node in G_work.nodes():
+                        G_step.nodes[node]['ES'] = G_work.nodes[node].get('ES', G_step.nodes[node].get('ES', 0))
+                        G_step.nodes[node]['EF'] = G_work.nodes[node].get('EF', G_step.nodes[node].get('EF', 0))
+                        G_step.nodes[node]['LS'] = G_work.nodes[node].get('LS', G_step.nodes[node].get('LS', 0))
+                        G_step.nodes[node]['LF'] = G_work.nodes[node].get('LF', G_step.nodes[node].get('LF', 0))
+                        G_step.nodes[node]['float'] = G_work.nodes[node].get('float', G_step.nodes[node].get('float', 1))
+                
+                print(f"[DEBUG] RCPS: Applied RCPS CPM calculation successfully")
+                return G_step
+                
+        except Exception as e:
+            print(f"[DEBUG] RCPS: RCPS calculation failed: {e}")
+        
+        # Fallback: Use critical path from crash log if available
+        if step_data and isinstance(step_data, dict) and step_data.get('critical_path'):
+            cp = step_data.get('critical_path', [])
+            for n in G_step.nodes():
+                G_step.nodes[n]['float'] = 0 if n in cp else G_step.nodes[n].get('float', 1)
+            print(f"[DEBUG] RCPS: Used critical path from crash log")
+            return G_step
+        
+        # Final fallback: Use regular CPM calculation
+        try:
+            network_builder = getattr(getattr(self.app, "current_analyzer", None) or getattr(self.app, "base_analyzer", None), 'network_builder', None)
+            if network_builder:
+                G_step = network_builder.forward_pass(G_step)
+                G_step = network_builder.backward_pass(G_step)
+                G_step = network_builder.calculate_float(G_step)
+                print(f"[DEBUG] RCPS: Applied CPM fallback calculation")
+        except Exception as e:
+            print(f"[DEBUG] RCPS: CPM fallback failed: {e}")
+            # Ensure all nodes have float values
+            for n in G_step.nodes():
+                if 'float' not in G_step.nodes[n]:
+                    G_step.nodes[n]['float'] = 1
+        
+        return G_step
+
+    def update_visualization(self, result):
+        """
+        Use parent's update_visualization but with enhanced RCPS critical path calculation.
+        This preserves all the network structure while fixing critical path highlighting.
+        """
+        # Call parent's method first to get basic structure
+        super().update_visualization(result)
+        
+        # RCPS enhancement: Post-process step graphs to apply proper critical path calculation
+        if hasattr(self, 'step_graphs') and self.step_graphs:
+            print(f"[DEBUG] RCPS: Enhancing {len(self.step_graphs)} step graphs with RCPS critical path")
+            
+            enhanced_step_graphs = []
+            for i, (step_num, activity, new_duration, G_step) in enumerate(self.step_graphs):
+                # Apply RCPS-specific critical path calculation to each step
+                if step_num > 0:  # Skip initial step (no changes needed)
+                    # Find corresponding step data from result
+                    step_data = None
+                    if result and hasattr(result, 'crash_log') and result.crash_log:
+                        if (step_num - 1) < len(result.crash_log):
+                            step_data = result.crash_log[step_num - 1]
+                    
+                    # Apply RCPS-specific critical path calculation
+                    enhanced_G_step = self._recalculate_critical_path_for_step(G_step.copy(), step_data)
+                    enhanced_step_graphs.append((step_num, activity, new_duration, enhanced_G_step))
+                else:
+                    # Keep initial step as-is
+                    enhanced_step_graphs.append((step_num, activity, new_duration, G_step))
+            
+            # Replace step graphs with enhanced versions
+            self.step_graphs = enhanced_step_graphs
+            print(f"[DEBUG] RCPS: Enhanced step graphs with RCPS critical path calculation")
+            
+            # Re-display current step with updated critical path
+            if hasattr(self, 'current_step') and self.step_graphs:
+                self.show_step(self.current_step)
+    
     def build_interface(self):
         """Build interface and add RCPS-specific enhancements"""
         # Call parent build_interface first
@@ -244,6 +338,17 @@ Results will appear here after running RCPS crashing analysis...
                 crash_cost = original_activity.get('crash_cost', 0)
                 normal_cost = original_activity.get('normal_cost', 0)
                 min_duration = original_activity.get('min_duration', max(1, int(duration * 0.6)) if duration > 0 else duration)
+                
+                # 🔍 DEBUG: Track cost data retrieval for each activity
+                if activity_id not in ['RA', 'RS']:
+                    print(f"   [COST DEBUG] Activity {activity_id}:")
+                    print(f"      Original activity found: {activity_id in original_activities}")
+                    if activity_id in original_activities:
+                        orig_act = original_activities[activity_id]
+                        print(f"      Original crash_cost: {orig_act.get('crash_cost', 'MISSING')}")
+                        print(f"      Original normal_cost: {orig_act.get('normal_cost', 'MISSING')}")
+                    print(f"      Final crash_cost: {crash_cost}")
+                    print(f"      Final normal_cost: {normal_cost}")
                 
                 activity = {
                     'id': activity_id,
@@ -482,6 +587,37 @@ Results will appear here after running RCPS crashing analysis...
                 ef_values_before = [rcps_analyzer.G.nodes[node].get('EF', 0) for node in rcps_analyzer.G.nodes()]
                 print(f"[DEBUG] EF values in analyzer.G before ProjectCrashing: {ef_values_before}")
                 print(f"[DEBUG] Max EF in analyzer.G: {max(ef_values_before) if ef_values_before else 0}")
+                
+                # 🔍 DEBUG: Check cost data in analyzer graph before ProjectCrashing
+                print(f"\n🔍 [RCPS CRASHING] COST DATA VERIFICATION BEFORE PROJECTCRASHING")
+                print("=" * 70)
+                print(f"📊 Analyzer graph nodes: {len(rcps_analyzer.G.nodes())}")
+                
+                cost_nodes_count = 0
+                missing_cost_nodes = []
+                
+                for node_id, node_data in rcps_analyzer.G.nodes(data=True):
+                    if node_id not in ['START', 'END']:
+                        crash_cost = node_data.get('crash_cost', 'MISSING')
+                        normal_cost = node_data.get('normal_cost', 'MISSING')
+                        duration = node_data.get('duration', 'MISSING')
+                        min_duration = node_data.get('min_duration', 'MISSING')
+                        
+                        if crash_cost != 'MISSING' and normal_cost != 'MISSING':
+                            cost_nodes_count += 1
+                            status = "✅"
+                        else:
+                            missing_cost_nodes.append(node_id)
+                            status = "❌"
+                        
+                        print(f"   {status} {node_id}: crash_cost={crash_cost}, normal_cost={normal_cost}, duration={duration}, min_duration={min_duration}")
+                
+                print(f"\n📈 COST DATA SUMMARY BEFORE PROJECTCRASHING:")
+                print(f"   ✅ Nodes with cost data: {cost_nodes_count}")
+                print(f"   ❌ Nodes missing cost data: {len(missing_cost_nodes)}")
+                if missing_cost_nodes:
+                    print(f"   Missing cost nodes: {missing_cost_nodes}")
+                print("=" * 70)
             
             # Create RCPS-aware crashing engine
             class RCPSProjectCrashing(ProjectCrashing):
