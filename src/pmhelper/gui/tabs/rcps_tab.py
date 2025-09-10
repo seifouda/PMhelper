@@ -3,9 +3,13 @@
 RCPS Tab Module
 
 Displays resource-constrained project scheduling (RCPS) results and resource utilization charts.
-This module provides GUI components for v            # Displa                                  # Store data for f            # Store            # Store            # S            # Displ                     # Display hybrid layout with tables and Gantt charts
-            print("[DEBUG] Using HYBRID LAYOUT with tables + Gantt charts")
-            self.display_hybrid_schedule_view(self.tables_frame, cmp_table_aligned, rcps_table, df_gantt)
+This module provides GUI components for v            # Displa                                  # Store data for f            # Store            # Store            # S            # Displ                     # PRODUCTION CHANGE: Use large tables layout instead of hybrid
+            print("[DEBUG] Using LARGE TABLES LAYOUT with full timeline data")
+            self.display_large_tables_view(self.tables_frame, cmp_table_aligned, rcps_table, df_gantt)
+            
+            # COMMENTED FOR FUTURE USE: Hybrid layout with small tables + Gantt charts
+            # print("[DEBUG] Using HYBRID LAYOUT with tables + Gantt charts")
+            # self.display_hybrid_schedule_view(self.tables_frame, cmp_table_aligned, rcps_table, df_gantt)
             
             # Store data for fullscreen comparison and enable button
             self.cmp_table_data = cmp_table_aligned
@@ -33,9 +37,10 @@ This module provides GUI components for v            # Displa                   
             print(f"[DEBUG STORAGE] Network graph stored: {self.rcps_network_graph is not None}")
             print(f"[DEBUG STORAGE] Analyzer stored: {self.rcps_analyzer is not None}")
             
-        except ValueError as ve:id layout with tables and Gantt charts
-            print("[DEBUG] Using HYBRID LAYOUT with tables + Gantt charts")
-            self.display_hybrid_schedule_view(self.tables_frame, cmp_table_aligned, rcps_table, df_gantt)
+        except ValueError as ve:
+            # Display large tables layout with full timeline data
+            print("[DEBUG] Using LARGE TABLES LAYOUT with full timeline data")
+            self.display_large_tables_view(self.tables_frame, cmp_table_aligned, rcps_table, df_gantt)
             
             # Store data for fullscreen comparison and enable button
             self.cmp_table_data = cmp_table_aligned
@@ -146,9 +151,10 @@ This module provides GUI components for v            # Displa                   
             self.rcps_analyzer = analyzer
             print(f"[DEBUG] RCPS network graph and analyzer stored for RCPS Crashing")
             
-        except ValueError as ve:d layout with tables and Gantt charts
-            print("[DEBUG] Using HYBRID LAYOUT with tables + Gantt charts")
-            self.display_hybrid_schedule_view(self.tables_frame, cmp_table_aligned, rcps_table, df_gantt)
+        except ValueError as ve:
+            # Display large tables layout with full timeline data
+            print("[DEBUG] Using LARGE TABLES LAYOUT with full timeline data")
+            self.display_large_tables_view(self.tables_frame, cmp_table_aligned, rcps_table, df_gantt)
             
             # Store data for fullscreen comparison and enable button
             self.cmp_table_data = cmp_table_aligned
@@ -175,6 +181,14 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from src.pmhelper.core.rcps_analyzer import RCPSAnalyzer
+
+# Import tksheet for advanced table display
+try:
+    from tksheet import Sheet
+    TKSHEET_AVAILABLE = True
+except ImportError:
+    TKSHEET_AVAILABLE = False
+    print("Warning: tksheet not available - using basic table display")
 
 class RCPSTab:
     """RCPS tab for displaying resource-constrained schedule and resource charts"""
@@ -356,9 +370,9 @@ class RCPSTab:
             cpm_columns = [col for col in rcps_columns if col != 'actual_start']
             cpm_table_aligned = cpm_table.reindex(columns=cpm_columns, fill_value='')
             
-            # Display hybrid layout with tables and Gantt charts
-            print("[DEBUG] Using HYBRID LAYOUT with tables + Gantt charts")
-            self.display_hybrid_schedule_view(self.tables_frame, cpm_table_aligned, rcps_table, df_gantt)
+            # Display large tables layout with full timeline data
+            print("[DEBUG] Using LARGE TABLES LAYOUT with full timeline data")
+            self.display_large_tables_view(self.tables_frame, cpm_table_aligned, rcps_table, df_gantt)
             
             # Store data for fullscreen comparison and enable button
             self.cmp_table_data = cpm_table_aligned
@@ -481,43 +495,304 @@ class RCPSTab:
                 # Skip problematic rows rather than failing entirely
                 continue
 
-    def display_hybrid_schedule_view(self, parent, cpm_table, rcps_table, df_gantt):
+    def display_large_tables_view(self, parent, cmp_table, rcps_table, df_gantt):
         """
-        Display tables on the left and Gantt charts on the right.
+        Display large tables with full timeline data (Production Layout)
         Layout: 
-        [CPM Table]    [CPM Gantt]
-        [RCPS Table]   [RCPS Gantt]
+        [CPM Table - Full]
+        [RCPS Table - Full]
         """
+        # Use the parent frame directly - no additional container needed
+        parent.grid_rowconfigure(0, weight=1)  # CPM table
+        parent.grid_rowconfigure(1, weight=1)  # RCPS table
+        parent.grid_columnconfigure(0, weight=1)  # Single column for tables
+        
+        # Display large tables with full timeline data
+        self.display_schedule_table(parent, cmp_table, "Initial CPM-based Plan", col=0, row=0)
+        self.display_schedule_table(parent, rcps_table, "Resource-Constrained Schedule (RCPS)", col=0, row=1)
+
+    def display_schedule_table(self, parent, table, label, col, row=0):
+        """Display a schedule table with advanced formatting and timeline visualization"""
+        # Display a schedule table in the parent frame with a label
+        frame = ttk.Frame(parent)
+        frame.grid(row=row, column=col, sticky="nsew", padx=10, pady=10)
+        parent.grid_rowconfigure(row, weight=1)
+        parent.grid_columnconfigure(col, weight=1)
+        label_widget = ttk.Label(frame, text=label, font=("Arial", 12, "bold"))
+        label_widget.grid(row=0, column=0, sticky="w", pady=(0, 2))
+        
+        # Use tksheet for true cell borders if available
+        if not TKSHEET_AVAILABLE:
+            # Fallback to basic display
+            self.display_basic_table(frame, table, label)
+            return
+            
+        pretty_names = {
+            'id': 'ID',
+            'duration': 'D',
+            'resource': 'R',
+            'early_start': 'ES',
+            'late_finish': 'LF',
+            'float': 'F',
+            'actual_start': 'AS',
+        }
+        display_columns = list(table.columns)
+        display_headers = [pretty_names.get(col, str(col)) for col in display_columns]
+
+        # Identify timeline columns (integer column names)
+        timeline_cols = [col for col in display_columns if isinstance(col, int)]
+
+        # Special handling for CPM table: replace 'S' with resource usage in timeline columns
+        is_cmp = label.lower().startswith("initial cmp")
+
+        # --- Highlighting logic adapted from plot_schedule_tables (matplotlib) ---
+        # For RCPS table, need to know scheduled/delayed activities
+        scheduled_activities = set()
+        delayed_activities = set()
+        if not is_cmp:
+            for _, row in table.iterrows():
+                if row['id'] not in ['RA', 'RS']:
+                    if 'actual_start' in row and 'early_start' in row and row['actual_start'] == row['early_start']:
+                        scheduled_activities.add(row['id'])
+                    else:
+                        delayed_activities.add(row['id'])
+
+        # Prepare data and cell_colors
+        data = []
+        cell_colors = []
+        # --- Precompute heatmap for RS row ---
+        rs_row_idx = None
+        rs_row_values = []
+        for idx, row in enumerate(table.iterrows()):
+            row_obj = row[1]
+            if row_obj['id'] == 'RS':
+                rs_row_idx = idx
+                # Only collect timeline column values (numeric)
+                for col in display_columns:
+                    if col in timeline_cols:
+                        val = row_obj[col]
+                        try:
+                            rs_row_values.append(float(val))
+                        except Exception:
+                            rs_row_values.append(None)
+                break
+        # Compute min/max for heatmap
+        rs_numeric = [v for v in rs_row_values if v is not None]
+        rs_min = min(rs_numeric) if rs_numeric else 0
+        rs_max = max(rs_numeric) if rs_numeric else 1
+        
+        def interpolate_color(val, vmin, vmax):
+            # Colors: light yellow #fff9c4 to dark orange #ff9800
+            if val is None or vmax == vmin:
+                return '#fff9c4'
+            ratio = (val - vmin) / (vmax - vmin) if vmax > vmin else 0
+            # Interpolate RGB
+            def hex_to_rgb(hex_color):
+                hex_color = hex_color.lstrip('#')
+                return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+            def rgb_to_hex(rgb):
+                return '#{:02x}{:02x}{:02x}'.format(*rgb)
+            light = hex_to_rgb('fff9c4')
+            dark = hex_to_rgb('ff9800')
+            rgb = tuple(int(light[i] + (dark[i] - light[i]) * ratio) for i in range(3))
+            return rgb_to_hex(rgb)
+
+        for row_idx, row in enumerate(table.iterrows()):
+            row_obj = row[1]
+            row_data = []
+            row_colors = []
+            is_resource_row = row_obj['id'] in ['RA', 'RS']
+            for col_idx, col in enumerate(display_columns):
+                val = row_obj[col]
+                # For any table with timeline columns and 'resource', replace 'S' with resource usage
+                cell_val = str(val) if val != '' else ''
+                is_cmp_or_pert = (col in timeline_cols and 'resource' in row_obj)
+                if is_cmp_or_pert and str(val) == 'S':
+                    resource_val = row_obj['resource'] if 'resource' in row_obj else ''
+                    cell_val = str(resource_val)
+                row_data.append(cell_val)
+
+                # --- Cell coloring logic ---
+                # Resource rows (RA, RS): all cells white except RS heatmap
+                if is_resource_row:
+                    if row_obj['id'] == 'RS' and col in timeline_cols:
+                        try:
+                            idx_in_timeline = timeline_cols.index(col)
+                            v = rs_row_values[idx_in_timeline] if idx_in_timeline < len(rs_row_values) else None
+                            row_colors.append(interpolate_color(v, rs_min, rs_max))
+                        except Exception:
+                            row_colors.append('white')
+                    else:
+                        row_colors.append('white')
+                # Critical activity row: first column (not resource rows), in both CPM and RCPS
+                elif col == display_columns[0] and ('float' in row_obj and row_obj['float'] == 0 and row_obj['id'] not in ['RA', 'RS']):
+                    row_colors.append('#c0392b')
+                # Highlight AS > ES in RCPS table only
+                elif not is_cmp and col == 'actual_start' and 'early_start' in row_obj and 'actual_start' in row_obj:
+                    try:
+                        as_val = int(row_obj['actual_start'])
+                        es_val = int(row_obj['early_start'])
+                        if as_val > es_val:
+                            row_colors.append('#ffd580')  # yellow
+                        else:
+                            row_colors.append('white')
+                    except Exception:
+                        row_colors.append('white')
+                # CPM Table
+                elif is_cmp:
+                    # Timeline columns
+                    if col in timeline_cols:
+                        if str(val) == 'S' or (str(cell_val).isdigit() and int(cell_val) > 0):
+                            row_colors.append('#b6fcb6')
+                        else:
+                            row_colors.append('white')
+                    else:
+                        row_colors.append('white')
+                # RCPS Table
+                else:
+                    # Timeline columns
+                    if col in timeline_cols:
+                        if row_obj['id'] == 'RS':
+                            # Already handled above
+                            row_colors.append('white')
+                        elif str(cell_val).isdigit() and int(cell_val) > 0:
+                            if row_obj['id'] in delayed_activities:
+                                row_colors.append('#ffd580')
+                            elif row_obj['id'] in scheduled_activities:
+                                row_colors.append('#b6fcb6')
+                            else:
+                                row_colors.append('white')
+                        else:
+                            row_colors.append('white')
+                    else:
+                        row_colors.append('white')
+            data.append(row_data)
+            cell_colors.append(row_colors)
+
+        sheet = Sheet(frame,
+                      data=data,
+                      headers=display_headers,
+                      show_x_scrollbar=False,  # No horizontal scrollbar
+                      show_y_scrollbar=True,
+                      show_row_index=False,
+                      outline_thickness=1)
+        # Apply per-cell background colors using tksheet's highlight_cells
+        try:
+            for r, row_colors in enumerate(cell_colors):
+                for c, color in enumerate(row_colors):
+                    sheet.highlight_cells(row=r, column=c, bg=color, fg='black', redraw=False)
+            sheet.redraw()
+        except Exception:
+            pass
+        # Hide x scrollbar if method exists (for newer tksheet)
+        if hasattr(sheet, 'hide'):
+            try:
+                sheet.hide("x_scrollbar")
+            except Exception:
+                pass
+        # Disable all horizontal navigation and scrolling
+        if hasattr(sheet, 'disable_bindings'):
+            try:
+                sheet.disable_bindings(("left_arrow", "right_arrow", "horizontal_scroll"))
+            except Exception:
+                pass
+        # Do NOT enable any horizontal movement bindings
+        sheet.grid(row=1, column=0, sticky="nsew")
+        frame.grid_rowconfigure(1, weight=1)
+        frame.grid_columnconfigure(0, weight=1)
+
+        # --- Dynamic column width adjustment: always fill frame, no horizontal scroll ---
+        def adjust_column_widths(event=None):
+            frame.update_idletasks()
+            frame_width = frame.winfo_width() or 1000  # fallback if not yet rendered
+            min_col_width = 1  # Minimum width is 1 pixel
+            # Identify timeline columns (integer column names)
+            timeline_cols = [col for col in display_columns if isinstance(col, int)]
+            n_timeline = len(timeline_cols)
+            # Table type detection
+            is_cmp = label.lower().startswith("initial cmp")
+            if is_cmp:
+                fixed_col_count = 6
+                # CPM fixed width is based on RCPS: 7*45=315px, so each CPM col is 315//6=52px
+                fixed_col_width = 41
+                fixed_total_width = fixed_col_count * fixed_col_width
+            else:
+                fixed_col_count = 7
+                fixed_col_width = 35
+                fixed_total_width = fixed_col_count * fixed_col_width
+            num_cols = len(display_columns)
+            if num_cols == 0:
+                return
+            # Build widths: fixed for first N, rest for timeline
+            widths = []
+            for i, col in enumerate(display_columns):
+                if (is_cmp and i < 6) or (not is_cmp and i < 7):
+                    widths.append(fixed_col_width)
+                else:
+                    # Timeline columns: handled below
+                    break
+            n_fixed = len(widths)
+            n_timeline = num_cols - n_fixed
+            timeline_widths = []
+            if n_timeline > 0:
+                timeline_total_width = max(frame_width - fixed_total_width, n_timeline * min_col_width)
+                timeline_col_width = int(timeline_total_width / n_timeline)
+                timeline_widths = [max(min_col_width, timeline_col_width)] * n_timeline
+                # Distribute any leftover pixels to the last timeline column
+                total_width = fixed_total_width + sum(timeline_widths)
+                if total_width < frame_width:
+                    timeline_widths[-1] += frame_width - total_width
+            widths.extend(timeline_widths)
+            sheet.set_column_widths(widths)
+
+        # Bind to frame resize events for live adjustment
+        frame.bind("<Configure>", adjust_column_widths)
+        # Initial adjustment after rendering
+        frame.after(100, adjust_column_widths)
+        # Set gridline color and thickness for all cells
+        sheet.set_options(grid_color="#888", thickness=1)
+
+    # ========================================================================
+    # COMMENTED FOR FUTURE USE: Hybrid Layout Methods (Small Tables + Gantt Charts)
+    # ========================================================================
+    #
+    # def display_hybrid_schedule_view(self, parent, cmp_table, rcps_table, df_gantt):
+    #     '''
+    #     Display tables on the left and Gantt charts on the right.
+    #     Layout: 
+    #     [CPM Table]    [CPM Gantt]
+    #     [RCPS Table]   [RCPS Gantt]
+    #     '''
         # Create main container with 2 columns (left: tables, right: gantt charts)
-        main_frame = ttk.Frame(parent)
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        # main_frame = ttk.Frame(parent)
+        # main_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         # Configure grid weights for content-based table sizing
-        main_frame.grid_rowconfigure(0, weight=1)  # CPM row
-        main_frame.grid_rowconfigure(1, weight=1)  # RCPS row
-        main_frame.grid_columnconfigure(0, weight=0)  # Tables column - fixed size based on content
-        main_frame.grid_columnconfigure(1, weight=1)  # Gantt column - fills remaining space
+        # main_frame.grid_rowconfigure(0, weight=1)  # CPM row
+        # main_frame.grid_rowconfigure(1, weight=1)  # RCPS row
+        # main_frame.grid_columnconfigure(0, weight=0)  # Tables column - fixed size based on content
+        # main_frame.grid_columnconfigure(1, weight=1)  # Gantt column - fills remaining space
         
         # Create compact tables (without timeline columns to save space)
-        cpm_compact = self.create_compact_table(cpm_table)
-        rcps_compact = self.create_compact_table(rcps_table)
+        # cpm_compact = self.create_compact_table(cpm_table)
+        # rcps_compact = self.create_compact_table(rcps_table)
         
         # Left side: Compact tables with fixed width
-        self.display_compact_table_fixed_width(main_frame, cpm_compact, "Initial CPM-based Plan", col=0, row=0)
-        self.display_compact_table_fixed_width(main_frame, rcps_compact, "Resource-Constrained Schedule (RCPS)", col=0, row=1)
+        # self.display_compact_table_fixed_width(main_frame, cpm_compact, "Initial CPM-based Plan", col=0, row=0)
+        # self.display_compact_table_fixed_width(main_frame, rcps_compact, "Resource-Constrained Schedule (RCPS)", col=0, row=1)
         
         # Right side: Gantt charts
-        self.display_gantt_chart(main_frame, cpm_table, "CPM Timeline", col=1, row=0, is_cmp=True)
-        self.display_gantt_chart(main_frame, rcps_table, "RCPS Timeline", col=1, row=1, is_cmp=False)
+        # self.display_gantt_chart(main_frame, cpm_table, "CPM Timeline", col=1, row=0, is_cmp=True)
+        # self.display_gantt_chart(main_frame, rcps_table, "RCPS Timeline", col=1, row=1, is_cmp=False)
 
     def create_compact_table(self, table):
-        """Create a compact version of the table without timeline columns"""
+        '''Create a compact version of the table without timeline columns'''
         # Keep only non-timeline columns (non-integer column names)
         compact_columns = [col for col in table.columns if not isinstance(col, int)]
         return table[compact_columns].copy()
 
     def display_compact_table_fixed_width(self, parent, table, label, col, row=0):
-        """Display a compact table with fixed width based on content"""
+        '''Display a compact table with fixed width based on content'''
         # Calculate optimal fixed width for compact table
         num_cols = len(table.columns)
         
@@ -541,70 +816,91 @@ class RCPSTab:
         label_widget = ttk.Label(frame, text=label, font=("Arial", 11, "bold"))
         label_widget.grid(row=0, column=0, sticky="w", pady=(0, 5))
         
-        # Use tksheet for the table
-        try:
-            from tksheet import Sheet
+        # Use tksheet for the table if available
+        if not TKSHEET_AVAILABLE:
+            # Fallback to basic display
+            self.display_basic_table(frame, table, label)
+            return
             
-            pretty_names = {
-                'id': 'ID', 'duration': 'Dur', 'resource': 'Res',
-                'early_start': 'ES', 'late_finish': 'LF', 'float': 'Float',
-                'actual_start': 'AS'
-            }
+        pretty_names = {
+            'id': 'ID', 'duration': 'Dur', 'resource': 'Res',
+            'early_start': 'ES', 'late_finish': 'LF', 'float': 'Float',
+            'actual_start': 'AS'
+        }
+        
+        display_columns = list(table.columns)
+        display_headers = [pretty_names.get(col, str(col)) for col in display_columns]
+        
+        # Prepare data and colors
+        data = []
+        cell_colors = []
+        
+        for row_idx, row in enumerate(table.iterrows()):
+            row_obj = row[1]
+            row_data = [str(row_obj[col]) if row_obj[col] != '' else '' for col in display_columns]
+            data.append(row_data)
             
-            display_columns = list(table.columns)
-            display_headers = [pretty_names.get(col, str(col)) for col in display_columns]
-            
-            # Prepare data and colors
-            data = []
-            cell_colors = []
-            
-            for row_idx, row in enumerate(table.iterrows()):
-                row_obj = row[1]
-                row_data = [str(row_obj[col]) if row_obj[col] != '' else '' for col in display_columns]
-                data.append(row_data)
-                
-                # Color coding for compact table
-                row_colors = []
-                for col_idx, col in enumerate(display_columns):
-                    if col == 'id' and row_obj['id'] not in ['RA', 'RS'] and 'float' in row_obj and row_obj['float'] == 0:
-                        row_colors.append('#ffcccb')  # Light red for critical activities
-                    elif col == 'actual_start' and 'early_start' in row_obj and 'actual_start' in row_obj:
-                        try:
-                            if int(row_obj['actual_start']) > int(row_obj['early_start']):
-                                row_colors.append('#ffd580')  # Yellow for delays
-                            else:
-                                row_colors.append('white')
-                        except:
+            # Color coding for compact table
+            row_colors = []
+            for col_idx, col in enumerate(display_columns):
+                if col == 'id' and row_obj['id'] not in ['RA', 'RS'] and 'float' in row_obj and row_obj['float'] == 0:
+                    row_colors.append('#ffcccb')  # Light red for critical activities
+                elif col == 'actual_start' and 'early_start' in row_obj and 'actual_start' in row_obj:
+                    try:
+                        if int(row_obj['actual_start']) > int(row_obj['early_start']):
+                            row_colors.append('#ffd580')  # Yellow for delays
+                        else:
                             row_colors.append('white')
-                    else:
+                    except:
                         row_colors.append('white')
-                cell_colors.append(row_colors)
-            
-            # Create sheet
-            sheet = Sheet(frame, data=data, headers=display_headers,
-                         show_x_scrollbar=False, show_y_scrollbar=True,
-                         show_row_index=False, outline_thickness=1)
-            
-            # Apply colors
-            try:
-                for r, row_colors in enumerate(cell_colors):
-                    for c, color in enumerate(row_colors):
-                        sheet.highlight_cells(row=r, column=c, bg=color, fg='black', redraw=False)
-                sheet.redraw()
-            except:
-                pass
-            
-            sheet.grid(row=1, column=0, sticky="nsew")
-            frame.grid_rowconfigure(1, weight=1)
-            frame.grid_columnconfigure(0, weight=1)
-            
-            # Set fixed column widths
-            widths = [col_width] * len(display_columns)
-            sheet.set_column_widths(widths)
-            
-        except ImportError:
-            # Fallback to basic display if tksheet not available
-            ttk.Label(frame, text="Table display requires tksheet package").grid(row=1, column=0)
+                else:
+                    row_colors.append('white')
+            cell_colors.append(row_colors)
+        
+        # Create sheet
+        sheet = Sheet(frame, data=data, headers=display_headers,
+                     show_x_scrollbar=False, show_y_scrollbar=True,
+                     show_row_index=False, outline_thickness=1)
+        
+        # Apply colors
+        try:
+            for r, row_colors in enumerate(cell_colors):
+                for c, color in enumerate(row_colors):
+                    sheet.highlight_cells(row=r, column=c, bg=color, fg='black', redraw=False)
+            sheet.redraw()
+        except:
+            pass
+        
+        sheet.grid(row=1, column=0, sticky="nsew")
+        frame.grid_rowconfigure(1, weight=1)
+        frame.grid_columnconfigure(0, weight=1)
+        
+        # Set fixed column widths
+        widths = [col_width] * len(display_columns)
+        sheet.set_column_widths(widths)
+
+    def display_basic_table(self, frame, table, label):
+        """Fallback basic table display when tksheet is not available"""
+        # Create a simple text widget for displaying table data
+        text_widget = tk.Text(frame, wrap=tk.NONE, font=("Courier", 10))
+        text_widget.grid(row=1, column=0, sticky="nsew")
+        
+        # Format table as text
+        table_str = table.to_string(index=False)
+        text_widget.insert(tk.END, table_str)
+        text_widget.config(state=tk.DISABLED)
+        
+        # Add scrollbars
+        v_scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        v_scrollbar.grid(row=1, column=1, sticky="ns")
+        text_widget.config(yscrollcommand=v_scrollbar.set)
+        
+        h_scrollbar = ttk.Scrollbar(frame, orient=tk.HORIZONTAL, command=text_widget.xview)
+        h_scrollbar.grid(row=2, column=0, sticky="ew")
+        text_widget.config(xscrollcommand=h_scrollbar.set)
+        
+        frame.grid_rowconfigure(1, weight=1)
+        frame.grid_columnconfigure(0, weight=1)
 
     def display_gantt_chart(self, parent, table, label, col, row, is_cmp=False):
         """Display Gantt chart for the schedule"""
@@ -688,6 +984,10 @@ class RCPSTab:
         
         frame.grid_rowconfigure(1, weight=1)
         frame.grid_columnconfigure(0, weight=1)
+
+    # ========================================================================
+    # END OF COMMENTED HYBRID LAYOUT METHODS  
+    # ========================================================================
 
     def open_fullscreen_comparison(self):
         """Open a fullscreen window with stacked Gantt charts for comparison"""
