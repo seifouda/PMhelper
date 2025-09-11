@@ -59,7 +59,7 @@ The `preproduction` branch contains only the essential files needed to run the P
 - `build/`, `dist/`, `htmlcov/` directories
 - `__pycache__/` directories
 - `.pytest_cache/`, `.coverage` files
-- Virtual environment (`.venv/`)
+- Virtual environment (`.venv/`) - **IMPORTANT: See note below**
 
 ### Development Directories
 
@@ -142,6 +142,55 @@ python launch_app.py
 - The preproduction branch should be kept synchronized with stable releases from the main development branch
 - Only production-ready, tested features should be merged
 - This branch is ideal for deployment, distribution, and end-user installations
+
+---
+
+## ⚠️ IMPORTANT: Virtual Environment (.venv) Removal - RESOLVED
+
+### The Question
+**"Will the .venv issue affect users that will use the app on other devices?"**
+
+### The Answer: **NO** ❌
+
+The removal of the original `.venv` directory **WILL NOT** affect users on other devices because:
+
+1. **Virtual environments are machine-specific** - They contain paths and binaries specific to the original development machine
+2. **Standard Python practice** - Distributing applications without their .venv is the correct approach
+3. **Users create their own environments** - Each user/device creates a fresh virtual environment
+4. **Dependencies are preserved** - All required packages are listed in `config/requirements.txt`
+
+### Why Removing .venv is CORRECT ✅
+
+- **Portability**: The application works on any compatible system
+- **Security**: No hardcoded paths or machine-specific configurations
+- **Size**: Significantly reduces distribution size
+- **Best Practice**: Follows Python packaging standards
+- **Compatibility**: Works across Windows, macOS, and Linux
+
+### User Setup Process (Standard)
+
+Every user will do this (which is normal):
+
+```bash
+# 1. Get the application
+git clone -b preproduction https://github.com/seifouda/PMhelper.git
+cd PMhelper
+
+# 2. Create THEIR OWN virtual environment
+python -m venv pmhelper_env
+
+# 3. Activate THEIR environment
+# Windows: pmhelper_env\Scripts\activate
+# Linux/Mac: source pmhelper_env/bin/activate
+
+# 4. Install dependencies
+pip install -r config/requirements.txt
+
+# 5. Run the application
+python launch_app.py
+```
+
+**This is exactly how Python applications should be distributed!**
 
 ---
 
