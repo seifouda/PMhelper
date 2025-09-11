@@ -9,6 +9,68 @@ Launch the Project Management application with full CPM and PERT analysis capabi
 import sys
 import os
 from pathlib import Path
+import builtins
+import warnings
+
+# PRODUCTION MODE: Suppress debug prints and warnings
+PRODUCTION_MODE = True
+
+if PRODUCTION_MODE:
+    # Suppress matplotlib warnings
+    warnings.filterwarnings('ignore', category=UserWarning)
+    warnings.filterwarnings('ignore', module='matplotlib')
+    
+    # Also suppress specific warnings from GUI modules
+    import logging
+    logging.getLogger('matplotlib').setLevel(logging.ERROR)
+    # Store original print function
+    original_print = builtins.print
+    
+    def production_print(*args, **kwargs):
+        """Filter out debug prints in production mode"""
+        message = ' '.join(str(arg) for arg in args)
+        
+        # Skip debug prints with emojis or debug markers
+        debug_indicators = [
+            '🔍', '📊', '✅', '❌', '🎯', '📋', '🔨', '💰', '📈', '🚀', 
+            '[DEBUG', '[RCPS', '[CRASHING', '[ANALYSIS', 'DEBUG:', 
+            'VERIFICATION', 'COST DATA', 'ITERATION', 'STRATEGY',
+            'Graph nodes:', 'Critical activities:', 'Project duration:',
+            'Analyzer type:', 'Activities data count:', 'Sample activity data:',
+            'Analysis mode:', 'Current analyzer:', 'Analyzer has activities:',
+            'Activity:', 'Node ', ': ES=', ', EF=', ', Duration=',
+            'Integration Test Results:', 'fixes implemented', 'READY FOR TESTING',
+            'GANTT CHART INTEGRATION TEST', 'Fix 1:', 'Fix 2:', 'Fix 3:',
+            'Graph created:', 'crash_cost=', 'normal_cost=', 'Analyzer has',
+            "{'id':", '[9 rows x 11 columns]', 'duration:', 'earliest_start:',
+            'earliest_finish:', 'latest_start:', 'latest_finish:', "critical':",
+            '======================================================================',
+            'name', 'activity', 'duration', 'predecessors', 'resource',
+            '| Duration=', '| ES=', '| AS=', '[COST DEBUG]', 'Original crash_cost:',
+            'Original normal_cost:', 'Final crash_cost:', 'Final normal_cost:',
+            'Activities:', 'Project Duration:', 'Project Variance:',
+            '============================================================'
+        ]
+        
+        # If message contains debug indicators, skip it
+        if any(indicator in message for indicator in debug_indicators):
+            return
+        
+        # Allow essential startup messages
+        essential_messages = [
+            'Starting PMHelper', 'Features available:', 'Application launched successfully',
+            'Close the application window'
+        ]
+        
+        if any(essential in message for essential in essential_messages):
+            original_print(*args, **kwargs)
+            return
+            
+        # For regular prints, use original function
+        original_print(*args, **kwargs)
+    
+    # Replace print function
+    builtins.print = production_print
 
 # Add the src directory to the path for the advanced GUI
 project_root = Path(__file__).parent
