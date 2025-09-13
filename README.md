@@ -11,7 +11,7 @@ A comprehensive, production-ready project management analysis desktop applicatio
 
 **Latest Release**: September 14, 2025  
 **Status**: Production Ready ✅  
-**Windows Executable Available**: Yes 🚀  
+**Windows Executable Available**: Yes 🚀
 
 > **Quick Start**: Download `launch_app.exe` from the releases section and run directly - no Python installation required!
 
@@ -52,7 +52,7 @@ A comprehensive, production-ready project management analysis desktop applicatio
 **Option 1: Download Executable** (No Python Required)
 
 1. Download `launch_app.exe` from the latest release
-2. Extract to desired location  
+2. Extract to desired location
 3. Double-click `launch_app.exe` to run
 4. No additional installation needed!
 
