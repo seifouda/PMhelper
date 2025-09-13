@@ -111,6 +111,80 @@ class PertDiagramTab:
 
         ttk.Button(button_frame, text="Save Image", 
             command=self.save_diagram).pack(side=tk.LEFT, padx=5)
+        # Help button
+        ttk.Button(button_frame, text="? Help", command=self.show_pert_tab_help).pack(side=tk.LEFT, padx=5)
+    def show_pert_tab_help(self):
+        """Show PERT Diagram Tab specific help dialog"""
+        help_window = tk.Toplevel(self.main_window.root)
+        help_window.title("PERT Diagram Tab - Help")
+        help_window.geometry("800x600")
+
+        frame = ttk.Frame(help_window)
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
+        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        text_widget.configure(yscrollcommand=scrollbar.set)
+
+        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        help_text = (
+            "PERT DIAGRAM TAB - DETAILED HELP\n"
+            "================================================================\n"
+            "\n"
+            "PURPOSE\n"
+            "The PERT Diagram tab displays a professional network diagram with rectangle-semicircle nodes,\n"
+            "showing detailed activity information and highlighting the critical path.\n"
+            "\n"
+            "DIAGRAM ELEMENTS\n"
+            "\n"
+            "NODES (ACTIVITIES)\n"
+            "• Rectangle-semicircle shaped nodes represent project activities\n"
+            "• Each node shows 6 sections with key information:\n"
+            "  - Activity ID (top left)\n"
+            "  - Duration (top right)\n"
+            "  - Earliest Start - ES (middle left)\n"
+            "  - Earliest Finish - EF (middle right)\n"
+            "  - Latest Start - LS (bottom left)\n"
+            "  - Latest Finish - LF (bottom right)\n"
+            "\n"
+            "COLOR CODING\n"
+            "• Red nodes: Critical activities (zero float)\n"
+            "• Blue nodes: Non-critical activities (positive float)\n"
+            "\n"
+            "ARROWS (DEPENDENCIES)\n"
+            "• Lines connect predecessor to successor activities\n"
+            "• Arrow direction shows dependency flow\n"
+            "• Critical path arrows are highlighted\n"
+            "\n"
+            "HOW TO USE\n"
+            "1. Run CPM or PERT analysis to generate the diagram\n"
+            "2. Use 'Highlight Critical Path' checkbox to toggle critical path display\n"
+            "3. Use 'Show Float Values' checkbox to display float information\n"
+            "4. Save the diagram as an image using the 'Save Image' button\n"
+            "5. Use navigation toolbar to zoom and pan the diagram\n"
+            "\n"
+            "READING THE DIAGRAM\n"
+            "• Follow the critical path (red nodes) from start to finish\n"
+            "• Critical activities determine the minimum project duration\n"
+            "• Non-critical activities have scheduling flexibility\n"
+            "• Use ES/LS and EF/LF times to plan activity schedules\n"
+            "\n"
+            "FUTURE DEPLOYMENTS\n"
+            "The following features are planned for future releases:\n"
+            "• Interactive node editing\n"
+            "• Advanced layout algorithms\n"
+            "• Custom node styling options\n"
+            "• Export to various image formats\n"
+            "\n"
+            "================================================================\n"
+        )
+        text_widget.insert(tk.END, help_text)
+        text_widget.config(state=tk.DISABLED)
+        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+        close_btn.pack(pady=10)
+        help_window.transient(self.main_window.root)
     
     # Removed duplicate create_plot_area method
     

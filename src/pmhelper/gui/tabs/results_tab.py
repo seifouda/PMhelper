@@ -31,6 +31,14 @@ class ResultsTab:
         self.results_frame = ttk.Frame(self.notebook)
         self.notebook.add(self.results_frame, text="Results")
         
+        # Create header frame with help button
+        header_frame = ttk.Frame(self.results_frame)
+        header_frame.pack(fill=tk.X, padx=5, pady=(5, 0))
+        
+        # Help button
+        ttk.Button(header_frame, text="? Help", 
+                  command=self.main_window.show_results_tab_help).pack(side=tk.RIGHT)
+        
         # Create main layout with paned window
         self.paned_window = ttk.PanedWindow(self.results_frame, orient=tk.VERTICAL)
         self.paned_window.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)

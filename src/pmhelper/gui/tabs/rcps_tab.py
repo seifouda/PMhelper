@@ -192,6 +192,98 @@ except ImportError:
     print("Warning: tksheet not available - using basic table display")
 
 class RCPSTab:
+    def show_rcps_tab_help(self):
+        """Show RCPS Tab specific help dialog"""
+        help_window = tk.Toplevel(self.main_window.root)
+        help_window.title("RCPS Tab - Help")
+        help_window.geometry("800x600")
+
+        frame = ttk.Frame(help_window)
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
+        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        text_widget.configure(yscrollcommand=scrollbar.set)
+
+        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        help_text = (
+            "RCPS TAB - DETAILED HELP\n"
+            "Resource-Constrained Project Schedule (RCPS)\n"
+            "\n"
+            "================================================================\n"
+            "\n"
+            "PURPOSE\n"
+            "The RCPS tab helps you visualize and analyze project schedules under resource constraints, providing realistic and implementable scheduling strategies. This approach is designed to be resource-aware and only allows scheduling when resources are available.\n"
+            "\n"
+            "[NOTE] Resource awareness is not fully implemented in the current version. Scheduling decisions do not yet validate actual resource availability. Full resource-aware scheduling will be available in future development releases.\n"
+            "\n"
+            "NORMAL COST CALCULATION (STEP-BY-STEP)\n"
+            "- For each time step in the RCPS schedule:\n"
+            "    * Identify all activities active during that step (where ES < current_time <= EF)\n"
+            "    * For each active activity, add its normal_cost to the step normal cost\n"
+            "    * Accumulate step normal costs over the entire project duration to get the total normal cost\n"
+            "- The calculation uses the actual RCPS schedule, reflecting real resource limitations.\n"
+            "\n"
+            "SCHEDULING LOGIC\n"
+            "- Only activities that are critical (float = 0) and schedulable (duration > min_duration) are considered\n"
+            "- Each potential schedule is validated against resource availability at the scheduled time\n"
+            "- Only resource-feasible schedules are applied\n"
+            "\n"
+            "BUDGET AND RESOURCE VALIDATION\n"
+            "- Before each schedule, the system checks:\n"
+            "    * Resource availability at the scheduled time\n"
+            "    * That the schedule does not exceed resource capacity\n"
+            "    * That the schedule does not conflict with other activities\n"
+            "    * That the projected total cost does not exceed max_budget\n"
+            "\n"
+            "RCPS SCHEDULING ALGORITHM\n"
+            "1. Start with the RCPS-constrained network graph\n"
+            "2. Identify critical activities (float = 0) in the RCPS schedule\n"
+            "3. Filter for schedulable activities (duration > min_duration)\n"
+            "4. Validate each schedule for resource feasibility\n"
+            "5. Apply the most cost-effective, resource-feasible schedule\n"
+            "6. Update the schedule minimally, preserving RCPS timing\n"
+            "7. Repeat until the target duration is reached or no further scheduling is possible\n"
+            "\n"
+            "KEY CONCEPTS\n"
+            "- Resource constraints: Only schedules that respect resource limits are allowed\n"
+            "- Realistic schedule: All results are implementable in practice\n"
+            "- Cost calculation: Includes resource acquisition/overtime costs\n"
+            "\n"
+            "LIMITATIONS\n"
+            "- Results are bounded by resource availability\n"
+            "- May achieve less time reduction than theoretical CPM scheduling\n"
+            "- Higher costs may result from resource constraints\n"
+            "- Some activities may not be schedulable due to lack of resources\n"
+            "\n"
+            "WHEN TO USE THE RCPS TAB\n"
+            "- When resources are limited (personnel, equipment, facilities)\n"
+            "- For realistic, implementable schedule acceleration plans\n"
+            "- For final project planning and execution decisions\n"
+            "\n"
+            "PRACTICAL APPLICATIONS\n"
+            "- Direct applicability to project execution\n"
+            "- Resource allocation requirements are clearly defined\n"
+            "- Timeline considers resource constraint impacts\n"
+            "- Schedule sequence respects resource availability\n"
+            "\n"
+            "FUTURE DEPLOYMENTS\n"
+            "The following features are planned for future releases:\n"
+            "- Full resource availability validation\n"
+            "- Advanced priority rule algorithms\n"
+            "- Multi-skill resource modeling\n"
+            "- Resource cost optimization\n"
+            "- Calendar-based resource scheduling\n"
+            "\n"
+            "================================================================\n"
+        )
+        text_widget.insert(tk.END, help_text)
+        text_widget.config(state=tk.DISABLED)
+        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+        close_btn.pack(pady=10)
+        help_window.transient(self.main_window.root)
     """RCPS tab for displaying resource-constrained schedule and resource charts"""
     
     def __init__(self, notebook, main_window):
@@ -248,6 +340,9 @@ class RCPSTab:
         self.fullscreen_btn = ttk.Button(control_frame, text="Fullscreen Comparison", 
                                        command=self.open_fullscreen_comparison, state='disabled')
         self.fullscreen_btn.pack(side=tk.LEFT, padx=10)
+
+        # Help button
+        ttk.Button(control_frame, text="? Help", command=self.show_rcps_tab_help).pack(side=tk.RIGHT, padx=10)
 
     def validate_rcps_inputs(self, df_gantt, resource_limit, priority_rule):
         """
@@ -1087,6 +1182,40 @@ class RCPSTab:
                     node_data['normal_cost'] = 50   # Default normal cost
                 if 'min_duration' not in node_data:
                     node_data['min_duration'] = max(1, node_data.get('duration', 0) // 2)
+
+    def load_sample_rcps_data(self):
+        """Load sample RCPS data for testing and demonstration"""
+        from pmhelper.utils.file_handlers import FileHandler
+        try:
+            # Get sample RCPS data
+            sample_data = FileHandler.get_sample_rcps_data()
+            
+            # Load the data into the input tab (which will set analysis mode to deterministic)
+            self.main_window.input_tab.set_mode('deterministic')
+            self.main_window.input_tab.populate_tree(sample_data)
+            self.main_window.set_analysis_mode('deterministic')
+            
+            # Automatically run CPM analysis to generate the data needed for RCPS
+            self.main_window.run_cpm_analysis()
+            
+            # Set status message
+            self.main_window.set_status("Loaded sample RCPS data - ready for resource scheduling analysis")
+            
+            # Show a helpful message to the user
+            messagebox.showinfo("Sample Data Loaded", 
+                              "Sample RCPS data has been loaded!\n\n"
+                              "The data includes:\n"
+                              "• 9 project activities with resource requirements\n"
+                              "• Realistic precedence relationships\n"
+                              "• Resource demands from 1 to 5 units\n"
+                              "• Ready for RCPS analysis\n\n"
+                              "You can now:\n"
+                              "1. Set your resource limit (try 3-6 resources)\n"
+                              "2. Choose a priority rule\n"
+                              "3. Click 'Run RCPS' to see the schedule")
+                              
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load sample RCPS data: {str(e)}")
 
 
 class FullscreenComparisonWindow:

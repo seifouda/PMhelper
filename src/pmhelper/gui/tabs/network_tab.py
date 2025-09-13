@@ -126,6 +126,8 @@ class NetworkTab:
         
         ttk.Button(button_frame, text="Save Image", 
                   command=self.save_diagram).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="? Help", 
+                  command=self.main_window.show_network_tab_help).pack(side=tk.LEFT, padx=5)
         # Removed Refresh and Reset View buttons
     
     def create_plot_area(self):

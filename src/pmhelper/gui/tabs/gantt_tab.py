@@ -138,6 +138,8 @@ class GanttTab:
                   command=self.save_chart).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="Export Data", 
                   command=self.export_schedule_data).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="? Help", 
+                  command=self.main_window.show_gantt_tab_help).pack(side=tk.LEFT, padx=5)
     
     def create_plot_area(self):
         """Create matplotlib plot area WITHOUT navigation toolbar - FIXED"""

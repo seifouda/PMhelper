@@ -107,8 +107,23 @@ class MainWindow:
         # Help menu
         help_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Help", menu=help_menu)
-        help_menu.add_command(label="User Guide", command=self.show_user_guide)
-        help_menu.add_command(label="About", command=self.show_about)
+        help_menu.add_command(label="Complete User Guide", command=self.show_user_guide)
+        help_menu.add_separator()
+        
+        # Tab-specific help submenu
+        tab_help_menu = tk.Menu(help_menu, tearoff=0)
+        help_menu.add_cascade(label="Tab Help", menu=tab_help_menu)
+        tab_help_menu.add_command(label="Input Tab Help", command=self.show_input_tab_help)
+        tab_help_menu.add_command(label="Results Tab Help", command=self.show_results_tab_help)
+        tab_help_menu.add_command(label="Network Tab Help", command=self.show_network_tab_help)
+        tab_help_menu.add_command(label="Gantt Tab Help", command=self.show_gantt_tab_help)
+        tab_help_menu.add_command(label="Probability Tab Help", command=self.show_probability_tab_help)
+        tab_help_menu.add_command(label="RCPS Tab Help", command=self.show_rcps_tab_help)
+        tab_help_menu.add_command(label="Crashing Tab Help", command=self.show_crashing_tab_help)
+        tab_help_menu.add_command(label="RCPS Crashing Tab Help", command=self.show_rcps_crashing_tab_help)
+        
+        help_menu.add_separator()
+        help_menu.add_command(label="About PMHelper", command=self.show_about)
     
     def create_main_interface(self):
         """Create the main interface with notebook tabs"""
@@ -747,28 +762,1242 @@ class MainWindow:
             messagebox.showerror("Error", f"Failed to save sample data: {str(e)}")
     
     def show_user_guide(self):
-        """Show user guide"""
-        messagebox.showinfo("User Guide", 
-                           "PMHelper User Guide\\n\\n"
-                           "1. Load data using File menu or enter manually\\n"
-                           "2. Choose analysis mode (CPM or PERT)\\n"
-                           "3. Click Analyze to run analysis\\n"
-                           "4. View results in different tabs\\n\\n"
-                           "For detailed instructions, see documentation.")
-    
+        """Show comprehensive user guide"""
+        guide_window = tk.Toplevel(self.root)
+        guide_window.title("PMHelper - Complete User Guide")
+        guide_window.geometry("900x700")
+        guide_window.resizable(True, True)
+        
+        # Create scrollable text widget
+        frame = ttk.Frame(guide_window)
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 11))
+        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        text_widget.configure(yscrollcommand=scrollbar.set)
+        
+        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        guide_text = """PMHelper - Complete User Guide
+
+═══════════════════════════════════════════════════════════════════════
+
+OVERVIEW
+PMHelper is a comprehensive project management analysis tool supporting multiple methodologies:
+• Critical Path Method (CPM) - Deterministic analysis
+• Program Evaluation and Review Technique (PERT) - Probabilistic analysis  
+• Resource-Constrained Project Scheduling (RCPS)
+• Project Crashing optimization
+• Network diagrams and Gantt charts
+
+═══════════════════════════════════════════════════════════════════════
+
+QUICK START GUIDE
+
+1. DATA INPUT
+   • Use the Input tab to enter project activities
+   • Each activity needs: ID, Name, Duration, Predecessors
+   • For PERT analysis, add optimistic/pessimistic durations
+   • Import from CSV files via File menu
+
+2. ANALYSIS MODES
+   • CPM (Deterministic): Uses fixed durations
+   • PERT (Probabilistic): Uses three-point estimates
+
+3. BASIC WORKFLOW
+   • Enter or load activity data
+   • Click "Run CPM Analysis" or "Run PERT Analysis"
+   • View results in Results tab
+   • Check Network tab for visual diagram
+   • Use Gantt tab for timeline visualization
+
+═══════════════════════════════════════════════════════════════════════
+
+TAB-SPECIFIC HELP
+
+For detailed help on any specific tab, use the Help buttons in each tab or:
+• Help Menu → Input Tab Help
+• Help Menu → Results Tab Help  
+• Help Menu → Network Tab Help
+• Help Menu → Gantt Tab Help
+• Help Menu → Probability Tab Help
+• Help Menu → RCPS Tab Help
+• Help Menu → Crashing Tab Help
+
+═══════════════════════════════════════════════════════════════════════
+
+ADVANCED FEATURES
+
+PROJECT CRASHING
+• Reduces project duration by spending additional resources
+• Define crash costs and crash durations for activities
+• Algorithm finds optimal crashing strategy
+
+RESOURCE-CONSTRAINED PROJECT SCHEDULING (RCPS)
+• Schedules projects with limited resources
+• Define resource requirements and availability
+• Uses priority rules for resource allocation
+
+PROBABILITY ANALYSIS (PERT)
+• Calculate probability of meeting deadlines
+• Statistical analysis of project completion times
+
+═══════════════════════════════════════════════════════════════════════
+
+FILE OPERATIONS
+
+IMPORT/EXPORT
+• Supported formats: CSV files
+• Use File menu for import/export operations
+• Export analysis results and charts
+
+DATA FORMAT REQUIREMENTS
+• Activity ID: Unique identifier
+• Activity Name: Descriptive name
+• Duration: Time units (days, weeks, etc.)
+• Predecessors: Comma-separated list of predecessor IDs
+• Resources (for RCPS): Resource type and quantity
+
+FUTURE DEPLOYMENTS
+The following features are planned for future releases:
+• Excel (.xlsx, .xls) import/export support
+• Monte Carlo simulation for risk analysis
+
+═══════════════════════════════════════════════════════════════════════
+
+TROUBLESHOOTING
+
+COMMON ISSUES
+• Circular dependencies: Check predecessor relationships
+• Missing predecessors: Ensure all referenced activities exist
+• Data format errors: Verify CSV format matches requirements
+• Analysis failures: Check for complete activity data
+
+GETTING HELP
+• Use Help buttons in individual tabs for specific guidance
+• Check About dialog for version and feature information
+• Refer to this guide for comprehensive instructions
+
+═══════════════════════════════════════════════════════════════════════"""
+
+        text_widget.insert(tk.END, guide_text)
+        text_widget.config(state=tk.DISABLED)
+        
+        # Add close button
+        close_btn = ttk.Button(guide_window, text="Close", command=guide_window.destroy)
+        close_btn.pack(pady=10)
+        
+        # Center the window
+        guide_window.transient(self.root)
+        guide_window.grab_set()
+
+    def show_input_tab_help(self):
+        """Show Input tab specific help"""
+        help_window = tk.Toplevel(self.root)
+        help_window.title("Input Tab - Help")
+        help_window.geometry("700x500")
+        
+        frame = ttk.Frame(help_window)
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
+        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        text_widget.configure(yscrollcommand=scrollbar.set)
+        
+        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        help_text = """INPUT TAB - DETAILED HELP
+
+═══════════════════════════════════════════════════════════════════════
+
+PURPOSE
+The Input tab is where you define your project activities and their relationships.
+
+ACTIVITY FIELDS
+
+1. ACTIVITY ID
+   • Unique identifier for each activity (e.g., A, B, C or 1, 2, 3)
+   • Use consistent naming convention
+   • Cannot be empty or duplicate
+
+2. ACTIVITY NAME  
+   • Descriptive name for the activity
+   • Helps identify activities in reports and charts
+   • Can contain spaces and special characters
+
+3. DURATION
+   • Time required to complete the activity
+   • Use consistent time units (days, weeks, months)
+   • Must be positive number
+   • For PERT: This becomes the "most likely" duration
+
+4. PREDECESSORS
+   • Activities that must complete before this activity starts
+   • Enter as comma-separated list (e.g., "A,B,C")
+   • Leave blank for activities with no predecessors
+   • Must reference existing activity IDs
+
+5. PERT-SPECIFIC FIELDS (for probabilistic analysis)
+   • Optimistic Duration: Best-case scenario time
+   • Pessimistic Duration: Worst-case scenario time
+   • Most Likely Duration: Normal expected time
+
+6. RESOURCE FIELDS (for RCPS analysis)
+   • Resource Type: Name of required resource (e.g., "Workers", "Equipment")
+   • Resource Quantity: Number of resource units needed
+
+═══════════════════════════════════════════════════════════════════════
+
+HOW TO USE
+
+ADDING ACTIVITIES
+1. Click "Add Activity" button
+2. Fill in all required fields in the form
+3. Click "Save Activity" to add to the table
+4. Repeat for each project activity
+
+EDITING ACTIVITIES
+1. Select activity row in the table
+2. Click "Edit Selected" button
+3. Modify fields in the form
+4. Click "Update Activity" to save changes
+
+DELETING ACTIVITIES
+1. Select activity row in the table
+2. Click "Delete Selected" button
+3. Confirm deletion when prompted
+
+IMPORTING DATA
+• Use File → Import Data to load from CSV files
+• Ensure your file matches the expected format
+• Sample data is loaded automatically when application starts
+
+LOAD SAMPLE DATA FUNCTION
+The "Load Sample Data" button provides predefined project examples:
+• Sample CPM Project: A simple construction project with 7 activities
+• Sample PERT Project: A software development project with uncertainty estimates
+• These examples help you understand the data format and test analysis features
+• Sample data is automatically loaded when you first open the application
+
+FUTURE DEPLOYMENTS
+The following features are planned for future releases:
+• Excel (.xlsx, .xls) import capabilities
+• Advanced data validation tools
+• Template projects for different industries
+
+═══════════════════════════════════════════════════════════════════════
+
+TIPS & BEST PRACTICES
+
+• Start with a simple project structure
+• Use descriptive activity names
+• Double-check predecessor relationships
+• Ensure all predecessors are defined before referencing them
+• Use consistent time units throughout the project
+• Test with sample data first before entering complex projects
+
+═══════════════════════════════════════════════════════════════════════"""
+
+        text_widget.insert(tk.END, help_text)
+        text_widget.config(state=tk.DISABLED)
+        
+        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+        close_btn.pack(pady=10)
+        
+        help_window.transient(self.root)
+
+    def show_results_tab_help(self):
+        """Show Results tab specific help"""
+        help_window = tk.Toplevel(self.root)
+        help_window.title("Results Tab - Help")
+        help_window.geometry("700x500")
+        
+        frame = ttk.Frame(help_window)
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
+        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        text_widget.configure(yscrollcommand=scrollbar.set)
+        
+        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        help_text = """RESULTS TAB - DETAILED HELP
+
+═══════════════════════════════════════════════════════════════════════
+
+PURPOSE
+The Results tab displays the calculated analysis results for your project.
+
+ANALYSIS RESULTS
+
+PROJECT SUMMARY
+• Total Project Duration: Overall time to complete the project
+• Critical Path: Sequence of activities that determines project duration
+• Number of Critical Activities: Count of activities on critical path
+
+ACTIVITY SCHEDULE TABLE
+Columns explained:
+
+1. ACTIVITY ID & NAME
+   • Unique identifier and descriptive name
+
+2. DURATION
+   • Time required to complete the activity
+
+3. EARLIEST START (ES)
+   • Earliest time the activity can begin
+   • Based on predecessor completion times
+
+4. EARLIEST FINISH (EF)
+   • Earliest time the activity can complete
+   • Calculated as ES + Duration
+
+5. LATEST START (LS)
+   • Latest time activity can start without delaying project
+   • Critical for identifying schedule flexibility
+
+6. LATEST FINISH (LF)
+   • Latest time activity can finish without delaying project
+
+7. TOTAL FLOAT (SLACK)
+   • Amount of time activity can be delayed without affecting project
+   • Zero float = Critical activity
+   • Positive float = Non-critical activity
+
+8. CRITICAL
+   • Yes/No indicator if activity is on critical path
+   • Critical activities have zero total float
+
+═══════════════════════════════════════════════════════════════════════
+
+INTERPRETING RESULTS
+
+CRITICAL PATH ANALYSIS
+• Critical activities must be closely monitored
+• Any delay in critical activities delays the entire project
+• Focus resources on critical activities for schedule compression
+
+FLOAT ANALYSIS
+• Activities with float provide scheduling flexibility
+• Use float activities as buffers for resource allocation
+• Float can be used to level resources or manage risks
+
+PERT-SPECIFIC RESULTS (when applicable)
+• Expected Duration: Weighted average of optimistic, most likely, pessimistic
+• Variance: Measure of uncertainty in activity duration
+• Standard Deviation: Square root of variance
+
+═══════════════════════════════════════════════════════════════════════
+
+USING THE RESULTS
+
+PROJECT MANAGEMENT
+1. Identify critical activities for priority focus
+2. Use float information for resource optimization
+3. Monitor early/late start dates for scheduling
+4. Plan contingencies for high-variance activities (PERT)
+
+SCHEDULE OPTIMIZATION
+• Activities with float can be delayed if needed
+• Critical activities need precise scheduling
+• Use results to create detailed project timeline
+
+EXPORT OPTIONS
+• Export results table to CSV files
+• Print results for documentation
+• Save analysis for future reference
+
+FUTURE DEPLOYMENTS
+The following features are planned for future releases:
+• Excel export capabilities
+• Advanced reporting templates
+• Real-time progress tracking integration
+• Custom report generation
+• Dashboard views with key metrics
+
+═══════════════════════════════════════════════════════════════════════"""
+
+        text_widget.insert(tk.END, help_text)
+        text_widget.config(state=tk.DISABLED)
+        
+        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+        close_btn.pack(pady=10)
+        
+        help_window.transient(self.root)
+
+    def show_network_tab_help(self):
+        """Show Network tab specific help"""
+        help_window = tk.Toplevel(self.root)
+        help_window.title("Network Tab - Help")
+        help_window.geometry("700x500")
+        
+        frame = ttk.Frame(help_window)
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
+        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        text_widget.configure(yscrollcommand=scrollbar.set)
+        
+        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        help_text = """NETWORK TAB - DETAILED HELP
+
+═══════════════════════════════════════════════════════════════════════
+
+PURPOSE
+The Network tab displays a visual network diagram showing activity relationships and the critical path.
+
+NETWORK DIAGRAM ELEMENTS
+
+NODES (ACTIVITIES)
+• Circles represent project activities
+• Node color indicates critical path status:
+  - Red: Critical activities (zero float)
+  - Blue: Non-critical activities (positive float)
+• Node labels show activity ID and name
+
+ARROWS (DEPENDENCIES)  
+• Lines connect predecessor to successor activities
+• Arrow direction shows dependency flow
+• Critical path arrows may be highlighted differently
+
+NODE INFORMATION
+Each node typically displays:
+• Activity ID
+• Activity Name
+• Duration
+• Early Start (ES) / Early Finish (EF)
+• Late Start (LS) / Late Finish (LF)
+
+═══════════════════════════════════════════════════════════════════════
+
+READING THE DIAGRAM
+
+CRITICAL PATH IDENTIFICATION
+• Critical activities form an unbroken chain from start to finish
+• These activities have zero total float
+• Critical path determines minimum project duration
+
+DEPENDENCY RELATIONSHIPS
+• Follow arrows to see activity sequence requirements
+• Parallel activities can be performed simultaneously
+• Convergence points show where multiple activities must complete
+
+SCHEDULE ANALYSIS
+• Use early/late times to understand scheduling flexibility
+• Identify potential bottlenecks and resource conflicts
+• Plan activity sequences and resource allocation
+
+═══════════════════════════════════════════════════════════════════════
+
+USING THE NETWORK DIAGRAM
+
+PROJECT PLANNING
+• Visualize project workflow and dependencies
+• Identify parallel work opportunities
+• Plan resource allocation and team assignments
+
+SCHEDULE MANAGEMENT
+• Monitor critical activities closely
+• Use non-critical activities for schedule buffering
+• Plan alternative paths in case of delays
+
+COMMUNICATION
+• Share visual representation with stakeholders
+• Explain project logic and critical activities
+• Document project structure for team understanding
+
+DIAGRAM CONTROLS
+• Zoom in/out for better visibility
+• Pan to navigate large diagrams
+• Export diagram for documentation
+• Print for offline reference
+
+═══════════════════════════════════════════════════════════════════════
+
+TROUBLESHOOTING
+
+COMMON ISSUES
+• Overlapping nodes: Zoom out or resize window
+• Missing connections: Check predecessor data in Input tab
+• Layout problems: Regenerate diagram after data changes
+• Critical path not visible: Verify analysis was run successfully
+
+FUTURE DEPLOYMENTS
+The following features are planned for future releases:
+• Interactive node editing and manipulation
+• Advanced layout algorithms for complex networks
+• Custom node shapes and styling options
+• Enhanced export formats and print options
+• Real-time updates during project execution
+
+═══════════════════════════════════════════════════════════════════════"""
+
+        text_widget.insert(tk.END, help_text)
+        text_widget.config(state=tk.DISABLED)
+        
+        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+        close_btn.pack(pady=10)
+        
+        help_window.transient(self.root)
+
+    def show_gantt_tab_help(self):
+        """Show Gantt tab specific help"""
+        help_window = tk.Toplevel(self.root)
+        help_window.title("Gantt Tab - Help")
+        help_window.geometry("700x500")
+        
+        frame = ttk.Frame(help_window)
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
+        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        text_widget.configure(yscrollcommand=scrollbar.set)
+        
+        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        help_text = """GANTT TAB - DETAILED HELP
+
+═══════════════════════════════════════════════════════════════════════
+
+PURPOSE
+The Gantt tab displays a timeline view of your project schedule showing when activities occur and their durations.
+
+GANTT CHART ELEMENTS
+
+TIMELINE BARS
+• Horizontal bars represent activity durations
+• Bar position shows when activity occurs
+• Bar length represents activity duration
+• Color coding indicates activity status:
+  - Red: Critical activities
+  - Blue: Non-critical activities
+  - Green: Completed activities (if tracking progress)
+
+TIME SCALE
+• X-axis shows project timeline (days, weeks, months)
+• Scale adjusts based on project duration
+• Grid lines help read exact dates/times
+
+ACTIVITY LIST
+• Y-axis lists all project activities
+• Activities sorted by start time or ID
+• Activity names displayed on left side
+
+DEPENDENCIES
+• Lines or arrows may show predecessor relationships
+• Helps visualize activity sequence requirements
+
+═══════════════════════════════════════════════════════════════════════
+
+READING THE GANTT CHART
+
+SCHEDULE INFORMATION
+• Activity start and finish times clearly visible
+• Project duration shown across full timeline
+• Overlapping bars indicate parallel activities
+• Gaps show waiting time or float
+
+CRITICAL PATH VISUALIZATION
+• Critical activities form continuous chain
+• No gaps between critical activities
+• Critical path determines project end date
+
+RESOURCE PLANNING
+• Overlapping activities need resource consideration
+• Identify peak resource demand periods
+• Plan resource leveling for efficient allocation
+
+═══════════════════════════════════════════════════════════════════════
+
+USING THE GANTT CHART
+
+PROJECT SCHEDULING
+• Create detailed project timeline
+• Assign start dates to activities
+• Plan milestone dates and deadlines
+• Communicate schedule to team members
+
+PROGRESS TRACKING
+• Update activity completion status
+• Compare actual vs. planned progress
+• Identify schedule deviations early
+• Replan remaining activities as needed
+
+RESOURCE MANAGEMENT
+• Identify resource conflicts from overlapping activities
+• Plan equipment and personnel allocation
+• Schedule resource-dependent activities
+• Balance workload across project duration
+
+STAKEHOLDER COMMUNICATION
+• Visual timeline easy for non-technical audiences
+• Show project milestones and deliverables
+• Demonstrate project progress and status
+• Explain schedule impacts of changes
+
+═══════════════════════════════════════════════════════════════════════
+
+CHART CONTROLS
+
+NAVIGATION
+• Zoom in/out for different time scales
+• Pan left/right to navigate timeline
+• Scroll up/down for large activity lists
+
+EXPORT OPTIONS
+• Save chart as image file
+• Print for documentation
+• Export to PDF for sharing
+• Include in project reports
+
+CUSTOMIZATION
+• Adjust time scale (days, weeks, months)
+• Filter activities by status or type
+• Show/hide dependency lines
+• Modify color schemes
+
+FUTURE DEPLOYMENTS
+The following features are planned for future releases:
+• Interactive activity editing directly on the chart
+• Progress tracking with percentage completion
+• Resource allocation visualization
+• Baseline comparison capabilities
+• Advanced filtering and grouping options
+
+═══════════════════════════════════════════════════════════════════════"""
+
+        text_widget.insert(tk.END, help_text)
+        text_widget.config(state=tk.DISABLED)
+        
+        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+        close_btn.pack(pady=10)
+        
+        help_window.transient(self.root)
+
+    def show_probability_tab_help(self):
+        """Show Probability tab specific help"""
+        help_window = tk.Toplevel(self.root)
+        help_window.title("Probability Tab - Help")
+        help_window.geometry("700x500")
+        
+        frame = ttk.Frame(help_window)
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
+        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        text_widget.configure(yscrollcommand=scrollbar.set)
+        
+        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        help_text = """PROBABILITY TAB - DETAILED HELP
+
+═══════════════════════════════════════════════════════════════════════
+
+PURPOSE
+The Probability tab provides statistical analysis for PERT projects, including probability calculations for project completion times.
+
+PROBABILITY ANALYSIS FEATURES
+
+TARGET DATE PROBABILITY
+• Calculate probability of completing project by specific date
+• Enter target completion date
+• Get percentage probability of meeting deadline
+• Based on project duration distribution
+
+CONFIDENCE INTERVALS
+• Show range of likely completion times
+• 90%, 95%, 99% confidence levels
+• Helps establish realistic project deadlines
+• Accounts for uncertainty in activity durations
+
+STATISTICAL CALCULATIONS
+• Uses analytical PERT formulas for probability calculations
+• Based on normal distribution approximation
+• Calculates expected times and variances for the critical path
+• Provides quick and reliable probability estimates
+
+═══════════════════════════════════════════════════════════════════════
+
+STATISTICAL MEASURES
+
+PROJECT DURATION STATISTICS
+• Expected Duration: Mean completion time using PERT formula
+• Standard Deviation: Measure of project duration variability
+• Variance: Square of standard deviation
+• Critical Path Analysis: Focus on activities affecting project duration
+
+DISTRIBUTION ANALYSIS
+• Normal distribution curve showing project completion probability
+• Probability density function visualization
+• Percentile calculations for different confidence levels
+• Statistical summary of project timing uncertainty
+
+RISK ANALYSIS
+• Probability of schedule overrun beyond target dates
+• Expected completion time ranges
+• Critical path uncertainty analysis
+• Activity variance contribution to project risk
+
+═══════════════════════════════════════════════════════════════════════
+
+HOW TO USE
+
+SETTING UP ANALYSIS
+1. Ensure PERT analysis has been run first
+2. Activities must have optimistic, most likely, and pessimistic durations
+3. Enter target completion date for probability calculation
+4. View the calculated probability and statistical measures
+
+INTERPRETING RESULTS
+• Higher probability = more likely to meet deadline
+• Larger standard deviation = higher uncertainty in project timing
+• Use confidence intervals to establish realistic deadline ranges
+• Critical path variance shows which activities contribute most to uncertainty
+
+RISK MANAGEMENT
+• Use probability calculations for contingency planning
+• Focus on critical path activities with high variance
+• Plan buffers based on confidence intervals
+• Set realistic expectations with stakeholders
+
+═══════════════════════════════════════════════════════════════════════
+
+ANALYTICAL APPROACH
+
+PERT FORMULAS
+• Expected Time = (Optimistic + 4×Most Likely + Pessimistic) / 6
+• Activity Variance = ((Pessimistic - Optimistic) / 6)²
+• Project Variance = Sum of critical path activity variances
+• Standard Deviation = Square root of project variance
+
+PROBABILITY CALCULATIONS
+• Uses normal distribution approximation for project completion
+• Calculates Z-score for target dates
+• Converts Z-scores to probability percentages
+• Provides confidence intervals for different probability levels
+
+ASSUMPTIONS
+• Activity durations follow beta distribution
+• Central Limit Theorem applies to project duration
+• Activities are independent (no correlations)
+• Focus on critical path for project duration analysis
+
+FUTURE DEPLOYMENTS
+The following features are planned for future releases:
+• Monte Carlo simulation for enhanced accuracy
+• Correlation analysis between activities
+• Advanced risk modeling capabilities
+• Sensitivity analysis for individual activities
+
+═══════════════════════════════════════════════════════════════════════
+
+PRACTICAL APPLICATIONS
+
+PROJECT PLANNING
+• Set realistic deadlines based on probability analysis
+• Plan contingencies for low-probability scenarios
+• Communicate uncertainty to stakeholders
+• Justify schedule buffers with statistical evidence
+
+RISK MANAGEMENT
+• Identify high-risk activities needing attention
+• Quantify schedule risk for project portfolio
+• Plan mitigation strategies for critical uncertainties
+• Monitor variance reduction during project execution
+
+CONTRACT NEGOTIATIONS
+• Support deadline negotiations with probability data
+• Justify contract terms based on risk analysis
+• Set performance incentives aligned with probabilities
+• Document assumptions for scope change discussions
+
+═══════════════════════════════════════════════════════════════════════"""
+
+        text_widget.insert(tk.END, help_text)
+        text_widget.config(state=tk.DISABLED)
+        
+        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+        close_btn.pack(pady=10)
+        
+        help_window.transient(self.root)
+
+    def show_rcps_tab_help(self):
+        """Show RCPS tab specific help"""
+        help_window = tk.Toplevel(self.root)
+        help_window.title("RCPS Tab - Help")
+        help_window.geometry("700x500")
+        
+        frame = ttk.Frame(help_window)
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
+        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        text_widget.configure(yscrollcommand=scrollbar.set)
+        
+        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        help_text = """RCPS TAB - DETAILED HELP
+Resource-Constrained Project Scheduling
+
+═══════════════════════════════════════════════════════════════════════
+
+PURPOSE
+The RCPS tab handles project scheduling when resources are limited, unlike standard CPM which assumes unlimited resources.
+
+KEY CONCEPTS
+
+RESOURCE CONSTRAINTS
+• Limited availability of personnel, equipment, materials
+• Activities compete for same resources
+• Resource conflicts cause schedule delays beyond critical path
+• Requires priority-based scheduling decisions
+
+RESOURCE LEVELING vs. RESOURCE-CONSTRAINED SCHEDULING
+• Leveling: Smooth resource usage within float
+• Constrained: Hard limits on resource availability
+• RCPS uses constrained approach with priority rules
+
+PRIORITY RULES
+• Earliest Start Time (EST): Schedule activities by early start
+• Shortest Processing Time (SPT): Prioritize shorter activities
+• Latest Start Time (LST): Priority to activities with latest start
+• Resource Requirements: Consider resource intensity
+
+═══════════════════════════════════════════════════════════════════════
+
+SETTING UP RCPS ANALYSIS
+
+RESOURCE DEFINITION
+1. Define resource types (e.g., "Engineers", "Equipment A")
+2. Set resource availability for each type
+3. Specify availability by time period if needed
+4. Consider resource calendars and non-working time
+
+ACTIVITY RESOURCE REQUIREMENTS
+• Each activity specifies required resource types
+• Quantity of each resource type needed
+• Duration activity needs resources
+• Resource requirements must be realistic
+
+SCHEDULING PARAMETERS
+• Choose priority rule for conflict resolution
+• Set resource availability levels
+• Define scheduling horizon
+• Select optimization objectives
+
+═══════════════════════════════════════════════════════════════════════
+
+RCPS ALGORITHM PROCESS
+
+SCHEDULING STEPS
+1. Start with earliest possible start times (CPM)
+2. Identify resource conflicts at each time period
+3. Apply priority rule to resolve conflicts
+4. Delay conflicted activities to next feasible time
+5. Update dependent activity start times
+6. Repeat until schedule is resource-feasible
+
+CONFLICT RESOLUTION
+• When demand exceeds supply, prioritize activities
+• Higher priority activities get resources first
+• Lower priority activities delayed until resources available
+• May cause project duration extension beyond CPM
+
+═══════════════════════════════════════════════════════════════════════
+
+INTERPRETING RCPS RESULTS
+
+SCHEDULE CHANGES
+• Compare RCPS schedule to original CPM schedule
+• Identify activities delayed due to resource constraints
+• New critical path may emerge (resource-critical)
+• Project duration typically increases
+
+RESOURCE UTILIZATION
+• Resource usage charts show utilization over time
+• Identify periods of resource over/under-utilization
+• Spot resource bottlenecks and idle periods
+• Plan resource acquisition or reallocation
+
+PERFORMANCE METRICS
+• Project duration extension due to resources
+• Resource utilization efficiency percentages
+• Number of resource conflicts resolved
+• Critical resource types causing most delays
+
+═══════════════════════════════════════════════════════════════════════
+
+OPTIMIZATION STRATEGIES
+
+RESOURCE ALLOCATION
+• Add resources to bottleneck resource types
+• Redistribute resources between activities
+• Consider resource substitution possibilities
+• Plan resource procurement timing
+
+ACTIVITY MODIFICATION
+• Split activities to reduce resource peaks
+• Change activity sequences if possible
+• Consider overtime or alternative methods
+• Outsource resource-intensive activities
+
+SCHEDULE OPTIMIZATION
+• Try different priority rules
+• Combine multiple scheduling objectives
+• Consider multi-project resource sharing
+• Plan buffer resources for uncertainty
+
+═══════════════════════════════════════════════════════════════════════
+
+PRACTICAL APPLICATIONS
+
+PROJECT PLANNING
+• Realistic schedules considering resource limits
+• Resource procurement planning
+• Team size and composition decisions
+• Equipment rental and purchase timing
+
+RESOURCE MANAGEMENT
+• Workforce planning and hiring decisions
+• Equipment utilization optimization
+• Multi-project resource allocation
+• Resource capacity planning
+
+WHAT-IF ANALYSIS
+• Test different resource availability scenarios
+• Evaluate impact of resource changes
+• Compare alternative project approaches
+• Assess resource investment decisions
+
+═══════════════════════════════════════════════════════════════════════"""
+
+        text_widget.insert(tk.END, help_text)
+        text_widget.config(state=tk.DISABLED)
+        
+        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+        close_btn.pack(pady=10)
+        
+        help_window.transient(self.root)
+
+    def show_crashing_tab_help(self):
+        """Show Crashing tab specific help"""
+        help_window = tk.Toplevel(self.root)
+        help_window.title("Crashing Tab - Help")
+        help_window.geometry("800x600")
+        
+        frame = ttk.Frame(help_window)
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
+        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        text_widget.configure(yscrollcommand=scrollbar.set)
+        
+        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        help_text = """CRASHING TAB - DETAILED HELP
+Project Crashing and Time-Cost Optimization (CPM/PERT Based)
+
+═══════════════════════════════════════════════════════════════════════
+
+PURPOSE
+The Crashing tab helps you reduce the theoretical project duration by spending additional money on activities that can be accelerated, assuming unlimited resources. This is a CPM/PERT-based analysis and does not consider resource constraints.
+
+NORMAL COST CALCULATION (STEP-BY-STEP)
+• For each time step in the project schedule:
+    – Identify all activities active during that step (where ES < current_time <= EF)
+    – For each active activity, add its normal_cost to the step normal cost
+    – Accumulate step normal costs over the entire project duration to get the total normal cost
+
+Example:
+    If three activities are active at time t, and their normal costs are 100, 150, and 200, then step normal cost = 450. This is repeated for each time step and summed for the total normal cost.
+
+CRASH COST CALCULATION
+• Only critical activities (float = 0) are considered for crashing
+• Activities are ranked by cost-effectiveness (cost slope: (Crash Cost - Normal Cost) / (Normal Duration - Crash Duration))
+• The algorithm crashes the most cost-effective critical activity in 1-unit increments
+• Each crash decision adds to the total crash cost
+
+BUDGET VALIDATION
+• Before each crash, the system projects the total cost (normal cost + crash cost)
+• Validates against user-defined limits: max_budget, max_crash_cost, max_normal_cost
+• Prevents budget overruns by checking before committing to a crash
+
+CRASHING ALGORITHM (CPM-BASED)
+1. Start with the theoretical CPM schedule (no resource constraints)
+2. Identify critical path activities (float = 0)
+3. Calculate cost slopes for all crashable critical activities
+4. Crash the activity with the lowest cost slope first
+5. Recalculate CPM after each crash
+6. Repeat until the target duration is reached or no further crashing is possible
+
+KEY CONCEPTS
+• Project Crashing: Shortening project duration by reducing activity durations, trading off time for cost
+• Normal vs. Crash Parameters:
+    – Normal Duration: Standard time to complete activity
+    – Crash Duration: Minimum possible time with maximum resources
+    – Normal Cost: Standard cost for normal duration
+    – Crash Cost: Total cost when activity is fully crashed
+• Cost Slope: Cost per unit time saved; lower slope means more cost-effective to crash
+
+LIMITATIONS
+• Results assume unlimited resources
+• May not be practically achievable in real projects
+• Does not consider resource conflicts or resource availability
+
+WHEN TO USE THE CRASHING TAB
+• For theoretical minimum project duration
+• When resources are not a constraint
+• For quick cost estimates for schedule acceleration
+• For feasibility studies and scenario comparisons
+
+PRACTICAL APPLICATIONS
+• Theoretical feasibility analysis
+• Upper bound estimates for schedule compression
+• Cost benchmarking for project proposals
+• Comparative analysis between project alternatives
+
+═══════════════════════════════════════════════════════════════════════"""
+
+        text_widget.insert(tk.END, help_text)
+        text_widget.config(state=tk.DISABLED)
+        
+        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+        close_btn.pack(pady=10)
+        
+        help_window.transient(self.root)
+
+    def show_rcps_crashing_tab_help(self):
+        """Show RCPS Crashing tab specific help"""
+        help_window = tk.Toplevel(self.root)
+        help_window.title("RCPS Crashing Tab - Help")
+        help_window.geometry("800x600")
+        
+        frame = ttk.Frame(help_window)
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
+        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        text_widget.configure(yscrollcommand=scrollbar.set)
+        
+        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        help_text = (
+            "RCPS CRASHING TAB - DETAILED HELP\n"
+            "Resource-Constrained Project Schedule Crashing\n"
+            "\n"
+            "================================================================\n"
+            "\n"
+            "PURPOSE\n"
+            "The RCPS Crashing tab helps you reduce project duration while respecting resource constraints, providing realistic and implementable crashing strategies. This approach is designed to be resource-aware and only allows crashing when resources are available.\n"
+            "\n"
+            "[NOTE] Resource awareness is not fully implemented in the current version. Crashing decisions do not yet validate actual resource availability. Full resource-aware crashing will be available in future development releases.\n"
+            "\n"
+            "NORMAL COST CALCULATION (STEP-BY-STEP)\n"
+            "- For each time step in the RCPS schedule:\n"
+            "    * Identify all activities active during that step (where ES < current_time <= EF)\n"
+            "    * For each active activity, add its normal_cost to the step normal cost\n"
+            "    * Accumulate step normal costs over the entire project duration to get the total normal cost\n"
+            "- The calculation uses the actual RCPS schedule, reflecting real resource limitations.\n"
+            "\n"
+            "CRASH COST CALCULATION\n"
+            "- Only activities that are critical (float = 0) and crashable (duration > min_duration) are considered\n"
+        )
+        text_widget.insert(tk.END, help_text)
+        more_help = (
+            "- Each potential crash is validated against resource availability at the crash time\n"
+            "- Only resource-feasible crashes are applied\n"
+            "- Crash cost = crash_cost_per_unit * crash_amount for each valid crash\n"
+            "\n"
+            "BUDGET AND RESOURCE VALIDATION\n"
+            "- Before each crash, the system checks:\n"
+            "    * Resource availability at the crash time\n"
+            "    * That the crash does not exceed resource capacity\n"
+            "    * That the crash does not conflict with other activities\n"
+            "    * That the projected total cost does not exceed max_budget\n"
+            "\n"
+            "RCPS CRASHING ALGORITHM\n"
+            "1. Start with the RCPS-constrained network graph\n"
+            "2. Identify critical activities (float = 0) in the RCPS schedule\n"
+            "3. Filter for crashable activities (duration > min_duration)\n"
+            "4. Validate each crash for resource feasibility\n"
+            "5. Apply the most cost-effective, resource-feasible crash\n"
+            "6. Update the schedule minimally, preserving RCPS timing\n"
+            "7. Repeat until the target duration is reached or no further crashing is possible\n"
+            "\n"
+            "KEY CONCEPTS\n"
+            "- Resource constraints: Only crashes that respect resource limits are allowed\n"
+            "- Realistic schedule: All results are implementable in practice\n"
+            "- Cost calculation: Includes resource acquisition/overtime costs\n"
+            "\n"
+            "LIMITATIONS\n"
+            "- Results are bounded by resource availability\n"
+            "- May achieve less time reduction than theoretical CPM crashing\n"
+            "- Higher costs may result from resource constraints\n"
+            "- Some activities may not be crashable due to lack of resources\n"
+            "\n"
+            "WHEN TO USE THE RCPS CRASHING TAB\n"
+            "- When resources are limited (personnel, equipment, facilities)\n"
+        )
+        text_widget.insert(tk.END, more_help)
+        final_help = (
+            "- For realistic, implementable schedule acceleration plans\n"
+            "- For final project planning and execution decisions\n"
+            "\n"
+            "PRACTICAL APPLICATIONS\n"
+            "- Direct applicability to project execution\n"
+            "- Resource allocation requirements are clearly defined\n"
+            "- Timeline considers resource constraint impacts\n"
+            "- Crash sequence respects resource availability\n"
+            "\n"
+            "================================================================\n"
+        )
+        text_widget.insert(tk.END, final_help)
+        text_widget.config(state=tk.DISABLED)
+        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+        close_btn.pack(pady=10)
+        help_window.transient(self.root)
+
     def show_about(self):
-        """Show about dialog"""
-        messagebox.showinfo("About PMHelper", 
-                           "PMHelper v1.0.0\\n\\n"
-                           "A comprehensive project management analysis tool\\n"
-                           "supporting both CPM and PERT methodologies.\\n\\n"
-                           "Features:\\n"
-                           "• Critical Path Method (CPM) analysis\\n"
-                           "• Program Evaluation and Review Technique (PERT)\\n"
-                           "• Network diagrams and Gantt charts\\n"
-                           "• Probability analysis for PERT\\n"
-                           "• Export capabilities\\n\\n"
-                           "© 2024 PMHelper Team")
+        """Show comprehensive about dialog"""
+        about_window = tk.Toplevel(self.root)
+        about_window.title("About PMHelper")
+        about_window.geometry("600x500")
+        about_window.resizable(False, False)
+        
+        # Create scrollable content
+        main_frame = ttk.Frame(about_window)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        
+        # Header
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        title_label = ttk.Label(header_frame, text="PMHelper", font=("Arial", 16, "bold"))
+        title_label.pack()
+        
+        version_label = ttk.Label(header_frame, text="Project Management Analysis Tool v1.0.0", font=("Arial", 10))
+        version_label.pack()
+        
+        # Create scrollable text area
+        text_frame = ttk.Frame(main_frame)
+        text_frame.pack(fill=tk.BOTH, expand=True)
+        
+        text_widget = tk.Text(text_frame, wrap=tk.WORD, font=("Arial", 9), height=20)
+        scrollbar = ttk.Scrollbar(text_frame, orient=tk.VERTICAL, command=text_widget.yview)
+        text_widget.configure(yscrollcommand=scrollbar.set)
+        
+        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        about_text = """OVERVIEW
+PMHelper is an educational project management analysis tool designed to help students plan and design projects while learning core project management methodologies.
+
+CORE METHODOLOGIES
+• Critical Path Method (CPM) - Deterministic project analysis
+• Program Evaluation and Review Technique (PERT) - Probabilistic analysis with uncertainty
+• Resource-Constrained Project Scheduling (RCPS) - Scheduling with limited resources
+• Project Crashing - Time-cost optimization for schedule acceleration
+
+ANALYSIS FEATURES
+✓ Critical path identification and analysis
+✓ Activity scheduling with early/late start and finish times
+✓ Total float and free float calculations
+✓ Network diagram visualization
+✓ Gantt chart timeline representation
+✓ Probability analysis for PERT projects
+✓ Resource utilization optimization
+✓ Project crashing and time-cost trade-offs
+
+VISUALIZATION TOOLS
+✓ Interactive network diagrams showing dependencies
+✓ Professional Gantt charts with critical path highlighting  
+✓ Probability distribution charts and histograms
+✓ Resource utilization graphs
+✓ Statistical analysis charts
+
+DATA MANAGEMENT
+✓ Manual data entry with validation
+✓ CSV import/export
+✓ Sample data sets for learning and testing
+✓ Data validation and error checking
+✓ Comprehensive results export
+
+ADVANCED CAPABILITIES
+✓ What-if scenario analysis
+✓ Resource leveling and optimization
+✓ Schedule compression strategies
+✓ Statistical project analysis
+
+FUTURE DEPLOYMENTS
+The following features are planned for future releases:
+• Monte Carlo simulation for risk analysis
+• Cost-time curve analysis
+• Excel import/export capabilities
+• Multi-project analysis support
+• Risk and uncertainty modeling
+
+USER INTERFACE
+✓ Modern tabbed interface for easy navigation
+✓ Context-sensitive help for each feature
+✓ Comprehensive user guide and documentation
+✓ Export capabilities for reports and charts
+✓ Professional results formatting
+
+TECHNICAL SPECIFICATIONS
+• Built with Python and Tkinter for cross-platform compatibility
+• Uses advanced algorithms for optimization and analysis
+• Supports projects of varying complexity and size
+• Integrated mathematical libraries for statistical analysis
+• Professional-grade calculations and validations
+
+IDEAL FOR
+• Project managers planning and controlling projects
+• Engineers analyzing complex project networks
+• Students learning project management methodologies
+• Consultants performing project analysis and optimization
+• Organizations requiring professional project scheduling tools
+
+VERSION HISTORY
+v1.0.0 - Complete implementation with all core features
+• Full CPM and PERT analysis capabilities
+• RCPS and crashing optimization
+• Comprehensive visualization tools
+• Professional user interface
+
+SUPPORT & DOCUMENTATION
+• Comprehensive help system built into application
+• Detailed user guides for each feature
+• Sample projects for learning
+• Export capabilities for documentation
+
+© 2024 PMHelper Development Team
+All rights reserved.
+
+PMHelper is designed to meet professional project management analysis needs while remaining accessible for educational use."""
+
+        text_widget.insert(tk.END, about_text)
+        text_widget.config(state=tk.DISABLED)
+        
+        # Close button
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(fill=tk.X, pady=(10, 0))
+        
+        close_btn = ttk.Button(button_frame, text="Close", command=about_window.destroy)
+        close_btn.pack()
+        
+        # Center the window
+        about_window.transient(self.root)
+        about_window.grab_set()
     
     def test_gantt_integration(self):
         """Quick test of all three integration fixes"""

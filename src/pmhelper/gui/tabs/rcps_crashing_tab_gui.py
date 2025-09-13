@@ -141,8 +141,31 @@ class RCPSCrashingTabGUIManager(CrashingTabGUIManager):
         # Call parent build_interface first
         super().build_interface()
         
+        # Update help button to use RCPS-specific help
+        self._update_help_button_for_rcps()
+        
         # Setup enhanced step navigation after GUI is built
         self._setup_enhanced_step_navigation()
+    
+    def _update_help_button_for_rcps(self):
+        """Update the help button to show RCPS-specific help"""
+        try:
+            # Find all buttons in the interface and update the help button
+            def find_and_update_help_button(widget):
+                for child in widget.winfo_children():
+                    if isinstance(child, ttk.Button):
+                        if child.cget("text") == "? Help":
+                            child.configure(command=self.app.show_rcps_crashing_tab_help)
+                            print("[DEBUG] Updated help button for RCPS Crashing")
+                            return True
+                    # Recursively search in child widgets
+                    if find_and_update_help_button(child):
+                        return True
+                return False
+            
+            find_and_update_help_button(self.tab)
+        except Exception as e:
+            print(f"[DEBUG] Could not update RCPS help button: {e}")
         
     def _update_interface_for_rcps(self):
         """Update interface elements to indicate RCPS crashing"""

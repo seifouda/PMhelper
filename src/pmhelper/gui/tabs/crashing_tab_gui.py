@@ -860,6 +860,12 @@ class CrashingTabGUIManager:
             text="Clear Results",
             command=self.clear_results
         ).pack(side=tk.LEFT, padx=2)
+        
+        ttk.Button(
+            right_buttons_frame,
+            text="? Help",
+            command=self.app.show_crashing_tab_help
+        ).pack(side=tk.LEFT, padx=2)
 
         # Results Section
         results_frame = ttk.LabelFrame(self.tab, text="Crashing Results")

@@ -263,6 +263,108 @@ class FileHandler:
         ]
     
     @staticmethod
+    def get_sample_rcps_data() -> List[Dict[str, Any]]:
+        """
+        Get sample RCPS data for testing and demonstrations
+        Same structure as CPM data but optimized for resource scheduling
+        
+        Returns:
+            List[Dict]: Sample RCPS activity data
+        """
+        return [
+            {
+                "id": "A",
+                "activity": "Project Planning",
+                "duration": "4",
+                "predecessors": "",
+                "min_duration": "2",
+                "crash_cost": "400",
+                "normal_cost": "120",
+                "resource_demand": "2"
+            },
+            {
+                "id": "B", 
+                "activity": "System Analysis",
+                "duration": "6",
+                "predecessors": "",
+                "min_duration": "3",
+                "crash_cost": "600",
+                "normal_cost": "200",
+                "resource_demand": "3"
+            },
+            {
+                "id": "C",
+                "activity": "Database Setup",
+                "duration": "5",
+                "predecessors": "A",
+                "min_duration": "3", 
+                "crash_cost": "500",
+                "normal_cost": "180",
+                "resource_demand": "2"
+            },
+            {
+                "id": "D",
+                "activity": "Interface Design", 
+                "duration": "8",
+                "predecessors": "A, B",
+                "min_duration": "4",
+                "crash_cost": "800",
+                "normal_cost": "300",
+                "resource_demand": "4"
+            },
+            {
+                "id": "E",
+                "activity": "Core Development",
+                "duration": "10",
+                "predecessors": "C, D", 
+                "min_duration": "6",
+                "crash_cost": "1000",
+                "normal_cost": "400",
+                "resource_demand": "5"
+            },
+            {
+                "id": "F",
+                "activity": "Integration Testing",
+                "duration": "4",
+                "predecessors": "E",
+                "min_duration": "3",
+                "crash_cost": "600",
+                "normal_cost": "150",
+                "resource_demand": "3"
+            },
+            {
+                "id": "G",
+                "activity": "User Acceptance Testing",
+                "duration": "5",
+                "predecessors": "F",
+                "min_duration": "3",
+                "crash_cost": "700",
+                "normal_cost": "200",
+                "resource_demand": "2"
+            },
+            {
+                "id": "H",
+                "activity": "Deployment Preparation",
+                "duration": "3",
+                "predecessors": "G",
+                "min_duration": "2",
+                "crash_cost": "450",
+                "normal_cost": "100",
+                "resource_demand": "2"
+            },
+            {
+                "id": "I",
+                "activity": "Go-Live & Support",
+                "duration": "2",
+                "predecessors": "H",
+                "min_duration": "1",
+                "crash_cost": "300",
+                "normal_cost": "80",
+                "resource_demand": "1"
+            }
+        ]
+    
+    @staticmethod
     def get_sample_pert_data() -> List[Dict[str, Any]]:
         """
         Get sample PERT data for testing and demonstrations

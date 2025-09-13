@@ -75,6 +75,10 @@ class InputTab:
         ttk.Button(button_frame, text="Load Sample PERT", 
                   command=self.load_sample_pert).pack(side=tk.LEFT, padx=(0, 10))
         
+        # Help button
+        ttk.Button(button_frame, text="? Help", 
+                  command=self.main_window.show_input_tab_help).pack(side=tk.RIGHT, padx=(10, 0))
+        
         # Analysis button
         ttk.Button(button_frame, text="Analyze Project", 
                   command=self.main_window.analyze_project).pack(side=tk.RIGHT)
