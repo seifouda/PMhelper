@@ -7,6 +7,14 @@
 
 A comprehensive, production-ready project management analysis desktop application implementing Critical Path Method (CPM), Program Evaluation Review Technique (PERT), and advanced scheduling optimization algorithms.
 
+## 📥 Production Release v1.0.0
+
+**Latest Release**: September 14, 2025  
+**Status**: Production Ready ✅  
+**Windows Executable Available**: Yes 🚀  
+
+> **Quick Start**: Download `launch_app.exe` from the releases section and run directly - no Python installation required!
+
 ## 🚀 Key Features
 
 ### Core Analysis Engines
@@ -43,23 +51,23 @@ A comprehensive, production-ready project management analysis desktop applicatio
 
 **Option 1: Download Executable** (No Python Required)
 
-1. Download `PMHelper-v1.0-Windows.zip` from releases
-2. Extract to desired location
-3. Double-click `PMHelper.exe` to run
+1. Download `launch_app.exe` from the latest release
+2. Extract to desired location  
+3. Double-click `launch_app.exe` to run
 4. No additional installation needed!
 
 **Option 2: Python Installation**
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/PMhelper.git
+git clone https://github.com/seifouda/PMhelper.git
 cd PMhelper
 
 # Install dependencies
 pip install -r config/requirements.txt
 
 # Launch application
-python src/main.py
+python launch_app.py
 ```
 
 ### System Requirements
@@ -76,10 +84,10 @@ python src/main.py
 
 ```bash
 # Using Python
-python src/main.py
+python launch_app.py
 
 # Or double-click the executable
-PMHelper.exe
+launch_app.exe
 ```
 
 ### 2. Quick Analysis Workflow
@@ -231,7 +239,7 @@ python tests/performance/benchmark_suite.py
 
 ```bash
 # Fork and clone repository
-git clone https://github.com/yourusername/PMhelper.git
+git clone https://github.com/seifouda/PMhelper.git
 cd PMhelper
 
 # Install development dependencies
@@ -241,7 +249,7 @@ pip install -r config/requirements-dev.txt
 pre-commit install
 
 # Run development server
-python src/main.py --debug
+python launch_app.py
 ```
 
 ### Code Standards
