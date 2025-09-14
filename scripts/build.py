@@ -44,9 +44,9 @@ def main():
     print("3. Running tests...")
     try:
         subprocess.run([sys.executable, "-m", "pytest", "tests/unit/"], check=True)
-        print("   ✅ Unit tests passed")
+        print("   [SUCCESS] Unit tests passed")
     except subprocess.CalledProcessError:
-        print("   ⚠️  Some tests failed, continuing build...")
+        print("   [WARNING] Some tests failed, continuing build...")
     
     # Build executable
     print("4. Building executable...")
@@ -60,9 +60,9 @@ def main():
             "--add-data", "config;config",
             "src/main.py"
         ], check=True)
-        print("   ✅ Executable created successfully")
+        print("   [SUCCESS] Executable created successfully")
     except subprocess.CalledProcessError:
-        print("   ❌ Executable build failed")
+        print("   [ERROR] Executable build failed")
         sys.exit(1)
     
     # Create distribution package
@@ -95,8 +95,8 @@ def main():
         shutil.copy2(f"dist/{exe_name}", dist_dir / exe_name)
     
     print("6. Build completed successfully!")
-    print(f"   📦 Executable: dist/{exe_name}")
-    print(f"   📦 Package: dist/PMHelper-Package/")
+    print(f"   [PACKAGE] Executable: dist/{exe_name}")
+    print(f"   [PACKAGE] Package: dist/PMHelper-Package/")
     print()
     print("To run the application:")
     print(f"   ./dist/{exe_name}")

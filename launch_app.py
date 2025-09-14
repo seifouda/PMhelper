@@ -30,9 +30,11 @@ if PRODUCTION_MODE:
         """Filter out debug prints in production mode"""
         message = ' '.join(str(arg) for arg in args)
         
-        # Skip debug prints with emojis or debug markers
+        # Skip debug prints with debug markers and emojis
         debug_indicators = [
-            '🔍', '📊', '✅', '❌', '🎯', '📋', '🔨', '💰', '📈', '🚀', 
+            '[DEBUG_ANALYZE]', '[DEBUG_DATA]', '[DEBUG_SUCCESS]', '[DEBUG_ERROR]', 
+            '[DEBUG_TARGET]', '[DEBUG_LIST]', '[DEBUG_BUILD]', '[DEBUG_COST]', 
+            '[DEBUG_CHART]', '[DEBUG_LAUNCH]', 
             '[DEBUG', '[RCPS', '[CRASHING', '[ANALYSIS', 'DEBUG:', 
             'VERIFICATION', 'COST DATA', 'ITERATION', 'STRATEGY',
             'Graph nodes:', 'Critical activities:', 'Project duration:',

@@ -407,8 +407,8 @@ class MainWindow:
                 messagebox.showwarning("Warning", "Please select an analysis mode (CPM or PERT).")
                 return
             
-            # 🔍 DEBUG: Check analysis mode and data
-            print(f"\n🔍 [MAIN WINDOW] ANALYSIS DEBUG")
+            # [DEBUG] Check analysis mode and data
+            print(f"\n[DEBUG_ANALYZE] [MAIN WINDOW] ANALYSIS DEBUG")
             print(f"   Analysis mode: {self.analysis_mode}")
             print(f"   Current analyzer: {type(self.current_analyzer)}")
             print(f"   Activities data count: {len(activities_data)}")
@@ -419,8 +419,8 @@ class MainWindow:
             # Perform analysis
             G, critical_paths, critical_activities = self.current_analyzer.analyze(activities_data)
             
-            # 🔍 DEBUG: Check analysis results
-            print(f"\n💰 [ANALYSIS RESULTS] COST DATA CHECK")
+            # [DEBUG] Check analysis results
+            print(f"\n[DEBUG_COST] [ANALYSIS RESULTS] COST DATA CHECK")
             print(f"   Graph created: {G is not None}")
             if G:
                 print(f"   Graph nodes: {list(G.nodes())}")
@@ -430,8 +430,8 @@ class MainWindow:
                         normal_cost = node_data.get('normal_cost', 'MISSING')
                         print(f"   {node_id}: crash_cost={crash_cost}, normal_cost={normal_cost}")
             
-            # 🔍 DEBUG: Check analyzer state after analysis
-            print(f"\n📊 [ANALYZER STATE] AFTER ANALYSIS")
+            # [DEBUG] Check analyzer state after analysis
+            print(f"\n[DEBUG_DATA] [ANALYZER STATE] AFTER ANALYSIS")
             if hasattr(self.current_analyzer, 'activities'):
                 print(f"   Analyzer has activities: {len(self.current_analyzer.activities)}")
                 for activity in self.current_analyzer.activities[:3]:  # Show first 3
@@ -447,10 +447,10 @@ class MainWindow:
             # Store analyzer references for RCPS/Crashing
             if self.analysis_mode == 'probabilistic':
                 self.pert_analyzer = self.current_analyzer
-                print(f"   ✅ PERT analyzer stored in main window")
+                print(f"   [DEBUG_SUCCESS] PERT analyzer stored in main window")
             else:
                 self.cmp_analyzer = self.current_analyzer
-                print(f"   ✅ CPM analyzer stored in main window")
+                print(f"   [DEBUG_SUCCESS] CPM analyzer stored in main window")
             
             # Optional debug output (comment out for production)
             # print("=" * 80)
@@ -2044,9 +2044,9 @@ PMHelper is designed to meet professional project management analysis needs whil
         print(f"\nIntegration Test Results: {passed}/{total} fixes implemented")
         
         if passed == total:
-            print("🎉 ALL INTEGRATION FIXES READY FOR TESTING!")
+            print("[DEBUG_SUCCESS] ALL INTEGRATION FIXES READY FOR TESTING!")
         else:
-            print("❌ Some fixes missing - implementation incomplete")
+            print("[DEBUG_ERROR] Some fixes missing - implementation incomplete")
         
         print("=" * 70)
         return results
