@@ -9,9 +9,22 @@ time estimates.
 
 import numpy as np
 import networkx as nx
-from scipy.stats import norm
 import math
 import pandas as pd
+
+# Make scipy import optional for PyInstaller compatibility
+try:
+    from scipy.stats import norm
+    SCIPY_AVAILABLE = True
+except ImportError:
+    # Fallback: Simple normal distribution approximation
+    SCIPY_AVAILABLE = False
+    class FallbackNorm:
+        @staticmethod
+        def cdf(x):
+            # Simple normal CDF approximation using error function
+            return 0.5 * (1 + math.erf(x / math.sqrt(2)))
+    norm = FallbackNorm()
 
 from .network_builder import NetworkBuilder
 

@@ -357,7 +357,7 @@ What error message are you seeing exactly?
 - **Core Dependencies**: numpy, pandas, scipy, networkx
 - **GUI Dependencies**: tkinter (usually built-in), matplotlib
 - **Optional Dependencies**: openpyxl (Excel support), tabulate (formatting)
-- **Development Dependencies**: pytest (testing), pyinstaller (building)
+- **Development Dependencies**: pytest (testing)
 
 ### **Cross-Platform Compatibility**
 - **Windows**: PowerShell commands, path separators, executable extensions
@@ -372,7 +372,6 @@ What error message are you seeing exactly?
 - **Command Line**: Terminal navigation, environment variables
 
 ### **Build and Distribution**
-- **PyInstaller**: Executable generation, dependency bundling
 - **Package Structure**: setup.py, pyproject.toml, requirements.txt
 - **Testing**: pytest execution, test coverage, integration tests
 - **Documentation**: README, API docs, user guides

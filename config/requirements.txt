@@ -27,6 +27,3 @@ openpyxl>=3.0.7
 # Development and Testing (optional)
 pytest>=6.2.0
 pytest-cov>=2.12.0
-
-# Build Tools (optional)
-pyinstaller>=4.5.0

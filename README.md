@@ -77,6 +77,15 @@ python launch_app.py
 - **Linux**: Ubuntu 18.04+ or equivalent
 - **Memory**: 512MB RAM minimum, 2GB recommended
 - **Storage**: 100MB free space
+- **Python**: 3.8+ with the following packages:
+  - `numpy`
+  - `pandas`
+  - `scipy`
+  - `networkx`
+  - `matplotlib`
+  - `plotly`
+  - `tabulate`
+  - `openpyxl`
 
 ## 🎮 Getting Started
 

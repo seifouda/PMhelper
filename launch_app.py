@@ -173,26 +173,12 @@ def main():
         # Import tkinter and the advanced multi-tab GUI
         import tkinter as tk
         
-        # Block SciPy imports to ensure fallback systems are used
-        import builtins
-        original_import = builtins.__import__
-        
-        def scipy_blocking_import(name, *args, **kwargs):
-            if name.startswith('scipy'):
-                raise ImportError(f"SciPy blocked for compatibility: {name}")
-            return original_import(name, *args, **kwargs)
-        
-        builtins.__import__ = scipy_blocking_import
-        
         try:
             from pmhelper.gui.main_window import MainWindow
         except ImportError as e:
             # Fallback: use basic GUI if main_window import fails
             print(f"Advanced GUI not available ({e}), using basic interface...")
             return launch_basic_gui()
-        finally:
-            # Always restore original import function
-            builtins.__import__ = original_import
         
         print("Starting PMHelper - Project Management Analysis Tool...")
         print("Features available:")

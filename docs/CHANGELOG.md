@@ -152,7 +152,6 @@ PMHelper/
 
 **Executable Builds**
 
-- Windows standalone executable (PyInstaller)
 - macOS application bundle
 - Linux AppImage distribution
 - Cross-platform Python package

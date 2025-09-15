@@ -24,8 +24,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from pmhelper.core.cpm_analyzer import CPMAnalyzer
-from pmhelper.core.pert_analyzer import PERTAnalyzer
 from pmhelper.utils.file_handlers import FileHandler
+
+# Handle optional PERT analyzer import
+try:
+    from pmhelper.core.pert_analyzer import PERTAnalyzer
+    PERT_AVAILABLE = True
+except ImportError:
+    PERTAnalyzer = None
+    PERT_AVAILABLE = False
 from .tabs.input_tab import InputTab
 from .tabs.results_tab import ResultsTab
 from .tabs.network_tab import NetworkTab
@@ -48,7 +55,10 @@ class MainWindow:
         
         # Initialize analyzers
         self.cpm_analyzer = CPMAnalyzer()
-        self.pert_analyzer = PERTAnalyzer()
+        if PERT_AVAILABLE:
+            self.pert_analyzer = PERTAnalyzer()
+        else:
+            self.pert_analyzer = None
         
         # Analysis mode tracking
         self.analysis_mode = None  # 'deterministic' or 'probabilistic'
