@@ -74,10 +74,19 @@ if PRODUCTION_MODE:
     # Replace print function
     builtins.print = production_print
 
-# Add the src directory to the path for the advanced GUI
+# Add the appropriate directory to the path for the advanced GUI
 project_root = Path(__file__).parent
-src_path = project_root / "src"
-sys.path.insert(0, str(src_path))
+
+# Detect if we're running from a frozen executable
+if getattr(sys, 'frozen', False):
+    # Running in a bundle (cx_Freeze executable)
+    # PMHelper modules are in lib/ directory
+    lib_path = project_root / "lib"
+    sys.path.insert(0, str(lib_path))
+else:
+    # Running in development from source
+    src_path = project_root / "src"
+    sys.path.insert(0, str(src_path))
 
 def launch_basic_gui():
     """Launch a basic PMHelper GUI as fallback"""
