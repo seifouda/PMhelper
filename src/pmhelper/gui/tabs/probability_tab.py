@@ -400,6 +400,11 @@ class ProbabilityTab:
                   command=self.update_visualization).pack(side=tk.LEFT, padx=10)
 
         # Create matplotlib figure and canvas
+        # Ensure dependencies are loaded
+        if not _lazy_import_dependencies():
+            ttk.Label(plot_frame, text="Visualization dependencies not available").pack()
+            return
+            
         self.figure = Figure(figsize=(10, 8), dpi=100)
         self.figure.patch.set_facecolor('white')
 

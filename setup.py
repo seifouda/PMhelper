@@ -4,14 +4,24 @@ cx_Freeze setup script for PMHelper
 Creates a Windows executable with all dependencies and assets included.
 """
 
+# Add src to sys.path so pmhelper can be found
 import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 from cx_Freeze import setup, Executable
-from pathlib import Path
-
-# Add src to path so pmhelper modules can be found during build
-sys.path.insert(0, str(Path(__file__).parent / "src"))
-
+import shutil
+from matplotlib import get_data_path
 # Build options for cx_Freeze
+include_files = [
+    ("assets/", "assets/"),  # Include the assets directory
+    ("src/pmhelper/", "lib/pmhelper/"),  # Include the source code
+    (get_data_path(), "mpl-data"),  # Matplotlib data files
+]
+# Manually include scipy extra-dll if it exists
+scipy_extra_dll = os.path.join(os.path.dirname(__import__('scipy').__file__), 'extra-dll')
+if os.path.exists(scipy_extra_dll):
+    include_files.append((scipy_extra_dll, "lib/scipy/extra-dll"))
+
 build_exe_options = {
     # Packages to include explicitly
     "packages": [
@@ -26,7 +36,6 @@ build_exe_options = {
         # PMHelper modules
         "pmhelper",
     ],
-    
     # Additional modules to include
     "includes": [
         "matplotlib.backends.backend_tkagg",
@@ -52,34 +61,31 @@ build_exe_options = {
         "xml",
         "xml.etree",
         "xml.etree.ElementTree",
-        "pathlib"
+        "pathlib",
+        # Add pydoc as SciPy needs it
+        "pydoc"
     ],
-    
     # Files and directories to include with the executable
-    "include_files": [
-        ("assets/", "assets/"),  # Include the assets directory
-        ("src/pmhelper/", "lib/pmhelper/"),  # Include the source code
-    ],
-    
+    "include_files": include_files,
     # Modules to exclude (to reduce size) - removed urllib, http, xml as they're needed
     "excludes": [
         "test", "tests", "pytest", "unittest",
-        "email", "pydoc", "doctest", 
+        "email", "doctest",  # Removed pydoc as SciPy needs it
         "distutils", "setuptools", "pkg_resources"
     ],
-    
     # Optimize for size
     "optimize": 2,
-    
     # Zip includes to reduce file count
     "zip_include_packages": ["*"],
-    "zip_exclude_packages": [],
+    "zip_exclude_packages": []
 }
+    # Remove None values from include_files (if scipy extra-dll does not exist)
 
 # Base for GUI application (hides console window)
 base = None
-if sys.platform == "win32":
-    base = "Win32GUI"
+# TEMPORARILY ENABLE CONSOLE FOR DEBUGGING
+# if sys.platform == "win32":
+#     base = "Win32GUI"
 
 # Define the executable
 executables = [

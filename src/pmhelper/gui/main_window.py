@@ -14,6 +14,17 @@ Contains the main application w        # Analysis menu
 Manages the main interface, tab navigation, and overall application state.
 """
 
+from .tabs.rcps_crashing_tab import RCPSCrashingTab
+from .tabs.crashing_tab import CrashingTab
+from .tabs.rcps_tab import RCPSTab
+from .tabs.probability_tab import ProbabilityTab
+from .tabs.gantt_tab import GanttTab
+from .tabs.pert_diagram_tab import PertDiagramTab
+from .tabs.network_tab import NetworkTab
+from .tabs.results_tab import ResultsTab
+from .tabs.input_tab import InputTab
+from pmhelper.utils.file_handlers import FileHandler
+from pmhelper.core.cpm_analyzer import CPMAnalyzer
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import sys
@@ -23,8 +34,6 @@ from pathlib import Path
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from pmhelper.core.cpm_analyzer import CPMAnalyzer
-from pmhelper.utils.file_handlers import FileHandler
 
 # Handle optional PERT analyzer import
 try:
@@ -33,118 +42,146 @@ try:
 except ImportError:
     PERTAnalyzer = None
     PERT_AVAILABLE = False
-from .tabs.input_tab import InputTab
-from .tabs.results_tab import ResultsTab
-from .tabs.network_tab import NetworkTab
-from .tabs.pert_diagram_tab import PertDiagramTab
-
-from .tabs.gantt_tab import GanttTab
-from .tabs.probability_tab import ProbabilityTab
-from .tabs.rcps_tab import RCPSTab
-from .tabs.crashing_tab import CrashingTab
-from .tabs.rcps_crashing_tab import RCPSCrashingTab
 
 
 class MainWindow:
     """Main desktop application window"""
-    
+
     def __init__(self, root):
         self.root = root
         self.root.title("PMHelper - Project Management Analysis Tool")
         self.root.geometry("1400x900")
-        
+
         # Initialize analyzers
         self.cpm_analyzer = CPMAnalyzer()
         if PERT_AVAILABLE:
             self.pert_analyzer = PERTAnalyzer()
         else:
             self.pert_analyzer = None
-        
+
         # Analysis mode tracking
         self.analysis_mode = None  # 'deterministic' or 'probabilistic'
         self.current_analyzer = None
         self.current_data = None
-        
+
         # Initialize GUI
         self.create_menu()
         self.create_main_interface()
         self.create_status_bar()
-        
+
         # Load sample data
         self.load_sample_data()
-        
+
         # INTEGRATION TEST: Verify all fixes are implemented
         self.test_gantt_integration()
-    
+
     @property
     def analyzer(self):
         """Backward compatibility property"""
         return self.current_analyzer
-    
+
     def create_menu(self):
         """Create the main menu bar"""
         menubar = tk.Menu(self.root)
         self.root.config(menu=menubar)
-        
+
         # File menu
         file_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="New Project", command=self.new_project)
         file_menu.add_separator()
-        file_menu.add_command(label="Load CPM Data...", command=self.load_cpm_data)
-        file_menu.add_command(label="Load PERT Data...", command=self.load_pert_data)
+        file_menu.add_command(
+            label="Load CPM Data...",
+            command=self.load_cpm_data)
+        file_menu.add_command(
+            label="Load PERT Data...",
+            command=self.load_pert_data)
         file_menu.add_separator()
-        file_menu.add_command(label="Save Results...", command=self.save_results)
+        file_menu.add_command(
+            label="Save Results...",
+            command=self.save_results)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.root.quit)
-        
+
         # Analysis menu
         analysis_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Analysis", menu=analysis_menu)
-        analysis_menu.add_command(label="Run CPM Analysis", command=self.run_cpm_analysis)
-        analysis_menu.add_command(label="Run PERT Analysis", command=self.run_pert_analysis)
+        analysis_menu.add_command(
+            label="Run CPM Analysis",
+            command=self.run_cpm_analysis)
+        analysis_menu.add_command(
+            label="Run PERT Analysis",
+            command=self.run_pert_analysis)
         analysis_menu.add_separator()
-        analysis_menu.add_command(label="Project Crashing", command=self.show_crashing_tab)
-        analysis_menu.add_command(label="Resource Scheduling", command=self.show_rcps_tab)
-        analysis_menu.add_command(label="RCPS Crashing", command=self.show_rcps_crashing_tab)
-        
+        analysis_menu.add_command(
+            label="Project Crashing",
+            command=self.show_crashing_tab)
+        analysis_menu.add_command(
+            label="Resource Scheduling",
+            command=self.show_rcps_tab)
+        analysis_menu.add_command(
+            label="RCPS Crashing",
+            command=self.show_rcps_crashing_tab)
+
         # Tools menu
         tools_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Tools", menu=tools_menu)
-        tools_menu.add_command(label="Generate Sample CPM Data", command=self.generate_sample_cpm)
-        tools_menu.add_command(label="Generate Sample PERT Data", command=self.generate_sample_pert)
-        
+        tools_menu.add_command(
+            label="Generate Sample CPM Data",
+            command=self.generate_sample_cpm)
+        tools_menu.add_command(
+            label="Generate Sample PERT Data",
+            command=self.generate_sample_pert)
+
         # Help menu
         help_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Help", menu=help_menu)
-        help_menu.add_command(label="Complete User Guide", command=self.show_user_guide)
+        help_menu.add_command(
+            label="Complete User Guide",
+            command=self.show_user_guide)
         help_menu.add_separator()
-        
+
         # Tab-specific help submenu
         tab_help_menu = tk.Menu(help_menu, tearoff=0)
         help_menu.add_cascade(label="Tab Help", menu=tab_help_menu)
-        tab_help_menu.add_command(label="Input Tab Help", command=self.show_input_tab_help)
-        tab_help_menu.add_command(label="Results Tab Help", command=self.show_results_tab_help)
-        tab_help_menu.add_command(label="Network Tab Help", command=self.show_network_tab_help)
-        tab_help_menu.add_command(label="Gantt Tab Help", command=self.show_gantt_tab_help)
-        tab_help_menu.add_command(label="Probability Tab Help", command=self.show_probability_tab_help)
-        tab_help_menu.add_command(label="RCPS Tab Help", command=self.show_rcps_tab_help)
-        tab_help_menu.add_command(label="Crashing Tab Help", command=self.show_crashing_tab_help)
-        tab_help_menu.add_command(label="RCPS Crashing Tab Help", command=self.show_rcps_crashing_tab_help)
-        
+        tab_help_menu.add_command(
+            label="Input Tab Help",
+            command=self.show_input_tab_help)
+        tab_help_menu.add_command(
+            label="Results Tab Help",
+            command=self.show_results_tab_help)
+        tab_help_menu.add_command(
+            label="Network Tab Help",
+            command=self.show_network_tab_help)
+        tab_help_menu.add_command(
+            label="Gantt Tab Help",
+            command=self.show_gantt_tab_help)
+        tab_help_menu.add_command(
+            label="Probability Tab Help",
+            command=self.show_probability_tab_help)
+        tab_help_menu.add_command(
+            label="RCPS Tab Help",
+            command=self.show_rcps_tab_help)
+        tab_help_menu.add_command(
+            label="Crashing Tab Help",
+            command=self.show_crashing_tab_help)
+        tab_help_menu.add_command(
+            label="RCPS Crashing Tab Help",
+            command=self.show_rcps_crashing_tab_help)
+
         help_menu.add_separator()
         help_menu.add_command(label="About PMHelper", command=self.show_about)
-    
+
     def create_main_interface(self):
         """Create the main interface with notebook tabs"""
         # Create main frame
         main_frame = ttk.Frame(self.root)
         main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
+
         # Create notebook for tabs
         self.notebook = ttk.Notebook(main_frame)
         self.notebook.pack(fill=tk.BOTH, expand=True)
-        
+
         # Initialize tabs
         self.input_tab = InputTab(self.notebook, self)
         self.results_tab = ResultsTab(self.notebook, self)
@@ -152,48 +189,50 @@ class MainWindow:
         self.pert_diagram_tab = PertDiagramTab(self.notebook, self)
         self.gantt_tab = GanttTab(self.notebook, self)
         self.probability_tab = ProbabilityTab(self.notebook, self)
-        
+
         # PRODUCTION FIX: Always create and show RCPS tab in correct order
         self.crashing_tab = CrashingTab(self.notebook, self)
         self.notebook.add(self.crashing_tab, text="Crashing")
-        
+
         # RCPS tab - always visible between Crashing and RCPS Crashing
         self.rcps_tab = RCPSTab(self.notebook, self)
-        self.notebook.add(self.rcps_tab.rcps_frame, text="RCPS")  # Add the frame, not the object
-        
+        self.notebook.add(self.rcps_tab.rcps_frame,
+                          text="RCPS")  # Add the frame, not the object
+
         # Add RCPS Crashing tab
         self.rcps_crashing_tab = RCPSCrashingTab(self.notebook, self)
         self.notebook.add(self.rcps_crashing_tab, text="RCPS Crashing")
-        
+
         # Setup tab references for data sharing
         self.setup_tab_references()
-        
+
         # CRITICAL FIX 3: Add tab communication event handling
         self.setup_tab_communication()
-        
+
         # Bind tab change event
         self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
-    
+
     def setup_tab_references(self):
         """Setup cross-references between tabs for data sharing"""
-        # PRODUCTION FIX: Since RCPS tab is now always created, establish the links immediately
+        # PRODUCTION FIX: Since RCPS tab is now always created, establish the
+        # links immediately
         if hasattr(self, 'rcps_tab') and hasattr(self, 'rcps_crashing_tab'):
             self.rcps_crashing_tab.set_rcps_tab_reference(self.rcps_tab)
             self.rcps_tab.rcps_crashing_tab = self.rcps_crashing_tab
-    
+
     def create_status_bar(self):
         """Create the status bar"""
         self.status_bar = ttk.Frame(self.root)
         self.status_bar.pack(fill=tk.X, side=tk.BOTTOM)
-        
+
         self.status_label = ttk.Label(self.status_bar, text="Ready")
         self.status_label.pack(side=tk.LEFT, padx=5, pady=2)
-        
+
         # Mode indicator
-        self.mode_indicator = ttk.Label(self.status_bar, text="Mode: None", 
-                                       font=("Arial", 9, "bold"))
+        self.mode_indicator = ttk.Label(self.status_bar, text="Mode: None",
+                                        font=("Arial", 9, "bold"))
         self.mode_indicator.pack(side=tk.RIGHT, padx=5, pady=2)
-    
+
     def setup_tab_communication(self):
         """CRITICAL FIX 3: Setup automatic tab communication and event handling"""
         if hasattr(self, 'notebook'):
@@ -209,13 +248,14 @@ class MainWindow:
             # Get the selected tab
             selected_tab = event.widget.select()
             tab_text = event.widget.tab(selected_tab, "text")
-            
+
             # print(f"DEBUG: Tab selected: {tab_text}")
-            
-            # If Gantt Chart tab is selected and we have analysis results, ensure chart is displayed
+
+            # If Gantt Chart tab is selected and we have analysis results,
+            # ensure chart is displayed
             if ("Gantt" in tab_text or "gantt" in tab_text.lower()):
                 self.handle_gantt_tab_selection()
-                
+
         except Exception as e:
             print(f"ERROR: Tab selection handler failed: {e}")
 
@@ -223,31 +263,35 @@ class MainWindow:
         """CRITICAL FIX 3: Handle Gantt tab selection with automatic chart update"""
         try:
             # print("DEBUG: Gantt tab selected - checking for data and updating chart")
-            
+
             # Check if Gantt tab exists
             if not (hasattr(self, 'gantt_tab') and self.gantt_tab):
                 print("WARNING: Gantt tab not available")
                 return
-            
+
             # Check if we have analysis results
             if hasattr(self, 'results_data') and self.results_data:
                 # print("DEBUG: Analysis results available - updating Gantt chart")
-                
+
                 # Ensure Gantt tab has the latest data
-                if not hasattr(self.gantt_tab, 'results_data') or not self.gantt_tab.results_data:
+                if not hasattr(
+                        self.gantt_tab,
+                        'results_data') or not self.gantt_tab.results_data:
                     # print("DEBUG: Sending analysis results to Gantt tab")
-                    self.gantt_tab.update_data(self.results_data, getattr(self, 'analysis_mode', 'deterministic'))
-                
+                    self.gantt_tab.update_data(
+                        self.results_data, getattr(
+                            self, 'analysis_mode', 'deterministic'))
+
                 # Force chart update to ensure visibility
                 # print("DEBUG: Forcing chart update for Gantt tab visibility")
                 self.gantt_tab.update_chart()
-                
+
             else:
                 # print("DEBUG: No analysis results available for Gantt chart")
                 # Show empty plot with instruction message
                 if hasattr(self.gantt_tab, 'create_empty_plot'):
                     self.gantt_tab.create_empty_plot()
-                    
+
         except Exception as e:
             print(f"ERROR: Failed to handle Gantt tab selection: {e}")
             import traceback
@@ -257,11 +301,11 @@ class MainWindow:
         """Update the status bar message"""
         self.status_label.config(text=message)
         self.root.update_idletasks()
-    
+
     def set_analysis_mode(self, mode):
         """Set the analysis mode and update UI accordingly"""
         self.analysis_mode = mode
-        
+
         if mode == 'deterministic':
             self.current_analyzer = self.cpm_analyzer
             self.mode_indicator.config(text="Mode: CPM (Deterministic)")
@@ -271,28 +315,28 @@ class MainWindow:
         else:
             self.current_analyzer = None
             self.mode_indicator.config(text="Mode: None")
-        
+
         # Update input tab layout
         self.input_tab.set_mode(mode)
-        
+
         # Update probability tab visibility
         if mode == 'probabilistic':
             self.probability_tab.show()
         else:
             self.probability_tab.hide()
-    
+
     def get_activities_data(self):
         """Get activities data from the input tab"""
         return self.input_tab.get_activities_data()
-    
+
     def load_sample_data(self):
         """Load sample data into the input tab"""
         self.input_tab.load_sample_data()
-    
+
     def new_project(self):
         """Start a new project"""
-        result = messagebox.askyesno("New Project", 
-                                   "This will clear all current data. Continue?")
+        result = messagebox.askyesno(
+            "New Project", "This will clear all current data. Continue?")
         if result:
             self.input_tab.clear_all()
             self.results_tab.clear_results()
@@ -302,14 +346,13 @@ class MainWindow:
             self.probability_tab.clear_analysis()
             self.set_analysis_mode(None)
             self.set_status("New project started")
-    
+
     def load_cpm_data(self):
         """Load CPM data from file"""
         try:
             filename = filedialog.askopenfilename(
-                title="Load CPM Data",
-                filetypes=[("CSV files", "*.csv"), ("Excel files", "*.xlsx"), ("All files", "*.*")]
-            )
+                title="Load CPM Data", filetypes=[
+                    ("CSV files", "*.csv"), ("Excel files", "*.xlsx"), ("All files", "*.*")])
             if filename:
                 self.input_tab.load_file(filename, 'deterministic')
                 self.current_data = None  # Clear RCPS data until analysis is run
@@ -319,14 +362,13 @@ class MainWindow:
                 self.run_cpm_analysis()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load CPM data: {str(e)}")
-    
+
     def load_pert_data(self):
         """Load PERT data from file"""
         try:
             filename = filedialog.askopenfilename(
-                title="Load PERT Data",
-                filetypes=[("CSV files", "*.csv"), ("Excel files", "*.xlsx"), ("All files", "*.*")]
-            )
+                title="Load PERT Data", filetypes=[
+                    ("CSV files", "*.csv"), ("Excel files", "*.xlsx"), ("All files", "*.*")])
             if filename:
                 self.input_tab.load_file(filename, 'probabilistic')
                 self.set_status(f"Loaded PERT data from {filename}")
@@ -334,56 +376,63 @@ class MainWindow:
                 self.set_analysis_mode('probabilistic')
                 self.run_pert_analysis()
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to load PERT data: {str(e)}")
-    
+            messagebox.showerror(
+                "Error",
+                f"Failed to load PERT data: {
+                    str(e)}")
+
     def save_results(self):
         """Save analysis results to file"""
-        if not self.current_analyzer or not hasattr(self.current_analyzer, 'G') or not self.current_analyzer.G:
-            messagebox.showwarning("Warning", "No analysis results to save. Please run analysis first.")
+        if not self.current_analyzer or not hasattr(
+                self.current_analyzer, 'G') or not self.current_analyzer.G:
+            messagebox.showwarning(
+                "Warning", "No analysis results to save. Please run analysis first.")
             return
-        
+
         try:
             self.results_tab.save_results()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save results: {str(e)}")
-    
+
     def run_cpm_analysis(self):
         """Run CPM analysis"""
         if self.analysis_mode != 'deterministic':
-            messagebox.showwarning("Warning", "Please load CPM data first or switch to deterministic mode.")
+            messagebox.showwarning(
+                "Warning", "Please load CPM data first or switch to deterministic mode.")
             return
-        
+
         self.analyze_project()
-    
+
     def run_pert_analysis(self):
         """Run PERT analysis"""
         if self.analysis_mode != 'probabilistic':
-            messagebox.showwarning("Warning", "Please load PERT data first or switch to probabilistic mode.")
+            messagebox.showwarning(
+                "Warning", "Please load PERT data first or switch to probabilistic mode.")
             return
-        
+
         self.analyze_project()
-    
+
     def update_gantt_chart_after_analysis(self, results):
         """CRITICAL FIX 1: Automatically update Gantt chart after analysis"""
         try:
             # print("DEBUG: Triggering automatic Gantt chart update...")
-            
+
             # Check if Gantt tab exists
             if hasattr(self, 'gantt_tab') and self.gantt_tab:
                 # Send results to Gantt tab
                 self.gantt_tab.update_data(results, self.analysis_mode)
                 # print("DEBUG: Gantt tab updated with analysis results")
-                
+
                 # Force chart generation
                 self.gantt_tab.update_chart()
                 # print("DEBUG: Gantt chart generation triggered")
-                
+
                 # Optional: Switch to Gantt tab to show results
                 self.show_gantt_tab_after_analysis()
-                
+
             else:
                 print("WARNING: Gantt tab not available for update")
-                
+
         except Exception as e:
             print(f"ERROR: Failed to update Gantt chart after analysis: {e}")
             import traceback
@@ -408,27 +457,32 @@ class MainWindow:
         """Run the appropriate analysis based on current mode"""
         try:
             activities_data = self.get_activities_data()
-            
+
             if not activities_data:
-                messagebox.showwarning("Warning", "Please enter some activities to analyze.")
+                messagebox.showwarning(
+                    "Warning", "Please enter some activities to analyze.")
                 return
-            
+
             if not self.current_analyzer:
-                messagebox.showwarning("Warning", "Please select an analysis mode (CPM or PERT).")
+                messagebox.showwarning(
+                    "Warning", "Please select an analysis mode (CPM or PERT).")
                 return
-            
+
             # [DEBUG] Check analysis mode and data
             print(f"\n[DEBUG_ANALYZE] [MAIN WINDOW] ANALYSIS DEBUG")
             print(f"   Analysis mode: {self.analysis_mode}")
             print(f"   Current analyzer: {type(self.current_analyzer)}")
             print(f"   Activities data count: {len(activities_data)}")
-            print(f"   Sample activity data: {activities_data[0] if activities_data else 'None'}")
-            
+            print(
+                f"   Sample activity data: {
+                    activities_data[0] if activities_data else 'None'}")
+
             self.set_status("Running analysis...")
-            
+
             # Perform analysis
-            G, critical_paths, critical_activities = self.current_analyzer.analyze(activities_data)
-            
+            G, critical_paths, critical_activities = self.current_analyzer.analyze(
+                activities_data)
+
             # [DEBUG] Check analysis results
             print(f"\n[DEBUG_COST] [ANALYSIS RESULTS] COST DATA CHECK")
             print(f"   Graph created: {G is not None}")
@@ -438,37 +492,43 @@ class MainWindow:
                     if node_id not in ['START', 'END']:
                         crash_cost = node_data.get('crash_cost', 'MISSING')
                         normal_cost = node_data.get('normal_cost', 'MISSING')
-                        print(f"   {node_id}: crash_cost={crash_cost}, normal_cost={normal_cost}")
-            
+                        print(
+                            f"   {node_id}: crash_cost={crash_cost}, normal_cost={normal_cost}")
+
             # [DEBUG] Check analyzer state after analysis
             print(f"\n[DEBUG_DATA] [ANALYZER STATE] AFTER ANALYSIS")
             if hasattr(self.current_analyzer, 'activities'):
-                print(f"   Analyzer has activities: {len(self.current_analyzer.activities)}")
-                for activity in self.current_analyzer.activities[:3]:  # Show first 3
+                print(
+                    f"   Analyzer has activities: {len(self.current_analyzer.activities)}")
+                # Show first 3
+                for activity in self.current_analyzer.activities[:3]:
                     print(f"   Activity: {activity}")
             else:
                 print(f"   Analyzer has NO activities attribute")
-            
+
             if hasattr(self.current_analyzer, 'G'):
-                print(f"   Analyzer has graph G: {self.current_analyzer.G is not None}")
+                print(
+                    f"   Analyzer has graph G: {
+                        self.current_analyzer.G is not None}")
             else:
                 print(f"   Analyzer has NO graph G")
-            
+
             # Store analyzer references for RCPS/Crashing
             if self.analysis_mode == 'probabilistic':
                 self.pert_analyzer = self.current_analyzer
-                print(f"   [DEBUG_SUCCESS] PERT analyzer stored in main window")
+                print(
+                    f"   [DEBUG_SUCCESS] PERT analyzer stored in main window")
             else:
                 self.cmp_analyzer = self.current_analyzer
                 print(f"   [DEBUG_SUCCESS] CPM analyzer stored in main window")
-            
+
             # Optional debug output (comment out for production)
             # print("=" * 80)
             # print("CPM ANALYSIS DEBUG OUTPUT")
             # print("=" * 80)
             # print(f"Critical Path: {critical_paths[0] if critical_paths else 'None'}")
             # print(f"Critical Activities: {critical_activities}")
-            # 
+            #
             # print("\nActivity Float Values from Graph:")
             # for node in G.nodes() if G else []:
             #     if node not in ['START', 'END']:
@@ -481,7 +541,7 @@ class MainWindow:
             #         is_critical = node in critical_activities
             #         print(f"  {node}: ES={es}, EF={ef}, LS={ls}, LF={lf}, Float={float_val:.2f}, Critical={is_critical}")
             # print("=" * 80)
-            
+
             # Calculate project duration from the graph
             project_duration = 0
             if G and G.nodes():
@@ -490,57 +550,74 @@ class MainWindow:
                     ef = G.nodes[node].get('EF', 0)
                     if ef > project_duration:
                         project_duration = ef
-            
+
             # Extract the first critical path for display
             critical_path = critical_paths[0] if critical_paths else []
-            
+
             # Convert activities_data to the format expected by ResultsTab
             activities_for_display = []
             for activity_data in activities_data:
-                activity_id = activity_data.get('id', activity_data.get('Activity', ''))
-                
+                activity_id = activity_data.get(
+                    'id', activity_data.get('Activity', ''))
+
                 # Get node data from graph if available
                 node_data = G.nodes.get(activity_id, {}) if G else {}
-                
+
                 # Standardize predecessor IDs: split, strip, and rejoin
-                raw_preds = activity_data.get('predecessors', activity_data.get('Predecessors', ''))
+                raw_preds = activity_data.get(
+                    'predecessors', activity_data.get(
+                        'Predecessors', ''))
                 if isinstance(raw_preds, str):
-                    preds_clean = ','.join([p.strip() for p in raw_preds.split(',') if p.strip()])
+                    preds_clean = ','.join(
+                        [p.strip() for p in raw_preds.split(',') if p.strip()])
                 else:
                     preds_clean = ''
                 activity_display = {
                     'id': activity_id,
                     'name': activity_data.get('activity', activity_data.get('name', activity_data.get('Activity', activity_id))),
                     'duration': activity_data.get('duration', activity_data.get('Duration', 0)),
-                    'ES': node_data.get('ES', 0),  # FIXED: Use correct field names
-                    'EF': node_data.get('EF', 0),  # FIXED: Use correct field names
-                    'LS': node_data.get('LS', 0),  # FIXED: Use correct field names
-                    'LF': node_data.get('LF', 0),  # FIXED: Use correct field names
+                    # FIXED: Use correct field names
+                    'ES': node_data.get('ES', 0),
+                    # FIXED: Use correct field names
+                    'EF': node_data.get('EF', 0),
+                    # FIXED: Use correct field names
+                    'LS': node_data.get('LS', 0),
+                    # FIXED: Use correct field names
+                    'LF': node_data.get('LF', 0),
                     'float': node_data.get('float', 0),
                     'critical': activity_id in critical_activities,
                     'predecessors': preds_clean,
-                    'resource': activity_data.get('resource', activity_data.get('resource_demand', 1)),  # Ensure resource column for RCPS
+                    # Ensure resource column for RCPS
+                    'resource': activity_data.get('resource', activity_data.get('resource_demand', 1)),
                 }
-                
+
                 # Add PERT-specific data if in probabilistic mode
                 if self.analysis_mode == 'probabilistic':
-                    opt = activity_data.get('optimistic', activity_data.get('Optimistic', 0))
-                    most = activity_data.get('most_likely', activity_data.get('Most_Likely', 0))
-                    pess = activity_data.get('pessimistic', activity_data.get('Pessimistic', 0))
-                    expected_time = (float(opt) + 4 * float(most) + float(pess)) / 6
+                    opt = activity_data.get(
+                        'optimistic', activity_data.get(
+                            'Optimistic', 0))
+                    most = activity_data.get(
+                        'most_likely', activity_data.get(
+                            'Most_Likely', 0))
+                    pess = activity_data.get(
+                        'pessimistic', activity_data.get(
+                            'Pessimistic', 0))
+                    expected_time = (
+                        float(opt) + 4 * float(most) + float(pess)) / 6
                     variance = ((float(pess) - float(opt)) / 6) ** 2
-                    
+
                     activity_display.update({
                         'optimistic': opt,
                         'most_likely': most,
                         'pessimistic': pess,
                         'expected_duration': expected_time,  # Keep precise for any legacy needs
-                        'expected': math.ceil(expected_time),  # Integer expected duration for display
+                        # Integer expected duration for display
+                        'expected': math.ceil(expected_time),
                         'variance': round(variance, 3)
                     })
-                
+
                 activities_for_display.append(activity_display)
-            
+
             # Optional debug: Verify activities data format for ResultsTab
             # print("\nActivities Data for ResultsTab:")
             # for activity in activities_for_display:
@@ -553,13 +630,13 @@ class MainWindow:
             #     ls = activity.get('LS', 0)
             #     lf = activity.get('LF', 0)
             #     print(f"  {act_id} ({name}): ES={es}, EF={ef}, LS={ls}, LF={lf}, Float={float_val:.2f}, Critical={critical}")
-            # 
+            #
             # total_float = sum(a.get('float', 0) for a in activities_for_display)
             # critical_count = sum(1 for a in activities_for_display if a.get('critical', False))
             # non_critical_count = len(activities_for_display) - critical_count
             # print(f"Summary: Total Float={total_float:.2f}, Critical={critical_count}, Non-Critical={non_critical_count}")
             # print("=" * 80)
-            
+
             # Create results data structure for the results tab
             self.results_data = {
                 'graph': G,
@@ -582,21 +659,34 @@ class MainWindow:
                     'LS': 'late_start',
                     'LF': 'late_finish'
                 })
-                # For PERT/RCPS, set duration to ceil(expected_duration) if available
+                # For PERT/RCPS, set duration to ceil(expected_duration) if
+                # available
                 if self.analysis_mode == 'probabilistic' and 'expected_duration' in df_gantt.columns:
-                    df_gantt['duration'] = np.ceil(df_gantt['expected_duration']).astype(int)
+                    df_gantt['duration'] = np.ceil(
+                        df_gantt['expected_duration']).astype(int)
                 # Ensure all required columns are present and filled
-                required_cols = ['id', 'early_start', 'duration', 'resource', 'late_finish', 'float']
+                required_cols = [
+                    'id',
+                    'early_start',
+                    'duration',
+                    'resource',
+                    'late_finish',
+                    'float']
                 for col in required_cols:
                     if col not in df_gantt.columns:
                         df_gantt[col] = 0 if col != 'id' else ''
                 # Fill NaN or empty values with defaults
                 df_gantt['id'] = df_gantt['id'].replace('', pd.NA).fillna('X')
-                df_gantt['early_start'] = pd.to_numeric(df_gantt['early_start'], errors='coerce').fillna(0).astype(int)
-                df_gantt['duration'] = pd.to_numeric(df_gantt['duration'], errors='coerce').fillna(1).astype(int)
-                df_gantt['resource'] = pd.to_numeric(df_gantt['resource'], errors='coerce').fillna(1).astype(int)
-                df_gantt['late_finish'] = pd.to_numeric(df_gantt['late_finish'], errors='coerce').fillna(0).astype(int)
-                df_gantt['float'] = pd.to_numeric(df_gantt['float'], errors='coerce').fillna(0).astype(int)
+                df_gantt['early_start'] = pd.to_numeric(
+                    df_gantt['early_start'], errors='coerce').fillna(0).astype(int)
+                df_gantt['duration'] = pd.to_numeric(
+                    df_gantt['duration'], errors='coerce').fillna(1).astype(int)
+                df_gantt['resource'] = pd.to_numeric(
+                    df_gantt['resource'], errors='coerce').fillna(1).astype(int)
+                df_gantt['late_finish'] = pd.to_numeric(
+                    df_gantt['late_finish'], errors='coerce').fillna(0).astype(int)
+                df_gantt['float'] = pd.to_numeric(
+                    df_gantt['float'], errors='coerce').fillna(0).astype(int)
                 if not df_gantt.empty:
                     self.current_data = df_gantt
                 else:
@@ -609,60 +699,75 @@ class MainWindow:
             except Exception as e:
                 print(f"[RCPS] Failed to set current_data: {e}")
                 self.current_data = None
-            
+
             # Add PERT-specific data if in probabilistic mode
             if self.analysis_mode == 'probabilistic':
-                # Calculate precise expected duration from critical path using statistical values
+                # Calculate precise expected duration from critical path using
+                # statistical values
                 precise_expected_duration = 0
                 if critical_path:
                     for activity_id in critical_path:
                         if activity_id not in ['START', 'END']:
-                            # Find the original activity data to get precise expected_time
+                            # Find the original activity data to get precise
+                            # expected_time
                             for activity_data in activities_data:
                                 if activity_data.get('id') == activity_id:
-                                    # Calculate precise expected time using PERT formula
-                                    opt = float(activity_data.get('optimistic', 0))
-                                    most = float(activity_data.get('most_likely', 0))
-                                    pess = float(activity_data.get('pessimistic', 0))
-                                    precise_expected_duration += (opt + 4 * most + pess) / 6
+                                    # Calculate precise expected time using
+                                    # PERT formula
+                                    opt = float(
+                                        activity_data.get(
+                                            'optimistic', 0))
+                                    most = float(
+                                        activity_data.get(
+                                            'most_likely', 0))
+                                    pess = float(
+                                        activity_data.get(
+                                            'pessimistic', 0))
+                                    precise_expected_duration += (
+                                        opt + 4 * most + pess) / 6
                                     break
-                
+
                 # Get PERT statistics from the analyzer
                 project_variance = self.current_analyzer.project_variance
-                standard_deviation = self.current_analyzer.project_std  # Already rounded to 3 decimals
-                
+                # Already rounded to 3 decimals
+                standard_deviation = self.current_analyzer.project_std
+
                 self.results_data.update({
                     'expected_duration': precise_expected_duration,  # Use precise statistical value
                     'project_variance': project_variance,
                     'standard_deviation': standard_deviation
                 })
-            
+
             # Update results in all tabs
-            self.results_tab.update_results(self.results_data, self.analysis_mode)
-            self.network_tab.update_network(self.results_data, self.analysis_mode)
-            self.pert_diagram_tab.update_network(self.results_data, self.analysis_mode)
-            
+            self.results_tab.update_results(
+                self.results_data, self.analysis_mode)
+            self.network_tab.update_network(
+                self.results_data, self.analysis_mode)
+            self.pert_diagram_tab.update_network(
+                self.results_data, self.analysis_mode)
+
             # CRITICAL FIX 1: Automatic Gantt chart update after analysis
             self.update_gantt_chart_after_analysis(self.results_data)
-            
+
             # Update probability tab if in PERT mode
             if self.analysis_mode == 'probabilistic':
                 try:
                     self.probability_tab.update_analysis(self.results_data)
                 except Exception as e:
                     print(f"WARNING: Failed to update ProbabilityTab: {e}")
-                    # Continue execution - don't let probability tab errors crash analysis
-            
+                    # Continue execution - don't let probability tab errors
+                    # crash analysis
+
             # Switch to results tab
             self.notebook.select(1)
-            
+
             self.set_status("Analysis completed successfully")
             messagebox.showinfo("Success", "Analysis completed successfully!")
-            
+
         except Exception as e:
             self.set_status("Analysis failed")
             messagebox.showerror("Error", f"Analysis failed: {str(e)}")
-    
+
     # def show_crashing_tab(self):
     #     """Show the project crashing tab (ENABLED)"""
 
@@ -698,7 +803,7 @@ class MainWindow:
     #             return
     #     # If not found, show info
     #     messagebox.showinfo("Info", "Enhanced Crashing tab not found. Please check integration.")
-    
+
     def show_crashing_tab(self):
         """Show the project crashing tab (NO MENU CHANGES, just switch tab if exists)"""
         # Switch to the Enhanced Crashing tab
@@ -708,9 +813,9 @@ class MainWindow:
                 self.notebook.select(i)
                 return
         # If not found, show info
-        messagebox.showinfo("Info", "Crashing tab not found. Please check integration.")
-    
-    
+        messagebox.showinfo(
+            "Info", "Crashing tab not found. Please check integration.")
+
     def show_rcps_tab(self):
         """Switch to the RCPS tab (now always visible)"""
         # PRODUCTION FIX: RCPS tab is now always visible, just switch to it
@@ -718,23 +823,26 @@ class MainWindow:
             if self.notebook.tab(i, 'text') == 'RCPS':
                 self.notebook.select(i)
                 return
-        
+
         # Fallback (should not be needed since tab is always visible)
-        messagebox.showinfo("Info", "RCPS tab not found. Please check integration.")
-    
+        messagebox.showinfo(
+            "Info", "RCPS tab not found. Please check integration.")
+
     def show_rcps_crashing_tab(self):
         """Show the RCPS crashing tab"""
-        # PRODUCTION FIX: Since RCPS tab is now always created, no need to check or create it
-        
+        # PRODUCTION FIX: Since RCPS tab is now always created, no need to
+        # check or create it
+
         # Switch to the RCPS Crashing tab
         for i in range(self.notebook.index('end')):
             if self.notebook.tab(i, 'text') == 'RCPS Crashing':
                 self.notebook.select(i)
                 return
-        
+
         # If not found, show info
-        messagebox.showinfo("Info", "RCPS Crashing tab not found. Please check integration.")
-    
+        messagebox.showinfo(
+            "Info", "RCPS Crashing tab not found. Please check integration.")
+
     def generate_sample_cpm(self):
         """Generate and save sample CPM data"""
         try:
@@ -749,10 +857,14 @@ class MainWindow:
                     FileHandler.save_excel(sample_data, filename, 'Sample_CPM')
                 else:
                     FileHandler.save_csv(sample_data, filename)
-                messagebox.showinfo("Success", f"Sample CPM data saved to {filename}")
+                messagebox.showinfo(
+                    "Success", f"Sample CPM data saved to {filename}")
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to save sample data: {str(e)}")
-    
+            messagebox.showerror(
+                "Error",
+                f"Failed to save sample data: {
+                    str(e)}")
+
     def generate_sample_pert(self):
         """Generate and save sample PERT data"""
         try:
@@ -764,31 +876,39 @@ class MainWindow:
             if filename:
                 sample_data = FileHandler.get_sample_pert_data()
                 if filename.endswith('.xlsx'):
-                    FileHandler.save_excel(sample_data, filename, 'Sample_PERT')
+                    FileHandler.save_excel(
+                        sample_data, filename, 'Sample_PERT')
                 else:
                     FileHandler.save_csv(sample_data, filename)
-                messagebox.showinfo("Success", f"Sample PERT data saved to {filename}")
+                messagebox.showinfo(
+                    "Success", f"Sample PERT data saved to {filename}")
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to save sample data: {str(e)}")
-    
+            messagebox.showerror(
+                "Error",
+                f"Failed to save sample data: {
+                    str(e)}")
+
     def show_user_guide(self):
         """Show comprehensive user guide"""
         guide_window = tk.Toplevel(self.root)
         guide_window.title("PMHelper - Complete User Guide")
         guide_window.geometry("900x700")
         guide_window.resizable(True, True)
-        
+
         # Create scrollable text widget
         frame = ttk.Frame(guide_window)
         frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
+
         text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 11))
-        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        scrollbar = ttk.Scrollbar(
+            frame,
+            orient=tk.VERTICAL,
+            command=text_widget.yview)
         text_widget.configure(yscrollcommand=scrollbar.set)
-        
+
         text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         guide_text = """PMHelper - Complete User Guide
 
 ═══════════════════════════════════════════════════════════════════════
@@ -796,7 +916,7 @@ class MainWindow:
 OVERVIEW
 PMHelper is a comprehensive project management analysis tool supporting multiple methodologies:
 • Critical Path Method (CPM) - Deterministic analysis
-• Program Evaluation and Review Technique (PERT) - Probabilistic analysis  
+• Program Evaluation and Review Technique (PERT) - Probabilistic analysis
 • Resource-Constrained Project Scheduling (RCPS)
 • Project Crashing optimization
 • Network diagrams and Gantt charts
@@ -828,7 +948,7 @@ TAB-SPECIFIC HELP
 
 For detailed help on any specific tab, use the Help buttons in each tab or:
 • Help Menu → Input Tab Help
-• Help Menu → Results Tab Help  
+• Help Menu → Results Tab Help
 • Help Menu → Network Tab Help
 • Help Menu → Gantt Tab Help
 • Help Menu → Probability Tab Help
@@ -893,11 +1013,14 @@ GETTING HELP
 
         text_widget.insert(tk.END, guide_text)
         text_widget.config(state=tk.DISABLED)
-        
+
         # Add close button
-        close_btn = ttk.Button(guide_window, text="Close", command=guide_window.destroy)
+        close_btn = ttk.Button(
+            guide_window,
+            text="Close",
+            command=guide_window.destroy)
         close_btn.pack(pady=10)
-        
+
         # Center the window
         guide_window.transient(self.root)
         guide_window.grab_set()
@@ -907,17 +1030,20 @@ GETTING HELP
         help_window = tk.Toplevel(self.root)
         help_window.title("Input Tab - Help")
         help_window.geometry("700x500")
-        
+
         frame = ttk.Frame(help_window)
         frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
+
         text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
-        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        scrollbar = ttk.Scrollbar(
+            frame,
+            orient=tk.VERTICAL,
+            command=text_widget.yview)
         text_widget.configure(yscrollcommand=scrollbar.set)
-        
+
         text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         help_text = """INPUT TAB - DETAILED HELP
 
 ═══════════════════════════════════════════════════════════════════════
@@ -932,7 +1058,7 @@ ACTIVITY FIELDS
    • Use consistent naming convention
    • Cannot be empty or duplicate
 
-2. ACTIVITY NAME  
+2. ACTIVITY NAME
    • Descriptive name for the activity
    • Helps identify activities in reports and charts
    • Can contain spaces and special characters
@@ -1012,10 +1138,13 @@ TIPS & BEST PRACTICES
 
         text_widget.insert(tk.END, help_text)
         text_widget.config(state=tk.DISABLED)
-        
-        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+
+        close_btn = ttk.Button(
+            help_window,
+            text="Close",
+            command=help_window.destroy)
         close_btn.pack(pady=10)
-        
+
         help_window.transient(self.root)
 
     def show_results_tab_help(self):
@@ -1023,17 +1152,20 @@ TIPS & BEST PRACTICES
         help_window = tk.Toplevel(self.root)
         help_window.title("Results Tab - Help")
         help_window.geometry("700x500")
-        
+
         frame = ttk.Frame(help_window)
         frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
+
         text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
-        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        scrollbar = ttk.Scrollbar(
+            frame,
+            orient=tk.VERTICAL,
+            command=text_widget.yview)
         text_widget.configure(yscrollcommand=scrollbar.set)
-        
+
         text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         help_text = """RESULTS TAB - DETAILED HELP
 
 ═══════════════════════════════════════════════════════════════════════
@@ -1132,10 +1264,13 @@ The following features are planned for future releases:
 
         text_widget.insert(tk.END, help_text)
         text_widget.config(state=tk.DISABLED)
-        
-        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+
+        close_btn = ttk.Button(
+            help_window,
+            text="Close",
+            command=help_window.destroy)
         close_btn.pack(pady=10)
-        
+
         help_window.transient(self.root)
 
     def show_network_tab_help(self):
@@ -1143,17 +1278,20 @@ The following features are planned for future releases:
         help_window = tk.Toplevel(self.root)
         help_window.title("Network Tab - Help")
         help_window.geometry("700x500")
-        
+
         frame = ttk.Frame(help_window)
         frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
+
         text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
-        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        scrollbar = ttk.Scrollbar(
+            frame,
+            orient=tk.VERTICAL,
+            command=text_widget.yview)
         text_widget.configure(yscrollcommand=scrollbar.set)
-        
+
         text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         help_text = """NETWORK TAB - DETAILED HELP
 
 ═══════════════════════════════════════════════════════════════════════
@@ -1170,7 +1308,7 @@ NODES (ACTIVITIES)
   - Blue: Non-critical activities (positive float)
 • Node labels show activity ID and name
 
-ARROWS (DEPENDENCIES)  
+ARROWS (DEPENDENCIES)
 • Lines connect predecessor to successor activities
 • Arrow direction shows dependency flow
 • Critical path arrows may be highlighted differently
@@ -1249,10 +1387,13 @@ The following features are planned for future releases:
 
         text_widget.insert(tk.END, help_text)
         text_widget.config(state=tk.DISABLED)
-        
-        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+
+        close_btn = ttk.Button(
+            help_window,
+            text="Close",
+            command=help_window.destroy)
         close_btn.pack(pady=10)
-        
+
         help_window.transient(self.root)
 
     def show_gantt_tab_help(self):
@@ -1260,17 +1401,20 @@ The following features are planned for future releases:
         help_window = tk.Toplevel(self.root)
         help_window.title("Gantt Tab - Help")
         help_window.geometry("700x500")
-        
+
         frame = ttk.Frame(help_window)
         frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
+
         text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
-        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        scrollbar = ttk.Scrollbar(
+            frame,
+            orient=tk.VERTICAL,
+            command=text_widget.yview)
         text_widget.configure(yscrollcommand=scrollbar.set)
-        
+
         text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         help_text = """GANTT TAB - DETAILED HELP
 
 ═══════════════════════════════════════════════════════════════════════
@@ -1384,10 +1528,13 @@ The following features are planned for future releases:
 
         text_widget.insert(tk.END, help_text)
         text_widget.config(state=tk.DISABLED)
-        
-        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+
+        close_btn = ttk.Button(
+            help_window,
+            text="Close",
+            command=help_window.destroy)
         close_btn.pack(pady=10)
-        
+
         help_window.transient(self.root)
 
     def show_probability_tab_help(self):
@@ -1395,17 +1542,20 @@ The following features are planned for future releases:
         help_window = tk.Toplevel(self.root)
         help_window.title("Probability Tab - Help")
         help_window.geometry("700x500")
-        
+
         frame = ttk.Frame(help_window)
         frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
+
         text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
-        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        scrollbar = ttk.Scrollbar(
+            frame,
+            orient=tk.VERTICAL,
+            command=text_widget.yview)
         text_widget.configure(yscrollcommand=scrollbar.set)
-        
+
         text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         help_text = """PROBABILITY TAB - DETAILED HELP
 
 ═══════════════════════════════════════════════════════════════════════
@@ -1532,10 +1682,13 @@ CONTRACT NEGOTIATIONS
 
         text_widget.insert(tk.END, help_text)
         text_widget.config(state=tk.DISABLED)
-        
-        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+
+        close_btn = ttk.Button(
+            help_window,
+            text="Close",
+            command=help_window.destroy)
         close_btn.pack(pady=10)
-        
+
         help_window.transient(self.root)
 
     def show_rcps_tab_help(self):
@@ -1543,17 +1696,20 @@ CONTRACT NEGOTIATIONS
         help_window = tk.Toplevel(self.root)
         help_window.title("RCPS Tab - Help")
         help_window.geometry("700x500")
-        
+
         frame = ttk.Frame(help_window)
         frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
+
         text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
-        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        scrollbar = ttk.Scrollbar(
+            frame,
+            orient=tk.VERTICAL,
+            command=text_widget.yview)
         text_widget.configure(yscrollcommand=scrollbar.set)
-        
+
         text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         help_text = """RCPS TAB - DETAILED HELP
 Resource-Constrained Project Scheduling
 
@@ -1691,10 +1847,13 @@ WHAT-IF ANALYSIS
 
         text_widget.insert(tk.END, help_text)
         text_widget.config(state=tk.DISABLED)
-        
-        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+
+        close_btn = ttk.Button(
+            help_window,
+            text="Close",
+            command=help_window.destroy)
         close_btn.pack(pady=10)
-        
+
         help_window.transient(self.root)
 
     def show_crashing_tab_help(self):
@@ -1702,17 +1861,20 @@ WHAT-IF ANALYSIS
         help_window = tk.Toplevel(self.root)
         help_window.title("Crashing Tab - Help")
         help_window.geometry("800x600")
-        
+
         frame = ttk.Frame(help_window)
         frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
+
         text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
-        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        scrollbar = ttk.Scrollbar(
+            frame,
+            orient=tk.VERTICAL,
+            command=text_widget.yview)
         text_widget.configure(yscrollcommand=scrollbar.set)
-        
+
         text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         help_text = """CRASHING TAB - DETAILED HELP
 Project Crashing and Time-Cost Optimization (CPM/PERT Based)
 
@@ -1779,10 +1941,13 @@ PRACTICAL APPLICATIONS
 
         text_widget.insert(tk.END, help_text)
         text_widget.config(state=tk.DISABLED)
-        
-        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+
+        close_btn = ttk.Button(
+            help_window,
+            text="Close",
+            command=help_window.destroy)
         close_btn.pack(pady=10)
-        
+
         help_window.transient(self.root)
 
     def show_rcps_crashing_tab_help(self):
@@ -1790,14 +1955,17 @@ PRACTICAL APPLICATIONS
         help_window = tk.Toplevel(self.root)
         help_window.title("RCPS Crashing Tab - Help")
         help_window.geometry("800x600")
-        
+
         frame = ttk.Frame(help_window)
         frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
+
         text_widget = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
-        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text_widget.yview)
+        scrollbar = ttk.Scrollbar(
+            frame,
+            orient=tk.VERTICAL,
+            command=text_widget.yview)
         text_widget.configure(yscrollcommand=scrollbar.set)
-        
+
         text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
@@ -1820,8 +1988,7 @@ PRACTICAL APPLICATIONS
             "- The calculation uses the actual RCPS schedule, reflecting real resource limitations.\n"
             "\n"
             "CRASH COST CALCULATION\n"
-            "- Only activities that are critical (float = 0) and crashable (duration > min_duration) are considered\n"
-        )
+            "- Only activities that are critical (float = 0) and crashable (duration > min_duration) are considered\n")
         text_widget.insert(tk.END, help_text)
         more_help = (
             "- Each potential crash is validated against resource availability at the crash time\n"
@@ -1856,8 +2023,7 @@ PRACTICAL APPLICATIONS
             "- Some activities may not be crashable due to lack of resources\n"
             "\n"
             "WHEN TO USE THE RCPS CRASHING TAB\n"
-            "- When resources are limited (personnel, equipment, facilities)\n"
-        )
+            "- When resources are limited (personnel, equipment, facilities)\n")
         text_widget.insert(tk.END, more_help)
         final_help = (
             "- For realistic, implementable schedule acceleration plans\n"
@@ -1869,11 +2035,13 @@ PRACTICAL APPLICATIONS
             "- Timeline considers resource constraint impacts\n"
             "- Crash sequence respects resource availability\n"
             "\n"
-            "================================================================\n"
-        )
+            "================================================================\n")
         text_widget.insert(tk.END, final_help)
         text_widget.config(state=tk.DISABLED)
-        close_btn = ttk.Button(help_window, text="Close", command=help_window.destroy)
+        close_btn = ttk.Button(
+            help_window,
+            text="Close",
+            command=help_window.destroy)
         close_btn.pack(pady=10)
         help_window.transient(self.root)
 
@@ -1883,32 +2051,44 @@ PRACTICAL APPLICATIONS
         about_window.title("About PMHelper")
         about_window.geometry("600x500")
         about_window.resizable(False, False)
-        
+
         # Create scrollable content
         main_frame = ttk.Frame(about_window)
         main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
-        
+
         # Header
         header_frame = ttk.Frame(main_frame)
         header_frame.pack(fill=tk.X, pady=(0, 10))
-        
-        title_label = ttk.Label(header_frame, text="PMHelper", font=("Arial", 16, "bold"))
+
+        title_label = ttk.Label(
+            header_frame, text="PMHelper", font=(
+                "Arial", 16, "bold"))
         title_label.pack()
-        
-        version_label = ttk.Label(header_frame, text="Project Management Analysis Tool v1.0.0", font=("Arial", 10))
+
+        version_label = ttk.Label(
+            header_frame,
+            text="Project Management Analysis Tool v1.0.0",
+            font=(
+                "Arial",
+                10))
         version_label.pack()
-        
+
         # Create scrollable text area
         text_frame = ttk.Frame(main_frame)
         text_frame.pack(fill=tk.BOTH, expand=True)
-        
-        text_widget = tk.Text(text_frame, wrap=tk.WORD, font=("Arial", 9), height=20)
-        scrollbar = ttk.Scrollbar(text_frame, orient=tk.VERTICAL, command=text_widget.yview)
+
+        text_widget = tk.Text(
+            text_frame, wrap=tk.WORD, font=(
+                "Arial", 9), height=20)
+        scrollbar = ttk.Scrollbar(
+            text_frame,
+            orient=tk.VERTICAL,
+            command=text_widget.yview)
         text_widget.configure(yscrollcommand=scrollbar.set)
-        
+
         text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         about_text = """OVERVIEW
 PMHelper is an educational project management analysis tool designed to help students plan and design projects while learning core project management methodologies.
 
@@ -1930,7 +2110,7 @@ ANALYSIS FEATURES
 
 VISUALIZATION TOOLS
 ✓ Interactive network diagrams showing dependencies
-✓ Professional Gantt charts with critical path highlighting  
+✓ Professional Gantt charts with critical path highlighting
 ✓ Probability distribution charts and histograms
 ✓ Resource utilization graphs
 ✓ Statistical analysis charts
@@ -1997,26 +2177,29 @@ PMHelper is designed to meet professional project management analysis needs whil
 
         text_widget.insert(tk.END, about_text)
         text_widget.config(state=tk.DISABLED)
-        
+
         # Close button
         button_frame = ttk.Frame(main_frame)
         button_frame.pack(fill=tk.X, pady=(10, 0))
-        
-        close_btn = ttk.Button(button_frame, text="Close", command=about_window.destroy)
+
+        close_btn = ttk.Button(
+            button_frame,
+            text="Close",
+            command=about_window.destroy)
         close_btn.pack()
-        
+
         # Center the window
         about_window.transient(self.root)
         about_window.grab_set()
-    
+
     def test_gantt_integration(self):
         """Quick test of all three integration fixes"""
         print("=" * 70)
         print("GANTT CHART INTEGRATION TEST - ALL THREE FIXES")
         print("=" * 70)
-        
+
         results = {'fix1': False, 'fix2': False, 'fix3': False}
-        
+
         # Test Fix 1: Automatic chart display
         try:
             if hasattr(self, 'update_gantt_chart_after_analysis'):
@@ -2024,19 +2207,23 @@ PMHelper is designed to meet professional project management analysis needs whil
                 results['fix1'] = True
             else:
                 print("✗ Fix 1: Missing automatic chart display method")
-        except:
+        except BaseException:
             print("✗ Fix 1: Error checking automatic chart display")
-        
+
         # Test Fix 2: Data integration
         try:
-            if hasattr(self, 'gantt_tab') and hasattr(self.gantt_tab, 'update_data'):
+            if hasattr(
+                    self,
+                    'gantt_tab') and hasattr(
+                    self.gantt_tab,
+                    'update_data'):
                 print("✓ Fix 2: Enhanced data integration method exists")
                 results['fix2'] = True
             else:
                 print("✗ Fix 2: Missing enhanced data integration")
-        except:
+        except BaseException:
             print("✗ Fix 2: Error checking data integration")
-        
+
         # Test Fix 3: Tab communication
         try:
             if hasattr(self, 'on_tab_selected'):
@@ -2044,20 +2231,21 @@ PMHelper is designed to meet professional project management analysis needs whil
                 results['fix3'] = True
             else:
                 print("✗ Fix 3: Missing tab communication handler")
-        except:
+        except BaseException:
             print("✗ Fix 3: Error checking tab communication")
-        
+
         # Summary
         passed = sum(results.values())
         total = len(results)
-        
-        print(f"\nIntegration Test Results: {passed}/{total} fixes implemented")
-        
+
+        print(
+            f"\nIntegration Test Results: {passed}/{total} fixes implemented")
+
         if passed == total:
             print("[DEBUG_SUCCESS] ALL INTEGRATION FIXES READY FOR TESTING!")
         else:
             print("[DEBUG_ERROR] Some fixes missing - implementation incomplete")
-        
+
         print("=" * 70)
         return results
 
@@ -2067,7 +2255,7 @@ PMHelper is designed to meet professional project management analysis needs whil
             selection = event.widget.select()
             tab_text = event.widget.tab(selection, "text")
             self.set_status(f"Viewing: {tab_text}")
-            
+
             # CRITICAL FIX 3: Additional handling for Gantt tab visibility
             if "Gantt" in tab_text or "gantt" in tab_text.lower():
                 self.handle_gantt_tab_selection()

@@ -13,7 +13,7 @@ import builtins
 import warnings
 
 # PRODUCTION MODE: Suppress debug prints and warnings
-PRODUCTION_MODE = True
+PRODUCTION_MODE = True  # ENABLED FOR PRODUCTION
 
 if PRODUCTION_MODE:
     # Suppress matplotlib warnings
@@ -216,17 +216,6 @@ def main():
         print("Application launched successfully!")
         print("Close the application window to exit.")
 
-        root.mainloop()
-        
-        print("Application closed.")
-        
-        # Create and run the application
-        root = tk.Tk()
-        app = MainWindow(root)
-        
-        print("Application launched successfully!")
-        print("Close the application window to exit.")
-        
         root.mainloop()
         
         print("Application closed.")

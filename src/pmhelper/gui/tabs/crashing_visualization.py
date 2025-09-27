@@ -2,6 +2,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 
+
 def draw_network_diagram_on_ax(ax, G):
     pos = {}
     generations = list(nx.topological_generations(G))
@@ -24,9 +25,15 @@ def draw_network_diagram_on_ax(ax, G):
             start_y = y1 + node_radius * dy_norm
             end_x = x2 - node_radius * dx_norm
             end_y = y2 - node_radius * dy_norm
-            ax.annotate("", xy=(end_x, end_y), xytext=(start_x, start_y),
-                        arrowprops=dict(arrowstyle="->", color="black", lw=1.5))
-    critical_activities = [node for node in G.nodes() if G.nodes[node].get('float', None) == 0 and node not in ['START', 'END']]
+            ax.annotate(
+                "", xy=(
+                    end_x, end_y), xytext=(
+                    start_x, start_y), arrowprops=dict(
+                    arrowstyle="->", color="black", lw=1.5))
+    critical_activities = [
+        node for node in G.nodes() if G.nodes[node].get(
+            'float', None) == 0 and node not in [
+            'START', 'END']]
     for node in G.nodes():
         x, y = pos[node]
         if node == 'START':
@@ -37,8 +44,15 @@ def draw_network_diagram_on_ax(ax, G):
             color = 'red'
         else:
             color = 'lightblue'
-        circle = plt.Circle((x, y), node_radius, fill=True, color=color, alpha=0.7,
-                            edgecolor='black', linewidth=1.5)
+        circle = plt.Circle(
+            (x,
+             y),
+            node_radius,
+            fill=True,
+            color=color,
+            alpha=0.7,
+            edgecolor='black',
+            linewidth=1.5)
         ax.add_patch(circle)
         if node in ['START', 'END']:
             display_text = 'Start' if node == 'START' else 'End'
@@ -49,9 +63,16 @@ def draw_network_diagram_on_ax(ax, G):
                     color='black', linewidth=1.2)
             ax.text(x, y + node_radius / 2, node, ha='center', va='center',
                     fontsize=10, fontweight='bold')
-            ax.text(x, y - node_radius / 2, str(G.nodes[node].get('duration', '')), ha='center', va='center', fontsize=9)
+            ax.text(x,
+                    y - node_radius / 2,
+                    str(G.nodes[node].get('duration',
+                                          '')),
+                    ha='center',
+                    va='center',
+                    fontsize=9)
     ax.set_axis_off()
     ax.set_aspect('equal')
+
 
 def draw_network_diagram_on_ax_small(ax, G):
     pos = {}
@@ -77,7 +98,10 @@ def draw_network_diagram_on_ax_small(ax, G):
             end_y = y2 - node_radius * dy_norm
             ax.annotate("", xy=(end_x, end_y), xytext=(start_x, start_y),
                         arrowprops=dict(arrowstyle="->", color="black", lw=1))
-    critical_activities = [node for node in G.nodes() if G.nodes[node].get('float', None) == 0 and node not in ['START', 'END']]
+    critical_activities = [
+        node for node in G.nodes() if G.nodes[node].get(
+            'float', None) == 0 and node not in [
+            'START', 'END']]
     for node in G.nodes():
         x, y = pos[node]
         if node == 'START':
@@ -88,8 +112,15 @@ def draw_network_diagram_on_ax_small(ax, G):
             color = 'red'
         else:
             color = 'lightblue'
-        circle = plt.Circle((x, y), node_radius, fill=True, color=color, alpha=0.7,
-                            edgecolor='black', linewidth=1)
+        circle = plt.Circle(
+            (x,
+             y),
+            node_radius,
+            fill=True,
+            color=color,
+            alpha=0.7,
+            edgecolor='black',
+            linewidth=1)
         ax.add_patch(circle)
         if node in ['START', 'END']:
             display_text = 'Start' if node == 'START' else 'End'
@@ -100,6 +131,12 @@ def draw_network_diagram_on_ax_small(ax, G):
                     color='black', linewidth=0.8)
             ax.text(x, y + node_radius / 2, node, ha='center', va='center',
                     fontsize=7, fontweight='bold')
-            ax.text(x, y - node_radius / 2, str(G.nodes[node].get('duration', '')), ha='center', va='center', fontsize=6)
+            ax.text(x,
+                    y - node_radius / 2,
+                    str(G.nodes[node].get('duration',
+                                          '')),
+                    ha='center',
+                    va='center',
+                    fontsize=6)
     ax.set_axis_off()
     ax.set_aspect('equal')
