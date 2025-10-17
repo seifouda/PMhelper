@@ -11,20 +11,117 @@ from tkinter import ttk, messagebox, filedialog
 import sys
 from pathlib import Path
 
-# Add src to path for imports
+# Add src to path for imports  
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
-try:
-    import matplotlib.pyplot as plt
-    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-    from matplotlib.figure import Figure
-    import numpy as np
-    from scipy import stats
-    MATPLOTLIB_AVAILABLE = True
-    SCIPY_AVAILABLE = True
-except ImportError:
-    MATPLOTLIB_AVAILABLE = False
-    SCIPY_AVAILABLE = False
+# Enhanced dependency checking for frozen executables
+def check_dependencies():
+    """Check if matplotlib and scipy are available with enhanced error handling"""
+    matplotlib_available = False
+    scipy_available = False
+    
+    # For frozen executables, we need more thorough testing
+    is_frozen = getattr(sys, 'frozen', False)
+    
+    # Test matplotlib imports
+    try:
+        # Force matplotlib to use a working backend in frozen executables
+        import matplotlib
+        if is_frozen:
+            matplotlib.use('TkAgg', force=True)  # Force TkAgg for frozen executables
+        else:
+            matplotlib.use('TkAgg')
+        
+        import matplotlib.pyplot as plt
+        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+        from matplotlib.figure import Figure
+        
+        # Test creating a basic figure to ensure everything works
+        test_fig = Figure(figsize=(1, 1))
+        test_fig.clear()  # Make sure we can manipulate it
+        matplotlib_available = True
+        if not is_frozen:
+            print("[OK] Matplotlib available")
+    except (ImportError, RuntimeError, OSError, AttributeError) as e:
+        matplotlib_available = False
+        if not is_frozen:
+            print(f"[ERROR] Matplotlib import failed: {e}")
+        else:
+            print(f"Matplotlib error in frozen app: {e}")
+    
+    # Test scipy imports  
+    try:
+        import numpy as np
+        from scipy import stats
+        # Test basic functionality
+        test_array = np.array([1, 2, 3])
+        test_norm = stats.norm(0, 1)
+        # Test that we can call basic functions
+        _ = test_norm.pdf(0.5)
+        scipy_available = True
+        if not is_frozen:
+            print("[OK] SciPy/NumPy available")
+    except (ImportError, RuntimeError, OSError, AttributeError) as e:
+        scipy_available = False
+        if not is_frozen:
+            print(f"[ERROR] SciPy/NumPy import failed: {e}")
+        else:
+            print(f"SciPy error in frozen app: {e}")
+    
+    return matplotlib_available, scipy_available
+
+# Check dependencies once at module load
+MATPLOTLIB_AVAILABLE, SCIPY_AVAILABLE = check_dependencies()
+
+# Store references to imported modules (only import if available)
+plt = None
+FigureCanvasTkAgg = None
+NavigationToolbar2Tk = None  
+Figure = None
+np = None
+stats = None
+
+def _lazy_import_dependencies():
+    """Lazily import dependencies when needed"""
+    global plt, FigureCanvasTkAgg, NavigationToolbar2Tk, Figure, np, stats
+    
+    if MATPLOTLIB_AVAILABLE and SCIPY_AVAILABLE and plt is None:
+        try:
+            # Re-import with proper backend setting
+            import matplotlib
+            is_frozen = getattr(sys, 'frozen', False)
+            if is_frozen:
+                matplotlib.use('TkAgg', force=True)
+            else:
+                matplotlib.use('TkAgg')
+                
+            import matplotlib.pyplot as _plt
+            from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as _FigureCanvasTkAgg
+            from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk as _NavigationToolbar2Tk
+            from matplotlib.figure import Figure as _Figure
+            import numpy as _np
+            from scipy import stats as _stats
+            
+            # Test imports work
+            test_fig = _Figure(figsize=(1, 1))
+            test_arr = _np.array([1])
+            test_norm = _stats.norm(0, 1)
+            
+            # Assign to global variables
+            plt = _plt
+            FigureCanvasTkAgg = _FigureCanvasTkAgg
+            NavigationToolbar2Tk = _NavigationToolbar2Tk
+            Figure = _Figure
+            np = _np
+            stats = _stats
+            
+            return True
+        except Exception as e:
+            if not getattr(sys, 'frozen', False):
+                print(f"Failed to lazy import dependencies: {e}")
+            return False
+    
+    return MATPLOTLIB_AVAILABLE and SCIPY_AVAILABLE and plt is not None
 
 from pmhelper.utils.calculations import ProbabilityCalculations
 
@@ -79,8 +176,16 @@ class ProbabilityTab:
         if not SCIPY_AVAILABLE:
             missing.append("scipy")
         
-        message_text = f"Probability analysis requires {' and '.join(missing)}.\n"
-        message_text += f"Please install {' and '.join(missing)} to view probability analysis."
+        # Different message for frozen executable vs development
+        if getattr(sys, 'frozen', False):
+            message_text = "Probability analysis libraries could not be loaded.\n\n"
+            message_text += "This standalone executable should include all required libraries.\n"
+            message_text += "Please restart the application or contact support if this issue persists."
+            button_text = "Restart Required"
+        else:
+            message_text = f"Probability analysis requires {' and '.join(missing)}.\n"
+            message_text += f"Please install {' and '.join(missing)} to view probability analysis."
+            button_text = f"Install {' and '.join(missing)}"
         
         message_label = ttk.Label(
             message_frame,
@@ -92,16 +197,27 @@ class ProbabilityTab:
         
         install_button = ttk.Button(
             message_frame,
-            text=f"Install {' and '.join(missing)}",
+            text=button_text,
             command=lambda: self.install_dependencies(missing)
         )
         install_button.pack(pady=10)
     
     def install_dependencies(self, packages):
         """Attempt to install required dependencies"""
+        # Check if we're running in a frozen executable
+        if getattr(sys, 'frozen', False):
+            messagebox.showinfo(
+                "Standalone Executable", 
+                "This is a standalone executable with all required libraries pre-installed.\n\n"
+                "All dependencies (matplotlib, scipy, numpy) are already bundled.\n"
+                "If you're seeing this message, please restart the application.\n\n"
+                "If the issue persists, the executable may need to be rebuilt."
+            )
+            return
+        
+        # Normal installation for development environment
         try:
             import subprocess
-            import sys
             
             result = messagebox.askyesno(
                 "Install Dependencies",
@@ -284,6 +400,11 @@ class ProbabilityTab:
                   command=self.update_visualization).pack(side=tk.LEFT, padx=10)
 
         # Create matplotlib figure and canvas
+        # Ensure dependencies are loaded
+        if not _lazy_import_dependencies():
+            ttk.Label(plot_frame, text="Visualization dependencies not available").pack()
+            return
+            
         self.figure = Figure(figsize=(10, 8), dpi=100)
         self.figure.patch.set_facecolor('white')
 

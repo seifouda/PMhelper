@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 from matplotlib.colors import ListedColormap
 import textwrap
+import math
 from typing import Dict, List, Any, Optional, Tuple
 
 
@@ -282,8 +283,14 @@ class PERTVisualizationHelper:
                                    expected_duration + 4*std_dev, 1000)
         
         # Calculate probability density
-        from scipy.stats import norm
-        probabilities = norm.pdf(duration_range, expected_duration, std_dev)
+        try:
+            from scipy.stats import norm
+            probabilities = norm.pdf(duration_range, expected_duration, std_dev)
+        except ImportError:
+            # Fallback: Simple approximation for probability density function
+            def pdf_approximation(x, mu, sigma):
+                return (1 / (sigma * math.sqrt(2 * math.pi))) * np.exp(-0.5 * ((x - mu) / sigma) ** 2)
+            probabilities = pdf_approximation(duration_range, expected_duration, std_dev)
         
         # Plot distribution
         ax.plot(duration_range, probabilities, 'b-', linewidth=2, label='Probability Distribution')

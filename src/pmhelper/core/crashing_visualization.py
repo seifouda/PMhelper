@@ -30,6 +30,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from typing import Any
 import copy
 
+
 def draw_network_diagram_on_ax(ax, G: nx.DiGraph, initial=False):
     """
     Draws a CPM network diagram on the given matplotlib axis.
@@ -52,7 +53,8 @@ def draw_network_diagram_on_ax(ax, G: nx.DiGraph, initial=False):
     Edges:
         - Drawn as arrows between nodes.
     """
-    # Use a deep copy for initial visualization to avoid accidental modification
+    # Use a deep copy for initial visualization to avoid accidental
+    # modification
     if initial:
         G = copy.deepcopy(G)
 
@@ -90,9 +92,9 @@ def draw_network_diagram_on_ax(ax, G: nx.DiGraph, initial=False):
 
     # Identify critical activities (float == 0 and not START/END)
     critical_activities = [
-        node for node in G.nodes()
-        if G.nodes[node].get('float', None) == 0 and node not in ['START', 'END']
-    ]
+        node for node in G.nodes() if G.nodes[node].get(
+            'float', None) == 0 and node not in [
+            'START', 'END']]
 
     # Draw nodes with appropriate coloring and labels
     for node in G.nodes():
@@ -141,6 +143,7 @@ def draw_network_diagram_on_ax(ax, G: nx.DiGraph, initial=False):
     ax.set_axis_off()
     ax.set_aspect('equal')
 
+
 def draw_network_diagram_on_ax_small(ax, G: nx.DiGraph):
     """
     Draws a compact CPM network diagram on the given matplotlib axis.
@@ -186,9 +189,9 @@ def draw_network_diagram_on_ax_small(ax, G: nx.DiGraph):
 
     # Identify critical activities (float == 0 and not START/END)
     critical_activities = [
-        node for node in G.nodes()
-        if G.nodes[node].get('float', None) == 0 and node not in ['START', 'END']
-    ]
+        node for node in G.nodes() if G.nodes[node].get(
+            'float', None) == 0 and node not in [
+            'START', 'END']]
 
     # Draw nodes with appropriate coloring and labels
     for node in G.nodes():
@@ -236,4 +239,3 @@ def draw_network_diagram_on_ax_small(ax, G: nx.DiGraph):
 
     ax.set_axis_off()
     ax.set_aspect('equal')
-

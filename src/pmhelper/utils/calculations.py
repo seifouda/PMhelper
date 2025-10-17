@@ -9,7 +9,20 @@ Includes time calculations, cost analysis, and statistical functions.
 import math
 import numpy as np
 from typing import List, Dict, Any, Tuple, Optional
-from scipy.stats import norm
+
+# Make scipy import optional for PyInstaller compatibility
+try:
+    from scipy.stats import norm
+    SCIPY_AVAILABLE = True
+except ImportError:
+    # Fallback: Simple normal distribution approximation
+    SCIPY_AVAILABLE = False
+    class FallbackNorm:
+        @staticmethod
+        def cdf(x):
+            # Simple normal CDF approximation using error function
+            return 0.5 * (1 + math.erf(x / math.sqrt(2)))
+    norm = FallbackNorm()
 
 
 class TimeCalculations:

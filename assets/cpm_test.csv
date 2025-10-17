@@ -1,0 +1,10 @@
+id,activity,duration,predecessors,min_duration,crash_cost,resource_demand,normal_cost
+A,Mars,3,,1,300,3,300
+B,Venus,4,,2,600,4,300
+C,Neptune,2,A,1,500,2,300
+D,Earth,4,A,1,350,3,300
+E,Pluto,6,"B,C",2,400,1,300
+F,IO,3,D,1,200,4,300
+G,Master,4,"E,F",1,550,3,300
+H,Card,5,G,2,200,2,300
+I,Movie,4,H,1,100,4,300

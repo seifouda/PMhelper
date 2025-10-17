@@ -9,13 +9,31 @@ description = "A comprehensive toolkit for Critical Path Method (CPM) and PERT a
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "PMHelper Team"},
+    {name = "PMHelper Team", email = "support@pmhelper.dev"},
 ]
-keywords = ["project management", "cpm", "pert", "critical path", "scheduling"]
+maintainers = [
+    {name = "PMHelper Team", email = "support@pmhelper.dev"},
+]
+keywords = [
+    "project management", 
+    "cpm", 
+    "pert", 
+    "critical path", 
+    "scheduling", 
+    "gantt", 
+    "network analysis",
+    "project planning",
+    "resource optimization",
+    "monte carlo"
+]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
+    "Intended Audience :: Other Audience",
+    "Topic :: Office/Business :: Scheduling",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
@@ -23,8 +41,10 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Topic :: Office/Business :: Scheduling",
-    "Topic :: Scientific/Engineering",
+    "Programming Language :: Python :: 3.12",
+    "Environment :: Desktop Environment",
+    "Environment :: Console",
+    "Natural Language :: English",
 ]
 requires-python = ">=3.8"
 dependencies = [
@@ -41,43 +61,168 @@ dependencies = [
 dev = [
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",
-    "pyinstaller>=4.5.0",
+    "black>=21.0.0",
+    "flake8>=3.9.0",
+    "mypy>=0.910",
+    "pre-commit>=2.15.0",
+]
+full = [
+    "plotly>=5.0.0",
+]
+test = [
+    "pytest>=6.2.0",
+    "pytest-cov>=2.12.0",
+    "pytest-mock>=3.6.1",
+    "pytest-benchmark>=3.4.1",
 ]
 
 [project.urls]
 Homepage = "https://github.com/seifouda/PMhelper"
 Repository = "https://github.com/seifouda/PMhelper"
 Documentation = "https://github.com/seifouda/PMhelper/blob/main/README.md"
+Changelog = "https://github.com/seifouda/PMhelper/blob/main/CHANGELOG.md"
+"Bug Reports" = "https://github.com/seifouda/PMhelper/issues"
+"Feature Requests" = "https://github.com/seifouda/PMhelper/issues/new?template=feature_request.md"
 
 [project.scripts]
 pmhelper = "pmhelper.cli.cpm_cli:main"
-pmhelper-cpm = "pmhelper.cli.cpm_cli:main"
+pmhelper-cpm = "pmhelper.cli.cpm_cli:main" 
 pmhelper-pert = "pmhelper.cli.pert_cli:main"
 
 [project.gui-scripts]
 pmhelper-gui = "pmhelper.gui.main_window:main"
 
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["pmhelper*"]
 
 [tool.setuptools.package-dir]
 "" = "src"
 
+[tool.setuptools.package-data]
+pmhelper = [
+    "assets/*.csv",
+    "assets/*.xlsx", 
+    "assets/*.json",
+    "config/*.ini",
+    "config/*.json",
+    "templates/*.csv",
+    "templates/*.json",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*", "*Test"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "--strict-config",
+    "--color=yes",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "gui: marks tests that require GUI components",
+    "network: marks tests that require network access",
+]
+filterwarnings = [
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
 
 [tool.coverage.run]
 source = ["src/pmhelper"]
-omit = ["*/tests/*"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/build/*",
+    "*/dist/*",
+]
 
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",
+    "def __str__",
     "raise AssertionError",
     "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "if 0:",
+    "if False:",
 ]
+show_missing = true
+precision = 2
+fail_under = 80
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | __pycache__
+)/
+'''
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "E501", "W503"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+    ".venv",
+    ".tox",
+]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "matplotlib.*",
+    "networkx.*",
+    "pandas.*",
+    "numpy.*",
+    "scipy.*",
+    "plotly.*",
+    "openpyxl.*",
+    "tabulate.*",
+]
+ignore_missing_imports = true

@@ -1,0 +1,12 @@
+id,activity,duration,predecessors,min_duration,crash_cost,resource_demand
+A,Design Phase,5,,1,300,2
+B,Requirements Analysis,3,,3,500,1
+C,Architecture Design,4,"A, B",5,600,3
+D,Database Design,2,C,4,400,1
+E,Frontend Development,6,C,3,300,4
+F,Backend Development,8,C,5,200,5
+G,Testing,3,D,3,800,2
+H,Deployment,2,"E, F",2,500,1
+I,Documentation,4,"G, H",3,250,2
+J,User Training,3,I,4,250,1
+K,Post-Deployment Review,2,J,1,1000,1

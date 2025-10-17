@@ -180,7 +180,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-from src.pmhelper.core.rcps_analyzer import RCPSAnalyzer
+from pmhelper.core.rcps_analyzer import RCPSAnalyzer
 
 # Import tksheet for advanced table display
 try:
@@ -1142,8 +1142,8 @@ class RCPSTab:
         # Check if we have RCPS table data
         if hasattr(self, 'rcps_table_data') and self.rcps_table_data is not None:
             table = self.rcps_table_data
-            print(f"   📊 RCPS table found: {type(table)} with {len(table)} rows")
-            print(f"   📊 RCPS table columns: {list(table.columns)}")
+            print(f"   [DATA] RCPS table found: {type(table)} with {len(table)} rows")
+            print(f"   [DATA] RCPS table columns: {list(table.columns)}")
             
             # Show all activities in the RCPS table
             print(f"   📋 RCPS table activities:")
@@ -1156,7 +1156,7 @@ class RCPSTab:
             
             return table
         else:
-            print(f"   ❌ No RCPS table data available")
+            print(f"   [ERROR] No RCPS table data available")
             return None
     
     def get_cmp_table_data(self):
@@ -1628,7 +1628,7 @@ class FullscreenComparisonWindow:
         print("=" * 70)
         
         # Debug input parameters
-        print(f"📊 INPUT DATA ANALYSIS:")
+        print(f"[DATA] INPUT DATA ANALYSIS:")
         print(f"   rcps_table type: {type(rcps_table)}")
         print(f"   rcps_table shape: {rcps_table.shape if hasattr(rcps_table, 'shape') else 'N/A'}")
         print(f"   df_gantt type: {type(df_gantt)}")
@@ -1691,21 +1691,21 @@ class FullscreenComparisonWindow:
             
             G.add_node(row_id, **node_attrs)
             nodes_added.append(row_id)
-            print(f"      ✅ ADDED: {row_id} with attributes: {node_attrs}")
+            print(f"      [ADDED] ADDED: {row_id} with attributes: {node_attrs}")
         
-        print(f"\n📈 NODE SUMMARY:")
-        print(f"   ✅ Nodes added: {nodes_added}")
-        print(f"   ⏭️  Nodes skipped: {nodes_skipped}")
-        print(f"   📊 Total nodes in graph: {len(G.nodes())}")
+        print(f"\n[NODE] NODE SUMMARY:")
+        print(f"   [SUCCESS] Nodes added: {nodes_added}")
+        print(f"   [SKIP] Nodes skipped: {nodes_skipped}")
+        print(f"   [DATA] Total nodes in graph: {len(G.nodes())}")
         
         # Rebuild edges from original project dependencies
         edges_added = []
         print(f"\n🔗 EDGE CONSTRUCTION PROCESS:")
         
         if hasattr(analyzer, 'G') and analyzer.G is not None:
-            print(f"   📊 Using analyzer's graph for edges...")
-            print(f"   📊 Original graph has {len(analyzer.G.nodes())} nodes and {len(analyzer.G.edges())} edges")
-            print(f"   📊 Original graph nodes: {list(analyzer.G.nodes())}")
+            print(f"   [DATA] Using analyzer's graph for edges...")
+            print(f"   [DATA] Original graph has {len(analyzer.G.nodes())} nodes and {len(analyzer.G.edges())} edges")
+            print(f"   [DATA] Original graph nodes: {list(analyzer.G.nodes())}")
             
             # Copy edges from original analyzer graph
             for u, v in analyzer.G.edges():
@@ -1717,8 +1717,8 @@ class FullscreenComparisonWindow:
                     print(f"      ⏭️  EDGE SKIPPED: {u} → {v} (missing nodes: u_exists={u in G.nodes()}, v_exists={v in G.nodes()})")
                     
         elif hasattr(analyzer, 'activities') and analyzer.activities:
-            print(f"   📊 Using activities data for edges...")
-            print(f"   📊 Activities count: {len(analyzer.activities)}")
+            print(f"   [DATA] Using activities data for edges...")
+            print(f"   [DATA] Activities count: {len(analyzer.activities)}")
             
             # Build edges from activities data
             for activity in analyzer.activities:
@@ -1737,16 +1737,16 @@ class FullscreenComparisonWindow:
                 else:
                     print(f"      ⏭️  ACTIVITY SKIPPED: {activity_id} (not in graph nodes)")
         else:
-            print(f"   ❌ No edge source available!")
+            print(f"   [ERROR] No edge source available!")
             
-        print(f"\n🔗 EDGE SUMMARY:")
-        print(f"   ✅ Edges added: {edges_added}")
-        print(f"   📊 Total edges in graph: {len(G.edges())}")
+        print(f"\n[EDGE] EDGE SUMMARY:")
+        print(f"   [SUCCESS] Edges added: {edges_added}")
+        print(f"   [DATA] Total edges in graph: {len(G.edges())}")
         
         # Final graph analysis
-        print(f"\n🎯 FINAL GRAPH ANALYSIS:")
-        print(f"   📊 Final nodes: {list(G.nodes())}")
-        print(f"   📊 Final edges: {list(G.edges())}")
+        print(f"\n[ANALYSIS] FINAL GRAPH ANALYSIS:")
+        print(f"   [DATA] Final nodes: {list(G.nodes())}")
+        print(f"   [DATA] Final edges: {list(G.edges())}")
         
         # Specifically look for A and B
         print(f"\n🔍 MISSING ACTIVITIES INVESTIGATION:")
@@ -1771,10 +1771,10 @@ class FullscreenComparisonWindow:
             b_in_rcps_table = 'B' in rcps_table['id'].values if 'id' in rcps_table.columns else False
             print(f"      B in rcps_table: {b_in_rcps_table}")
         
-        print(f"\n✅ [RCPS NETWORK BUILDER] Built RCPS network graph with {len(G.nodes())} nodes and {len(G.edges())} edges")
+        print(f"\n[SUCCESS] [RCPS NETWORK BUILDER] Built RCPS network graph with {len(G.nodes())} nodes and {len(G.edges())} edges")
         
         # Ensure all nodes have required crashing attributes (including cost defaults)
-        print(f"\n🔧 [COST VALIDATION] Ensuring all nodes have proper cost attributes...")
+        print(f"\n[VALIDATE] [COST VALIDATION] Ensuring all nodes have proper cost attributes...")
         self._ensure_crashing_attributes(G)
         
         # Debug: Print cost attributes for verification

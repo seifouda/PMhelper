@@ -163,7 +163,7 @@ class ProjectCrashing:
         
         network_builder = getattr(analyzer, 'network_builder', None)
         if network_builder is None:
-            from src.pmhelper.core.network_builder import NetworkBuilder
+            from pmhelper.core.network_builder import NetworkBuilder
             network_builder = NetworkBuilder()
         G = network_builder.forward_pass(G)
         G = network_builder.backward_pass(G)
@@ -497,7 +497,7 @@ class RCPSProjectCrashing(ProjectCrashing):
         # Initialize network builder for later use when activities are crashed
         network_builder = getattr(analyzer, 'network_builder', None)
         if network_builder is None:
-            from src.pmhelper.core.network_builder import NetworkBuilder
+            from pmhelper.core.network_builder import NetworkBuilder
             network_builder = NetworkBuilder()
         current_duration = original_duration
         current_time = 1
