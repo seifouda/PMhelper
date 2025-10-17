@@ -21,7 +21,7 @@ from .project_crashing_core import (
 )
 from .crashing_tab_gui import CrashingTabGUIManager
 from pmhelper.core.crashing_visualization import draw_network_diagram_on_ax, draw_network_diagram_on_ax_small
-from src.pmhelper.core.rcps_analyzer import RCPSAnalyzer
+from pmhelper.core.rcps_analyzer import RCPSAnalyzer
 
 
 class RCPSCrashingTabGUIManager(CrashingTabGUIManager):

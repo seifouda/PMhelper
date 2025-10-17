@@ -1,9 +1,6 @@
 # PMHelper - Project Management Analysis Tool
 # Core dependencies for CPM/PERT analysis
 
-# GUI Framework
-tkinter  # Usually included with Python
-
 # Data Analysis and Numerical Computing
 numpy>=1.21.0
 pandas>=1.3.0

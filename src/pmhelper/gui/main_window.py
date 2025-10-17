@@ -2271,5 +2271,8 @@ def main():
     root.mainloop()
 
 
+# Export alias for common import patterns
+PMHelperGUI = MainWindow
+
 if __name__ == '__main__':
     main()

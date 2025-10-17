@@ -41,11 +41,11 @@ def check_dependencies():
         test_fig.clear()  # Make sure we can manipulate it
         matplotlib_available = True
         if not is_frozen:
-            print("✓ Matplotlib available")
+            print("[OK] Matplotlib available")
     except (ImportError, RuntimeError, OSError, AttributeError) as e:
         matplotlib_available = False
         if not is_frozen:
-            print(f"✗ Matplotlib import failed: {e}")
+            print(f"[ERROR] Matplotlib import failed: {e}")
         else:
             print(f"Matplotlib error in frozen app: {e}")
     
@@ -60,11 +60,11 @@ def check_dependencies():
         _ = test_norm.pdf(0.5)
         scipy_available = True
         if not is_frozen:
-            print("✓ SciPy/NumPy available")
+            print("[OK] SciPy/NumPy available")
     except (ImportError, RuntimeError, OSError, AttributeError) as e:
         scipy_available = False
         if not is_frozen:
-            print(f"✗ SciPy/NumPy import failed: {e}")
+            print(f"[ERROR] SciPy/NumPy import failed: {e}")
         else:
             print(f"SciPy error in frozen app: {e}")
     

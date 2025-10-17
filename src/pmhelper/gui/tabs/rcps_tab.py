@@ -180,7 +180,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-from src.pmhelper.core.rcps_analyzer import RCPSAnalyzer
+from pmhelper.core.rcps_analyzer import RCPSAnalyzer
 
 # Import tksheet for advanced table display
 try:
