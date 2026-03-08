@@ -1,0 +1,279 @@
+{
+  "version": 1,
+  "evm_project": {
+    "schema_version": 1,
+    "project_name": "Software Development (PG Demo)",
+    "bac": 500000.00,
+    "bac_auto_compute": false,
+    "currency_symbol": "$",
+    "tasks": [
+      {
+        "task_id": "SD1",
+        "name": "Requirements Gathering",
+        "budget": 25000.00,
+        "pct_complete": 100.0,
+        "planned_start": 0,
+        "planned_finish": 1,
+        "actual_start": 0,
+        "actual_finish": 1,
+        "baseline_start": 0,
+        "baseline_finish": 1,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": []
+      },
+      {
+        "task_id": "SD2",
+        "name": "Architecture Design",
+        "budget": 40000.00,
+        "pct_complete": 100.0,
+        "planned_start": 1,
+        "planned_finish": 3,
+        "actual_start": 1,
+        "actual_finish": 2,
+        "baseline_start": 1,
+        "baseline_finish": 3,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": ["SD1"]
+      },
+      {
+        "task_id": "SD3",
+        "name": "Database Design",
+        "budget": 20000.00,
+        "pct_complete": 100.0,
+        "planned_start": 2,
+        "planned_finish": 3,
+        "actual_start": 2,
+        "actual_finish": 3,
+        "baseline_start": 2,
+        "baseline_finish": 3,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": ["SD1"]
+      },
+      {
+        "task_id": "SD4",
+        "name": "Backend Development",
+        "budget": 80000.00,
+        "pct_complete": 100.0,
+        "planned_start": 3,
+        "planned_finish": 7,
+        "actual_start": 3,
+        "actual_finish": 6,
+        "baseline_start": 3,
+        "baseline_finish": 7,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": ["SD2", "SD3"]
+      },
+      {
+        "task_id": "SD5",
+        "name": "Frontend Development",
+        "budget": 70000.00,
+        "pct_complete": 100.0,
+        "planned_start": 3,
+        "planned_finish": 7,
+        "actual_start": 3,
+        "actual_finish": 7,
+        "baseline_start": 3,
+        "baseline_finish": 7,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": ["SD2"]
+      },
+      {
+        "task_id": "SD6",
+        "name": "API Integration",
+        "budget": 35000.00,
+        "pct_complete": 90.0,
+        "planned_start": 6,
+        "planned_finish": 8,
+        "actual_start": 6,
+        "actual_finish": null,
+        "baseline_start": 6,
+        "baseline_finish": 8,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": ["SD4"]
+      },
+      {
+        "task_id": "SD7",
+        "name": "Unit Testing",
+        "budget": 30000.00,
+        "pct_complete": 80.0,
+        "planned_start": 6,
+        "planned_finish": 9,
+        "actual_start": 6,
+        "actual_finish": null,
+        "baseline_start": 6,
+        "baseline_finish": 9,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": ["SD4", "SD5"]
+      },
+      {
+        "task_id": "SD8",
+        "name": "Integration Testing",
+        "budget": 40000.00,
+        "pct_complete": 50.0,
+        "planned_start": 8,
+        "planned_finish": 10,
+        "actual_start": 8,
+        "actual_finish": null,
+        "baseline_start": 8,
+        "baseline_finish": 10,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": ["SD6", "SD7"]
+      },
+      {
+        "task_id": "SD9",
+        "name": "Security Audit",
+        "budget": 25000.00,
+        "pct_complete": 30.0,
+        "planned_start": 9,
+        "planned_finish": 10,
+        "actual_start": 9,
+        "actual_finish": null,
+        "baseline_start": 9,
+        "baseline_finish": 10,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": ["SD8"]
+      },
+      {
+        "task_id": "SD10",
+        "name": "User Acceptance Testing",
+        "budget": 35000.00,
+        "pct_complete": 10.0,
+        "planned_start": 10,
+        "planned_finish": 12,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 10,
+        "baseline_finish": 12,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": ["SD8", "SD9"]
+      },
+      {
+        "task_id": "SD11",
+        "name": "Deployment & DevOps",
+        "budget": 50000.00,
+        "pct_complete": 0.0,
+        "planned_start": 12,
+        "planned_finish": 13,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 12,
+        "baseline_finish": 13,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": ["SD10"]
+      },
+      {
+        "task_id": "SD12",
+        "name": "Documentation & Training",
+        "budget": 50000.00,
+        "pct_complete": 0.0,
+        "planned_start": 12,
+        "planned_finish": 14,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 12,
+        "baseline_finish": 14,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": ["SD10"]
+      }
+    ],
+    "periods": [
+      {"index": 0,  "label": "Sprint 1",  "pv_cumulative": 12500.00,  "ev_cumulative": 13000.00, "ac_cumulative": 11500.00, "ev_source": "manual"},
+      {"index": 1,  "label": "Sprint 2",  "pv_cumulative": 25000.00,  "ev_cumulative": 26000.00, "ac_cumulative": 23000.00, "ev_source": "manual"},
+      {"index": 2,  "label": "Sprint 3",  "pv_cumulative": 55000.00,  "ev_cumulative": 57000.00, "ac_cumulative": 51000.00, "ev_source": "manual"},
+      {"index": 3,  "label": "Sprint 4",  "pv_cumulative": 92500.00,  "ev_cumulative": 95000.00, "ac_cumulative": 85000.00, "ev_source": "manual"},
+      {"index": 4,  "label": "Sprint 5",  "pv_cumulative": 130000.00, "ev_cumulative": 135000.00,"ac_cumulative": 120000.00,"ev_source": "manual"},
+      {"index": 5,  "label": "Sprint 6",  "pv_cumulative": 167500.00, "ev_cumulative": 172000.00,"ac_cumulative": 153000.00,"ev_source": "manual"},
+      {"index": 6,  "label": "Sprint 7",  "pv_cumulative": 220000.00, "ev_cumulative": 225000.00,"ac_cumulative": 200000.00,"ev_source": "manual"},
+      {"index": 7,  "label": "Sprint 8",  "pv_cumulative": 272500.00, "ev_cumulative": 278000.00,"ac_cumulative": 247000.00,"ev_source": "manual"},
+      {"index": 8,  "label": "Sprint 9",  "pv_cumulative": 320000.00, "ev_cumulative": 330000.00,"ac_cumulative": 293000.00,"ev_source": "manual"},
+      {"index": 9,  "label": "Sprint 10", "pv_cumulative": 367500.00, "ev_cumulative": 375000.00,"ac_cumulative": 335000.00,"ev_source": "manual"}
+    ]
+  },
+  "risk_register": {
+    "bac": 500000.00,
+    "high_exposure_threshold_pct": 0.05,
+    "risks": [
+      {
+        "id": "SR1",
+        "name": "Key Developer Attrition",
+        "description": "Senior developer leaves during critical development phase",
+        "probability": 0.2,
+        "impact": 80000.00,
+        "category": "Schedule"
+      },
+      {
+        "id": "SR2",
+        "name": "Scope Creep",
+        "description": "Stakeholders request additional features beyond MVP",
+        "probability": 0.6,
+        "impact": 60000.00,
+        "category": "Scope"
+      },
+      {
+        "id": "SR3",
+        "name": "Third-Party API Changes",
+        "description": "External API vendors release breaking changes",
+        "probability": 0.35,
+        "impact": 25000.00,
+        "category": "Cost"
+      },
+      {
+        "id": "SR4",
+        "name": "Security Vulnerability",
+        "description": "Critical security issue found during audit requiring rework",
+        "probability": 0.25,
+        "impact": 45000.00,
+        "category": "Quality"
+      },
+      {
+        "id": "SR5",
+        "name": "Infrastructure Cost Overrun",
+        "description": "Cloud infrastructure costs exceed budget estimates",
+        "probability": 0.4,
+        "impact": 30000.00,
+        "category": "Cost"
+      },
+      {
+        "id": "SR6",
+        "name": "Performance Issues",
+        "description": "Application fails performance benchmarks requiring optimization",
+        "probability": 0.3,
+        "impact": 35000.00,
+        "category": "Quality"
+      },
+      {
+        "id": "SR7",
+        "name": "Regulatory Compliance",
+        "description": "New data protection regulations require additional features",
+        "probability": 0.15,
+        "impact": 50000.00,
+        "category": "Scope"
+      },
+      {
+        "id": "SR8",
+        "name": "Integration Complexity",
+        "description": "Legacy system integration more complex than estimated",
+        "probability": 0.45,
+        "impact": 40000.00,
+        "category": "Schedule"
+      }
+    ]
+  },
+  "mc_results": null,
+  "app_config": {
+    "mode": "PG",
+    "currency_symbol": "$"
+  }
+}
