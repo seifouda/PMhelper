@@ -270,6 +270,8 @@ class MainWindowEdu:
         self.results_data = None
         self.last_analysis_results = None
         self.current_data = None
+        # Clear CPM Input table
+        self._input_tab_edu.clear_all_without_confirmation()
         self._apply_mode(self.config.mode)
         # Refresh visible tab
         self._refresh_current_tab()
@@ -310,6 +312,12 @@ class MainWindowEdu:
         saved_mode = data.get("app_config", {}).get("mode", self.config.mode)
         self._apply_mode(saved_mode)
 
+        # Re-populate CPM/PERT Input table
+        cpm_activities = data.get("cpm_activities", [])
+        cpm_mode = data.get("cpm_mode", "deterministic")
+        if cpm_activities:
+            self._input_tab_edu.load_activities(cpm_activities, cpm_mode)
+
         # Update config
         self.config.last_project_path = filepath
         self.config.save()
@@ -337,8 +345,11 @@ class MainWindowEdu:
     def _do_save(self, filepath: str):
         """Perform the actual save operation."""
         try:
-            # Store current mode in state for serialisation
+            # Store current mode + CPM activities in state for serialisation
             self.state._mode = self.config.mode
+            self.state._cpm_activities = self._input_tab_edu.get_activities_data()
+            self.state._cpm_mode = getattr(self._input_tab_edu, 'current_mode',
+                                           'deterministic')
             save_full_project(self.state, filepath)
             self.state.current_file_path = filepath
             self.state.mark_clean()
@@ -384,6 +395,12 @@ class MainWindowEdu:
         self.state.mc_results = data["mc_results"]
         self.state.current_file_path = None  # demos are not saved
         self.state.mark_clean()
+
+        # Re-populate CPM/PERT Input table from demo data
+        cpm_activities = data.get("cpm_activities", [])
+        cpm_mode = data.get("cpm_mode", "deterministic")
+        if cpm_activities:
+            self._input_tab_edu.load_activities(cpm_activities, cpm_mode)
 
         target_mode = "UG" if level.lower() == "ug" else "PG"
         self._apply_mode(target_mode)
@@ -557,11 +574,22 @@ class MainWindowEdu:
             except Exception:
                 pass
 
+        # Refresh EVM tab (KPI values may now reflect CPM-synced tasks)
+        try:
+            self._evm_tab.on_tab_selected()
+        except Exception:
+            pass
+
+        # Refresh Dashboard tab
+        try:
+            self._dashboard_tab.on_tab_selected()
+        except Exception:
+            pass
+
         # For PERT mode, update probability tab
         if self.analysis_mode == 'probabilistic':
             try:
-                if hasattr(self, 'probability_tab'):
-                    self.probability_tab.update_analysis(self.results_data)
+                self._probability_tab.on_tab_selected()
             except Exception:
                 pass
 

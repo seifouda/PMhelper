@@ -361,6 +361,30 @@ class InputTabEdu:
         self.populate_tree(sample_data)
         self.mode_label.config(text="Mode: PERT (Probabilistic)")
 
+    def load_activities(self, activities: list, mode: str = 'deterministic'):
+        """Restore a saved activity list into the CPM/PERT treeview.
+
+        Called by main_window after loading a .pmproj file so the Input
+        tab is fully re-populated without the user having to re-enter data.
+
+        Args:
+            activities: list of activity dicts (same format as get_activities_data)
+            mode: 'deterministic' (CPM) or 'probabilistic' (PERT)
+        """
+        if not activities:
+            return
+        if mode == 'probabilistic':
+            if self.current_mode != 'probabilistic':
+                self.setup_probabilistic_tree()
+            self.mode_label.config(text="Mode: PERT (Probabilistic)")
+        else:
+            if self.current_mode != 'deterministic':
+                self.setup_deterministic_tree()
+            self.mode_label.config(text="Mode: CPM (Deterministic)")
+        # Clear existing rows then re-populate
+        self.clear_all_without_confirmation()
+        self.populate_tree(activities)
+
     def get_activities_data(self):
         """Get activities data from the treeview."""
         activities_data = []

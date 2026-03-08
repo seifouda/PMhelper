@@ -49,6 +49,9 @@ def save_full_project(state, filepath: str) -> None:
                 if state.evm_project else "$"
             ),
         },
+        # CPM/PERT activity table — restored on load so user doesn't lose input
+        "cpm_activities": getattr(state, "_cpm_activities", []),
+        "cpm_mode": getattr(state, "_cpm_mode", "deterministic"),
     }
 
     # MC results
@@ -121,6 +124,9 @@ def load_full_project(filepath: str) -> dict:
         "risk_register": risk_register,
         "mc_results": mc_results,
         "app_config": app_config,
+        # CPM/PERT activities table — re-populate Input tab on load
+        "cpm_activities": data.get("cpm_activities", []),
+        "cpm_mode": data.get("cpm_mode", "deterministic"),
     }
 
 
