@@ -1,9 +1,84 @@
 # PMhelper Edu — V1 Implementation Plan
 
-> **Scope:** All 39 V1 features from `FEATURES_LIST_EDU.md`
+> **Scope:** All ~50 V1 features from `FEATURES_LIST_EDU.md`
 > **Approach:** 1 developer + AI agent assistance
-> **Estimated Calendar Time:** ~19 weeks (parallelism in Phases 2+3 recovers ~2 weeks; ~1 week buffer in Phase 4)
+> **Estimated Calendar Time:** ~21 weeks (parallelism in Phases 2+3 recovers ~2 weeks; ~1 week buffer in Phase 4; Phase 8 adds ~2 weeks)
 > **Date:** March 8, 2026
+> **Last Status Update:** March 9, 2026
+
+---
+
+## Current Implementation Status (as of March 9, 2026)
+
+### ✅ COMPLETED (Phases 0–7)
+
+| Phase   | Description                                                                                                                                                                                                                                                                                                    | Status                                     |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| Phase 0 | Scaffolding — `EduProjectState`, `AppConfig`, entry point (`edu_main.py`), test stubs                                                                                                                                                                                                                          | ✅ Done                                    |
+| Phase 1 | EVM Data Model + Input Layer — `EVMTask`, `EVMPeriod`, `EVMProject`, `InputTabEdu`, `evm_io_edu.py`, PV spreading                                                                                                                                                                                              | ✅ Done                                    |
+| Phase 2 | EVM Calculation Engine — `evm_calculations_edu.py`, `EVMTabEdu` (KPI cards, RAG, step-by-step, S-Curve), `test_evm_calculations_edu.py`                                                                                                                                                                        | ✅ Done                                    |
+| Phase 3 | Risk Register & Heat Map — `risk_register_edu.py`, `RiskTabEdu` (register CRUD, 5×5 heat map, contingency integration), `risk_io_edu.py`                                                                                                                                                                       | ✅ Done                                    |
+| Phase 4 | Monte Carlo Engine — `monte_carlo_edu.py` (threaded, progress bar), `ProbabilityTabEdu` (Monte Carlo + PERT Analysis sub-tabs), Tracking Gantt (baseline bars, % complete shading)                                                                                                                              | ✅ Done                                    |
+| Phase 5 | Mode Toggle (UG/PG), Chart Export, Demo Data (.pmproj), Dashboard Tab, Save/Load, Unsaved-Changes Warning, PyInstaller spec                                                                                                                                                                                    | ✅ Done                                    |
+| Phase 6 | Testing & Stabilisation — all test files pass (381 tests)                                                                                                                                                                                                                                                       | ✅ Done                                    |
+| Phase 7 | CPM/PERT Integration — Analyze button, real Results/Network/PERT/Crashing tabs reused, CPM→EVM sync, `.pmproj` CPM activity persistence                                                                                                                                                                        | ✅ Done                                    |
+
+### 🔧 IN PROGRESS — Phase 8: Production Hardening (P1 + P2 fixes)
+
+> **Goal:** Fix all remaining gaps that prevent the app from being production-ready.
+> **Estimated effort:** ~5 working days
+> **Date started:** March 9, 2026
+
+#### Phase 8 — Priority 1 (Must Fix)
+
+These are wiring/refresh gaps. The underlying logic already works in unit tests — the issue is that tabs don't always update on screen when they should.
+
+| #    | Task                                            | Files to Change                          | What to Do                                                                                                                                                                                                                    | Effort  | Status      |
+| ---- | ----------------------------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------- |
+| 8.1  | Analyze → full tab distribution                 | `main_window_edu.py`                     | After `analyze_project()`, call `on_tab_selected()` on EVM tab + Dashboard tab + Probability tab (PERT mode). Already partially done — verify all 4 real tabs + 3 edu tabs receive results.                                   | 0.5 day | ✅ Done     |
+| 8.2  | **New Project → full reset ALL tabs**            | `main_window_edu.py`, tab files          | `_new_project()` must: clear CPM tree ✅, reset EVM task tree + period tree, reset risk register UI, reset Gantt canvas, reset Dashboard, reset analysis state. Currently only clears CPM tree and analysis state.              | 0.5 day | ⬜ Not done |
+| 8.3  | **`.pmproj` load → re-populate CPM Input table** | `project_io_edu.py`, `main_window_edu.py` | Save: persist `cpm_activities` + `cpm_mode` in `.pmproj`. Load: call `InputTabEdu.load_activities()`. Already done.                                                                                                            | —       | ✅ Done     |
+| 8.4  | **`.pmproj` load → refresh ALL edu tabs**        | `main_window_edu.py`                     | After loading project, call `on_tab_selected()` on EVM + Risk + Dashboard + Gantt so they redraw from restored state. Currently only refreshes the currently-visible tab.                                                      | 0.5 day | ⬜ Not done |
+
+#### Phase 8 — Priority 2 (Should Fix)
+
+These are missing functionality or incomplete features that a user would notice immediately.
+
+| #    | Task                                         | Files to Change                                                      | What to Do                                                                                                                                                                                                | Effort | Status      |
+| ---- | -------------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ----------- |
+| 8.5  | **UG/PG mode toggle verification**           | `main_window_edu.py`                                                 | Verify Probability + Resources tabs hide in UG mode, show in PG mode. Fix if broken: `notebook.tab(widget, state="hidden"/"normal")` — must use the correct widget reference (`.frame` vs tab object).    | 0.5 day | ⬜ Not done |
+| 8.6  | **Demo datasets load → produce meaningful KPIs** | `demos_edu/office_renovation_ug.pmproj`, `demos_edu/software_development_pg.pmproj` | Load each demo → Analyze → verify: KPIs are non-zero, S-curve renders, heat map populated. Fix demo data if values produce NaN/zero/trivial KPIs. UG demo should show CPI < 1 (behind schedule). | 1 day  | ⬜ Not done |
+| 8.7  | **Gantt — predecessor arrows + today line**  | `gantt_tab_edu.py`                                                   | Port predecessor arrow drawing from `gantt_tab.py` (line ~300–400). Add "Show Today Line" toggle. Add project start-date entry field. Fix bar height/spacing for > 15 activities.                          | 1 day  | ⬜ Not done |
+| 8.8  | **Probability tab — PERT Analysis sub-tab**  | `probability_tab_edu.py`                                             | Already has `_build_pert_tab()` with stats, probability calculator, distribution/cumulative/sensitivity charts. Verify it works after Analyze in PERT mode. Fix any broken callbacks.                       | 0.5 day | ⬜ Not done |
+| 8.9  | **RCPS tab — resource-constrained scheduling** | `rcps_tab_edu.py`                                                    | Already has `_build_schedule_tab()` with Run RCPS button, comparison Gantt, export. Verify it works after Analyze. Fix any missing `main_window` references.                                               | 0.5 day | ⬜ Not done |
+| 8.10 | **Wire PG-only tabs into main window**       | `main_window_edu.py`                                                 | Add RCPS Crashing, Charter, Charter Manager, DPCI tabs (PG-only, hidden in UG). All source files exist — just add to `_build_tabs()` + `_pg_only_widgets`.                                                | 0.5 day | ⬜ Not done |
+
+#### Phase 8 — Task Dependency Order
+
+```
+8.2 (New Project reset) ──────────────────────────┐
+8.4 (Load → refresh all tabs) ────────────────────┤
+8.5 (UG/PG mode toggle) ─────────────────────────┼──→ 8.6 (Demo data verification)
+8.7 (Gantt arrows + today line) ──────────────────┤
+8.8 (PERT sub-tab) ──────────────────────────────┤
+8.9 (RCPS schedule sub-tab) ─────→ 8.10 (Wire PG tabs) ──→ 8.6 (Demo data)
+```
+
+Tasks 8.2, 8.4, 8.5, 8.7, 8.8, 8.9 are independent and can be done in any order.
+Task 8.10 depends on 8.9 (RCPS must work before wiring RCPS Crashing).
+Task 8.6 (demo verification) should be done last — it's the integration smoke test.
+
+### ❌ DEFERRED — Phase 9: Polish & Packaging
+
+These are "nice to have" items. Not blocking production use but improve the experience.
+
+| #   | Feature                                                                                                                             | Effort    | Priority |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------- | --------- | -------- |
+| 9.1 | Recent files list in File menu                                                                                                      | 0.5 days  | Low      |
+| 9.2 | Step-by-step walkthrough panel visible by default (not collapsed)                                                                    | 0.5 days  | Low      |
+| 9.3 | PyInstaller `--onedir` build actually run and tested                                                                                 | 1 day     | Low      |
+| 9.4 | UI smoke test — all 30 checklist items manually verified                                                                             | 1 day     | Low      |
+| 9.5 | Excel export for KPI table + Risk register                                                                                          | 1 day     | Low      |
 
 ---
 
@@ -50,45 +125,55 @@ src/pmhelper/
 │   ├── edu_state.py             ❌ NEW  ← Phase 0  (EduProjectState + AppConfig)
 │   ├── evm_models.py            ❌ NEW  ← Phase 1  (EVMTask, EVMPeriod, EVMProject)
 │   ├── evm_calculations.py      ❌ NEW  ← Phase 2  (pure KPI functions + RAG)
-│   ├── risk_register.py         ❌ NEW  ← Phase 3  (Risk, RiskRegister)
-│   └── monte_carlo.py           ❌ NEW  ← Phase 4  (MCInputs, MCResults, runner)
+│   ├── risk_register.py         ✅ DONE  ← Phase 3  (risk_register_edu.py)
+│   └── monte_carlo.py           ✅ DONE  ← Phase 4  (monte_carlo_edu.py)
 ├── gui/
-│   ├── main_window.py           ⚠️ extend (add edu_state; add new tabs; add mode toggle)
+│   ├── main_window.py           ✅ DONE  (main_window_edu.py — edu edition; ⚠️ Phase 8: wire charter + RCPS crashing)
 │   └── tabs/
-│       ├── input_tab.py         ⚠️ extend (add EVM panel + period table as new sub-section)
-│       ├── gantt_tab.py         ⚠️ extend (baseline snapshot + % complete overlay)
-│       ├── network_tab.py       ✅ reuse unchanged
-│       ├── evm_tab.py           ❌ NEW  ← Phase 2
-│       ├── risk_tab.py          ⚠️ extend (add Risk Register sub-tab + Heat Map sub-tab)
-│       ├── pert_tab.py          ✅ reuse unchanged
-│       ├── probability_tab.py   ⚠️ extend (add Monte Carlo sub-tab)
-│       ├── crashing_tab.py      ✅ reuse unchanged
-│       ├── rcps_tab.py          ⚠️ extend (add Cost/Resource Histogram sub-tab)
-│       └── dashboard_tab.py     ❌ NEW  ← Phase 5  (project health summary)
+│       ├── input_tab_edu.py     ✅ DONE  (EVM panel + period table + PV spreading)
+│       ├── gantt_tab_edu.py     ⚠️ PARTIAL — baseline + tracking done; ❌ Phase 8.1/8.2: predecessor arrows, today line, project dates, viz fixes
+│       ├── network_tab_edu.py   ✅ DONE  reused with edu wiring
+│       ├── evm_tab_edu.py       ✅ DONE  ← Phase 2
+│       ├── risk_tab_edu.py      ✅ DONE  (register CRUD + 5×5 heat map)
+│       ├── pert_tab_edu.py      ✅ DONE  reused with edu wiring
+│       ├── probability_tab_edu.py ⚠️ PARTIAL — Monte Carlo done; ❌ Phase 8.4: PERT Analysis sub-tab missing
+│       ├── crashing_tab_edu.py  ✅ DONE  reused
+│       ├── rcps_tab_edu.py      ⚠️ PARTIAL — Histograms done; ❌ Phase 8.2: RCPS Schedule sub-tab missing
+│       ├── rcps_crashing_tab.py ⚠️ EXISTS (49 lines, thin wrapper → rcps_crashing_tab_gui.py 1205 lines + project_crashing_core.py 2132 lines) but NOT wired ← Phase 8.3
+│       ├── dashboard_tab_edu.py ✅ DONE  ← Phase 5
+│       ├── charter_tab.py       ⚠️ EXISTS (627 lines) but NOT wired ← Phase 8.5
+│       ├── charter_manager.py   ⚠️ EXISTS (414 lines) but NOT wired ← Phase 8.6
+│       └── dpci_tab.py          ⚠️ EXISTS (400 lines) but NOT wired ← Phase 8.7
 └── utils/
-    ├── evm_io.py                ❌ NEW  ← Phase 1
-    ├── risk_io.py               ❌ NEW  ← Phase 3
-    ├── project_io.py            ❌ NEW  ← Phase 5  (combined .pmproj save/load)
-    └── chart_export.py          ❌ NEW  ← Phase 5  (reusable ExportButton)
+    ├── evm_io_edu.py            ✅ DONE  ← Phase 1
+    ├── risk_io_edu.py           ✅ DONE  ← Phase 3
+    ├── project_io_edu.py        ✅ DONE  ← Phase 5  (combined .pmproj save/load)
+    └── chart_export_edu.py      ✅ DONE  ← Phase 5  (reusable ExportButton)
 ```
 
-**Tab structure inside `MainWindow` after V1:**
+**Tab structure inside `MainWindow` after V1 — current vs target:**
 
 ```
-Input Activities   — extended with EVM data entry panel
-Results            — unchanged
-Network Diagram    — unchanged
-PERT Diagram       — unchanged
-Gantt Chart        — extended with Tracking Gantt mode
-EVM Dashboard      — NEW (Phase 2)
-Risk Analysis      — extended with Register + Heat Map sub-tabs
-Probability        — extended with Monte Carlo sub-tab
-Crashing           — unchanged
-RCPS               — extended with Histogram sub-tab
-RCPS Crashing      — unchanged
-Dashboard          — NEW (Phase 5)
-...existing tabs unchanged...
+Tab Name             Current State                   Phase 8 Target
+─────────────────────────────────────────────────────────────────────
+Input Activities   ✅ done                           no change
+Results            ✅ done                           no change
+Network Diagram    ✅ done                           no change
+PERT Diagram       ✅ done                           no change
+Gantt Chart        ⚠️ partial (no arrows/today/date) 8.1: add arrows, today line, start date, viz fixes
+EVM Dashboard      ✅ done                           no change
+Risk Analysis      ✅ done                           no change
+Probability        ⚠️ partial (MC only)              8.4: add PERT Analysis sub-tab
+Crashing           ✅ done                           no change
+Resources (RCPS)   ⚠️ partial (histograms only)      8.2: add RCPS Schedule sub-tab
+RCPS Crashing      ❌ missing                        8.3: wire existing tab (PG-only)
+Dashboard          ✅ done                           no change
+Project Charter    ❌ not wired                      8.5: wire CharterTab (PG-only)
+Charter Manager    ❌ not wired                      8.6: wire CharterManager (PG-only)
+DPCI Assessment    ❌ not wired                      8.7: wire DPCITab (PG-only)
 ```
+
+> **⚠ Tab overflow risk:** With Charter, Charter Manager, DPCI, and RCPS Crashing added, the notebook will have **15 tabs**. On small screens (< 1366px), tab headers may overflow. Mitigation: use short tab labels (≤ 12 chars) and test on 1366×768. If overflow is a problem, consider grouping related tabs (e.g. "Charter" as sub-tabs of a single "Project Governance" tab) — defer to V1.1 unless testing reveals a real usability issue.
 
 ---
 
@@ -1058,6 +1143,378 @@ All tests must be written by the developer (with AI assistance), not post-hoc. W
 
 ---
 
+## Phase 8 — Remaining V1 Features (Added March 9, 2026; Revised March 10, 2026)
+
+**Status:** ❌ Not started  
+**Depends on:** Phases 0–7 (all complete)  
+**Estimated effort:** ~10 working days (~2 calendar weeks)  
+**All source code exists on the current branch.** No cherry-picking from `feat--sel-risk-da-co` is required — git diff confirms the relevant files are already identical or present.
+
+These items complete the gap between the working app and the full V1 feature set. They are grouped into 7 independent workstreams that can be tackled in any order.
+
+### Critique Log (March 10, 2026)
+
+Issues found and corrected in this revision:
+
+1. **`RCPSAnalyzer` has no `schedule()` method.** The original plan said "call `analyzer.schedule()`" but `RCPSAnalyzer`'s public API is: `forward_pass`, `backward_pass`, `calculate_float`, `get_critical_path`, `validate_resource_constraints`. Actual scheduling is done by the CPM/PERT analyzer's `build_cpm_schedule_table()` and `rcps_heuristic_schedule_table()` methods, which are called from `rcps_tab.py:run_rcps()`. Fixed in 8.2.
+2. **`rcps_tab_clean.py` line count was wrong.** Plan said "1 745 lines" — that's `rcps_tab.py`. `rcps_tab_clean.py` is 414 lines on both branches (git diff is empty). The reference implementation for the RCPS Schedule sub-tab is `rcps_tab.py` (1 791 lines). Fixed in 8.2.
+3. **RCPS Crashing files already exist on current branch.** Plan said "create `rcps_crashing_tab_edu.py`" and port from `feat--sel-risk-da-co`, but `rcps_crashing_tab.py` (49 lines), `rcps_crashing_tab_gui.py` (1 205 lines), and `project_crashing_core.py` (2 132 lines) all exist and import successfully. The task is **wiring**, not creation. Fixed in 8.3.
+4. **DPCI tab was completely missing.** `dpci_tab.py` (400 lines) + `dpci_model.py` + `dpci_service.py` + `dpci_pdf_generator.py` exist on the current branch but were never in the plan. Added as 8.7.
+5. **Feature count wrong.** Plan header said "39 V1 features" but `FEATURES_LIST_EDU.md` has ~50 V1 references. Fixed to "~50".
+6. **`ProbabilityTabEdu` constructor is `(parent, state)`, not `(parent, state, main_window)`.** Plan 8.4 assumed a `self._main_window` reference that doesn't exist. Constructor must be updated to accept `main_window` or use `state` for analysis results. Fixed in 8.4.
+7. **`CharterTab` calls `self.main_window.charter_manager.refresh()`.** Plan 8.5 didn't mention that `main_window_edu.py` must expose `self.charter_manager` as a public attribute (not just `self._charter_manager`). Fixed in 8.5.
+8. **Missing help method stubs.** `MainWindowEdu` has `show_network_tab_help`, `show_results_tab_help`, `show_gantt_tab_help`, `show_crashing_tab_help` but NOT `show_probability_tab_help` or `show_charter_tab_help`. Stubs must be added. Noted in 8.4 and 8.5.
+9. **Phase 8 had no effort estimates.** All other phases had duration estimates. Added per sub-task and in the status table.
+10. **Gantt 8.1 and 8.2 were separate items in the status table but one section in the body.** Merged into a single item 8.1 throughout.
+11. **Work Order referenced wrong sub-task numbers.** Fixed to use consistent numbering: 8.1 (Gantt), 8.2 (RCPS Schedule), 8.3 (RCPS Crashing wire), 8.4 (PERT Probability), 8.5 (Charter wire), 8.6 (Charter Manager wire), 8.7 (DPCI wire).
+
+---
+
+### 8.1 — Gantt Chart: Predecessor Arrows, Project Start Date, Today Line & Viz Fixes (~2 days)
+
+**File to edit:** `src/pmhelper/gui/tabs/gantt_tab_edu.py` (322 lines)  
+**Reference implementation:** `src/pmhelper/gui/tabs/gantt_tab.py` (951 lines, already on current branch — verified by import)
+
+**What to add:**
+
+1. **"Show Predecessor Arrows" checkbox** (`BooleanVar`, default `True`)
+   - Draw annotated arrows from the EF of each predecessor to the ES of its successor on the CPM Gantt.
+   - Use `ax.annotate()` with `arrowprops=dict(arrowstyle='->', color='#555')` pointing from `(EF_pred, y_pred)` to `(ES_succ, y_succ)`.
+   - Predecessors come from `results_data['activities'][i]['predecessors']` (list of predecessor IDs).
+   - Wire checkbox command to `self._draw_gantt()`.
+
+2. **"Show Today Line" checkbox** (`BooleanVar`, default `False`)
+   - Compute offset: `(datetime.today() - project_start_date).days` (1 period = 1 day default).
+   - Draw `ax.axvline(x=today_offset, color='red', linestyle='--', linewidth=1.5, label='Today')`.
+   - Wire checkbox command to `self._draw_gantt()`.
+
+3. **"Project Start Date" entry** (`StringVar`, default = today as `YYYY-MM-DD`)
+   - `ttk.LabelFrame("Project Dates")` with label + entry + update button.
+   - Parse with `datetime.strptime(val, "%Y-%m-%d")`; store as `self._project_start: datetime`.
+   - Convert CPM period units to dates: `start_date + timedelta(days=period_value)`.
+
+4. **Chart visualisation fixes:**
+   - `self._fig.subplots_adjust(left=0.25)` or `tight_layout(pad=1.2)` — prevent y-axis label clipping.
+   - Grid lines: `ax.set_axisbelow(True); ax.xaxis.grid(True, linestyle='--', alpha=0.4)`.
+   - Truncate y-axis labels at 25 characters.
+   - Thin horizontal rules: `ax.hlines(y - 0.5, xmin, xmax, colors='#eee', linewidth=0.5)`.
+   - Background: white figure, `#fafafa` axes face.
+
+**Acceptance test:**  
+Load any CPM project → Gantt renders without clipping → enable predecessor arrows → arrows appear → enable today line → red dashed line appears → change project start date → x-axis date labels update.
+
+---
+
+### 8.2 — RCPS Tab: Full Resource-Constrained Scheduling Sub-Tab (~3 days)
+
+**File to edit:** `src/pmhelper/gui/tabs/rcps_tab_edu.py` (132 lines)  
+**Reference implementation:** `src/pmhelper/gui/tabs/rcps_tab.py` (1 791 lines, already on current branch)  
+**Core algorithm:** `src/pmhelper/core/rcps_analyzer.py` (215 lines, already on current branch)
+
+**Current state:** `RCPSTabEdu.__init__(parent, state)` — has only a "Histograms" sub-tab. No `main_window` reference.
+
+**Constructor change required:** Add `main_window=None` parameter:
+
+```python
+def __init__(self, parent, state, main_window=None):
+    self._main_window = main_window
+```
+
+Also update `main_window_edu.py` call site to pass `main_window=self`.
+
+**What to add — new "RCPS Schedule" sub-tab** (insert as the first sub-tab, before "Histograms"):
+
+1. **Control panel (top strip):**
+   - `ttk.Label("Resource Limit:") + ttk.Spinbox(width=5)` — integer, default 5
+   - `ttk.Label("Priority Rule:") + ttk.Combobox` — values: `['minimum_slack', 'shortest_duration', 'earliest_start']`
+   - `ttk.Button("Run RCPS")` → `self._run_rcps()`
+
+2. **`_run_rcps()` method — CORRECTED API:**
+   - **Do NOT call `RCPSAnalyzer.schedule()` — that method does not exist.**
+   - Instead, follow the pattern in `rcps_tab.py:run_rcps()` (line 399):
+     1. Get the active analyzer from `self._main_window` (CPM or PERT analyzer depending on mode).
+     2. Get the dataframe via `self._main_window.current_data`.
+     3. Call `analyzer.build_cpm_schedule_table(df, resource_limit)` → CPM table.
+     4. Call `analyzer.rcps_heuristic_schedule_table(df, resource_limit, priority_rule=rule)` → RCPS table.
+     5. Build a NetworkX graph from the RCPS table and create `RCPSAnalyzer(G, resource_limit, analyzer)` for downstream use.
+   - Guard: if `self._main_window.last_analysis_results is None`, show `messagebox.showwarning("No CPM data", "Run CPM analysis first.")` and return.
+   - Catch exceptions → `messagebox.showerror()`.
+
+3. **Results display (two panes):**
+   - **Left — Comparison table** (`ttk.Treeview`):
+     Columns: Task | CPM Start | CPM Finish | RCPS Start | RCPS Finish | Delay.
+     Colour-coded rows: green (no delay), amber (delay ≤ 2), red (delay > 2).
+     Footer: `"CPM duration: X  |  RCPS duration: Y  |  Total delay: Z"`
+   - **Right — Comparison Gantt** (`FigureCanvasTkAgg`):
+     Two ribbons per task: CPM bar (blue) and RCPS bar (orange).
+     Export PNG/PDF buttons.
+
+4. **`update_from_analysis(results_data, analysis_mode)` public method** — cache latest results for the Run RCPS button.
+
+**Acceptance test:**  
+Load CPM project → run CPM analysis → Resources tab → "RCPS Schedule" sub-tab → set resource limit → Run RCPS → comparison table + Gantt render → "Histograms" sub-tab still accessible.
+
+---
+
+### 8.3 — RCPS Crashing Tab: Wire Existing Code Into Edu Main Window (~1 day)
+
+**Files already on current branch (verified — all import successfully):**
+
+- `src/pmhelper/gui/tabs/rcps_crashing_tab.py` — 49 lines, thin wrapper, `RCPSCrashingTab(ttk.Frame)`, constructor: `(master, main_window)`
+- `src/pmhelper/gui/tabs/rcps_crashing_tab_gui.py` — 1 205 lines, `RCPSCrashingTabGUIManager`
+- `src/pmhelper/gui/tabs/project_crashing_core.py` — 2 132 lines, `RCPSProjectCrashing` + helpers
+
+**There is NO need to create an `rcps_crashing_tab_edu.py` wrapper.** The existing `RCPSCrashingTab` already extends `ttk.Frame` and takes `(master, main_window)` — compatible with `notebook.add()`.
+
+**What to do in `main_window_edu.py`:**
+
+1. Import:
+
+   ```python
+   from pmhelper.gui.tabs.rcps_crashing_tab import RCPSCrashingTab
+   ```
+
+2. In `_build_tabs()`, after the Resources tab:
+
+   ```python
+   # 11. RCPS Crashing (PG-only) — wire existing tab
+   self._rcps_crashing_tab = RCPSCrashingTab(self.notebook, main_window=self)
+   self.notebook.add(self._rcps_crashing_tab, text="RCPS Crashing")
+   ```
+
+3. Wire the bidirectional link after both tabs exist:
+
+   ```python
+   self._rcps_crashing_tab.set_rcps_tab_reference(self._rcps_tab)
+   ```
+
+   **Note:** `set_rcps_tab_reference()` calls `self.rcps_tab.set_rcps_crashing_tab(self)` internally — but `RCPSTabEdu` currently lacks a `set_rcps_crashing_tab()` method. Add a stub:
+
+   ```python
+   # In RCPSTabEdu:
+   def set_rcps_crashing_tab(self, tab):
+       self._rcps_crashing_tab = tab
+   ```
+
+   Also add `get_rcps_analyzer()`, `get_resource_limit()`, `get_rcps_table_data()` methods to `RCPSTabEdu` matching the interface `RCPSCrashingTab` expects from its RCPS tab reference.
+
+4. Add to `self._all_tabs_ordered` and `self.tabs["rcps_crashing"]`.
+
+5. Add `self._rcps_crashing_tab` to `self._pg_only_widgets` — PG-only.
+
+**Acceptance test:**  
+App launches → PG mode → "RCPS Crashing" tab visible → run RCPS first → switch to RCPS Crashing → select activity → crash step table renders → crashing cost curve renders → UG mode → tab hidden.
+
+---
+
+### 8.4 — Probability Tab: PERT Analysis Sub-Tab (~2 days)
+
+**File to edit:** `src/pmhelper/gui/tabs/probability_tab_edu.py` (247 lines)  
+**Reference implementation:** `src/pmhelper/gui/tabs/probability_tab.py` (1 055 lines, on current branch)  
+**Core dependency:** `pmhelper.utils.calculations.ProbabilityCalculations` (on current branch)
+
+**Current state:** `ProbabilityTabEdu.__init__(parent, state)` — only Monte Carlo sub-tab.
+
+**Constructor change required:** Add `main_window=None` parameter:
+
+```python
+def __init__(self, parent, state, main_window=None):
+    self._main_window = main_window
+```
+
+Update `main_window_edu.py` call site to pass `main_window=self`.
+
+**Missing help stub:** Add to `MainWindowEdu`:
+
+```python
+def show_probability_tab_help(self):
+    from tkinter import messagebox
+    messagebox.showinfo("Probability Help",
+        "PERT Analysis: View project duration statistics and calculate completion probabilities.\n"
+        "Monte Carlo: Run N-trial simulations for duration and cost distributions.")
+```
+
+**What to add — new "PERT Analysis" sub-tab** (insert as first sub-tab, before "Monte Carlo"):
+
+Guard: only meaningful after PERT analysis. Check `self._main_window.last_analysis_results` and `self._main_window.analysis_mode == 'probabilistic'`. If unavailable, show placeholder: `"Run PERT analysis to populate this tab."`.
+
+Layout (horizontal `ttk.PanedWindow`):
+
+**Left pane — Controls & Statistics:**
+
+1. **Project Duration Statistics** (`ttk.LabelFrame`): Expected Duration, Variance, Std Dev, 95% CI — from `ProbabilityCalculations.calculate_project_statistics(results_data)`.
+
+2. **Completion Probability Calculator** (`ttk.LabelFrame`):
+   - Target Duration → Calculate Probability
+   - Target Percentage → Calculate Duration
+   - Results labels + Clear button
+
+3. **Common Scenarios** (`ttk.LabelFrame`): `Expected`, `+1σ`, `-1σ`, `+2σ`, `-2σ` quick-fill buttons.
+
+4. **Risk Analysis** (`ttk.LabelFrame`): Risk level + high-risk activities list from `ProbabilityCalculations.identify_high_risk_activities()`.
+
+5. **Export buttons**: Export Analysis (JSON), Generate Report (text).
+
+**Right pane — Chart:**
+
+1. Chart type selector: `distribution` | `cumulative` | `sensitivity`
+2. `FigureCanvasTkAgg` with `figsize=(8, 5)`
+3. Export PNG/PDF buttons
+
+**`update_from_analysis(results_data, analysis_mode)` public method** — auto-populate statistics on PERT mode; show info label on CPM mode.
+
+**Acceptance test:**  
+PERT project → run PERT → Probability tab → "PERT Analysis" is first → stats populated → enter target duration → correct probability → all 3 chart types render → Monte Carlo sub-tab still works.
+
+---
+
+### 8.5 — Project Charter & Manager: Wire Into Edu Main Window (~1 day, PG-only)
+
+**All files exist and import cleanly (verified):**
+
+- `charter_tab.py` (627 lines) — `CharterTab(ttk.Frame)`, constructor: `(parent, main_window)`
+- `charter_manager.py` (414 lines) — `CharterManager(ttk.Frame)`, constructor: `(parent, on_open_callback=None, on_duplicate_callback=None)`
+- `charter_form.py`, models, services, dialogs — all present
+
+**What to do in `main_window_edu.py`:**
+
+1. Import:
+
+   ```python
+   from pmhelper.gui.tabs.charter_tab import CharterTab
+   from pmhelper.gui.tabs.charter_manager import CharterManager
+   ```
+
+2. In `_build_tabs()`:
+
+   ```python
+   # 12. Project Charter (PG-only)
+   self._charter_tab = CharterTab(self.notebook, main_window=self)
+   self.notebook.add(self._charter_tab, text="Charter")
+
+   # 13. Charter Manager (PG-only)
+   self.charter_manager = CharterManager(   # ← PUBLIC attribute, NOT self._charter_manager
+       self.notebook,
+       on_open_callback=self._charter_tab.open_charter_file,
+       on_duplicate_callback=self._charter_tab.duplicate_charter_file,
+   )
+   self.notebook.add(self.charter_manager, text="Charter Mgr")
+   ```
+
+   **Critical:** `CharterTab._refresh_charter_manager()` accesses `self.main_window.charter_manager.refresh()` via `hasattr`. The attribute **must** be `self.charter_manager` (public), not `self._charter_manager`.
+
+3. Add both to `self._all_tabs_ordered` and `self.tabs`.
+
+4. Add both to `self._pg_only_widgets` — PG-only.
+
+5. **Add help stub** to `MainWindowEdu`:
+   ```python
+   def show_charter_tab_help(self):
+       from tkinter import messagebox
+       messagebox.showinfo("Project Charter Help",
+           "Create, edit, and manage project charters.\n"
+           "Use templates for quick starts. Export to PDF.")
+   ```
+
+**Acceptance test:**  
+PG mode → "Charter" and "Charter Mgr" tabs visible → create charter from template → fill fields → save → Charter Mgr shows entry → UG mode → both tabs hidden.
+
+---
+
+### 8.6 — (Merged into 8.5 — Charter Manager is wired together with Charter Tab)
+
+_(Charter Manager wiring is included in 8.5 above since the two tabs share callbacks and must be created together.)_
+
+---
+
+### 8.7 — DPCI Assessment Tab: Wire Into Edu Main Window (~0.5 days, PG-only)
+
+**Files already on current branch (verified):**
+
+- `src/pmhelper/gui/tabs/dpci_tab.py` (400 lines) — `DPCITab(ttk.Frame)`, constructor: `(parent)` — takes only `parent`, no `state` or `main_window`
+- `src/pmhelper/gui/models/dpci_model.py` — `DPCIAssessment`, `DPCICalculator`, `RiskLevel`
+- `src/pmhelper/gui/services/dpci_service.py` — `DPCIService`
+- `src/pmhelper/gui/utils/dpci_pdf_generator.py` — `DPCIPDFGenerator`
+
+**What to do in `main_window_edu.py`:**
+
+1. Import:
+
+   ```python
+   from pmhelper.gui.tabs.dpci_tab import DPCITab
+   ```
+
+2. In `_build_tabs()`:
+
+   ```python
+   # 14. DPCI Assessment (PG-only)
+   self._dpci_tab = DPCITab(self.notebook)
+   self.notebook.add(self._dpci_tab, text="DPCI")
+   ```
+
+3. Add to `self._all_tabs_ordered` and `self.tabs["dpci"]`.
+
+4. Add `self._dpci_tab` to `self._pg_only_widgets` — PG-only.
+
+**Acceptance test:**  
+PG mode → "DPCI" tab visible → create new assessment → fill categories → calculate index → result renders → UG mode → tab hidden.
+
+---
+
+### Phase 8 — Work Order & Dependencies
+
+All sub-tasks are **independent** and can be done in any order. Suggested sequence for lowest risk:
+
+```
+8.5  (Charter + Manager wire-up)       ← simplest; code already exists, just wire + expose attribute (0.5–1 day)
+8.7  (DPCI wire-up)                    ← trivial; DPCITab takes only parent (0.5 day)
+8.3  (RCPS Crashing wire-up)           ← wire existing tab + add compat stubs on RCPSTabEdu (1 day)
+8.1  (Gantt arrows, today, dates, viz) ← self-contained, port from gantt_tab.py (2 days)
+8.4  (PERT Probability sub-tab)        ← most new code; port from probability_tab.py (2 days)
+8.2  (RCPS Schedule sub-tab)           ← most complex; follow rcps_tab.py:run_rcps() pattern (3 days)
+```
+
+### Phase 8 — Cross-Cutting Concerns
+
+These items affect multiple sub-tasks and must be addressed during implementation:
+
+1. **`_PG_ONLY_TABS` constant** (line 27 of `main_window_edu.py`): Currently `{"probability", "rcps"}`. Must be updated to include `"rcps_crashing"`, `"charter"`, `"charter_manager"`, `"dpci"`.
+
+2. **`_all_tabs_ordered` list** must match the notebook tab indices exactly after adding 4 new tabs. The index-based `_on_tab_changed()` logic depends on this being correct.
+
+3. **Help method stubs**: `MainWindowEdu` must have stubs for `show_probability_tab_help()` and `show_charter_tab_help()` — called by the respective tab modules.
+
+4. **Tab overflow on small screens**: With 15 tabs, test on 1366×768 resolution. If tab headers overflow, shorten labels: "Resources" → "RCPS", "Charter Manager" → "Charter Mgr", "RCPS Crashing" → "RCPS Crash".
+
+5. **341 existing tests must remain green** after all Phase 8 changes. Run `pytest` after each sub-task.
+
+### Phase 8 — Acceptance Checklist
+
+- [ ] 8.1: Gantt renders predecessor arrows when checkbox is on
+- [ ] 8.1: Today line appears as a dashed red vertical line
+- [ ] 8.1: Project start date entry changes x-axis date labels
+- [ ] 8.1: Task names never clipped on y-axis; grid lines visible
+- [ ] 8.2: "RCPS Schedule" sub-tab present in Resources tab
+- [ ] 8.2: Run RCPS shows comparison table (CPM vs RCPS) and Gantt
+- [ ] 8.2: RCPS uses `analyzer.rcps_heuristic_schedule_table()`, NOT `RCPSAnalyzer.schedule()`
+- [ ] 8.3: "RCPS Crashing" tab visible in PG mode, hidden in UG mode
+- [ ] 8.3: Crashing cost curve renders for a simple network
+- [ ] 8.3: `RCPSTabEdu` exposes `get_rcps_analyzer()`, `get_resource_limit()`, `get_rcps_table_data()`
+- [ ] 8.4: "PERT Analysis" sub-tab is the first sub-tab in Probability tab
+- [ ] 8.4: Statistics labels populate after PERT analysis run
+- [ ] 8.4: "Calculate Probability" gives correct value for a known PERT network
+- [ ] 8.4: Distribution / Cumulative / Sensitivity charts all render
+- [ ] 8.4: `show_probability_tab_help()` stub exists on `MainWindowEdu`
+- [ ] 8.5: "Charter" and "Charter Mgr" tabs visible in PG mode, hidden in UG mode
+- [ ] 8.5: Charter can be created, saved, and listed in Charter Manager
+- [ ] 8.5: `self.charter_manager` is a public attribute on `MainWindowEdu`
+- [ ] 8.5: `show_charter_tab_help()` stub exists on `MainWindowEdu`
+- [ ] 8.7: "DPCI" tab visible in PG mode, hidden in UG mode
+- [ ] 8.7: DPCI assessment can be created and calculated
+- [ ] `pytest` passes with 0 regressions (341+ tests) after all Phase 8 items
+
+---
+
 ## Timeline Summary
 
 ```
@@ -1068,16 +1525,18 @@ Week 4–6     │ Phase 3: Risk Register + Heat Map  ← parallel with Phase 2
 Week 7.5–13  │ Phase 4: Monte Carlo (threaded), Tracking Gantt, Histograms (5 wks incl. buffer)
 Week 13–16   │ Phase 5: Mode Toggle, Export, Demo Data, Dashboard, Save/Load, Packaging (3 wks)
 Week 16–19   │ Phase 6: Testing & Stabilization (3 wks)
+Week 19–21   │ Phase 8: Remaining V1 Features (~2 wks — see sub-task estimates)
 ─────────────────────────────────────────────────────────────────────────
-TOTAL        │ ~19 calendar weeks  (~22 weeks of actual work;
+TOTAL        │ ~21 calendar weeks  (~24 weeks of actual work;
              │  Phase 2 ∥ Phase 3 recovers ~2 weeks;
-             │  ~1 week buffer distributed in Phases 4–6)
+             │  ~1 week buffer distributed in Phases 4–6;
+             │  Phase 8 parallel sub-tasks recover ~0.5 weeks)
 ```
 
 ### Critical Path
 
 ```
-Phase 0 → Phase 1 → Phase 2 ──────────────────────────→ Phase 5 → Phase 6
+Phase 0 → Phase 1 → Phase 2 ──────────────────────────→ Phase 5 → Phase 6 → Phase 8
                    ↘                                   ↗
                     Phase 3 → (feeds Phase 4 MC cost) ↗
                               ↑
@@ -1086,13 +1545,15 @@ Phase 0 → Phase 1 → Phase 2 ────────────────
 
 **Phase 1 is the irreducible blocker.** The `EVMTask` date fields (`planned_start`, `planned_finish`, `baseline_start`, `baseline_finish`) must be in place before Phase 4.3 (Tracking Gantt) can begin, even though Phase 4 officially starts after Phase 2.
 
+**Phase 8 is parallelisable.** All 7 sub-tasks are independent. With 2 parallel workstreams, ~10 working days compress to ~1.5 calendar weeks.
+
 ---
 
 ## Definition of Done (V1 Release)
 
-- [ ] All 39 V1 features listed in `FEATURES_LIST_EDU.md` are reachable and functional in the running app
+- [ ] All ~50 V1 features listed in `FEATURES_LIST_EDU.md` are reachable and functional in the running app
 - [ ] `DECISIONS.md` has answers to all 7 decisions from the Key Decisions Log
-- [ ] `pytest` passes with 0 failures across all test files
+- [ ] `pytest` passes with 0 failures across all test files (341+ tests)
 - [ ] All 6.3 edge cases produce graceful UI messages — no unhandled exceptions
 - [ ] All 6.4 smoke-test checklist items are checked
 - [ ] UG demo loads and produces: `CPI < 1`, `SPI < 1`, 2 flagged risks (verified by integration test)
@@ -1108,3 +1569,7 @@ Phase 0 → Phase 1 → Phase 2 ────────────────
 - [ ] Unsaved-changes dialog shown on close when project is dirty
 - [ ] Dashboard tab renders correctly in both UG and PG modes
 - [ ] No known data-loss bugs identified during Phase 6 integration testing
+- [ ] Phase 8 Acceptance Checklist (22 items) — all checked
+- [ ] All PG-only tabs (Probability, Resources, RCPS Crashing, Charter, Charter Mgr, DPCI) hidden in UG mode
+- [ ] `_PG_ONLY_TABS` and `_pg_only_widgets` updated for all new tabs
+- [ ] `_all_tabs_ordered` matches notebook tab indices exactly (15 tabs total)
