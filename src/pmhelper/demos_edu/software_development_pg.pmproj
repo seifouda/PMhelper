@@ -275,5 +275,20 @@
   "app_config": {
     "mode": "PG",
     "currency_symbol": "$"
-  }
+  },
+  "cpm_activities": [
+    {"id": "SD1",  "activity": "Requirements Gathering",  "optimistic": "1", "most_likely": "1",  "pessimistic": "2",  "predecessors": "",          "min_duration": "", "crash_cost": "", "resource_demand": "2", "normal_cost": "25000"},
+    {"id": "SD2",  "activity": "Architecture Design",     "optimistic": "1", "most_likely": "2",  "pessimistic": "4",  "predecessors": "SD1",       "min_duration": "", "crash_cost": "", "resource_demand": "3", "normal_cost": "40000"},
+    {"id": "SD3",  "activity": "Database Design",         "optimistic": "1", "most_likely": "1",  "pessimistic": "2",  "predecessors": "SD1",       "min_duration": "", "crash_cost": "", "resource_demand": "2", "normal_cost": "20000"},
+    {"id": "SD4",  "activity": "Backend Development",     "optimistic": "3", "most_likely": "4",  "pessimistic": "7",  "predecessors": "SD2,SD3",   "min_duration": "", "crash_cost": "", "resource_demand": "5", "normal_cost": "80000"},
+    {"id": "SD5",  "activity": "Frontend Development",    "optimistic": "3", "most_likely": "4",  "pessimistic": "6",  "predecessors": "SD2",       "min_duration": "", "crash_cost": "", "resource_demand": "4", "normal_cost": "70000"},
+    {"id": "SD6",  "activity": "API Integration",         "optimistic": "1", "most_likely": "2",  "pessimistic": "4",  "predecessors": "SD4",       "min_duration": "", "crash_cost": "", "resource_demand": "3", "normal_cost": "35000"},
+    {"id": "SD7",  "activity": "Unit Testing",            "optimistic": "2", "most_likely": "3",  "pessimistic": "5",  "predecessors": "SD4,SD5",   "min_duration": "", "crash_cost": "", "resource_demand": "4", "normal_cost": "30000"},
+    {"id": "SD8",  "activity": "Integration Testing",     "optimistic": "1", "most_likely": "2",  "pessimistic": "4",  "predecessors": "SD6,SD7",   "min_duration": "", "crash_cost": "", "resource_demand": "3", "normal_cost": "40000"},
+    {"id": "SD9",  "activity": "Security Audit",          "optimistic": "1", "most_likely": "1",  "pessimistic": "2",  "predecessors": "SD8",       "min_duration": "", "crash_cost": "", "resource_demand": "2", "normal_cost": "25000"},
+    {"id": "SD10", "activity": "User Acceptance Testing",  "optimistic": "1", "most_likely": "2",  "pessimistic": "3",  "predecessors": "SD8,SD9",   "min_duration": "", "crash_cost": "", "resource_demand": "3", "normal_cost": "35000"},
+    {"id": "SD11", "activity": "Deployment & DevOps",      "optimistic": "1", "most_likely": "1",  "pessimistic": "2",  "predecessors": "SD10",      "min_duration": "", "crash_cost": "", "resource_demand": "3", "normal_cost": "50000"},
+    {"id": "SD12", "activity": "Documentation & Training", "optimistic": "1", "most_likely": "2",  "pessimistic": "3",  "predecessors": "SD10",      "min_duration": "", "crash_cost": "", "resource_demand": "2", "normal_cost": "50000"}
+  ],
+  "cpm_mode": "probabilistic"
 }

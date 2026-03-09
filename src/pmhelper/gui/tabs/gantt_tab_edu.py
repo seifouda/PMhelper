@@ -1,14 +1,17 @@
 """PMhelper Edu — Gantt Chart Tab with Tracking Gantt.
 Baseline bars, % complete shading, status colouring.
+Predecessor arrows, today-line, project start date, enhanced visuals.
 """
 
 import tkinter as tk
 from tkinter import ttk, messagebox
+from datetime import datetime, timedelta
 
 try:
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
     import matplotlib.patches as mpatches
+    import matplotlib.dates as mdates
     HAS_MATPLOTLIB = True
 except ImportError:
     HAS_MATPLOTLIB = False
@@ -42,11 +45,14 @@ def _evm_to_gantt_coords(evm_task, cpm_results=None):
 class GanttTabEdu:
     """Gantt Chart with Tracking Gantt mode."""
 
-    def __init__(self, parent, state):
+    def __init__(self, parent, state, main_window=None):
         self.parent = parent
         self.state = state
+        self.main_window = main_window
         self.frame = ttk.Frame(parent)
         self._tracking_mode = tk.BooleanVar(value=False)
+        self._show_arrows = tk.BooleanVar(value=True)
+        self._show_today = tk.BooleanVar(value=False)
         self._results_data = None
         self._analysis_mode = None
 
@@ -56,21 +62,37 @@ class GanttTabEdu:
                 expand=True)
             return
 
-        # Toolbar
+        # Toolbar row 1: existing buttons
         toolbar = ttk.Frame(self.frame)
-        toolbar.pack(fill=tk.X, padx=5, pady=(5, 2))
+        toolbar.pack(fill=tk.X, padx=5, pady=(5, 0))
         self._baseline_btn = ttk.Button(toolbar, text="Set Baseline",
                                         command=self._toggle_baseline)
         self._baseline_btn.pack(side=tk.LEFT, padx=2)
         ttk.Checkbutton(toolbar, text="Tracking Gantt",
                         variable=self._tracking_mode,
                         command=self._draw_gantt).pack(side=tk.LEFT, padx=8)
+        ttk.Checkbutton(toolbar, text="Arrows",
+                        variable=self._show_arrows,
+                        command=self._draw_gantt).pack(side=tk.LEFT, padx=4)
+        ttk.Checkbutton(toolbar, text="Today Line",
+                        variable=self._show_today,
+                        command=self._draw_gantt).pack(side=tk.LEFT, padx=4)
         ttk.Button(toolbar, text="Refresh", command=self._draw_gantt).pack(
             side=tk.LEFT, padx=2)
         ttk.Button(toolbar, text="Export PNG",
                    command=lambda: self._export("png")).pack(side=tk.LEFT, padx=2)
         ttk.Button(toolbar, text="Export PDF",
                    command=lambda: self._export("pdf")).pack(side=tk.LEFT, padx=2)
+
+        # Toolbar row 2: project start date
+        toolbar2 = ttk.Frame(self.frame)
+        toolbar2.pack(fill=tk.X, padx=5, pady=(2, 2))
+        ttk.Label(toolbar2, text="Project Start:").pack(side=tk.LEFT, padx=(0, 4))
+        self._start_date_var = tk.StringVar(value="")
+        self._start_date_entry = ttk.Entry(toolbar2, textvariable=self._start_date_var, width=12)
+        self._start_date_entry.pack(side=tk.LEFT, padx=(0, 4))
+        ttk.Label(toolbar2, text="(YYYY-MM-DD)", foreground="grey").pack(side=tk.LEFT, padx=(0, 8))
+        ttk.Button(toolbar2, text="Apply Dates", command=self._draw_gantt).pack(side=tk.LEFT, padx=2)
 
         # Chart
         self._fig = Figure(figsize=(8, 5), dpi=100)
@@ -128,7 +150,7 @@ class GanttTabEdu:
             # Fall back to EVM task data
             self._draw_evm_gantt(ax, tracking)
 
-        self._fig.tight_layout()
+        self._fig.subplots_adjust(left=0.22, right=0.96, top=0.92, bottom=0.12)
         self._canvas.draw()
 
     def _draw_cpm_gantt(self, ax, tracking):
@@ -144,8 +166,13 @@ class GanttTabEdu:
         critical_activities = self._results_data.get(
             'critical_activities', [])
 
+        # Build name→y-index map for arrows
+        id_to_y = {}
+        id_to_ef = {}
+
         for i, act in enumerate(activities):
             y = len(activities) - 1 - i
+            act_id = act.get('id', '')
             es = float(act.get('ES', 0))
             ef = float(act.get('EF', 0))
             lf = float(act.get('LF', 0))
@@ -153,6 +180,9 @@ class GanttTabEdu:
             if duration <= 0:
                 duration = 0.5
             is_critical = act.get('critical', False)
+
+            id_to_y[act_id] = y
+            id_to_ef[act_id] = ef
 
             # Main bar (critical=red, normal=steelblue)
             colour = '#e74c3c' if is_critical else '#3498db'
@@ -167,9 +197,15 @@ class GanttTabEdu:
                         color='#bdc3c7', edgecolor='white',
                         linewidth=0.5, alpha=0.5, zorder=1)
 
+            # Duration label inside bar
+            if duration >= 1.5:
+                ax.text(es + duration / 2, y, f"{duration:.0f}",
+                        ha='center', va='center', fontsize=7,
+                        color='white', fontweight='bold', zorder=4)
+
             # Tracking overlay: match CPM activity to EVM task
             if tracking:
-                evm_task = self._find_evm_task(act.get('id'))
+                evm_task = self._find_evm_task(act_id)
                 if evm_task and evm_task.pct_complete > 0:
                     progress_dur = duration * evm_task.pct_complete / 100.0
                     ax.barh(y, progress_dur, left=es,
@@ -177,8 +213,45 @@ class GanttTabEdu:
                             color=_COLOURS["progress"],
                             edgecolor='none', zorder=3, alpha=0.7)
 
+        # Predecessor arrows
+        if self._show_arrows.get():
+            self._draw_predecessor_arrows(ax, activities, id_to_y, id_to_ef, bar_height)
+
+        # Today line
+        if self._show_today.get():
+            project_duration = self._results_data.get('project_duration', 0)
+            if project_duration > 0:
+                # Use EVM current period as "today", fallback to 40% of project
+                current_period = 0
+                if self.state.evm_project and self.state.evm_project.periods:
+                    current_period = len(self.state.evm_project.periods)
+                if current_period <= 0:
+                    current_period = project_duration * 0.4
+                ax.axvline(current_period, color='#9b59b6', linewidth=2,
+                           linestyle='-.', zorder=5, alpha=0.8)
+                ax.text(current_period, len(activities) - 0.3,
+                        f" Today (t={current_period})",
+                        fontsize=7, color='#9b59b6', va='bottom')
+
+        # Horizontal grid lines
+        ax.set_axisbelow(True)
+        ax.xaxis.grid(True, linestyle='--', alpha=0.3)
+        for y_pos in range(len(activities)):
+            ax.axhline(y=y_pos, color='#ecf0f1', linewidth=0.5, zorder=0)
+
+        # Alternating row background
+        for i in range(len(activities)):
+            if i % 2 == 0:
+                ax.axhspan(i - 0.5, i + 0.5, color='#f8f9fa', zorder=0, alpha=0.5)
+
         # Labels and formatting
-        task_names = [a.get('name', a.get('id', '')) for a in activities]
+        task_names = []
+        for a in activities:
+            name = a.get('name', a.get('id', ''))
+            # Truncate long names
+            if len(str(name)) > 20:
+                name = str(name)[:18] + '…'
+            task_names.append(name)
         y_ticks = list(range(len(activities) - 1, -1, -1))
         ax.set_yticks(y_ticks)
         ax.set_yticklabels(task_names, fontsize=8)
@@ -198,7 +271,35 @@ class GanttTabEdu:
             patches.append(
                 mpatches.Patch(color=_COLOURS["progress"],
                                alpha=0.7, label='Progress'))
+        if self._show_today.get():
+            import matplotlib.lines as mlines
+            patches.append(mlines.Line2D([], [], color='#9b59b6',
+                                          linestyle='-.', label='Today'))
         ax.legend(handles=patches, loc='lower right', fontsize=7)
+
+    def _draw_predecessor_arrows(self, ax, activities, id_to_y, id_to_ef, bar_height):
+        """Draw dependency arrows from predecessor EF to successor ES."""
+        for act in activities:
+            act_id = act.get('id', '')
+            es = float(act.get('ES', 0))
+            preds_str = act.get('predecessors', '')
+            if not preds_str or act_id not in id_to_y:
+                continue
+            # Parse predecessors (comma-separated)
+            preds = [p.strip() for p in str(preds_str).split(',') if p.strip()]
+            y_succ = id_to_y[act_id]
+            for pred_id in preds:
+                if pred_id in id_to_y and pred_id in id_to_ef:
+                    y_pred = id_to_y[pred_id]
+                    x_pred_ef = id_to_ef[pred_id]
+                    ax.annotate(
+                        '', xy=(es, y_succ),
+                        xytext=(x_pred_ef, y_pred),
+                        arrowprops=dict(
+                            arrowstyle='->', color='#7f8c8d',
+                            connectionstyle='arc3,rad=0.15',
+                            linewidth=1.0, alpha=0.6),
+                        zorder=1)
 
     def _draw_evm_gantt(self, ax, tracking):
         """Draw Gantt chart from EVM task data (no CPM results)."""

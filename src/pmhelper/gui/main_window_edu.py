@@ -24,7 +24,7 @@ except ImportError:
 
 
 # PG-only tabs — hidden in UG mode
-_PG_ONLY_TABS = {"probability", "rcps"}
+_PG_ONLY_TABS = {"probability", "rcps", "rcps_crashing", "charter", "charter_mgr", "dpci"}
 
 # File extension for project files
 _PROJ_EXT = ".pmproj"
@@ -114,6 +114,10 @@ class MainWindowEdu:
         from pmhelper.gui.tabs.network_tab import NetworkTab
         from pmhelper.gui.tabs.pert_diagram_tab import PertDiagramTab
         from pmhelper.gui.tabs.crashing_tab import CrashingTab
+        from pmhelper.gui.tabs.rcps_crashing_tab import RCPSCrashingTab
+        from pmhelper.gui.tabs.charter_tab import CharterTab
+        from pmhelper.gui.tabs.charter_manager import CharterManager
+        from pmhelper.gui.tabs.dpci_tab import DPCITab
 
         # ----------------------------------------------------------
         # Create tabs in display order.
@@ -137,7 +141,8 @@ class MainWindowEdu:
         self.pert_diagram_tab = PertDiagramTab(self.notebook, self)
 
         # 5. Gantt Chart (edu, enhanced with CPM rendering) — manually add
-        self._gantt_tab_edu = GanttTabEdu(self.notebook, self.state)
+        self._gantt_tab_edu = GanttTabEdu(self.notebook, self.state,
+                                          main_window=self)
         self.gantt_tab = self._gantt_tab_edu
         self.notebook.add(self._gantt_tab_edu.frame, text="Gantt Chart")
 
@@ -150,7 +155,8 @@ class MainWindowEdu:
         self.notebook.add(self._risk_tab.frame, text="Risk Analysis")
 
         # 8. Probability / Monte Carlo (edu, PG-only) — manually add
-        self._probability_tab = ProbabilityTabEdu(self.notebook, self.state)
+        self._probability_tab = ProbabilityTabEdu(self.notebook, self.state,
+                                                   main_window=self)
         self.notebook.add(self._probability_tab.frame, text="Probability")
 
         # 9. Crashing (real) — ttk.Frame, add externally
@@ -158,43 +164,78 @@ class MainWindowEdu:
         self.notebook.add(self.crashing_tab, text="Crashing")
 
         # 10. Resources / Cost Histograms (edu, PG-only) — manually add
-        self._rcps_tab = RCPSTabEdu(self.notebook, self.state)
+        self._rcps_tab = RCPSTabEdu(self.notebook, self.state, main_window=self)
         self.notebook.add(self._rcps_tab.frame, text="Resources")
 
-        # 11. Dashboard (edu) — manually add
+        # 11. RCPS Crashing (real, PG-only) — ttk.Frame, add externally
+        self._rcps_crashing_tab = RCPSCrashingTab(self.notebook, self)
+        self.notebook.add(self._rcps_crashing_tab, text="RCPS Crash")
+
+        # 12. Dashboard (edu) — manually add
         self._dashboard_tab = DashboardTabEdu(self.notebook, self.state)
         self.notebook.add(self._dashboard_tab.frame, text="Dashboard")
 
+        # 13. Charter (real, PG-only) — ttk.Frame, add externally
+        self._charter_tab = CharterTab(self.notebook, self)
+        self.notebook.add(self._charter_tab, text="Charter")
+
+        # 14. Charter Manager (real, PG-only) — ttk.Frame, add externally
+        self.charter_manager = CharterManager(
+            self.notebook,
+            on_open_callback=self._charter_tab.load_charter_from_file,
+            on_duplicate_callback=self._charter_tab.load_charter_from_file,
+        )
+        self.notebook.add(self.charter_manager, text="Charter Mgr")
+
+        # 15. DPCI Assessment (real, PG-only) — ttk.Frame, add externally
+        self._dpci_tab = DPCITab(self.notebook)
+        self.notebook.add(self._dpci_tab, text="DPCI")
+
+        # Wire RCPS Crashing ↔ RCPS bidirectional link
+        self._rcps_crashing_tab.set_rcps_tab_reference(self._rcps_tab)
+
         # Ordered list of ALL tab objects (matches notebook tab indices)
         self._all_tabs_ordered = [
-            self._input_tab_edu,    # 0  Input Activities
-            self.results_tab,       # 1  Results
-            self.network_tab,       # 2  Network Diagram
-            self.pert_diagram_tab,  # 3  PERT Diagram
-            self._gantt_tab_edu,    # 4  Gantt Chart
-            self._evm_tab,          # 5  EVM Dashboard
-            self._risk_tab,         # 6  Risk Analysis
-            self._probability_tab,  # 7  Probability
-            self.crashing_tab,      # 8  Crashing
-            self._rcps_tab,         # 9  Resources
-            self._dashboard_tab,    # 10 Dashboard
+            self._input_tab_edu,      # 0  Input Activities
+            self.results_tab,         # 1  Results
+            self.network_tab,         # 2  Network Diagram
+            self.pert_diagram_tab,    # 3  PERT Diagram
+            self._gantt_tab_edu,      # 4  Gantt Chart
+            self._evm_tab,            # 5  EVM Dashboard
+            self._risk_tab,           # 6  Risk Analysis
+            self._probability_tab,    # 7  Probability
+            self.crashing_tab,        # 8  Crashing
+            self._rcps_tab,           # 9  Resources
+            self._rcps_crashing_tab,  # 10 RCPS Crash
+            self._dashboard_tab,      # 11 Dashboard
+            self._charter_tab,        # 12 Charter
+            self.charter_manager,     # 13 Charter Mgr
+            self._dpci_tab,           # 14 DPCI
         ]
 
         # Edu tabs dict for set_mode / on_tab_selected / get_figures
         self.tabs = {
-            "input":       self._input_tab_edu,
-            "gantt":       self._gantt_tab_edu,
-            "evm":         self._evm_tab,
-            "risk":        self._risk_tab,
-            "probability": self._probability_tab,
-            "rcps":        self._rcps_tab,
-            "dashboard":   self._dashboard_tab,
+            "input":          self._input_tab_edu,
+            "gantt":          self._gantt_tab_edu,
+            "evm":            self._evm_tab,
+            "risk":           self._risk_tab,
+            "probability":    self._probability_tab,
+            "rcps":           self._rcps_tab,
+            "rcps_crashing":  self._rcps_crashing_tab,
+            "dashboard":      self._dashboard_tab,
+            "charter":        self._charter_tab,
+            "charter_mgr":    self.charter_manager,
+            "dpci":           self._dpci_tab,
         }
 
         # PG-only tab widget references for show/hide
         self._pg_only_widgets = [
             self._probability_tab.frame,   # Probability
             self._rcps_tab.frame,          # Resources
+            self._rcps_crashing_tab,        # RCPS Crash
+            self._charter_tab,             # Charter
+            self.charter_manager,          # Charter Mgr
+            self._dpci_tab,                # DPCI
         ]
 
         # Auto-recalculate on tab switch
@@ -272,9 +313,12 @@ class MainWindowEdu:
         self.current_data = None
         # Clear CPM Input table
         self._input_tab_edu.clear_all_without_confirmation()
+        # Clear Gantt analysis data so it shows empty state
+        if hasattr(self._gantt_tab_edu, '_results_data'):
+            self._gantt_tab_edu._results_data = None
         self._apply_mode(self.config.mode)
-        # Refresh visible tab
-        self._refresh_current_tab()
+        # Refresh ALL edu tabs so every panel resets
+        self._refresh_all_edu_tabs()
 
     def _open_project(self):
         """Open a .pmproj file."""
@@ -322,7 +366,7 @@ class MainWindowEdu:
         self.config.last_project_path = filepath
         self.config.save()
 
-        self._refresh_current_tab()
+        self._refresh_all_edu_tabs()
 
     def _save_project(self):
         """Save project to current path, or prompt for a path."""
@@ -404,7 +448,7 @@ class MainWindowEdu:
 
         target_mode = "UG" if level.lower() == "ug" else "PG"
         self._apply_mode(target_mode)
-        self._refresh_current_tab()
+        self._refresh_all_edu_tabs()
 
     def _export_all_charts(self):
         """Export all chart figures from all tabs."""
@@ -420,6 +464,15 @@ class MainWindowEdu:
                     tab.on_tab_selected()
         except Exception:
             pass
+
+    def _refresh_all_edu_tabs(self):
+        """Refresh every edu tab so loaded/reset data is reflected."""
+        for tab in self.tabs.values():
+            try:
+                if hasattr(tab, "on_tab_selected"):
+                    tab.on_tab_selected()
+            except Exception:
+                pass
 
     # ================================================================
     #  CPM / PERT Analysis
@@ -589,7 +642,11 @@ class MainWindowEdu:
         # For PERT mode, update probability tab
         if self.analysis_mode == 'probabilistic':
             try:
-                self._probability_tab.on_tab_selected()
+                if hasattr(self._probability_tab, 'update_from_analysis'):
+                    self._probability_tab.update_from_analysis(
+                        self.results_data, self.analysis_mode)
+                else:
+                    self._probability_tab.on_tab_selected()
             except Exception:
                 pass
 
@@ -674,3 +731,25 @@ class MainWindowEdu:
             "project duration by allocating additional resources.\n\n"
             "Run CPM analysis first, then use this tab to "
             "crash activities.")
+
+    def show_probability_tab_help(self):
+        """Help dialog for Probability tab."""
+        messagebox.showinfo(
+            "Probability Help",
+            "The Probability tab provides:\n\n"
+            "\u2022 PERT Analysis — completion probability, risk metrics, "
+            "distribution / cumulative / sensitivity charts\n"
+            "\u2022 Monte Carlo — simulation-based duration & cost "
+            "distributions with P50/P80/P90 lines")
+
+    def show_charter_tab_help(self):
+        """Help dialog for Charter tab."""
+        messagebox.showinfo(
+            "Charter Help",
+            "The Charter tab lets you create, edit, and export "
+            "project charters.\n\n"
+            "\u2022 Use templates for quick start\n"
+            "\u2022 Fill in scope, objectives, stakeholders, etc.\n"
+            "\u2022 Export to PDF\n\n"
+            "The Charter Manager lists saved charters for "
+            "quick access.")

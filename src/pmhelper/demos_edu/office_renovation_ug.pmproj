@@ -188,5 +188,16 @@
   "app_config": {
     "mode": "UG",
     "currency_symbol": "$"
-  }
+  },
+  "cpm_activities": [
+    {"id": "T1", "activity": "Demolition",              "duration": "1",  "predecessors": "",       "min_duration": "", "crash_cost": "", "resource_demand": "3", "normal_cost": "8000"},
+    {"id": "T2", "activity": "Electrical Wiring",       "duration": "2",  "predecessors": "T1",     "min_duration": "", "crash_cost": "", "resource_demand": "4", "normal_cost": "18000"},
+    {"id": "T3", "activity": "Plumbing",                "duration": "2",  "predecessors": "T1",     "min_duration": "", "crash_cost": "", "resource_demand": "3", "normal_cost": "15000"},
+    {"id": "T4", "activity": "Drywall & Framing",       "duration": "2",  "predecessors": "T2,T3",  "min_duration": "", "crash_cost": "", "resource_demand": "5", "normal_cost": "20000"},
+    {"id": "T5", "activity": "Painting",                "duration": "2",  "predecessors": "T4",     "min_duration": "", "crash_cost": "", "resource_demand": "4", "normal_cost": "12000"},
+    {"id": "T6", "activity": "Flooring",                "duration": "3",  "predecessors": "T4",     "min_duration": "", "crash_cost": "", "resource_demand": "4", "normal_cost": "22000"},
+    {"id": "T7", "activity": "Fixtures & Fittings",     "duration": "1",  "predecessors": "T5,T6",  "min_duration": "", "crash_cost": "", "resource_demand": "3", "normal_cost": "15000"},
+    {"id": "T8", "activity": "Final Inspection & Cleanup","duration": "1","predecessors": "T7",     "min_duration": "", "crash_cost": "", "resource_demand": "2", "normal_cost": "10000"}
+  ],
+  "cpm_mode": "deterministic"
 }
