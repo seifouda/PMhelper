@@ -81,6 +81,10 @@ class EduProjectState:
         self.evm_project: Any = None        # Set in Phase 1 (EVMProject)
         self.risk_register: Any = None      # Set in Phase 3 (RiskRegister)
         self.mc_results: Any = None         # Set in Phase 4 (MCResults)
+        self.swot_analysis: Any = None      # Set in Phase 9A (SWOTAnalysis)
+        self.pestel_analysis: Any = None    # Set in Phase 9B (PESTELAnalysis)
+        self.wbs_tree: Any = None           # Set in Phase 9C (WBSTree)
+        self.charter_data: Optional[dict] = None  # Charter tab data for SWOT extraction
         self.current_file_path: Optional[str] = None
         self._dirty: bool = False
         self._callbacks: List[Callable] = []
@@ -107,5 +111,9 @@ class EduProjectState:
         self.evm_project = None
         self.risk_register = None
         self.mc_results = None
+        self.swot_analysis = None
+        self.pestel_analysis = None
+        self.wbs_tree = None
+        self.charter_data = None
         self.current_file_path = None
         self._dirty = False

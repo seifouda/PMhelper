@@ -24,7 +24,8 @@ except ImportError:
 
 
 # PG-only tabs — hidden in UG mode
-_PG_ONLY_TABS = {"probability", "rcps", "rcps_crashing", "charter", "charter_mgr", "dpci"}
+_PG_ONLY_TABS = {"probability", "rcps", "rcps_crashing", "charter", "charter_mgr", "dpci",
+                  "swot", "pestel", "wbs"}
 
 # File extension for project files
 _PROJ_EXT = ".pmproj"
@@ -118,6 +119,9 @@ class MainWindowEdu:
         from pmhelper.gui.tabs.charter_tab import CharterTab
         from pmhelper.gui.tabs.charter_manager import CharterManager
         from pmhelper.gui.tabs.dpci_tab import DPCITab
+        from pmhelper.gui.tabs.swot_tab_edu import SWOTTabEdu
+        from pmhelper.gui.tabs.pestel_tab_edu import PESTELTabEdu
+        from pmhelper.gui.tabs.wbs_tab_edu import WBSTabEdu
 
         # ----------------------------------------------------------
         # Create tabs in display order.
@@ -191,6 +195,18 @@ class MainWindowEdu:
         self._dpci_tab = DPCITab(self.notebook)
         self.notebook.add(self._dpci_tab, text="DPCI")
 
+        # 16. SWOT Analysis (edu, PG-only) — manually add
+        self._swot_tab = SWOTTabEdu(self.notebook, self.state)
+        self.notebook.add(self._swot_tab.frame, text="SWOT")
+
+        # 17. PESTEL Analysis (edu, PG-only) — manually add
+        self._pestel_tab = PESTELTabEdu(self.notebook, self.state)
+        self.notebook.add(self._pestel_tab.frame, text="PESTEL")
+
+        # 18. WBS Diagram (edu, PG-only) — manually add
+        self._wbs_tab = WBSTabEdu(self.notebook, self.state)
+        self.notebook.add(self._wbs_tab.frame, text="WBS")
+
         # Wire RCPS Crashing ↔ RCPS bidirectional link
         self._rcps_crashing_tab.set_rcps_tab_reference(self._rcps_tab)
 
@@ -211,6 +227,9 @@ class MainWindowEdu:
             self._charter_tab,        # 12 Charter
             self.charter_manager,     # 13 Charter Mgr
             self._dpci_tab,           # 14 DPCI
+            self._swot_tab,           # 15 SWOT
+            self._pestel_tab,         # 16 PESTEL
+            self._wbs_tab,            # 17 WBS
         ]
 
         # Edu tabs dict for set_mode / on_tab_selected / get_figures
@@ -226,6 +245,9 @@ class MainWindowEdu:
             "charter":        self._charter_tab,
             "charter_mgr":    self.charter_manager,
             "dpci":           self._dpci_tab,
+            "swot":           self._swot_tab,
+            "pestel":         self._pestel_tab,
+            "wbs":            self._wbs_tab,
         }
 
         # PG-only tab widget references for show/hide
@@ -236,6 +258,9 @@ class MainWindowEdu:
             self._charter_tab,             # Charter
             self.charter_manager,          # Charter Mgr
             self._dpci_tab,                # DPCI
+            self._swot_tab.frame,          # SWOT
+            self._pestel_tab.frame,        # PESTEL
+            self._wbs_tab.frame,           # WBS
         ]
 
         # Auto-recalculate on tab switch
@@ -349,6 +374,9 @@ class MainWindowEdu:
         self.state.evm_project = data["evm_project"] or make_empty_project()[0]
         self.state.risk_register = data["risk_register"]
         self.state.mc_results = data["mc_results"]
+        self.state.swot_analysis = data.get("swot_analysis")
+        self.state.pestel_analysis = data.get("pestel_analysis")
+        self.state.wbs_tree = data.get("wbs_tree")
         self.state.current_file_path = filepath
         self.state.mark_clean()
 
@@ -437,6 +465,9 @@ class MainWindowEdu:
         self.state.evm_project = data["evm_project"] or make_empty_project()[0]
         self.state.risk_register = data["risk_register"]
         self.state.mc_results = data["mc_results"]
+        self.state.swot_analysis = data.get("swot_analysis")
+        self.state.pestel_analysis = data.get("pestel_analysis")
+        self.state.wbs_tree = data.get("wbs_tree")
         self.state.current_file_path = None  # demos are not saved
         self.state.mark_clean()
 
@@ -593,7 +624,8 @@ class MainWindowEdu:
                     'late_finish': act['LF'],
                     'float': act['float'],
                     'duration': act['duration'],
-                    'resource_demand': act.get('resource', 0),
+                    'resource': act.get('resource', 0),
+                    'predecessors': act.get('predecessors', ''),
                     'critical': act['critical'],
                 })
             self.current_data = pd.DataFrame(rows)

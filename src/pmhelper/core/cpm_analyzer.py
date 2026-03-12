@@ -185,8 +185,8 @@ class CPMAnalyzer:
         current_time = 0
         resource_usage = {}
         unscheduled = set(tasks.index)
-        pred_map = {tid: [p for p in str(tasks.at[tid, 'predecessors']).split(
-            ',') if p and p != 'nan'] for tid in tasks.index}
+        pred_map = {tid: [p.strip() for p in str(tasks.at[tid, 'predecessors']).split(
+            ',') if p.strip() and p.strip() != 'nan'] for tid in tasks.index}
 
         # Scheduling loop
         while unscheduled:

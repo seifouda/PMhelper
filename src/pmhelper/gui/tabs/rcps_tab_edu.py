@@ -144,9 +144,9 @@ class RCPSTabEdu:
         self._resource_limit = resource_limit
 
         # Validate resource limit
-        if 'resource_demand' in df.columns:
+        if 'resource' in df.columns:
             try:
-                max_res = pd.to_numeric(df['resource_demand'], errors='coerce').max()
+                max_res = pd.to_numeric(df['resource'], errors='coerce').max()
                 if max_res is not None and resource_limit < max_res:
                     messagebox.showwarning(
                         "Resource Limit",

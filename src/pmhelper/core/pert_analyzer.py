@@ -104,8 +104,8 @@ class PERTAnalyzer:
         current_time = 0
         resource_usage = {}
         unscheduled = set(tasks.index)
-        pred_map = {tid: [p for p in str(tasks.at[tid, 'predecessors']).split(
-            ',') if p and p != 'nan'] for tid in tasks.index}
+        pred_map = {tid: [p.strip() for p in str(tasks.at[tid, 'predecessors']).split(
+            ',') if p.strip() and p.strip() != 'nan'] for tid in tasks.index}
         # Scheduling loop
         while unscheduled:
             # Find ready tasks
@@ -578,3 +578,181 @@ class PERTAnalyzer:
                 })
 
         return critical_activities_info
+    
+    def get_risk_analysis_input(self) -> dict:
+        """
+        Prepare data for risk analysis modules.
+        
+        Returns structured PERT results suitable for DelayRiskAnalyzer,
+        ContingencyPlanner, VarianceReductionAnalyzer, and ActivityRiskPrioritizer.
+        
+        Returns:
+            Dict with:
+                - expected_duration: Project expected completion time
+                - variance: Project variance
+                - std_deviation: Project standard deviation
+                - critical_path: List of critical path activity IDs
+                - activities: Dict of activity data with full details
+                - network: NetworkX graph (optional)
+        """
+        if not self.G:
+            raise ValueError("No analysis results available. Run analyze() first.")
+        
+        # Get project statistics
+        stats = self.get_project_statistics()
+        if not stats:
+            raise ValueError("Unable to retrieve project statistics")
+        
+        # Build activities dictionary with detailed information
+        activities_dict = {}
+        for node_id in self.G.nodes():
+            if node_id not in ['START', 'END']:
+                node_data = self.G.nodes[node_id]
+                activities_dict[node_id] = {
+                    'id': node_id,
+                    'activity': node_data.get('activity', ''),
+                    'expected_time': node_data.get('expected_time', 0),
+                    'expected_duration': node_data.get('expected_time', 0),
+                    'variance': node_data.get('variance', 0),
+                    'optimistic': node_data.get('optimistic', 0),
+                    'most_likely': node_data.get('most_likely', 0),
+                    'pessimistic': node_data.get('pessimistic', 0),
+                    'early_start': node_data.get('ES', 0),
+                    'early_finish': node_data.get('EF', 0),
+                    'late_start': node_data.get('LS', 0),
+                    'late_finish': node_data.get('LF', 0),
+                    'float': node_data.get('TF', 0),
+                    'total_float': node_data.get('TF', 0),
+                    'normal_cost': node_data.get('normal_cost', 0),
+                    'cost': node_data.get('normal_cost', 0),
+                    'crash_cost': node_data.get('crash_cost', 0),
+                    'resource_demand': node_data.get('resource_demand', 0),
+                    'min_duration': node_data.get('min_duration', 1)
+                }
+        
+        return {
+            'expected_duration': stats['expected_duration'],
+            'variance': stats['variance'],
+            'std_deviation': stats['std_deviation'],
+            'critical_path': stats['critical_path'],
+            'activities': activities_dict,
+            'network': self.G
+        }
+    
+    def analyze_delay_risk(
+        self,
+        contract_time: float,
+        penalty_rate: float,
+        max_penalty_percent: float = 0.20,
+        contract_value: float = None
+    ) -> dict:
+        """
+        Convenience method for delay risk analysis.
+        
+        Args:
+            contract_time: Contracted completion deadline
+            penalty_rate: Penalty cost per time unit of delay
+            max_penalty_percent: Maximum penalty as fraction of contract (default 20%)
+            contract_value: Contract value for penalty cap (optional)
+        
+        Returns:
+            Risk analysis results from DelayRiskAnalyzer
+        """
+        from .risk_analysis import DelayRiskAnalyzer
+        
+        risk_input = self.get_risk_analysis_input()
+        analyzer = DelayRiskAnalyzer(risk_input)
+        return analyzer.calculate_risk_cost(
+            contract_time,
+            penalty_rate,
+            max_penalty_percent,
+            contract_value
+        )
+    
+    def estimate_contingency(
+        self,
+        confidence_level: float = 0.95,
+        daily_cost_rate: float = None
+    ) -> dict:
+        """
+        Convenience method for contingency planning.
+        
+        Args:
+            confidence_level: Desired probability of completion (0.5 to 0.999)
+            daily_cost_rate: Cost per time unit (optional)
+        
+        Returns:
+            Contingency planning results from ContingencyPlanner
+        """
+        from .risk_analysis import ContingencyPlanner
+        
+        risk_input = self.get_risk_analysis_input()
+        planner = ContingencyPlanner(risk_input)
+        return planner.calculate_contingency(confidence_level, daily_cost_rate)
+    
+    def analyze_variance_reduction_strategies(
+        self,
+        contract_time: float,
+        penalty_rate: float,
+        time_reduction_cost: float,
+        variance_reduction_cost: float,
+        max_budget: float = None
+    ) -> dict:
+        """
+        Convenience method for variance reduction strategy analysis.
+        
+        Args:
+            contract_time: Contract deadline
+            penalty_rate: Penalty per time unit
+            time_reduction_cost: Cost per unit time reduction
+            variance_reduction_cost: Cost per unit variance reduction
+            max_budget: Maximum budget for improvements (optional)
+        
+        Returns:
+            Strategy comparison results from VarianceReductionAnalyzer
+        """
+        from .risk_analysis import VarianceReductionAnalyzer
+        
+        risk_input = self.get_risk_analysis_input()
+        analyzer = VarianceReductionAnalyzer(risk_input)
+        return analyzer.analyze_strategies(
+            contract_time,
+            penalty_rate,
+            time_reduction_cost,
+            variance_reduction_cost,
+            max_budget
+        )
+    
+    def prioritize_activity_risks(self) -> pd.DataFrame:
+        """
+        Convenience method for activity risk prioritization.
+        
+        Returns:
+            DataFrame with activity risk scores and recommendations
+        """
+        from .risk_analysis import ActivityRiskPrioritizer
+        
+        risk_input = self.get_risk_analysis_input()
+        prioritizer = ActivityRiskPrioritizer(risk_input)
+        return prioritizer.calculate_risk_scores()
+    
+    def generate_risk_mitigation_plan(
+        self,
+        budget_available: float = None,
+        focus_critical_path: bool = True
+    ) -> dict:
+        """
+        Convenience method for generating mitigation plan.
+        
+        Args:
+            budget_available: Budget available for mitigation (optional)
+            focus_critical_path: Prioritize critical path activities
+        
+        Returns:
+            Comprehensive mitigation plan from ActivityRiskPrioritizer
+        """
+        from .risk_analysis import ActivityRiskPrioritizer
+        
+        risk_input = self.get_risk_analysis_input()
+        prioritizer = ActivityRiskPrioritizer(risk_input)
+        return prioritizer.generate_mitigation_plan(budget_available, focus_critical_path)

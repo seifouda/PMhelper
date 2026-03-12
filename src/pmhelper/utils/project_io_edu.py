@@ -18,6 +18,9 @@ from typing import Optional, Tuple, Any
 
 from pmhelper.core.evm_models_edu import EVMProject
 from pmhelper.core.risk_register_edu import RiskRegister
+from pmhelper.core.swot_models_edu import SWOTAnalysis
+from pmhelper.core.pestel_models_edu import PESTELAnalysis
+from pmhelper.core.wbs_models_edu import WBSTree
 
 # Monte Carlo results are optional — avoid hard import failure
 try:
@@ -52,6 +55,10 @@ def save_full_project(state, filepath: str) -> None:
         # CPM/PERT activity table — restored on load so user doesn't lose input
         "cpm_activities": getattr(state, "_cpm_activities", []),
         "cpm_mode": getattr(state, "_cpm_mode", "deterministic"),
+        # Phase 9: SWOT, PESTEL, WBS
+        "swot_analysis": state.swot_analysis.to_dict() if getattr(state, 'swot_analysis', None) else None,
+        "pestel_analysis": state.pestel_analysis.to_dict() if getattr(state, 'pestel_analysis', None) else None,
+        "wbs_tree": state.wbs_tree.to_dict() if getattr(state, 'wbs_tree', None) else None,
     }
 
     # MC results
@@ -118,6 +125,30 @@ def load_full_project(filepath: str) -> dict:
     # App config section
     app_config = data.get("app_config", {})
 
+    # Phase 9: SWOT
+    swot_analysis = None
+    if data.get("swot_analysis"):
+        try:
+            swot_analysis = SWOTAnalysis.from_dict(data["swot_analysis"])
+        except Exception:
+            pass
+
+    # Phase 9: PESTEL
+    pestel_analysis = None
+    if data.get("pestel_analysis"):
+        try:
+            pestel_analysis = PESTELAnalysis.from_dict(data["pestel_analysis"])
+        except Exception:
+            pass
+
+    # Phase 9: WBS
+    wbs_tree = None
+    if data.get("wbs_tree"):
+        try:
+            wbs_tree = WBSTree.from_dict(data["wbs_tree"])
+        except Exception:
+            pass
+
     return {
         "version": version,
         "evm_project": evm_project,
@@ -127,6 +158,10 @@ def load_full_project(filepath: str) -> dict:
         # CPM/PERT activities table — re-populate Input tab on load
         "cpm_activities": data.get("cpm_activities", []),
         "cpm_mode": data.get("cpm_mode", "deterministic"),
+        # Phase 9
+        "swot_analysis": swot_analysis,
+        "pestel_analysis": pestel_analysis,
+        "wbs_tree": wbs_tree,
     }
 
 
