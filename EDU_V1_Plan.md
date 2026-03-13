@@ -33,25 +33,25 @@
 
 These are wiring/refresh gaps. The underlying logic already works in unit tests — the issue is that tabs don't always update on screen when they should.
 
-| #   | Task                                             | Files to Change                           | What to Do                                                                                                                                                                                                         | Effort  | Status      |
-| --- | ------------------------------------------------ | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- | ----------- |
-| 8.1 | Analyze → full tab distribution                  | `main_window_edu.py`                      | After `analyze_project()`, call `on_tab_selected()` on EVM tab + Dashboard tab + Probability tab (PERT mode). Already partially done — verify all 4 real tabs + 3 edu tabs receive results.                        | 0.5 day | ✅ Done     |
-| 8.2 | **New Project → full reset ALL tabs**            | `main_window_edu.py`, tab files           | `_new_project()` now: clears CPM tree, clears Gantt analysis data, calls `_refresh_all_edu_tabs()` to reset all UI panels. | 0.5 day | ✅ Done     |
-| 8.3 | **`.pmproj` load → re-populate CPM Input table** | `project_io_edu.py`, `main_window_edu.py` | Save: persist `cpm_activities` + `cpm_mode` in `.pmproj`. Load: call `InputTabEdu.load_activities()`. Already done.                                                                                                | —       | ✅ Done     |
-| 8.4 | **`.pmproj` load → refresh ALL edu tabs**        | `main_window_edu.py`                      | `_open_project()` and `_load_demo()` now call `_refresh_all_edu_tabs()` instead of only refreshing the currently-visible tab.                                          | 0.5 day | ✅ Done |
+| #   | Task                                             | Files to Change                           | What to Do                                                                                                                                                                                  | Effort  | Status  |
+| --- | ------------------------------------------------ | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------- |
+| 8.1 | Analyze → full tab distribution                  | `main_window_edu.py`                      | After `analyze_project()`, call `on_tab_selected()` on EVM tab + Dashboard tab + Probability tab (PERT mode). Already partially done — verify all 4 real tabs + 3 edu tabs receive results. | 0.5 day | ✅ Done |
+| 8.2 | **New Project → full reset ALL tabs**            | `main_window_edu.py`, tab files           | `_new_project()` now: clears CPM tree, clears Gantt analysis data, calls `_refresh_all_edu_tabs()` to reset all UI panels.                                                                  | 0.5 day | ✅ Done |
+| 8.3 | **`.pmproj` load → re-populate CPM Input table** | `project_io_edu.py`, `main_window_edu.py` | Save: persist `cpm_activities` + `cpm_mode` in `.pmproj`. Load: call `InputTabEdu.load_activities()`. Already done.                                                                         | —       | ✅ Done |
+| 8.4 | **`.pmproj` load → refresh ALL edu tabs**        | `main_window_edu.py`                      | `_open_project()` and `_load_demo()` now call `_refresh_all_edu_tabs()` instead of only refreshing the currently-visible tab.                                                               | 0.5 day | ✅ Done |
 
 #### Phase 8 — Priority 2 (Should Fix)
 
 These are missing functionality or incomplete features that a user would notice immediately.
 
-| #    | Task                                             | Files to Change                                                                     | What to Do                                                                                                                                                                                             | Effort  | Status      |
-| ---- | ------------------------------------------------ | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- | ----------- |
-| 8.5  | **UG/PG mode toggle verification**               | `main_window_edu.py`                                                                | Verified — `_apply_mode()` correctly hides/shows PG-only tabs and propagates `set_mode()`. All tab `set_mode()` methods audited. | 0.5 day | ✅ Done |
-| 8.6  | **Demo datasets load → produce meaningful KPIs** | `demos_edu/office_renovation_ug.pmproj`, `demos_edu/software_development_pg.pmproj` | Added `cpm_activities` + `cpm_mode` to both demo files (UG=8 det. activities, PG=12 PERT activities). Load → Analyze flow works.       | 1 day   | ✅ Done |
-| 8.7  | **Gantt — predecessor arrows + today line**      | `gantt_tab_edu.py`                                                                  | Already implemented: arrows, today line toggle, project start date, export. Fixed crash bug (stray `ax.legend` in `_draw_predecessor_arrows`).                      | 1 day   | ✅ Done |
-| 8.8  | **Probability tab — PERT Analysis sub-tab**      | `probability_tab_edu.py`                                                            | Verified — `update_from_analysis()`, stats, charts all handle empty state gracefully. Added defensive guard on `evm_project.bac`.                  | 0.5 day | ✅ Done |
-| 8.9  | **RCPS tab — resource-constrained scheduling**   | `rcps_tab_edu.py`                                                                   | Verified — schedule + histogram sub-tabs work. Added None guard in `_draw_histograms()` to prevent crash on empty project.                                           | 0.5 day | ✅ Done |
-| 8.10 | **Wire PG-only tabs into main window**           | `main_window_edu.py`                                                                | Wired DPCI tab (PG-only) into `_build_tabs()`, `_all_tabs_ordered`, `tabs`, `_pg_only_widgets`. RCPS Crashing, Charter, Charter Mgr were already wired.                                             | 0.5 day | ✅ Done |
+| #    | Task                                             | Files to Change                                                                     | What to Do                                                                                                                                              | Effort  | Status  |
+| ---- | ------------------------------------------------ | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------- |
+| 8.5  | **UG/PG mode toggle verification**               | `main_window_edu.py`                                                                | Verified — `_apply_mode()` correctly hides/shows PG-only tabs and propagates `set_mode()`. All tab `set_mode()` methods audited.                        | 0.5 day | ✅ Done |
+| 8.6  | **Demo datasets load → produce meaningful KPIs** | `demos_edu/office_renovation_ug.pmproj`, `demos_edu/software_development_pg.pmproj` | Added `cpm_activities` + `cpm_mode` to both demo files (UG=8 det. activities, PG=12 PERT activities). Load → Analyze flow works.                        | 1 day   | ✅ Done |
+| 8.7  | **Gantt — predecessor arrows + today line**      | `gantt_tab_edu.py`                                                                  | Already implemented: arrows, today line toggle, project start date, export. Fixed crash bug (stray `ax.legend` in `_draw_predecessor_arrows`).          | 1 day   | ✅ Done |
+| 8.8  | **Probability tab — PERT Analysis sub-tab**      | `probability_tab_edu.py`                                                            | Verified — `update_from_analysis()`, stats, charts all handle empty state gracefully. Added defensive guard on `evm_project.bac`.                       | 0.5 day | ✅ Done |
+| 8.9  | **RCPS tab — resource-constrained scheduling**   | `rcps_tab_edu.py`                                                                   | Verified — schedule + histogram sub-tabs work. Added None guard in `_draw_histograms()` to prevent crash on empty project.                              | 0.5 day | ✅ Done |
+| 8.10 | **Wire PG-only tabs into main window**           | `main_window_edu.py`                                                                | Wired DPCI tab (PG-only) into `_build_tabs()`, `_all_tabs_ordered`, `tabs`, `_pg_only_widgets`. RCPS Crashing, Charter, Charter Mgr were already wired. | 0.5 day | ✅ Done |
 
 #### Phase 8 — Task Dependency Order
 
@@ -68,33 +68,330 @@ Tasks 8.2, 8.4, 8.5, 8.7, 8.8, 8.9 are independent and can be done in any order.
 Task 8.10 depends on 8.9 (RCPS must work before wiring RCPS Crashing).
 Task 8.6 (demo verification) should be done last — it's the integration smoke test.
 
-### ❌ DEFERRED — Phase 9: Polish & Packaging
+---
 
-These are "nice to have" items. Not blocking production use but improve the experience.
+## 🆕 What's New — Phase 9: SWOT & PESTEL Strategic Analysis
 
-| #   | Feature                                                           | Effort   | Priority |
-| --- | ----------------------------------------------------------------- | -------- | -------- |
-| 9.1 | Recent files list in File menu                                    | 0.5 days | Low      |
-| 9.2 | Step-by-step walkthrough panel visible by default (not collapsed) | 0.5 days | Low      |
-| 9.3 | PyInstaller `--onedir` build actually run and tested              | 1 day    | Low      |
-| 9.4 | UI smoke test — all 30 checklist items manually verified          | 1 day    | Low      |
-| 9.5 | Excel export for KPI table + Risk register                        | 1 day    | Low      |
+**Phase 9 adds two new strategic analysis modules** (PG-only) that teach students how executives validate project charters and assess external risks. These are NOT in the original Phase 0–8 scope.
+
+| Feature                    | What It Does                                                                                                                                                         | Value                                                                                                                           |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **SWOT Analysis**          | 2×2 matrix (Strengths, Weaknesses, Opportunities, Threats) with auto-extraction from Charter, Risk Register, and EVM KPIs. Students can also enter factors manually. | Teaches cause-effect thinking: "A weak CPI means cost overrun risk (Weakness)"; "High stakeholder influence = project strength" |
+| **PESTEL Analysis**        | 6-cell heatmap (Political, Economic, Social, Technological, Environmental, Legal) with impact scoring and probability. Factors include contextual mitigation notes.  | Teaches external factor analysis: "New regulations (Legal) threaten timeline"; "Inflation (Economic) erodes budget"             |
+| **Auto-Extract from Data** | Both analyses can auto-populate from existing project data: Charter descriptions, Risk Register exposures, EVM KPIs (CPI/SPI). User validates + edits.               | Reduces manual data entry; teaches traceability; leverages info already in the project                                          |
+| **Manual Entry + Editing** | Users can add custom factors, edit auto-extracted factors, or clear and start fresh. All factors have "source" tracking (Charter, Risk, EVM, Manual).                | Flexibility for edge cases + audit trail for educational accountability                                                         |
+| **Export to PNG/PDF/CSV**  | Export the SWOT matrix or PESTEL heatmap as visuals (PNG/PDF) or as data (CSV) for reports and presentations.                                                        | Students can include analysis in project reports; lecturers can collect data for grading                                        |
+| **Save/Load in `.pmproj`** | SWOT and PESTEL analyses are persisted in the `.pmproj` file (`swot_analysis` and `pestel_analysis` keys). Load a project → see your prior analysis.                 | Zero data loss; students can iterate on analysis as the project evolves                                                         |
+
+**Effort breakdown:**
+
+- Phase 9A (SWOT): 5 days (models + extraction + UI + tests)
+- Phase 9B (PESTEL): 2.5 days (models + UI + tests)
+- **Total Phase 9: 1.5 weeks (7.5 days)**
+
+**Timeline impact:** Phase 9 extends V1 by 1.5 weeks, but is independent of MVP (Phases 0–8). Can ship Phase 7 MVP without it, then add Phase 9 for v1.0-final.
+
+---
+
+### ✅ PHASE 9: SWOT & PESTEL Strategic Analysis (Complete)
+
+> **Goal:** Add strategic analysis tools that extract insights from Project Charter, Risk Register, and EVM data.
+> **Dependencies:** Requires Phases 0–8 complete (Charter tab, Risk register, EVM KPIs)
+> **Priority:** P2 (should have for PG mode; educational value for teaching strategic thinking)
+> **PG-Only:** Yes
+
+#### Phase 9A: SWOT Analysis Module (5 days)
+
+| #   | Task                                      | Files to Change / Create                                                                | What to Do                                                                                                         | Effort  | Status      |
+| --- | ----------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------- | ----------- |
+| 9.1 | SWOT data model + extraction logic        | **`core/swot_models_edu.py`** (NEW), **`utils/swot_extractor_edu.py`** (NEW)            | Implement `SWOTFactor`, `SWOTAnalysis` dataclasses + `SWOTExtractor` static methods to auto-populate from Charter  | 2 days  | ✅ Done     |
+| 9.2 | SWOT I/O (save/load to `.pmproj`)         | `utils/project_io_edu.py` (extend)                                                      | Add `swot_analysis` key to `.pmproj` JSON schema; round-trip tests                                                 | 0.5 day | ✅ Done     |
+| 9.3 | SWOT Tab UI (2×2 matrix + CRUD + buttons) | **`gui/tabs/swot_tab_edu.py`** (NEW), `main_window_edu.py` (wire tab)                   | 2×2 grid Treeviews for each quadrant; double-click to edit; auto-extract buttons; manual entry; export PNG/PDF/CSV | 2 days  | ✅ Done     |
+| 9.4 | SWOT Tests                                | **`tests/test_swot_models_edu.py`** (NEW), **`tests/test_swot_extractor_edu.py`** (NEW) | Unit tests for dataclasses, extraction logic (from Charter, Risk, EVM), I/O round-trip                             | 0.5 day | ✅ Done     |
+
+**Extraction sources for SWOT (auto-populate):**
+
+- **Strengths:** Project team capability (from Charter), achievable scope, high-value deliverables
+- **Weaknesses:** Resource constraints (Budget/Schedule limits in Charter), team skill gaps, scope uncertainty
+- **Opportunities:** Strategic alignment (from Charter), market need (business_case field), risk mitigation results
+- **Threats:** High-impact risks (Exposure > 5% BAC from Risk Register), external dependencies, cost/schedule pressure (CPI/SPI from EVM)
+
+#### Phase 9B: PESTEL Analysis Module (2.5 days)
+
+| #   | Task                                          | Files to Change / Create                                                | What to Do                                                                                                           | Effort  | Status      |
+| --- | --------------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------- | ----------- |
+| 9.5 | PESTEL data model + scoring                   | **`core/pestel_models_edu.py`** (NEW)                                   | Implement `PESTELFactor`, `PESTELAnalysis` dataclasses + exposure scoring (impact × probability)                     | 1 day   | ✅ Done     |
+| 9.6 | PESTEL I/O (save/load to `.pmproj`)           | `utils/project_io_edu.py` (extend)                                      | Add `pestel_analysis` key to `.pmproj` JSON schema; round-trip tests                                                 | 0.5 day | ✅ Done     |
+| 9.7 | PESTEL Tab UI (6-cell heatmap + detail table) | **`gui/tabs/pestel_tab_edu.py`** (NEW), `main_window_edu.py` (wire tab) | 6 coloured buttons (P/E/S/T/En/L) with heatmap intensity; click to filter factors; detail table; add/edit UI; export | 1 day   | ✅ Done     |
+
+**PESTEL factors in scope:**
+
+- **Political:** Tax laws, regulations, government incentives
+- **Economic:** Inflation, interest rates, budget cycles
+- **Social:** Workforce trends, stakeholder expectations, cultural factors
+- **Technological:** New tools, automation, IT landscape
+- **Environmental:** Climate impact, sustainability requirements
+- **Legal:** Compliance, contracts, IP protection
+
+#### Phase 9 Integration Points
+
+**Data flow diagram:**
+
+```
+Charter Tab                  EVM Tab                  Risk Tab
+     ↓                           ↓                        ↓
+ charter_data ────────────→ SWOTExtractor ←────── risk_register
+                                 ↓
+                          SWOTAnalysis (auto-populated)
+                                 ↓
+                              SWOT Tab
+                         (2×2 matrix UI)
+                                 ↓
+                          (manual editing)
+                                 ↓
+                      .pmproj save/load
+```
+
+**`.pmproj` schema additions (Phase 9.2 + 9.6):**
+
+```json
+{
+  "version": "1.0",
+  "evm_project": { ... },
+  "risk_register": { ... },
+  "charter_data": { ... },
+  "swot_analysis": {
+    "strengths": [
+      {
+        "text": "Strong project team with 5+ years PM experience",
+        "source": "Charter",
+        "weight": 1.0,
+        "linked_to": "team_experience"
+      }
+    ],
+    "weaknesses": [
+      {
+        "text": "Budget constraint: only $250K allocated",
+        "source": "Charter",
+        "weight": 0.8,
+        "linked_to": "budget_constraint"
+      }
+    ],
+    "opportunities": [...],
+    "threats": [
+      {
+        "text": "Risk: Market shift to competitor (Exposure $45K)",
+        "source": "Risk Register",
+        "weight": 0.6,
+        "linked_to": "risk_id_42"
+      }
+    ]
+  },
+  "pestel_analysis": {
+    "factors": [
+      {
+        "category": "Political",
+        "description": "New tax incentives for tech projects",
+        "impact_score": 2.5,
+        "probability": 0.7,
+        "mitigation": "Engage tax consultants",
+        "exposure": 1.75
+      }
+    ]
+  }
+}
+```
+
+**PG-only tabs in `main_window_edu.py`:**
+
+```python
+# Add to _build_tabs() after DPCI tab:
+
+from pmhelper.gui.tabs.swot_tab_edu import SWOTTabEdu
+from pmhelper.gui.tabs.pestel_tab_edu import PESTELTabEdu
+
+self._swot_tab = SWOTTabEdu(self.notebook, state=self.edu_state, main_window=self)
+self.notebook.add(self._swot_tab, text="SWOT")
+
+self._pestel_tab = PESTELTabEdu(self.notebook, state=self.edu_state, main_window=self)
+self.notebook.add(self._pestel_tab, text="PESTEL")
+
+# Mark as PG-only
+self._pg_only_widgets.extend([self._swot_tab, self._pestel_tab])
+self._all_tabs_ordered.extend(["swot", "pestel"])
+```
+
+**Tab refresh wiring (in `_refresh_all_edu_tabs()`):**
+
+```python
+def _refresh_all_edu_tabs(self):
+    """Call on_tab_selected() or update() on all edu tabs when state changes."""
+    # ...existing tabs...
+    if hasattr(self, '_swot_tab'):
+        self._swot_tab.update_from_analysis(self.edu_state)
+    if hasattr(self, '_pestel_tab'):
+        self._pestel_tab.update_from_analysis(self.edu_state)
+```
+
+**Export button wiring (Phase 9.3 + 9.7):**
+
+Both SWOT and PESTEL tabs have:
+
+- `[Auto-populate from Charter]` button → calls `SWOTExtractor.from_charter()`
+- `[Auto-populate from Risks]` button (SWOT only) → calls `SWOTExtractor.from_risk_register()`
+- `[Auto-populate from EVM]` button (SWOT only) → calls `SWOTExtractor.from_evm()`
+- `[Add Factor]` button → dialog for manual entry
+- `[Export as PNG]` button → calls `chart_export_edu.export_swot_png()`
+- `[Export as PDF]` button → calls `chart_export_edu.export_swot_pdf()`
+- `[Export as CSV]` button → calls `utils.export_to_csv()`
+- `[Clear All]` button → confirmation dialog
+
+---
+
+### ✅ DONE — Phase 10: Polish & Packaging
+
+| #    | Feature                                                           | Effort   | Priority | Status                              |
+| ---- | ----------------------------------------------------------------- | -------- | -------- | ----------------------------------- |
+| 10.1 | Recent files list in File menu                                    | 0.5 days | Low      | ✅ Done                              |
+| 10.2 | Step-by-step walkthrough panel visible by default (not collapsed) | 0.5 days | Low      | ✅ Superseded by Phase 11 Worked Sol |
+| 10.3 | PyInstaller `--onedir` build actually run and tested              | 1 day    | Low      | ⏳ Manual testing required           |
+| 10.4 | UI smoke test — all 30 checklist items manually verified          | 1 day    | Low      | ⏳ Manual testing required           |
+| 10.5 | Excel export for KPI table                                        | 1 day    | Low      | ✅ Done (EVM tab Export Excel btn)   |
+
+---
+
+### ✅ PHASE 9C: Work Breakdown Structure (WBS) Diagram (Complete)
+
+> **Goal:** Interactive hierarchical WBS editor with tree visualization, validation, aggregation, and export.
+> **Dependencies:** Requires Phases 0–8 complete (InputTabEdu for optional CPM task linking)
+> **Priority:** P2 (must be in V1; educational value for teaching scope decomposition)
+> **PG-Only:** Yes
+> **Performance Target:** 3000 tasks, <2 sec full rebuild
+
+#### Phase 9C — Data Model & Logic (4.5 days)
+
+| #    | Task                                        | Files to Change / Create                                            | What to Do                                                                                                                                                                                              | Effort  | Status      |
+| ---- | ------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------- |
+| 9.8  | WBS data model                              | **`core/wbs_models_edu.py`** (NEW)                                  | `WBSNode` dataclass (node_id, parent_id, name, description, owner, estimated_duration, estimated_cost, status, level, wbs_code, linked_task_id); `WBSStatus` enum (5 states); `to_dict()`/`from_dict()` | 1 day   | ✅ Done     |
+| 9.9  | WBS validator                               | **`core/wbs_validator_edu.py`** (NEW)                               | Validate: unique IDs, parent existence, single root, no cycles (DFS with recursion stack)                                                                                                               | 0.5 day | ✅ Done     |
+| 9.10 | WBS tree builder + level assignment + codes | **`core/wbs_builder_edu.py`** (NEW)                                 | Build tree from flat list (O(N) dict lookup); BFS level assignment (root=0); WBS code generation (1 → 1.1 → 1.1.1); work package identification (leaf = is_work_package)                                | 1 day   | ✅ Done     |
+| 9.11 | WBS aggregator (rollup)                     | **`core/wbs_aggregator_edu.py`** (NEW)                              | Cost: sum(children); Duration: max(children); Progress: weighted by cost. Post-order traversal with subtree caching. Invalidate cache on mutation.                                                      | 1 day   | ✅ Done     |
+| 9.12 | WBS I/O (save/load + CSV/JSON import)       | `utils/project_io_edu.py` (extend), **`utils/wbs_io_edu.py`** (NEW) | `.pmproj` `wbs_data` key; CSV import (`ID,ParentID,Name,Duration,Cost`); JSON import; hierarchical input support. Missing columns default: owner="Unassigned", status="not_started"                     | 1 day   | ✅ Done     |
+
+**Duration aggregation rule (corrected from naive sum):**
+
+- **Cost:** Parent = sum(children) — always additive
+- **Duration:** Parent = max(children) — assumes parallel unless told otherwise
+- **Progress (weighted):** Parent = Σ(child_progress × child_cost) / Σ(child_cost)
+
+**WBS Status enum (5 states with colours):**
+
+```python
+class WBSStatus(str, Enum):
+    NOT_STARTED = "not_started"   # Light grey
+    IN_PROGRESS = "in_progress"   # Yellow/Amber
+    COMPLETED   = "completed"     # Green
+    DELAYED     = "delayed"       # Red
+    ON_HOLD     = "on_hold"       # Blue/Grey
+```
+
+#### Phase 9C — Layout & Visualization (3 days)
+
+| #    | Task                                  | Files to Change / Create                | What to Do                                                                                                                                                                                   | Effort  | Status      |
+| ---- | ------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------- |
+| 9.13 | Layout engine (Walker's algorithm)    | **`core/wbs_layout_edu.py`** (NEW)      | Walker's algorithm for variable-width rectangle nodes; top-down layout; y = level × vertical_spacing; children centered under parents; handles nodes up to 3000                              | 2 days  | ✅ Done     |
+| 9.14 | Visualization data model (graph repr) | In `core/wbs_layout_edu.py` (same file) | `LayoutNode` (id, x, y, width, height, label, wbs_code, level, cost, duration, progress, status) + `LayoutEdge` (source, target)                                                             | 0.5 day | ✅ Done     |
+| 9.15 | Matplotlib export renderer            | **`utils/wbs_export_edu.py`** (NEW)     | Render WBS tree to Matplotlib figure for PNG/PDF export; rectangles with WBS code + name + cost + duration; colour by level (dark→medium→light) + optional status colours (green/yellow/red) | 0.5 day | ✅ Done     |
+
+#### Phase 9C — Tab UI & Interactions (4 days)
+
+| #    | Task                                   | Files to Change / Create                                         | What to Do                                                                                                                                                                       | Effort   | Status      |
+| ---- | -------------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- |
+| 9.16 | WBS Tab UI (Canvas renderer)           | **`gui/tabs/wbs_tab_edu.py`** (NEW), `main_window_edu.py` (wire) | Tkinter Canvas with rectangle nodes, connector lines, scroll, zoom (Ctrl+wheel); node rendering: WBS code + name + cost + duration; colour by level + status                     | 2 days   | ✅ Done     |
+| 9.17 | Interactions (expand/collapse/add/del) | In `gui/tabs/wbs_tab_edu.py`                                     | Click node → select; right-click → context menu (Add Child, Edit, Delete Subtree, Delete & Promote, Expand/Collapse); double-click → edit dialog; drag-reparent with visual cues | 1.5 days | ✅ Done     |
+| 9.18 | Export dialog (Excel/PDF/JSON + all)   | In `gui/tabs/wbs_tab_edu.py` + `utils/wbs_export_edu.py`         | Export button → dropdown: Excel (openpyxl), PDF (matplotlib), JSON, CSV, "All Formats"; table format: WBS Code / Level / Task / Cost / Duration / Progress                       | 0.5 day  | ✅ Done     |
+
+**Node rendering rules:**
+
+- Shape: rounded rectangle
+- Display: WBS Code (bold), Task Name, Cost, Duration
+- Colour by level: Level 0 (root) → dark blue; Level 1 → medium blue; Level 2+ → progressively lighter
+- Optional status overlay: Green border (completed), Yellow (in progress), Red (delayed), Grey (not started), Blue-grey (on hold)
+
+**Delete semantics (resolved):**
+
+- **Delete Subtree:** Removes node + all descendants. Parent's remaining children codes regenerated.
+- **Delete & Promote:** Removes node only. Children move to deleted node's parent. WBS codes regenerated for affected subtree.
+- Both operations trigger full WBS code re-generation on the affected parent's subtree.
+
+**Undo mechanism:**
+
+- 20-deep command stack: each Add/Delete/Edit/Reparent operation stores before-snapshot
+- Ctrl+Z to undo; implemented as simple list of `(action, node_snapshots)` tuples
+
+#### Phase 9C — Tests (1.5 days)
+
+| #    | Task                           | Files to Change / Create                                                                | What to Do                                                                                                                         | Effort  | Status      |
+| ---- | ------------------------------ | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------- |
+| 9.19 | WBS model + validator tests    | **`tests/test_wbs_models_edu.py`** (NEW), **`tests/test_wbs_validator_edu.py`** (NEW)   | Dataclass round-trip, validation rules, cycle detection (DFS), single root, unique IDs, parent existence                           | 0.5 day | ✅ Done     |
+| 9.20 | WBS builder + aggregator tests | **`tests/test_wbs_builder_edu.py`** (NEW), **`tests/test_wbs_aggregator_edu.py`** (NEW) | Tree construction, BFS levels, WBS code generation, work package identification, cost/duration/progress rollup, cache invalidation | 0.5 day | ✅ Done     |
+| 9.21 | WBS layout + export tests      | **`tests/test_wbs_layout_edu.py`** (NEW), **`tests/test_wbs_export_edu.py`** (NEW)      | Layout positions non-overlapping, children centered, export produces valid files, I/O round-trip (CSV/JSON/Excel)                  | 0.5 day | ✅ Done     |
+
+**Performance test:** Build + layout + render 3000-node tree in <2 sec (timed test).
+
+#### Phase 9C — `.pmproj` Schema Addition
+
+```json
+{
+  "wbs_data": {
+    "nodes": [
+      {
+        "node_id": "1",
+        "parent_id": null,
+        "name": "PMhelper Edu V1",
+        "description": "Complete project scope",
+        "owner": "Project Lead",
+        "estimated_duration": 0,
+        "estimated_cost": 0,
+        "status": "in_progress",
+        "linked_task_id": null
+      },
+      {
+        "node_id": "1.1",
+        "parent_id": "1",
+        "name": "EVM Module",
+        "description": "Earned Value Management features",
+        "owner": "Dev",
+        "estimated_duration": 15,
+        "estimated_cost": 12000,
+        "status": "completed",
+        "linked_task_id": null
+      }
+    ]
+  }
+}
+```
 
 ---
 
 ## Key Decisions Log
 
-All 7 decisions are resolved here. Record any changes to these in `DECISIONS.md`.
+All 12 decisions are resolved here. Record any changes to these in `DECISIONS.md`.
 
-| #   | Decision                                             | Answer                                                                                                                                                | Reasoning                                                                                                                                                                                                                           |
-| --- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | CPM tasks vs. EVM tasks — same class or separate?    | **Separate classes. `EVMTask` has an optional `cpm_task_id` link.**                                                                                   | The existing CPM task model is tightly coupled to `cpm_analyzer.py` and `network_builder.py`. Extending it would drag those dependencies into EVM code. A separate `EVMTask` also allows EVM-only projects with no network.         |
-| 2   | Monte Carlo — extend `pert_analyzer.py` or new file? | **New `core/monte_carlo.py`.**                                                                                                                        | `pert_analyzer.py` is already 759 lines with its own I/O contracts and point-estimate outputs. Monte Carlo needs distributions, threading, and progress callbacks — a completely different interface.                               |
-| 3   | Data model base class — Pydantic or `@dataclass`?    | **Keep whatever the developer is comfortable with; plain Python `@dataclass` is fine.**                                                               | The existing Pydantic models are in `core/models.py` for the selection module only. EVM and Risk models are new and self-contained — no need to force Pydantic. Use `@dataclass` with manual validation methods; simpler to debug.  |
-| 4   | Monte Carlo threading model?                         | **`threading.Thread` + `queue.Queue`.**                                                                                                               | Standard Tkinter threading pattern. Worker thread puts progress floats and the final result into a `Queue`; the main thread polls via `root.after(100, poll_queue)`. Do not call any Tkinter widget methods from the worker thread. |
-| 5   | PV spreading rule for "Compute from Tasks"?          | **Uniform only** — budget divided evenly across all periods the task spans.                                                                           | Sufficient for undergraduate teaching; avoids introducing a confusing setting. Front/back-loaded spreading is out of scope for V1.                                                                                                  |
-| 6   | Shared state between tabs?                           | **Single `EduProjectState` object owned by `MainWindow`, passed to each tab constructor.**                                                            | Avoids global variables and avoids N×N inter-tab references. The existing app already passes `main_window` to every tab — `EduProjectState` lives on `main_window.edu_state`.                                                       |
-| 7   | Which EAC formula feeds VAC and TCPI?                | **All three EAC values are computed and stored. VAC and TCPI each have a dropdown to select which EAC to use. Default: EAC₁ for TCPI; EAC₂ for VAC.** | Keeps the tool pedagogically honest — students can see how the choice of EAC changes forecasts.                                                                                                                                     |
+| #   | Decision                                             | Answer                                                                                                                                                | Reasoning                                                                                                                                                                                                                               |
+| --- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | CPM tasks vs. EVM tasks — same class or separate?    | **Separate classes. `EVMTask` has an optional `cpm_task_id` link.**                                                                                   | The existing CPM task model is tightly coupled to `cpm_analyzer.py` and `network_builder.py`. Extending it would drag those dependencies into EVM code. A separate `EVMTask` also allows EVM-only projects with no network.             |
+| 2   | Monte Carlo — extend `pert_analyzer.py` or new file? | **New `core/monte_carlo.py`.**                                                                                                                        | `pert_analyzer.py` is already 759 lines with its own I/O contracts and point-estimate outputs. Monte Carlo needs distributions, threading, and progress callbacks — a completely different interface.                                   |
+| 3   | Data model base class — Pydantic or `@dataclass`?    | **Keep whatever the developer is comfortable with; plain Python `@dataclass` is fine.**                                                               | The existing Pydantic models are in `core/models.py` for the selection module only. EVM and Risk models are new and self-contained — no need to force Pydantic. Use `@dataclass` with manual validation methods; simpler to debug.      |
+| 4   | Monte Carlo threading model?                         | **`threading.Thread` + `queue.Queue`.**                                                                                                               | Standard Tkinter threading pattern. Worker thread puts progress floats and the final result into a `Queue`; the main thread polls via `root.after(100, poll_queue)`. Do not call any Tkinter widget methods from the worker thread.     |
+| 5   | PV spreading rule for "Compute from Tasks"?          | **Uniform only** — budget divided evenly across all periods the task spans.                                                                           | Sufficient for undergraduate teaching; avoids introducing a confusing setting. Front/back-loaded spreading is out of scope for V1.                                                                                                      |
+| 6   | Shared state between tabs?                           | **Single `EduProjectState` object owned by `MainWindow`, passed to each tab constructor.**                                                            | Avoids global variables and avoids N×N inter-tab references. The existing app already passes `main_window` to every tab — `EduProjectState` lives on `main_window.edu_state`.                                                           |
+| 7   | Which EAC formula feeds VAC and TCPI?                | **All three EAC values are computed and stored. VAC and TCPI each have a dropdown to select which EAC to use. Default: EAC₁ for TCPI; EAC₂ for VAC.** | Keeps the tool pedagogically honest — students can see how the choice of EAC changes forecasts.                                                                                                                                         |
+| 8   | SWOT: auto-extract or manual-entry only?             | **Both auto-extract AND manual entry.** Extract from Charter, Risk Register, EVM KPIs; user can add/edit factors manually in the SWOT Tab UI.         | Auto-extract teaches cause-effect (Charter → SWOT, Risks → Threats, CPI < 0.95 → Weakness); manual editing allows users to add contextual factors and validate the extraction. Reduces data-entry burden while maintaining flexibility. |
+| 9   | PESTEL: standalone or feed into Risk Register?       | **Both. PESTEL is a standalone analysis tool. High-impact PESTEL threats can optionally be added to Risk Register via "Create Risk" button.**         | Standalone PESTEL teaches external factor analysis separately from project-specific risks. Optional link to Risk Register preserves audit trail and allows qualitative factors to influence quantitative risk exposure.                 |
+| 10  | WBS duration aggregation rule?                       | **max(children)** — assumes parallel execution by default. Cost is always sum(children). Progress is weighted by cost.                                | Naive sum is incorrect for PM (parallel tasks). Max is the safer default. Students learn that WBS = scope, not schedule.                                                                                                                |
+| 11  | WBS layout algorithm?                                | **Walker's algorithm** for variable-width rectangle nodes. Falls back to simple layered (BFS + centering) for <50 nodes.                              | Reingold–Tilford designed for circles/binary trees; Walker's handles wide rectangles and variable fan-out correctly. Simple fallback avoids over-engineering small WBS trees.                                                           |
+| 12  | WBS `Children_List` in data model?                   | **Not stored.** Computed from `parent_id` at tree-build time. Only `parent_id` is persisted.                                                          | Storing both `parent_id` and `children` creates sync risk. Single source of truth via `parent_id`; children computed dynamically in O(N).                                                                                               |
 
 ---
 
@@ -104,7 +401,7 @@ Do these in order on Day 1 before writing any feature code.
 
 1. Run `pytest` on the current `production` branch — record the baseline pass count. This is your regression baseline.
 2. Create and switch to branch `feat/edu-v1` off `production`.
-3. Open `DECISIONS.md` (create it if it doesn't exist) and confirm all 7 decisions above are written down.
+3. Open `DECISIONS.md` (create it if it doesn't exist) and confirm all 9 decisions above are written down.
 4. Add `edu_state: EduProjectState` to `MainWindow.__init__()` in `main_window.py`. Create the `EduProjectState` class (stub only) in a new file `src/pmhelper/core/edu_state.py`. Confirm the app still launches.
 5. Create all new module stubs (see Architecture section below). Each stub: module docstring + empty class with a `pass` body. Run `python -m pmhelper` — confirm no new import errors.
 6. Create all new test files as empty suites. Run `pytest` — 0 new failures required.
@@ -126,54 +423,70 @@ src/pmhelper/
 │   ├── evm_models.py            ❌ NEW  ← Phase 1  (EVMTask, EVMPeriod, EVMProject)
 │   ├── evm_calculations.py      ❌ NEW  ← Phase 2  (pure KPI functions + RAG)
 │   ├── risk_register.py         ✅ DONE  ← Phase 3  (risk_register_edu.py)
-│   └── monte_carlo.py           ✅ DONE  ← Phase 4  (monte_carlo_edu.py)
+│   ├── monte_carlo.py           ✅ DONE  ← Phase 4  (monte_carlo_edu.py)
+│   ├── swot_models_edu.py       ❌ NEW  ← Phase 9A (SWOTFactor, SWOTAnalysis)
+│   ├── pestel_models_edu.py     ❌ NEW  ← Phase 9B (PESTELFactor, PESTELAnalysis)
+│   ├── wbs_models_edu.py        ❌ NEW  ← Phase 9C (WBSNode, WBSStatus)
+│   ├── wbs_validator_edu.py     ❌ NEW  ← Phase 9C (validation + DFS cycle detection)
+│   ├── wbs_builder_edu.py       ❌ NEW  ← Phase 9C (tree build + BFS levels + WBS codes)
+│   ├── wbs_aggregator_edu.py    ❌ NEW  ← Phase 9C (rollup with caching)
+│   └── wbs_layout_edu.py        ❌ NEW  ← Phase 9C (Walker's layout + LayoutNode/LayoutEdge)
 ├── gui/
-│   ├── main_window.py           ✅ DONE  (main_window_edu.py — edu edition; ⚠️ Phase 8: wire charter + RCPS crashing)
+│   ├── main_window.py           ✅ DONE  (main_window_edu.py — edu edition; Phase 9: wire SWOT + PESTEL tabs)
 │   └── tabs/
 │       ├── input_tab_edu.py     ✅ DONE  (EVM panel + period table + PV spreading)
-│       ├── gantt_tab_edu.py     ⚠️ PARTIAL — baseline + tracking done; ❌ Phase 8.1/8.2: predecessor arrows, today line, project dates, viz fixes
+│       ├── gantt_tab_edu.py     ✅ DONE  (baseline + tracking + arrows + today line)
 │       ├── network_tab_edu.py   ✅ DONE  reused with edu wiring
 │       ├── evm_tab_edu.py       ✅ DONE  ← Phase 2
 │       ├── risk_tab_edu.py      ✅ DONE  (register CRUD + 5×5 heat map)
 │       ├── pert_tab_edu.py      ✅ DONE  reused with edu wiring
-│       ├── probability_tab_edu.py ⚠️ PARTIAL — Monte Carlo done; ❌ Phase 8.4: PERT Analysis sub-tab missing
+│       ├── probability_tab_edu.py ✅ DONE (Monte Carlo + PERT Analysis sub-tabs)
 │       ├── crashing_tab_edu.py  ✅ DONE  reused
-│       ├── rcps_tab_edu.py      ⚠️ PARTIAL — Histograms done; ❌ Phase 8.2: RCPS Schedule sub-tab missing
-│       ├── rcps_crashing_tab.py ⚠️ EXISTS (49 lines, thin wrapper → rcps_crashing_tab_gui.py 1205 lines + project_crashing_core.py 2132 lines) but NOT wired ← Phase 8.3
+│       ├── rcps_tab_edu.py      ✅ DONE  (schedule + histograms)
+│       ├── rcps_crashing_tab.py ✅ DONE  (PG-only)
 │       ├── dashboard_tab_edu.py ✅ DONE  ← Phase 5
-│       ├── charter_tab.py       ⚠️ EXISTS (627 lines) but NOT wired ← Phase 8.5
-│       ├── charter_manager.py   ⚠️ EXISTS (414 lines) but NOT wired ← Phase 8.6
-│       └── dpci_tab.py          ⚠️ EXISTS (400 lines) but NOT wired ← Phase 8.7
+│       ├── charter_tab.py       ✅ DONE  wired (PG-only)
+│       ├── charter_manager.py   ✅ DONE  wired (PG-only)
+│       ├── dpci_tab.py          ✅ DONE  wired (PG-only)
+│       ├── swot_tab_edu.py      ❌ NEW  ← Phase 9A (2×2 SWOT matrix UI)
+│       ├── pestel_tab_edu.py    ❌ NEW  ← Phase 9B (6-cell PESTEL heatmap UI)
+│       └── wbs_tab_edu.py       ❌ NEW  ← Phase 9C (interactive WBS Canvas viewer + editor)
 └── utils/
     ├── evm_io_edu.py            ✅ DONE  ← Phase 1
     ├── risk_io_edu.py           ✅ DONE  ← Phase 3
-    ├── project_io_edu.py        ✅ DONE  ← Phase 5  (combined .pmproj save/load)
-    └── chart_export_edu.py      ✅ DONE  ← Phase 5  (reusable ExportButton)
+    ├── swot_extractor_edu.py    ❌ NEW  ← Phase 9A (auto-extraction from Charter/Risk/EVM)
+    ├── wbs_io_edu.py             ❌ NEW  ← Phase 9C (CSV/JSON import, hierarchical input)
+    ├── wbs_export_edu.py         ❌ NEW  ← Phase 9C (Excel/PDF/JSON/CSV export + Matplotlib renderer)
+    ├── project_io_edu.py        ✅ DONE  ← Phase 5  (Phase 9: add SWOT+PESTEL+WBS keys)
+    └── chart_export_edu.py      ✅ DONE  ← Phase 5  (Phase 9: add SWOT/PESTEL export functions)
 ```
 
-**Tab structure inside `MainWindow` after V1 — current vs target:**
+**Tab structure inside `MainWindow` after Phases 0–9:**
 
 ```
-Tab Name             Current State                   Phase 8 Target
-─────────────────────────────────────────────────────────────────────
-Input Activities   ✅ done                           no change
-Results            ✅ done                           no change
-Network Diagram    ✅ done                           no change
-PERT Diagram       ✅ done                           no change
-Gantt Chart        ⚠️ partial (no arrows/today/date) 8.1: add arrows, today line, start date, viz fixes
-EVM Dashboard      ✅ done                           no change
-Risk Analysis      ✅ done                           no change
-Probability        ⚠️ partial (MC only)              8.4: add PERT Analysis sub-tab
-Crashing           ✅ done                           no change
-Resources (RCPS)   ⚠️ partial (histograms only)      8.2: add RCPS Schedule sub-tab
-RCPS Crashing      ❌ missing                        8.3: wire existing tab (PG-only)
-Dashboard          ✅ done                           no change
-Project Charter    ❌ not wired                      8.5: wire CharterTab (PG-only)
-Charter Manager    ❌ not wired                      8.6: wire CharterManager (PG-only)
-DPCI Assessment    ❌ not wired                      8.7: wire DPCITab (PG-only)
+Tab Name             Phase 8 Status              Phase 9 Target
+──────────────────────────────────────────────────────────────────
+Input Activities   ✅ done                       no change
+Results            ✅ done                       no change
+Network Diagram    ✅ done                       no change
+PERT Diagram       ✅ done                       no change
+Gantt Chart        ✅ done (arrows + today)      no change
+EVM Dashboard      ✅ done                       no change
+Risk Analysis      ✅ done                       no change
+Probability        ✅ done (MC + PERT)           no change
+Crashing           ✅ done                       no change
+Resources (RCPS)   ✅ done (schedule)            no change
+RCPS Crashing      ✅ done (PG-only)             no change
+Dashboard          ✅ done                       no change
+Project Charter    ✅ done (PG-only)             no change
+Charter Manager    ✅ done (PG-only)             no change
+DPCI Assessment    ✅ done (PG-only)             no change
+SWOT Analysis      ❌ missing                    9A: 2×2 matrix (PG-only)
+PESTEL Analysis    ❌ missing                    9B: 6-cell heatmap (PG-only)
+WBS Diagram        ❌ missing                    9C: interactive tree (PG-only)
 ```
 
-> **⚠ Tab overflow risk:** With Charter, Charter Manager, DPCI, and RCPS Crashing added, the notebook will have **15 tabs**. On small screens (< 1366px), tab headers may overflow. Mitigation: use short tab labels (≤ 12 chars) and test on 1366×768. If overflow is a problem, consider grouping related tabs (e.g. "Charter" as sub-tabs of a single "Project Governance" tab) — defer to V1.1 unless testing reveals a real usability issue.
+> **Tab overflow risk resolved:** 18 tabs total. Mitigation: short labels (≤ 12 chars). Test on 1366×768 screen. If overflow occurs, upgrade to collapsible tab groups in v1.1.
 
 ---
 
@@ -1546,6 +1859,114 @@ Phase 0 → Phase 1 → Phase 2 ────────────────
 **Phase 1 is the irreducible blocker.** The `EVMTask` date fields (`planned_start`, `planned_finish`, `baseline_start`, `baseline_finish`) must be in place before Phase 4.3 (Tracking Gantt) can begin, even though Phase 4 officially starts after Phase 2.
 
 **Phase 8 is parallelisable.** All 7 sub-tasks are independent. With 2 parallel workstreams, ~10 working days compress to ~1.5 calendar weeks.
+
+---
+
+### ✅ PHASE 11 — UG Worked Solutions (Complete)
+
+> **Status:** Planned — not started
+> **Goal:** Make UG mode genuinely educational by turning every numeric result into a readable, multi-step worked solution using the project's actual data. Students see exactly how each answer was derived — formula → substitution → result — without having to leave the app.
+> **UG-Only:** Yes (PG students are assumed to already know the mechanics; UG students are learning them)
+> **Deferred:** Practice Calculator (student enters own numbers) — Phase 11B
+
+#### What's wrong with the current step-by-step
+
+The existing EVM "Step-by-Step Walkthrough" is **3 static labels** embedded inline (formula / substitution / result). It only covers single-formula KPIs, is not scrollable, has no multi-step chaining, and cannot represent PERT's 6-step pipeline or CPM's forward/backward pass. This phase replaces and extends it with a proper worked-solution system.
+
+#### Design: "Worked Solution" Window
+
+A **modal Toplevel window** opened by a **"Show Worked Solution"** button on each relevant tab/panel. Renders a scrollable, multi-step breakdown using the project's real numbers.
+
+**Key design principles:**
+
+1. **Multi-step chain** — each step feeds the next, with visual separators
+2. **Three-column layout per step:** symbolic formula | substitution with numbers | numerical result
+3. **Colour-coded results:** green = favourable, red = unfavourable, blue = neutral
+4. **Collapsible sub-steps** — e.g. per-activity breakdown inside "Step 1: Expected Durations"
+5. **Copy-friendly** — "Copy as Text" button produces clean text for pasting into reports/assignments
+6. **Export** — "Export PDF" renders the solution to a Matplotlib figure (same export pattern as charts)
+
+**Example — PERT Z-score for target = 30 days:**
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│ Step 1: Activity Expected Durations                  [▼ Show] │
+│   SD1: tₑ = (2 + 4×5 + 14) / 6 = 36/6               = 6.00  │
+│   SD3: tₑ = (3 + 4×7 + 12) / 6 = 43/6               = 7.17  │
+│   ...                                                          │
+├────────────────────────────────────────────────────────────────┤
+│ Step 2: Activity Variances (critical path activities only)     │
+│   SD1: σ² = ((14−2)/6)² = (12/6)² = 2²              = 4.00  │
+│   SD3: σ² = ((12−3)/6)² = (9/6)²  = 1.5²            = 2.25  │
+├────────────────────────────────────────────────────────────────┤
+│ Step 3: Project Variance                                       │
+│   σ²_proj = 4.00 + 2.25 + 1.00                      = 7.25  │
+├────────────────────────────────────────────────────────────────┤
+│ Step 4: Project Standard Deviation                             │
+│   σ = √7.25                                          = 2.69  │
+├────────────────────────────────────────────────────────────────┤
+│ Step 5: Z-Score  (target = 30 days)                            │
+│   Z = (30 − 27.5) / 2.69 = 2.5 / 2.69              = 0.93  │
+├────────────────────────────────────────────────────────────────┤
+│ Step 6: Probability from Z-table                               │
+│   P(T ≤ 30) = Φ(0.93)                              = 82.4%  │
+│   ✅ Good chance of on-time completion                         │
+└────────────────────────────────────────────────────────────────┘
+                                     [Copy as Text]  [Export PDF]
+```
+
+#### Architecture
+
+```
+core/step_generators_edu.py          ← Pure logic, zero UI dependency
+  @dataclass Step:
+      title: str
+      formula: str           # symbolic: "σ² = ((p − o) / 6)²"
+      substitution: str      # with numbers: "σ² = ((14 − 2) / 6)²"
+      result: str            # "= 4.00"
+      interpretation: str    # "Low variance — estimate is tight"
+      rag: str               # "green" | "red" | "amber" | "neutral"
+      children: List[Step]   # sub-steps (e.g., per-activity rows)
+
+  pert_steps(activities, critical_path, target_duration) → List[Step]
+  evm_steps(project, period, primary_eac) → List[Step]
+  cpm_forward_steps(tasks) → List[Step]
+  cpm_backward_steps(tasks) → List[Step]
+
+gui/widgets/worked_solution_window.py  ← Reusable Tk Toplevel
+  WorkedSolutionWindow(parent, title, steps: List[Step])
+    - ttk.Frame with scrollbar
+    - Each Step rendered as a card (LabelFrame) with expand/collapse
+    - Sub-steps indented inside parent card
+    - "Copy as Text" button → clipboard
+    - "Export PDF" button → Matplotlib figure → filedialog save
+```
+
+#### Phase 11A — Tasks (7 days, UG-only)
+
+| #    | Task                                    | Files to Create / Change                                                           | What to Do                                                                                                                                | Effort   | Status      |
+| ---- | --------------------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- |
+| 11.1 | `Step` data model + PERT step generator | **`core/step_generators_edu.py`** (NEW)                                            | `Step` dataclass; `pert_steps()` producing 6 steps: tₑ per activity, σ² per activity, path variance, σ, Z, P(Z)                           | 2 days   | ✅ Done     |
+| 11.2 | EVM step generator                      | `core/step_generators_edu.py` (extend)                                             | `evm_steps()` producing full KPI chain: PV→EV→AC→CV/SV→CPI/SPI→EAC→VAC→TCPI, each building on prior                                       | 1.5 days | ✅ Done     |
+| 11.3 | CPM forward + backward step generators  | `core/step_generators_edu.py` (extend)                                             | `cpm_forward_steps()` (ES/EF per node in topological order, showing max-predecessor logic); `cpm_backward_steps()` (LF/LS, Float = LS−ES) | 1.5 days | ✅ Done     |
+| 11.4 | `WorkedSolutionWindow` widget           | **`gui/widgets/worked_solution_window.py`** (NEW)                                  | Scrollable Toplevel; Step cards with expand/collapse; colour coding by RAG; Copy + Export PDF buttons                                     | 2 days   | ✅ Done     |
+| 11.5 | Wire buttons into tabs (UG mode only)   | `probability_tab_edu.py`, `evm_tab_edu.py`, `gantt_tab_edu.py`                     | "Show Worked Solution" buttons; hidden in PG mode via `set_mode()`; opens `WorkedSolutionWindow`                                          | 0.5 day  | ✅ Done     |
+| 11.6 | Tests for step generators               | **`tests/test_step_generators_edu.py`** (NEW)                                      | 36 known-value assertions for all three generators; verify step count, formula strings, result values, RAG classification                 | 1 day    | ✅ Done     |
+
+**Total Phase 11A: 8.5 days**
+
+#### Phase 11B — Practice Calculator (Deferred)
+
+Separate dialog where students input their **own** numbers (not from the project) and the app solves step-by-step in real time. Useful for exam prep. Deferred because it requires a full input form + live recalculation loop, and Phase 11A already covers the highest-value use case (project data).
+
+#### Decisions
+
+| #   | Decision                                   | Answer                                                                                                 |
+| --- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| 1   | Inline panel or Toplevel window?           | **Toplevel** — inline panel is too cramped for 6-step PERT chain; modal window gives full space        |
+| 2   | Replace or extend current EVM walkthrough? | **Replace** — current 3-label widget becomes the "Show Worked Solution" button; Toplevel supersedes it |
+| 3   | UG-only or both modes?                     | **UG-only** — PG students already know derivations; showing steps in PG mode clutters the workflow     |
+| 4   | Practice Calculator in Phase 11A?          | **Deferred to Phase 11B** — separate input form + live recalculation is a distinct scope increment     |
 
 ---
 

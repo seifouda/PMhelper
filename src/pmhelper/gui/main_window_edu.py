@@ -87,6 +87,9 @@ class MainWindowEdu:
         file_menu.add_command(label="Exit", command=self._on_closing)
         menubar.add_cascade(label="File", menu=file_menu)
 
+        self._file_menu = file_menu
+        self._rebuild_recent_menu()
+
         mode_menu = tk.Menu(menubar, tearoff=0)
         self._mode_var = tk.StringVar(value=self.config.mode)
         mode_menu.add_radiobutton(
@@ -96,6 +99,74 @@ class MainWindowEdu:
             label="Postgraduate", variable=self._mode_var,
             value="PG", command=lambda: self._apply_mode("PG"))
         menubar.add_cascade(label="Mode", menu=mode_menu)
+
+    def _rebuild_recent_menu(self):
+        """Rebuild the Recent Files submenu from config."""
+        menu = self._file_menu
+        # Remove old Recent submenu if present
+        if hasattr(self, "_recent_menu"):
+            try:
+                menu.delete("Recent Projects")
+            except Exception:
+                pass
+        recent = self.config.recent_files
+        if not recent:
+            return
+        self._recent_menu = tk.Menu(menu, tearoff=0)
+        for path in recent:
+            label = os.path.basename(path)
+            self._recent_menu.add_command(
+                label=label,
+                command=lambda p=path: self._open_recent(p))
+        # Insert before the last separator + Exit
+        menu.insert_cascade(menu.index("Exit"), label="Recent Projects",
+                            menu=self._recent_menu)
+
+    def _open_recent(self, filepath: str):
+        """Open a file from the Recent Projects list."""
+        if not os.path.exists(filepath):
+            messagebox.showwarning("File Not Found",
+                                   f"File no longer exists:\n{filepath}")
+            self.config.recent_files = [
+                f for f in self.config.recent_files
+                if os.path.normpath(f) != os.path.normpath(filepath)
+            ]
+            self.config.save()
+            self._rebuild_recent_menu()
+            return
+        # Delegate to _open_project logic by setting the file directly
+        if self.state.is_dirty():
+            answer = messagebox.askyesnocancel(
+                "Unsaved Changes",
+                "Save current project before opening another?")
+            if answer is None:
+                return
+            if answer:
+                self._save_project()
+        try:
+            data = load_full_project(filepath)
+        except (FileNotFoundError, ValueError) as exc:
+            messagebox.showerror("Open Error", str(exc))
+            return
+        self.state.evm_project = data["evm_project"] or make_empty_project()[0]
+        self.state.risk_register = data["risk_register"]
+        self.state.mc_results = data["mc_results"]
+        self.state.swot_analysis = data.get("swot_analysis")
+        self.state.pestel_analysis = data.get("pestel_analysis")
+        self.state.wbs_tree = data.get("wbs_tree")
+        self.state.current_file_path = filepath
+        self.state.mark_clean()
+        saved_mode = data.get("app_config", {}).get("mode", self.config.mode)
+        self._apply_mode(saved_mode)
+        cpm_activities = data.get("cpm_activities", [])
+        cpm_mode = data.get("cpm_mode", "deterministic")
+        if cpm_activities:
+            self._input_tab_edu.load_activities(cpm_activities, cpm_mode)
+        self.config.last_project_path = filepath
+        self.config.add_recent_file(filepath)
+        self.config.save()
+        self._rebuild_recent_menu()
+        self._refresh_all_edu_tabs()
 
     def _build_tabs(self):
         self.notebook = ttk.Notebook(self.root)
@@ -392,7 +463,9 @@ class MainWindowEdu:
 
         # Update config
         self.config.last_project_path = filepath
+        self.config.add_recent_file(filepath)
         self.config.save()
+        self._rebuild_recent_menu()
 
         self._refresh_all_edu_tabs()
 
@@ -428,6 +501,9 @@ class MainWindowEdu:
             self.config.last_project_path = filepath
             self.config.save()
             self._apply_mode(self.config.mode)  # refresh title
+            self.config.add_recent_file(filepath)
+            self.config.save()
+            self._rebuild_recent_menu()
         except Exception as exc:
             messagebox.showerror("Save Error", str(exc))
 

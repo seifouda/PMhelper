@@ -7,6 +7,9 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime, timedelta
 
+from pmhelper.core.step_generators_edu import cpm_forward_steps, cpm_backward_steps
+from pmhelper.gui.widgets.worked_solution_window import WorkedSolutionWindow
+
 try:
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -93,6 +96,16 @@ class GanttTabEdu:
         self._start_date_entry.pack(side=tk.LEFT, padx=(0, 4))
         ttk.Label(toolbar2, text="(YYYY-MM-DD)", foreground="grey").pack(side=tk.LEFT, padx=(0, 8))
         ttk.Button(toolbar2, text="Apply Dates", command=self._draw_gantt).pack(side=tk.LEFT, padx=2)
+
+        # CPM Worked Solution buttons (UG only)
+        self._cpm_fwd_btn = ttk.Button(
+            toolbar2, text="📝 Forward Pass",
+            command=self._show_cpm_forward)
+        self._cpm_fwd_btn.pack(side=tk.RIGHT, padx=2)
+        self._cpm_bwd_btn = ttk.Button(
+            toolbar2, text="📝 Backward Pass",
+            command=self._show_cpm_backward)
+        self._cpm_bwd_btn.pack(side=tk.RIGHT, padx=2)
 
         # Chart
         self._fig = Figure(figsize=(8, 5), dpi=100)
@@ -409,6 +422,35 @@ class GanttTabEdu:
     def set_mode(self, mode: str):
         """Show/hide tracking controls based on mode."""
         self._mode = mode
+        # Show CPM worked-solution buttons only in UG mode
+        for btn in (self._cpm_fwd_btn, self._cpm_bwd_btn):
+            if hasattr(self, '_cpm_fwd_btn'):
+                if mode.upper() == "UG":
+                    btn.pack(side=tk.RIGHT, padx=2)
+                else:
+                    btn.pack_forget()
+
+    def _show_cpm_forward(self):
+        """Open CPM forward-pass worked solution."""
+        rd = self._results_data
+        if not rd or not rd.get("graph"):
+            messagebox.showinfo("No data",
+                                "Run CPM/PERT analysis first.",
+                                parent=self.frame)
+            return
+        steps = cpm_forward_steps(rd)
+        WorkedSolutionWindow(self.frame, "CPM Forward Pass — Worked Solution", steps)
+
+    def _show_cpm_backward(self):
+        """Open CPM backward-pass worked solution."""
+        rd = self._results_data
+        if not rd or not rd.get("graph"):
+            messagebox.showinfo("No data",
+                                "Run CPM/PERT analysis first.",
+                                parent=self.frame)
+            return
+        steps = cpm_backward_steps(rd)
+        WorkedSolutionWindow(self.frame, "CPM Backward Pass — Worked Solution", steps)
 
     def get_figures(self):
         """Return list of (name, Figure) for batch export."""

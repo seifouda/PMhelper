@@ -19,6 +19,8 @@ except ImportError:
 from pmhelper.core.evm_calculations_edu import (
     compute_all_kpis, get_rag, get_kpi_walkthrough, RAG_DEFAULTS,
 )
+from pmhelper.core.step_generators_edu import evm_steps
+from pmhelper.gui.widgets.worked_solution_window import WorkedSolutionWindow
 
 
 # RAG badge colours
@@ -93,11 +95,19 @@ class EVMTabEdu:
         ttk.Button(ctrl, text="Recalculate",
                    command=self._recalculate).pack(side=tk.LEFT, padx=(0, 10))
 
+        self._evm_worked_btn = ttk.Button(
+            ctrl, text="📝 Worked Solution",
+            command=self._show_evm_worked_solution)
+        self._evm_worked_btn.pack(side=tk.LEFT, padx=(0, 10))
+
         ttk.Label(ctrl, text="Primary EAC:").pack(side=tk.LEFT)
         self._eac_var = tk.IntVar(value=1)
         for i in (1, 2, 3):
             ttk.Radiobutton(ctrl, text=f"EAC{i}", variable=self._eac_var,
                             value=i).pack(side=tk.LEFT, padx=2)
+
+        ttk.Button(ctrl, text="Export Excel",
+                   command=self._export_excel).pack(side=tk.RIGHT, padx=2)
 
         # Scrollable card grid
         canvas = tk.Canvas(self._kpi_frame, highlightthickness=0)
@@ -349,6 +359,78 @@ class EVMTabEdu:
                     self._cards[kpi_name]["frame"].grid()
                 else:
                     self._cards[kpi_name]["frame"].grid_remove()
+        # Show worked-solution button only in UG mode
+        if hasattr(self, "_evm_worked_btn"):
+            if mode.upper() == "UG":
+                self._evm_worked_btn.pack(side=tk.LEFT, padx=(0, 10))
+            else:
+                self._evm_worked_btn.pack_forget()
+
+    def _show_evm_worked_solution(self):
+        """Open a Worked Solution window for EVM KPIs."""
+        if not self._kpis:
+            from tkinter import messagebox
+            messagebox.showinfo("No data",
+                                "Click Recalculate first.",
+                                parent=self.frame)
+            return
+        proj = self.state.evm_project
+        sym = proj.currency_symbol if proj else "$"
+        steps = evm_steps(self._kpis, sym)
+        WorkedSolutionWindow(self.frame, "EVM — Worked Solution", steps)
+
+    def _export_excel(self):
+        """Export KPI table to an Excel file."""
+        if not self._kpis:
+            from tkinter import messagebox
+            messagebox.showinfo("No data", "Click Recalculate first.",
+                                parent=self.frame)
+            return
+        try:
+            import openpyxl
+        except ImportError:
+            from tkinter import messagebox
+            messagebox.showwarning(
+                "Missing dependency",
+                "Install openpyxl to export Excel:\n  pip install openpyxl",
+                parent=self.frame)
+            return
+
+        from tkinter import filedialog
+        filepath = filedialog.asksaveasfilename(
+            title="Export KPIs to Excel",
+            defaultextension=".xlsx",
+            filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")])
+        if not filepath:
+            return
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "EVM KPIs"
+        ws.append(["KPI", "Value", "RAG Status"])
+
+        proj = self.state.evm_project
+        sym = proj.currency_symbol if proj else "$"
+        bac = self._kpis.get("bac", 0)
+
+        for kpi_name in _KPI_CARD_ORDER:
+            val = self._kpis.get(kpi_name)
+            label = _KPI_LABELS.get(kpi_name, kpi_name)
+            if val is None:
+                display = "N/A"
+            elif kpi_name in ("pc", "ps"):
+                display = f"{val:.1f}%"
+            elif kpi_name in ("cpi", "spi", "cr", "tcpi_bac"):
+                display = f"{val:.3f}"
+            else:
+                display = f"{sym}{val:,.2f}"
+            rag = get_rag(kpi_name, val, bac)
+            ws.append([label, display, rag.upper()])
+
+        wb.save(filepath)
+        from tkinter import messagebox
+        messagebox.showinfo("Exported", f"KPIs exported to:\n{filepath}",
+                            parent=self.frame)
 
     def get_figures(self):
         """Return list of (name, Figure) for batch export."""

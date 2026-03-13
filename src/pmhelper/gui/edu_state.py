@@ -26,6 +26,7 @@ class AppConfig:
     mode: str = "UG"                        # "UG" or "PG"
     last_project_path: str = ""
     currency_symbol: str = "$"
+    recent_files: List[str] = field(default_factory=list)
     rag_thresholds: dict = field(default_factory=lambda: {
         "cpi_amber_lower": 0.95,
         "spi_amber_lower": 0.95,
@@ -47,6 +48,7 @@ class AppConfig:
             "mode": self.mode,
             "last_project_path": self.last_project_path,
             "currency_symbol": self.currency_symbol,
+            "recent_files": self.recent_files[:10],
             "rag_thresholds": self.rag_thresholds,
         }
         self.CONFIG_PATH.write_text(json.dumps(data, indent=2))
@@ -60,6 +62,7 @@ class AppConfig:
                 config.mode = data.get("mode", "UG")
                 config.last_project_path = data.get("last_project_path", "")
                 config.currency_symbol = data.get("currency_symbol", "$")
+                config.recent_files = data.get("recent_files", [])[:10]
                 config.rag_thresholds = {
                     **config.rag_thresholds,
                     **data.get("rag_thresholds", {})
@@ -67,6 +70,14 @@ class AppConfig:
             except (json.JSONDecodeError, KeyError):
                 pass  # corrupted config -> use defaults
         return config
+
+    def add_recent_file(self, filepath: str) -> None:
+        """Add a file to the recent-files list (max 10, most-recent first)."""
+        norm = os.path.normpath(filepath)
+        self.recent_files = [norm] + [
+            f for f in self.recent_files if os.path.normpath(f) != norm
+        ]
+        self.recent_files = self.recent_files[:10]
 
 
 class EduProjectState:

@@ -26,6 +26,8 @@ except ImportError:
 from pmhelper.core.monte_carlo_edu import (
     MCInputs, MCResults, MonteCarloRunner, run_simulation,
 )
+from pmhelper.core.step_generators_edu import pert_steps
+from pmhelper.gui.widgets.worked_solution_window import WorkedSolutionWindow
 from pmhelper.utils.calculations import ProbabilityCalculations
 
 
@@ -142,6 +144,12 @@ class ProbabilityTabEdu:
             var = tk.StringVar(value="—")
             ttk.Label(row, textvariable=var).pack(side=tk.LEFT)
             setattr(self, attr, var)
+
+        # Worked Solution button (UG only)
+        self._pert_worked_btn = ttk.Button(
+            left, text="📝 Show Worked Solution",
+            command=self._show_pert_worked_solution)
+        self._pert_worked_btn.pack(fill=tk.X, padx=4, pady=(6, 4))
 
         # ---- RIGHT PANEL: charts ----
         right = ttk.Frame(pane)
@@ -592,6 +600,35 @@ class ProbabilityTabEdu:
     def set_mode(self, mode: str):
         """PG-only tab."""
         self._mode = mode
+        # Show worked-solution button only in UG mode
+        if hasattr(self, "_pert_worked_btn"):
+            if mode.upper() == "UG":
+                self._pert_worked_btn.pack(fill=tk.X, padx=4, pady=(6, 4))
+            else:
+                self._pert_worked_btn.pack_forget()
+
+    def _show_pert_worked_solution(self):
+        """Open a Worked Solution window for PERT calculations."""
+        if not self.main_window or not self.main_window.results_data:
+            messagebox.showinfo("No data",
+                                "Run PERT analysis first (Analyze button).",
+                                parent=self.frame)
+            return
+        rd = self.main_window.results_data
+        if not rd.get("expected_duration"):
+            messagebox.showinfo("No PERT data",
+                                "PERT data not available. Use probabilistic mode.",
+                                parent=self.frame)
+            return
+        target = None
+        try:
+            target = self._target_dur_var.get()
+            if target <= 0:
+                target = None
+        except (tk.TclError, ValueError):
+            target = None
+        steps = pert_steps(rd, target_duration=target)
+        WorkedSolutionWindow(self.frame, "PERT — Worked Solution", steps)
 
     def get_figures(self):
         """Return list of (name, Figure) for batch export."""
