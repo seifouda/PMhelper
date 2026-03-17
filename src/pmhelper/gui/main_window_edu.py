@@ -415,6 +415,9 @@ class MainWindowEdu:
         self._apply_mode(self.config.mode)
         # Refresh ALL edu tabs so every panel resets
         self._refresh_all_edu_tabs()
+        # Reset schedule stepper
+        if hasattr(self._input_tab_edu, '_stepper'):
+            self._input_tab_edu._stepper.refresh()
 
     def _open_project(self):
         """Open a .pmproj file."""
@@ -771,6 +774,10 @@ class MainWindowEdu:
             f"Project Duration: {project_duration}\n"
             f"Critical Activities: {len(critical_activities)}\n"
             f"Critical Path: {' \u2192 '.join(str(n) for n in critical_path)}")
+
+        # Refresh schedule stepper (Step 5 → green)
+        if hasattr(self._input_tab_edu, '_stepper'):
+            self._input_tab_edu._stepper.refresh()
 
     def update_gantt_chart_after_analysis(self, results_data):
         """Called by original flow \u2014 delegate to edu Gantt."""

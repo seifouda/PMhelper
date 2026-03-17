@@ -4,7 +4,7 @@
 > **Approach:** 1 developer + AI agent assistance
 > **Estimated Calendar Time:** ~21 weeks (parallelism in Phases 2+3 recovers ~2 weeks; ~1 week buffer in Phase 4; Phase 8 adds ~2 weeks)
 > **Date:** March 8, 2026
-> **Last Status Update:** March 9, 2026
+> **Last Status Update:** March 17, 2026
 
 ---
 
@@ -102,12 +102,12 @@ Task 8.6 (demo verification) should be done last — it's the integration smoke 
 
 #### Phase 9A: SWOT Analysis Module (5 days)
 
-| #   | Task                                      | Files to Change / Create                                                                | What to Do                                                                                                         | Effort  | Status      |
-| --- | ----------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------- | ----------- |
-| 9.1 | SWOT data model + extraction logic        | **`core/swot_models_edu.py`** (NEW), **`utils/swot_extractor_edu.py`** (NEW)            | Implement `SWOTFactor`, `SWOTAnalysis` dataclasses + `SWOTExtractor` static methods to auto-populate from Charter  | 2 days  | ✅ Done     |
-| 9.2 | SWOT I/O (save/load to `.pmproj`)         | `utils/project_io_edu.py` (extend)                                                      | Add `swot_analysis` key to `.pmproj` JSON schema; round-trip tests                                                 | 0.5 day | ✅ Done     |
-| 9.3 | SWOT Tab UI (2×2 matrix + CRUD + buttons) | **`gui/tabs/swot_tab_edu.py`** (NEW), `main_window_edu.py` (wire tab)                   | 2×2 grid Treeviews for each quadrant; double-click to edit; auto-extract buttons; manual entry; export PNG/PDF/CSV | 2 days  | ✅ Done     |
-| 9.4 | SWOT Tests                                | **`tests/test_swot_models_edu.py`** (NEW), **`tests/test_swot_extractor_edu.py`** (NEW) | Unit tests for dataclasses, extraction logic (from Charter, Risk, EVM), I/O round-trip                             | 0.5 day | ✅ Done     |
+| #   | Task                                      | Files to Change / Create                                                                | What to Do                                                                                                         | Effort  | Status  |
+| --- | ----------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------- | ------- |
+| 9.1 | SWOT data model + extraction logic        | **`core/swot_models_edu.py`** (NEW), **`utils/swot_extractor_edu.py`** (NEW)            | Implement `SWOTFactor`, `SWOTAnalysis` dataclasses + `SWOTExtractor` static methods to auto-populate from Charter  | 2 days  | ✅ Done |
+| 9.2 | SWOT I/O (save/load to `.pmproj`)         | `utils/project_io_edu.py` (extend)                                                      | Add `swot_analysis` key to `.pmproj` JSON schema; round-trip tests                                                 | 0.5 day | ✅ Done |
+| 9.3 | SWOT Tab UI (2×2 matrix + CRUD + buttons) | **`gui/tabs/swot_tab_edu.py`** (NEW), `main_window_edu.py` (wire tab)                   | 2×2 grid Treeviews for each quadrant; double-click to edit; auto-extract buttons; manual entry; export PNG/PDF/CSV | 2 days  | ✅ Done |
+| 9.4 | SWOT Tests                                | **`tests/test_swot_models_edu.py`** (NEW), **`tests/test_swot_extractor_edu.py`** (NEW) | Unit tests for dataclasses, extraction logic (from Charter, Risk, EVM), I/O round-trip                             | 0.5 day | ✅ Done |
 
 **Extraction sources for SWOT (auto-populate):**
 
@@ -118,11 +118,11 @@ Task 8.6 (demo verification) should be done last — it's the integration smoke 
 
 #### Phase 9B: PESTEL Analysis Module (2.5 days)
 
-| #   | Task                                          | Files to Change / Create                                                | What to Do                                                                                                           | Effort  | Status      |
-| --- | --------------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------- | ----------- |
-| 9.5 | PESTEL data model + scoring                   | **`core/pestel_models_edu.py`** (NEW)                                   | Implement `PESTELFactor`, `PESTELAnalysis` dataclasses + exposure scoring (impact × probability)                     | 1 day   | ✅ Done     |
-| 9.6 | PESTEL I/O (save/load to `.pmproj`)           | `utils/project_io_edu.py` (extend)                                      | Add `pestel_analysis` key to `.pmproj` JSON schema; round-trip tests                                                 | 0.5 day | ✅ Done     |
-| 9.7 | PESTEL Tab UI (6-cell heatmap + detail table) | **`gui/tabs/pestel_tab_edu.py`** (NEW), `main_window_edu.py` (wire tab) | 6 coloured buttons (P/E/S/T/En/L) with heatmap intensity; click to filter factors; detail table; add/edit UI; export | 1 day   | ✅ Done     |
+| #   | Task                                          | Files to Change / Create                                                | What to Do                                                                                                           | Effort  | Status  |
+| --- | --------------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------- | ------- |
+| 9.5 | PESTEL data model + scoring                   | **`core/pestel_models_edu.py`** (NEW)                                   | Implement `PESTELFactor`, `PESTELAnalysis` dataclasses + exposure scoring (impact × probability)                     | 1 day   | ✅ Done |
+| 9.6 | PESTEL I/O (save/load to `.pmproj`)           | `utils/project_io_edu.py` (extend)                                      | Add `pestel_analysis` key to `.pmproj` JSON schema; round-trip tests                                                 | 0.5 day | ✅ Done |
+| 9.7 | PESTEL Tab UI (6-cell heatmap + detail table) | **`gui/tabs/pestel_tab_edu.py`** (NEW), `main_window_edu.py` (wire tab) | 6 coloured buttons (P/E/S/T/En/L) with heatmap intensity; click to filter factors; detail table; add/edit UI; export | 1 day   | ✅ Done |
 
 **PESTEL factors in scope:**
 
@@ -250,8 +250,8 @@ Both SWOT and PESTEL tabs have:
 
 ### ✅ DONE — Phase 10: Polish & Packaging
 
-| #    | Feature                                                           | Effort   | Priority | Status                              |
-| ---- | ----------------------------------------------------------------- | -------- | -------- | ----------------------------------- |
+| #    | Feature                                                           | Effort   | Priority | Status                               |
+| ---- | ----------------------------------------------------------------- | -------- | -------- | ------------------------------------ |
 | 10.1 | Recent files list in File menu                                    | 0.5 days | Low      | ✅ Done                              |
 | 10.2 | Step-by-step walkthrough panel visible by default (not collapsed) | 0.5 days | Low      | ✅ Superseded by Phase 11 Worked Sol |
 | 10.3 | PyInstaller `--onedir` build actually run and tested              | 1 day    | Low      | ⏳ Manual testing required           |
@@ -270,13 +270,13 @@ Both SWOT and PESTEL tabs have:
 
 #### Phase 9C — Data Model & Logic (4.5 days)
 
-| #    | Task                                        | Files to Change / Create                                            | What to Do                                                                                                                                                                                              | Effort  | Status      |
-| ---- | ------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------- |
-| 9.8  | WBS data model                              | **`core/wbs_models_edu.py`** (NEW)                                  | `WBSNode` dataclass (node_id, parent_id, name, description, owner, estimated_duration, estimated_cost, status, level, wbs_code, linked_task_id); `WBSStatus` enum (5 states); `to_dict()`/`from_dict()` | 1 day   | ✅ Done     |
-| 9.9  | WBS validator                               | **`core/wbs_validator_edu.py`** (NEW)                               | Validate: unique IDs, parent existence, single root, no cycles (DFS with recursion stack)                                                                                                               | 0.5 day | ✅ Done     |
-| 9.10 | WBS tree builder + level assignment + codes | **`core/wbs_builder_edu.py`** (NEW)                                 | Build tree from flat list (O(N) dict lookup); BFS level assignment (root=0); WBS code generation (1 → 1.1 → 1.1.1); work package identification (leaf = is_work_package)                                | 1 day   | ✅ Done     |
-| 9.11 | WBS aggregator (rollup)                     | **`core/wbs_aggregator_edu.py`** (NEW)                              | Cost: sum(children); Duration: max(children); Progress: weighted by cost. Post-order traversal with subtree caching. Invalidate cache on mutation.                                                      | 1 day   | ✅ Done     |
-| 9.12 | WBS I/O (save/load + CSV/JSON import)       | `utils/project_io_edu.py` (extend), **`utils/wbs_io_edu.py`** (NEW) | `.pmproj` `wbs_data` key; CSV import (`ID,ParentID,Name,Duration,Cost`); JSON import; hierarchical input support. Missing columns default: owner="Unassigned", status="not_started"                     | 1 day   | ✅ Done     |
+| #    | Task                                        | Files to Change / Create                                            | What to Do                                                                                                                                                                                              | Effort  | Status  |
+| ---- | ------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------- |
+| 9.8  | WBS data model                              | **`core/wbs_models_edu.py`** (NEW)                                  | `WBSNode` dataclass (node_id, parent_id, name, description, owner, estimated_duration, estimated_cost, status, level, wbs_code, linked_task_id); `WBSStatus` enum (5 states); `to_dict()`/`from_dict()` | 1 day   | ✅ Done |
+| 9.9  | WBS validator                               | **`core/wbs_validator_edu.py`** (NEW)                               | Validate: unique IDs, parent existence, single root, no cycles (DFS with recursion stack)                                                                                                               | 0.5 day | ✅ Done |
+| 9.10 | WBS tree builder + level assignment + codes | **`core/wbs_builder_edu.py`** (NEW)                                 | Build tree from flat list (O(N) dict lookup); BFS level assignment (root=0); WBS code generation (1 → 1.1 → 1.1.1); work package identification (leaf = is_work_package)                                | 1 day   | ✅ Done |
+| 9.11 | WBS aggregator (rollup)                     | **`core/wbs_aggregator_edu.py`** (NEW)                              | Cost: sum(children); Duration: max(children); Progress: weighted by cost. Post-order traversal with subtree caching. Invalidate cache on mutation.                                                      | 1 day   | ✅ Done |
+| 9.12 | WBS I/O (save/load + CSV/JSON import)       | `utils/project_io_edu.py` (extend), **`utils/wbs_io_edu.py`** (NEW) | `.pmproj` `wbs_data` key; CSV import (`ID,ParentID,Name,Duration,Cost`); JSON import; hierarchical input support. Missing columns default: owner="Unassigned", status="not_started"                     | 1 day   | ✅ Done |
 
 **Duration aggregation rule (corrected from naive sum):**
 
@@ -297,19 +297,19 @@ class WBSStatus(str, Enum):
 
 #### Phase 9C — Layout & Visualization (3 days)
 
-| #    | Task                                  | Files to Change / Create                | What to Do                                                                                                                                                                                   | Effort  | Status      |
-| ---- | ------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------- |
-| 9.13 | Layout engine (Walker's algorithm)    | **`core/wbs_layout_edu.py`** (NEW)      | Walker's algorithm for variable-width rectangle nodes; top-down layout; y = level × vertical_spacing; children centered under parents; handles nodes up to 3000                              | 2 days  | ✅ Done     |
-| 9.14 | Visualization data model (graph repr) | In `core/wbs_layout_edu.py` (same file) | `LayoutNode` (id, x, y, width, height, label, wbs_code, level, cost, duration, progress, status) + `LayoutEdge` (source, target)                                                             | 0.5 day | ✅ Done     |
-| 9.15 | Matplotlib export renderer            | **`utils/wbs_export_edu.py`** (NEW)     | Render WBS tree to Matplotlib figure for PNG/PDF export; rectangles with WBS code + name + cost + duration; colour by level (dark→medium→light) + optional status colours (green/yellow/red) | 0.5 day | ✅ Done     |
+| #    | Task                                  | Files to Change / Create                | What to Do                                                                                                                                                                                   | Effort  | Status  |
+| ---- | ------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------- |
+| 9.13 | Layout engine (Walker's algorithm)    | **`core/wbs_layout_edu.py`** (NEW)      | Walker's algorithm for variable-width rectangle nodes; top-down layout; y = level × vertical_spacing; children centered under parents; handles nodes up to 3000                              | 2 days  | ✅ Done |
+| 9.14 | Visualization data model (graph repr) | In `core/wbs_layout_edu.py` (same file) | `LayoutNode` (id, x, y, width, height, label, wbs_code, level, cost, duration, progress, status) + `LayoutEdge` (source, target)                                                             | 0.5 day | ✅ Done |
+| 9.15 | Matplotlib export renderer            | **`utils/wbs_export_edu.py`** (NEW)     | Render WBS tree to Matplotlib figure for PNG/PDF export; rectangles with WBS code + name + cost + duration; colour by level (dark→medium→light) + optional status colours (green/yellow/red) | 0.5 day | ✅ Done |
 
 #### Phase 9C — Tab UI & Interactions (4 days)
 
-| #    | Task                                   | Files to Change / Create                                         | What to Do                                                                                                                                                                       | Effort   | Status      |
-| ---- | -------------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- |
-| 9.16 | WBS Tab UI (Canvas renderer)           | **`gui/tabs/wbs_tab_edu.py`** (NEW), `main_window_edu.py` (wire) | Tkinter Canvas with rectangle nodes, connector lines, scroll, zoom (Ctrl+wheel); node rendering: WBS code + name + cost + duration; colour by level + status                     | 2 days   | ✅ Done     |
-| 9.17 | Interactions (expand/collapse/add/del) | In `gui/tabs/wbs_tab_edu.py`                                     | Click node → select; right-click → context menu (Add Child, Edit, Delete Subtree, Delete & Promote, Expand/Collapse); double-click → edit dialog; drag-reparent with visual cues | 1.5 days | ✅ Done     |
-| 9.18 | Export dialog (Excel/PDF/JSON + all)   | In `gui/tabs/wbs_tab_edu.py` + `utils/wbs_export_edu.py`         | Export button → dropdown: Excel (openpyxl), PDF (matplotlib), JSON, CSV, "All Formats"; table format: WBS Code / Level / Task / Cost / Duration / Progress                       | 0.5 day  | ✅ Done     |
+| #    | Task                                   | Files to Change / Create                                         | What to Do                                                                                                                                                                       | Effort   | Status  |
+| ---- | -------------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------- |
+| 9.16 | WBS Tab UI (Canvas renderer)           | **`gui/tabs/wbs_tab_edu.py`** (NEW), `main_window_edu.py` (wire) | Tkinter Canvas with rectangle nodes, connector lines, scroll, zoom (Ctrl+wheel); node rendering: WBS code + name + cost + duration; colour by level + status                     | 2 days   | ✅ Done |
+| 9.17 | Interactions (expand/collapse/add/del) | In `gui/tabs/wbs_tab_edu.py`                                     | Click node → select; right-click → context menu (Add Child, Edit, Delete Subtree, Delete & Promote, Expand/Collapse); double-click → edit dialog; drag-reparent with visual cues | 1.5 days | ✅ Done |
+| 9.18 | Export dialog (Excel/PDF/JSON + all)   | In `gui/tabs/wbs_tab_edu.py` + `utils/wbs_export_edu.py`         | Export button → dropdown: Excel (openpyxl), PDF (matplotlib), JSON, CSV, "All Formats"; table format: WBS Code / Level / Task / Cost / Duration / Progress                       | 0.5 day  | ✅ Done |
 
 **Node rendering rules:**
 
@@ -331,11 +331,11 @@ class WBSStatus(str, Enum):
 
 #### Phase 9C — Tests (1.5 days)
 
-| #    | Task                           | Files to Change / Create                                                                | What to Do                                                                                                                         | Effort  | Status      |
-| ---- | ------------------------------ | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------- |
-| 9.19 | WBS model + validator tests    | **`tests/test_wbs_models_edu.py`** (NEW), **`tests/test_wbs_validator_edu.py`** (NEW)   | Dataclass round-trip, validation rules, cycle detection (DFS), single root, unique IDs, parent existence                           | 0.5 day | ✅ Done     |
-| 9.20 | WBS builder + aggregator tests | **`tests/test_wbs_builder_edu.py`** (NEW), **`tests/test_wbs_aggregator_edu.py`** (NEW) | Tree construction, BFS levels, WBS code generation, work package identification, cost/duration/progress rollup, cache invalidation | 0.5 day | ✅ Done     |
-| 9.21 | WBS layout + export tests      | **`tests/test_wbs_layout_edu.py`** (NEW), **`tests/test_wbs_export_edu.py`** (NEW)      | Layout positions non-overlapping, children centered, export produces valid files, I/O round-trip (CSV/JSON/Excel)                  | 0.5 day | ✅ Done     |
+| #    | Task                           | Files to Change / Create                                                                | What to Do                                                                                                                         | Effort  | Status  |
+| ---- | ------------------------------ | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------- | ------- |
+| 9.19 | WBS model + validator tests    | **`tests/test_wbs_models_edu.py`** (NEW), **`tests/test_wbs_validator_edu.py`** (NEW)   | Dataclass round-trip, validation rules, cycle detection (DFS), single root, unique IDs, parent existence                           | 0.5 day | ✅ Done |
+| 9.20 | WBS builder + aggregator tests | **`tests/test_wbs_builder_edu.py`** (NEW), **`tests/test_wbs_aggregator_edu.py`** (NEW) | Tree construction, BFS levels, WBS code generation, work package identification, cost/duration/progress rollup, cache invalidation | 0.5 day | ✅ Done |
+| 9.21 | WBS layout + export tests      | **`tests/test_wbs_layout_edu.py`** (NEW), **`tests/test_wbs_export_edu.py`** (NEW)      | Layout positions non-overlapping, children centered, export produces valid files, I/O round-trip (CSV/JSON/Excel)                  | 0.5 day | ✅ Done |
 
 **Performance test:** Build + layout + render 3000-node tree in <2 sec (timed test).
 
@@ -1944,14 +1944,14 @@ gui/widgets/worked_solution_window.py  ← Reusable Tk Toplevel
 
 #### Phase 11A — Tasks (7 days, UG-only)
 
-| #    | Task                                    | Files to Create / Change                                                           | What to Do                                                                                                                                | Effort   | Status      |
-| ---- | --------------------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- |
-| 11.1 | `Step` data model + PERT step generator | **`core/step_generators_edu.py`** (NEW)                                            | `Step` dataclass; `pert_steps()` producing 6 steps: tₑ per activity, σ² per activity, path variance, σ, Z, P(Z)                           | 2 days   | ✅ Done     |
-| 11.2 | EVM step generator                      | `core/step_generators_edu.py` (extend)                                             | `evm_steps()` producing full KPI chain: PV→EV→AC→CV/SV→CPI/SPI→EAC→VAC→TCPI, each building on prior                                       | 1.5 days | ✅ Done     |
-| 11.3 | CPM forward + backward step generators  | `core/step_generators_edu.py` (extend)                                             | `cpm_forward_steps()` (ES/EF per node in topological order, showing max-predecessor logic); `cpm_backward_steps()` (LF/LS, Float = LS−ES) | 1.5 days | ✅ Done     |
-| 11.4 | `WorkedSolutionWindow` widget           | **`gui/widgets/worked_solution_window.py`** (NEW)                                  | Scrollable Toplevel; Step cards with expand/collapse; colour coding by RAG; Copy + Export PDF buttons                                     | 2 days   | ✅ Done     |
-| 11.5 | Wire buttons into tabs (UG mode only)   | `probability_tab_edu.py`, `evm_tab_edu.py`, `gantt_tab_edu.py`                     | "Show Worked Solution" buttons; hidden in PG mode via `set_mode()`; opens `WorkedSolutionWindow`                                          | 0.5 day  | ✅ Done     |
-| 11.6 | Tests for step generators               | **`tests/test_step_generators_edu.py`** (NEW)                                      | 36 known-value assertions for all three generators; verify step count, formula strings, result values, RAG classification                 | 1 day    | ✅ Done     |
+| #    | Task                                    | Files to Create / Change                                       | What to Do                                                                                                                                | Effort   | Status  |
+| ---- | --------------------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------- |
+| 11.1 | `Step` data model + PERT step generator | **`core/step_generators_edu.py`** (NEW)                        | `Step` dataclass; `pert_steps()` producing 6 steps: tₑ per activity, σ² per activity, path variance, σ, Z, P(Z)                           | 2 days   | ✅ Done |
+| 11.2 | EVM step generator                      | `core/step_generators_edu.py` (extend)                         | `evm_steps()` producing full KPI chain: PV→EV→AC→CV/SV→CPI/SPI→EAC→VAC→TCPI, each building on prior                                       | 1.5 days | ✅ Done |
+| 11.3 | CPM forward + backward step generators  | `core/step_generators_edu.py` (extend)                         | `cpm_forward_steps()` (ES/EF per node in topological order, showing max-predecessor logic); `cpm_backward_steps()` (LF/LS, Float = LS−ES) | 1.5 days | ✅ Done |
+| 11.4 | `WorkedSolutionWindow` widget           | **`gui/widgets/worked_solution_window.py`** (NEW)              | Scrollable Toplevel; Step cards with expand/collapse; colour coding by RAG; Copy + Export PDF buttons                                     | 2 days   | ✅ Done |
+| 11.5 | Wire buttons into tabs (UG mode only)   | `probability_tab_edu.py`, `evm_tab_edu.py`, `gantt_tab_edu.py` | "Show Worked Solution" buttons; hidden in PG mode via `set_mode()`; opens `WorkedSolutionWindow`                                          | 0.5 day  | ✅ Done |
+| 11.6 | Tests for step generators               | **`tests/test_step_generators_edu.py`** (NEW)                  | 36 known-value assertions for all three generators; verify step count, formula strings, result values, RAG classification                 | 1 day    | ✅ Done |
 
 **Total Phase 11A: 8.5 days**
 
@@ -1967,6 +1967,154 @@ Separate dialog where students input their **own** numbers (not from the project
 | 2   | Replace or extend current EVM walkthrough? | **Replace** — current 3-label widget becomes the "Show Worked Solution" button; Toplevel supersedes it |
 | 3   | UG-only or both modes?                     | **UG-only** — PG students already know derivations; showing steps in PG mode clutters the workflow     |
 | 4   | Practice Calculator in Phase 11A?          | **Deferred to Phase 11B** — separate input form + live recalculation is a distinct scope increment     |
+
+---
+
+### ✅ PHASE 12 — Schedule Process Stepper (Complete)
+
+> **Goal:** Turn the 5 PMBOK scheduling process steps into a visible, interactive progress bar inside the Input Activities tab so that students understand _where they are_ in the schedule development workflow — not just _what buttons to press_.
+> **Dependencies:** Phases 0–8 complete, Phase 11 (Step dataclass reuse)
+> **Priority:** P1 — this is the main pedagogical gap remaining: data entry tabs exist, but students get no signal about the overall scheduling process
+> **Scope:** UG + PG (both modes — detection logic adapts per mode)
+
+#### Why This Matters
+
+The app already covers all 5 PMBOK scheduling steps across various tabs:
+
+| PMBOK Scheduling Step   | Tab / Control That Covers It                              |
+| ----------------------- | --------------------------------------------------------- |
+| 1. Define Activities    | Input Activities (activity rows) + WBS (PG)               |
+| 2. Sequence Activities  | Input Activities → Predecessors column → Network Diagram  |
+| 3. Estimate Resources   | Input Activities → Resource Demand column + Resources tab |
+| 4. Estimate Durations   | Input Activities → Duration (CPM) or o/m/p (PERT) columns |
+| 5. Develop the Schedule | ▶ Analyze → Gantt / Results / Network / Critical Path     |
+
+**The problem:** Nothing tells the student "here are 5 steps — you've done 2 of them." The tabs are a flat list. Students skip ahead, forget predecessors, and get confused when analysis produces a trivial network. A visible stepper widget fixes this with zero changes to the underlying logic.
+
+#### Critique of Initial Design & Corrections
+
+The original Phase 12 plan had these flaws — all addressed in this revised version:
+
+| #   | Original Flaw                                                                                                                                                                                                                                                                                                           | Correction                                                                                                                                                                                                  |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **12A "Schedule Guide" as a worked-solution popup was too passive.** It's just a tutorial in a modal — students won't read static text about "what is Step 1" with no connection to their data. The `WorkedSolutionWindow` is designed for _calculations_ (formula→substitution→result), not for conceptual checklists. | **Removed 12A entirely.** The step descriptions become tooltip/popover text _inside_ the stepper badges. Context where you need it, not in a separate window.                                               |
+| 2   | **`root.after(1500)` polling is wasteful and fragile.** Polling every 1.5s to detect tree changes creates unnecessary CPU load, and `root.after` callbacks need careful teardown when the tab is destroyed or the window is closed.                                                                                     | **Event-driven refresh.** Call `stepper.refresh()` from the 6 methods that already mutate data: `add_row()`, `delete_row()`, `clear_all()`, `load_file()`, `_save_edit()`, `_run_analysis()`. Zero polling. |
+| 3   | **Step 3 (Estimate Resources) was required — but Resource Demand is optional.** Many UG projects work perfectly without resource data. Showing a red badge for a step the student doesn't need creates confusion.                                                                                                       | **Step 3 is marked "optional"** — badge shows "○ optional" in grey by default, turns green only if any activity has Resource Demand > 0. Never red.                                                         |
+| 4   | **Step 2 detection was naive** — "≥1 activity has Predecessors" fails because the first activity legitimately has no predecessors.                                                                                                                                                                                      | **Smarter detection:** Step 2 = complete when activity_count ≤ 1 OR at least one non-first activity has a non-empty Predecessors field. A single-activity project has no sequencing to do.                  |
+| 5   | **12C contextual hints were redundant with the stepper.** Both the stepper badge and a separate hint banner saying "No predecessors set" deliver the same information. This clutters the UI.                                                                                                                            | **Merged into stepper tooltips.** Each incomplete badge shows a one-line hint on hover explaining what to do next. No separate banner widget.                                                               |
+| 6   | **UG-only was wrong.** PG students also need workflow guidance. The only detection difference is Step 1 in PG mode (WBS exists OR activities entered vs. just activities). That's one `if` statement, not a reason to hide the whole widget.                                                                            | **Both modes.** Step 1 detection adapts: UG checks activity rows; PG also accepts WBS tree with ≥ 1 child node as "defined".                                                                                |
+| 7   | **Three sub-phases (12A/12B/12C) for one feature over-fragmented the work.** This is a single widget with a single purpose.                                                                                                                                                                                             | **One phase, 4 tasks.** Widget + wiring + tests + plan update.                                                                                                                                              |
+
+#### Step Completion Detection Logic
+
+All reads are from existing data — no new state needed.
+
+| Step | Badge Label         | Complete When                                                   | Source                                                  |
+| ---- | ------------------- | --------------------------------------------------------------- | ------------------------------------------------------- |
+| 1    | Define Activities   | ≥ 1 activity with non-empty ID in tree                          | `input_tab.get_activities_data()`                       |
+| 2    | Sequence Activities | `activity_count ≤ 1` OR ≥ 1 activity has non-empty Predecessors | `get_activities_data()` → check `predecessors` field    |
+| 3    | Estimate Resources  | _(Optional)_ Any activity has Resource Demand > 0               | `get_activities_data()` → check `resource_demand` field |
+| 4    | Estimate Durations  | All activities have Duration > 0 (CPM) or Optimistic > 0 (PERT) | `get_activities_data()` → check by `current_mode`       |
+| 5    | Develop Schedule    | `main_window.results_data is not None`                          | Direct attribute check                                  |
+
+**PG-mode Step 1 override:** Also complete if `state.wbs_tree` has ≥ 1 child node (i.e., student defined scope via WBS).
+
+#### Badge State Machine
+
+Each badge has exactly 3 visual states:
+
+```
+┌──────────────────────────────────────────┐
+│  ● complete  (green bg, ✓ icon)          │
+│  ○ pending   (grey outline, step number) │
+│  ○ optional  (grey dashed, "optional")   │  ← Step 3 only
+└──────────────────────────────────────────┘
+```
+
+No "red/failed" state — the stepper is encouraging, not punitive. Incomplete badges show the step number and a subtle grey background. Hovering shows a one-line tooltip explaining what to do.
+
+#### Badge Click → Tab Navigation
+
+| Badge Clicked           | Action                                                            |
+| ----------------------- | ----------------------------------------------------------------- |
+| 1 — Define Activities   | Switch to Input Activities tab (already there — no-op)            |
+| 2 — Sequence Activities | Switch to Input Activities tab, flash Predecessors column header  |
+| 3 — Estimate Resources  | Switch to Resources tab (PG) or flash Resource Demand column (UG) |
+| 4 — Estimate Durations  | Switch to Input Activities tab, flash Duration column header      |
+| 5 — Develop Schedule    | Click ▶ Analyze if data exists, else flash Analyze button         |
+
+"Flash" = 3× blink the column header background between yellow and default over 500ms — draws the eye without being jarring.
+
+#### Architecture
+
+```
+gui/widgets/schedule_stepper_edu.py     ← New widget, zero business logic
+  class ScheduleStepperWidget(ttk.Frame):
+    __init__(parent, main_window)
+    refresh()                          ← Called by InputTabEdu after mutations
+    _detect_steps() → dict[int, str]   ← Returns {1: "complete", 2: "pending", ...}
+    _on_badge_click(step_num)          ← Tab navigation + column flash
+    _build_badges()                    ← 5 LabelFrames in a horizontal row
+
+gui/tabs/input_tab_edu.py              ← Embed stepper, add refresh() calls
+  - Insert stepper below button_frame (before mode_label)
+  - Add self._stepper.refresh() to: add_row, delete_row,
+    clear_all_without_confirmation, load_file, _save_edit
+
+gui/main_window_edu.py                 ← Post-analysis refresh
+  - After analyze_project() succeeds, call
+    self._input_tab_edu._stepper.refresh()
+
+tests/test_schedule_stepper_edu.py     ← Detection logic tests
+```
+
+#### Visual Layout (in Input Activities tab)
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│ [Load CPM] [Load PERT] [Auto-Detect] [Add Row] [Del Row] [Clear] [▶]  │  ← button_frame
+├─────────────────────────────────────────────────────────────────────────┤
+│ [1 Define ✓]──►[2 Sequence ✓]──►[3 Resources ○]──►[4 Durations ✓]──►[5 Analyse ○]  │  ← stepper
+├─────────────────────────────────────────────────────────────────────────┤
+│ Mode: Deterministic (CPM)                                               │  ← mode_label
+├─────────────────────────────────────────────────────────────────────────┤
+│ ID  │ Activity │ Duration │ Predecessors │ Min Dur │ Crash │ Resource │  │  ← tree
+│ ... │ ...      │ ...      │ ...          │ ...     │ ...   │ ...      │  │
+├─────────────────────────────────────────────────────────────────────────┤
+│ EVM Data Entry Panel                                                    │  ← bottom pane
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Tooltip Content (appears on hover over incomplete badges)
+
+| Step | Tooltip Text                                                                                                      |
+| ---- | ----------------------------------------------------------------------------------------------------------------- |
+| 1    | "Enter your project activities in the table below, or load data from a CSV file."                                 |
+| 2    | "Set the Predecessors column to define task dependencies (e.g., 'A, B'). The first activity has no predecessors." |
+| 3    | "Optional: Set Resource Demand per activity to enable resource-constrained scheduling."                           |
+| 4    | "Enter a Duration for each activity (CPM) or Optimistic/Most-Likely/Pessimistic estimates (PERT)."                |
+| 5    | "Click ▶ Analyze to calculate the critical path, float values, and project duration."                             |
+
+#### Phase 12 — Tasks
+
+| #    | Task                              | Files to Create / Change                        | What to Do                                                                                                                                                                                   | Effort   | Status      |
+| ---- | --------------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- |
+| 12.1 | Schedule Stepper widget           | **`gui/widgets/schedule_stepper_edu.py`** (NEW) | `ScheduleStepperWidget(ttk.Frame)` — 5 badges in a row; `refresh()` reads activities data + results_data; `_detect_steps()` returns completion dict; tooltips on hover; click→tab navigation | 1 day    | ✅ Done |
+| 12.2 | Embed stepper in Input Activities | `gui/tabs/input_tab_edu.py` (modify)            | Insert stepper between `button_frame` and `mode_label`. Add `self._stepper.refresh()` calls to `add_row`, `delete_row`, `clear_all_without_confirmation`, `load_file`, `_save_edit`          | 0.5 day  | ✅ Done |
+| 12.3 | Post-analysis stepper refresh     | `gui/main_window_edu.py` (modify)               | After successful `analyze_project()`, call `self._input_tab_edu._stepper.refresh()` to turn Step 5 green. After `_new_project()`, call refresh to reset all badges.                          | 0.25 day | ✅ Done |
+| 12.4 | Tests for detection logic         | **`tests/test_schedule_stepper_edu.py`** (NEW)  | 22 tests: empty project→all pending; 1 activity→step 1 green; predecessors set→step 2 green; optional step 3 logic; all durations set→step 4; results_data present→step 5; PG WBS override   | 0.5 day  | ✅ Done |
+
+**Total Phase 12: 2.25 days**
+
+#### Decisions
+
+| #   | Decision                         | Answer                                                             | Reasoning                                                                                                                                                                                                   |
+| --- | -------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Polling or event-driven refresh? | **Event-driven** — call `refresh()` from 6 existing methods        | Polling (`root.after`) wastes cycles and requires teardown logic on destroy. The 6 mutation points are already known.                                                                                       |
+| 2   | UG-only or both modes?           | **Both modes** — Step 1 detection adapts for PG (accepts WBS tree) | The detection difference is one `if` statement. Hiding the stepper in PG mode means PG students miss the workflow guidance.                                                                                 |
+| 3   | Step 3 required or optional?     | **Optional** — grey "optional" badge, never red                    | Resource Demand is an optional column. Making it required contradicts current behavior where analysis works without resources.                                                                              |
+| 4   | Red badge for incomplete steps?  | **No** — only green (complete) and grey (pending)                  | The stepper should encourage, not shame. A student in the middle of data entry sees grey badges as "things to do", not "things done wrong."                                                                 |
+| 5   | Separate guide popup (12A)?      | **Removed** — tooltip text inside badges is sufficient             | A `WorkedSolutionWindow` with static PMBOK text and no calculations is just a help page in a modal. It misuses the worked-solution infrastructure, which is designed for formula→substitution→result flows. |
 
 ---
 

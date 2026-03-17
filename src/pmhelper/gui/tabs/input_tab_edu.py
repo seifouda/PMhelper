@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 from pmhelper.utils.file_handlers import FileHandler
 from pmhelper.core.evm_models_edu import EVMTask, EVMPeriod, EVMProject, PVSpread, compute_pv_schedule
+from pmhelper.gui.widgets.schedule_stepper_edu import ScheduleStepperWidget
 
 
 class InputTabEdu:
@@ -37,6 +38,12 @@ class InputTabEdu:
         self.paned.add(self.top_frame, weight=1)
 
         self._create_button_frame()
+
+        # Schedule Process Stepper (5-step PMBOK progress bar)
+        self._stepper = ScheduleStepperWidget(self.top_frame,
+                                              main_window=main_window)
+        self._stepper.pack(fill=tk.X, pady=(0, 4))
+
         self.mode_label = ttk.Label(self.top_frame, text="Mode: None",
                                     font=("Arial", 10, "bold"))
         self.mode_label.pack(anchor="w", pady=(0, 5))
@@ -285,12 +292,14 @@ class InputTabEdu:
                     activity.get('min_duration', ''), activity.get('crash_cost', ''),
                     activity.get('resource_demand', ''), activity.get('normal_cost', ''))
             self.tree.insert("", tk.END, values=values)
+        self._stepper.refresh()
 
     def add_row(self):
         if self.current_mode == 'deterministic':
             self.tree.insert("", tk.END, values=("",) * 8)
         else:
             self.tree.insert("", tk.END, values=("",) * 10)
+        self._stepper.refresh()
 
     def delete_row(self):
         sel = self.tree.selection()
@@ -299,6 +308,7 @@ class InputTabEdu:
             return
         for item in sel:
             self.tree.delete(item)
+        self._stepper.refresh()
 
     def clear_all(self):
         if messagebox.askyesno("Clear All", "Clear all data?"):
@@ -307,6 +317,7 @@ class InputTabEdu:
     def clear_all_without_confirmation(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
+        self._stepper.refresh()
 
     def edit_item(self, event):
         item = self.tree.selection()[0] if self.tree.selection() else None
@@ -341,6 +352,7 @@ class InputTabEdu:
             vals[col_index] = new_value
             self.tree.item(item, values=vals)
             self._cancel_edit()
+            self._stepper.refresh()
 
     def _cancel_edit(self):
         if hasattr(self, '_edit_entry'):
