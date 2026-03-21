@@ -61,6 +61,10 @@ class MainWindowEdu:
         # Unsaved-changes warning on close
         self.root.protocol("WM_DELETE_WINDOW", self._on_closing)
 
+        # Keyboard shortcuts
+        self.root.bind_all("<Control-s>", lambda e: self._save_project())
+        self.root.bind_all("<Control-S>", lambda e: self._save_project_as())
+
         self._build_menu()
         self._build_tabs()
         self._apply_mode(self.config.mode)
@@ -72,9 +76,11 @@ class MainWindowEdu:
         file_menu = tk.Menu(menubar, tearoff=0)
         file_menu.add_command(label="New Project", command=self._new_project)
         file_menu.add_command(label="Open Project...", command=self._open_project)
-        file_menu.add_command(label="Save Project", command=self._save_project)
+        file_menu.add_command(label="Save Project", command=self._save_project,
+                              accelerator="Ctrl+S")
         file_menu.add_command(label="Save Project As...",
-                              command=self._save_project_as)
+                              command=self._save_project_as,
+                              accelerator="Ctrl+Shift+S")
         file_menu.add_separator()
         file_menu.add_command(label="Load UG Demo",
                               command=lambda: self._load_demo("ug"))
