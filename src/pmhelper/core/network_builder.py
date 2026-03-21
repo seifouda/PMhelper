@@ -159,26 +159,11 @@ class NetworkBuilder:
             node for node in G.nodes() if G.nodes[node]['float'] == 0]
         critical_subgraph = G.subgraph(critical_activities)
 
-        start_nodes = [node for node in critical_subgraph.nodes(
-        ) if critical_subgraph.in_degree(node) == 0]
-        end_nodes = [node for node in critical_subgraph.nodes(
-        ) if critical_subgraph.out_degree(node) == 0]
-
-        longest_path = []
-        max_length = 0
-
-        for start in start_nodes:
-            for end in end_nodes:
-                try:
-                    paths = list(
-                        nx.all_simple_paths(
-                            critical_subgraph, start, end))
-                    for path in paths:
-                        if len(path) > max_length:
-                            max_length = len(path)
-                            longest_path = path
-                except nx.NetworkXNoPath:
-                    pass
+        # Use dag_longest_path — O(V+E) instead of all_simple_paths O(2^n)
+        try:
+            longest_path = nx.dag_longest_path(critical_subgraph)
+        except (nx.NetworkXUnfeasible, nx.NetworkXError):
+            longest_path = []
 
         return [longest_path] if longest_path else [
             critical_activities], critical_activities

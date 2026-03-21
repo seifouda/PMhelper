@@ -2285,16 +2285,109 @@ def barycenter_y(node, G, pos, direction='forward'):
 
 #### Phase 14A — Tasks
 
-| #     | Task                                    | Files Changed                                    | Status  |
-| ----- | --------------------------------------- | ------------------------------------------------ | ------- |
-| 14A.1 | Extract shared Sugiyama layout module   | `utils/network_layout.py` (NEW)                  | ✅ Done |
-| 14A.2 | Refactor NetworkTab to use shared module| `gui/tabs/network_tab.py`                        | ✅ Done |
-| 14A.3 | Upgrade PERT diagram tab                | `gui/tabs/pert_diagram_tab.py`                   | ✅ Done |
-| 14A.4 | Upgrade Crashing viz (gui/tabs)         | `gui/tabs/crashing_visualization.py`             | ✅ Done |
-| 14A.5 | Upgrade Crashing viz (core)             | `core/crashing_visualization.py`                 | ✅ Done |
-| 14A.6 | Tests — shared engine + integration     | `tests/test_phase14a_shared_layout_engine.py`    | ✅ Done |
+| #     | Task                                     | Files Changed                                 | Status  |
+| ----- | ---------------------------------------- | --------------------------------------------- | ------- |
+| 14A.1 | Extract shared Sugiyama layout module    | `utils/network_layout.py` (NEW)               | ✅ Done |
+| 14A.2 | Refactor NetworkTab to use shared module | `gui/tabs/network_tab.py`                     | ✅ Done |
+| 14A.3 | Upgrade PERT diagram tab                 | `gui/tabs/pert_diagram_tab.py`                | ✅ Done |
+| 14A.4 | Upgrade Crashing viz (gui/tabs)          | `gui/tabs/crashing_visualization.py`          | ✅ Done |
+| 14A.5 | Upgrade Crashing viz (core)              | `core/crashing_visualization.py`              | ✅ Done |
+| 14A.6 | Tests — shared engine + integration      | `tests/test_phase14a_shared_layout_engine.py` | ✅ Done |
 
 **Tests:** 24 new (10 unit for shared engine, 3 cleanup, 3 draw-edges smoke, 2 PERT integration, 2 gui-crashing integration, 3 core-crashing integration, 1 network-tab delegation). **Total: 797 passing.**
+
+---
+
+### PHASE 15 — Large Project Support (Scrollable Diagrams + Analysis Fix)
+
+> **Goal:** Make 600-task large demo projects fully functional — fix the exponential-time critical-path algorithm, add scrollable network/PERT/Gantt diagrams with adaptive sizing, optimise polyline rendering for thousands of edges, and add runtime timing to the terminal.
+> **Dependencies:** Phases 14, 14A complete
+> **Priority:** P0 (app crashes on large demo load — blocks feature)
+> **Date started:** March 22, 2026
+
+#### Problem Analysis
+
+Loading the 600-task UG Large demo crashes the application. Root causes identified via measurement:
+
+| # | Problem | Root Cause | Impact |
+|---|---------|-----------|--------|
+| 1 | **Analysis never completes** | `identify_critical_path()` calls `nx.all_simple_paths()` — **O(2^n)** on large DAGs. 600 nodes → hangs indefinitely. | **P0 crash** — app freezes, OS kills it |
+| 2 | **Sugiyama blows up** | 600 nodes → **220 topological layers**, max 6/layer, **643 long edges** → **8,361 virtual nodes** inserted. At `x_spacing=3.5`, the x-axis spans 770 units crammed into a 12-inch figure. | Diagram unreadable, rendering slow |
+| 3 | **Edge drawing is O(n) calls** | `draw_edges_polyline()` makes one `ax.plot()` per segment → ~8,400 individual matplotlib artist objects. | 10–30 s render time for large graph |
+| 4 | **Gantt is unscrollable** | 600 bars in a fixed 14×8 figure with no scrollbar or toolbar → bars are 1 px tall | Gantt unusable for >50 activities |
+| 5 | **No timing visibility** | `analyze_project()` has no timing output — user sees a frozen window with no feedback | UX: user thinks app crashed |
+
+Measured graph statistics for `campus_construction_ug_large.pmproj`:
+```
+Activities:       600
+Topological layers: 220
+Max nodes/layer:    6
+Long edges (span>1): 643
+Virtual nodes:      8,361
+Total graph objects: 8,963
+```
+
+#### Criticism of Approach (Scrollable Canvas + Toolbar)
+
+| Concern | Assessment | Mitigation |
+|---------|-----------|------------|
+| **Memory** — large matplotlib figure (e.g. 80×10 inches @ 100 dpi = 3.2 MB) | Acceptable. RGBA buffer ~32 MB max. | Cap figure at 120×60 inches; reduce DPI for very large graphs if needed. |
+| **Tk.Canvas 32K pixel limit** — some platforms clip widgets >32,767 px | 120 in × 100 dpi = 12,000 px, within limits. | Cap enforced in code. |
+| **Label readability at full zoom-out** — 600 labels in one view | Inherent — no layout can make 600 labels readable simultaneously. | Adaptive font size + toolbar zoom lets user inspect regions. Plus the toolbar "zoom to rectangle" is ideal for students. |
+| **Scrollbar + toolbar confusion** — two navigation mechanisms | Scrollbars for coarse movement, toolbar for precise zoom. Complementary, not conflicting. | Scrollbar only appears when figure exceeds viewport (small projects unaffected). |
+| **`on_canvas_resize` conflict** — existing handler shrinks figure back to frame | Must be disabled for large projects. | `ScrollableMatplotlibFrame` widget replaces this with `_auto_fit` flag: True for small projects (resize-to-fill), False for large (fixed size, scrollbars active). |
+| **`all_simple_paths` is O(2^n)** — not a rendering issue | Must be fixed independently. `dag_longest_path` is O(V+E). | Replace in `network_builder.py`. |
+
+#### Solution Design
+
+**Fix 1 — `identify_critical_path` (P0):**
+Replace `all_simple_paths(critical_subgraph, start, end)` with `nx.dag_longest_path(critical_subgraph)`. The critical subgraph (zero-float activities only) is a DAG — `dag_longest_path` runs in O(V+E), returning the single longest path directly.
+
+**Fix 2 — `ScrollableMatplotlibFrame` widget:**
+New reusable widget `gui/widgets/scrollable_mpl_frame.py` embedding `FigureCanvasTkAgg` inside a `tk.Canvas` viewport with scrollbars. Two modes:
+- `_auto_fit = True` (small projects): figure resizes to fill viewport, scrollbars inactive.
+- `_auto_fit = False` (large projects): fixed figure size, scrollbars appear when figure exceeds viewport.
+Includes `NavigationToolbar2Tk` at the bottom. Mouse wheel support for vertical/horizontal scroll.
+
+**Fix 3 — Batch polyline rendering:**
+Replace per-segment `ax.plot()` calls in `draw_edges_polyline()` with 2 batch `ax.plot()` calls (one for normal edges, one for critical). Insert `None` as line-break markers between edges. Arrowheads remain as individual `ax.annotate()` calls on each edge's final segment. Reduces ~8,400 artist objects to ~650.
+
+**Fix 4 — Adaptive layout + sizing:**
+
+| Parameter | ≤50 nodes | 51–200 nodes | >200 nodes |
+|-----------|-----------|-------------|------------|
+| `x_spacing` | 3.5 (network) / 5.0 (PERT) | 2.0 / 3.0 | 1.0 / 1.5 |
+| `y_spacing` | 4.0 | 2.5 | 1.5 |
+| Node radius | 0.6 (network) / custom (PERT) | 0.4 / scaled | 0.25 / scaled |
+| Label fontsize | 10 | 7 | 5 |
+| Figure size | Fit-to-frame | Computed from layout bbox | Computed, capped 120×60 |
+
+Gantt adaptive height: `fig_h = min(80, max(8, n_activities × 0.25 + 2))` inches.
+
+**Fix 5 — Timing:**
+Print `time.time()` timestamps at each major step of `analyze_project()` to terminal.
+
+#### Phase 15 — Tasks
+
+| #    | Task                                           | Files to Create / Change                                | What to Do                                                                                                          | Status      |
+| ---- | ---------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------- |
+| 15.1 | Fix exponential `identify_critical_path`       | `core/network_builder.py`                               | Replace `all_simple_paths` loop with `nx.dag_longest_path(critical_subgraph)` — O(V+E).                             | ✅ Done     |
+| 15.2 | Create `ScrollableMatplotlibFrame` widget      | **`gui/widgets/scrollable_mpl_frame.py`** (NEW)         | Reusable scrollable matplotlib container with viewport, scrollbars, `NavigationToolbar2Tk`, auto-fit/fixed modes.   | ✅ Done     |
+| 15.3 | Optimise `draw_edges_polyline` batch rendering | `utils/network_layout.py`                               | Batch intermediate segments into 2 `ax.plot()` calls (normal + critical); keep individual `ax.annotate` arrowheads. | ✅ Done     |
+| 15.4 | Scrollable + adaptive `NetworkTab`             | `gui/tabs/network_tab.py`                               | Use `ScrollableMatplotlibFrame`; adaptive x/y spacing, node radius, font size, figure size based on activity count. | ✅ Done     |
+| 15.5 | Scrollable + adaptive `PertDiagramTab`         | `gui/tabs/pert_diagram_tab.py`                          | Same pattern as 15.4 with PERT-specific spacing (x=5.0 baseline) and node shapes.                                  | ✅ Done     |
+| 15.6 | Scrollable + adaptive `GanttTabEdu`            | `gui/tabs/gantt_tab_edu.py`                             | Use `ScrollableMatplotlibFrame`; dynamic figure height; adaptive bar label size.                                    | ✅ Done     |
+| 15.7 | Runtime timing in `analyze_project()`          | `gui/main_window_edu.py`                                | Print elapsed-time checkpoints to terminal at each analysis and tab-update step.                                    | ✅ Done     |
+
+#### Decisions
+
+| #   | Decision                                | Answer                                                                               | Reasoning                                                                                                                    |
+| --- | --------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Scrollable container vs. toolbar only?  | **Both** — scrollable canvas (Option A) + toolbar (Option B)                         | Scrollbars for coarse navigation, toolbar zoom for precise inspection. Scrollbars only appear when figure exceeds viewport. |
+| 2   | Shared widget or inline per tab?        | **Shared `ScrollableMatplotlibFrame`**                                               | 3 tabs need identical scroll logic — a shared widget avoids 45 lines of duplication and ensures consistent behavior.         |
+| 3   | Figure size cap?                        | **120 × 60 inches** (12,000 × 6,000 px at 100 dpi)                                  | Stays within Tk.Canvas 32K pixel limit with margin. ~288 MB max RGBA buffer — within typical desktop memory.                 |
+| 4   | `all_simple_paths` → what replacement?  | **`nx.dag_longest_path()`**                                                          | O(V+E) for DAGs. The critical subgraph is always a DAG (subset of original DAG). Returns single longest path directly.      |
+| 5   | Batch rendering approach?               | **2 batch `ax.plot()` + individual `ax.annotate()` arrowheads**                      | Reduces ~8,400 artist objects to ~650. `None` values in arrays create line breaks for separate edge polylines.               |
 
 ---
 

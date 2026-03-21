@@ -8,6 +8,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import os
 import math
+import time as _time
 
 from pmhelper.gui.edu_state import EduProjectState, AppConfig
 from pmhelper.utils.project_io_edu import (
@@ -624,6 +625,8 @@ class MainWindowEdu:
             self.current_analyzer = self.cpm_analyzer
             self.analysis_mode = 'deterministic'
 
+        _t0 = _time.time()
+
         activities_data = self._input_tab_edu.get_activities_data()
         if not activities_data:
             messagebox.showwarning(
@@ -632,6 +635,8 @@ class MainWindowEdu:
                 "Please enter or load activities first.")
             return
 
+        print(f"[analyze_project {_time.time()-_t0:.3f}s] activities data loaded ({len(activities_data)} activities)")
+
         try:
             G, critical_paths, critical_activities = \
                 self.current_analyzer.analyze(activities_data)
@@ -639,6 +644,8 @@ class MainWindowEdu:
             messagebox.showerror("Analysis Error",
                                  f"Analysis failed:\n{exc}")
             return
+
+        print(f"[analyze_project {_time.time()-_t0:.3f}s] analyze() complete")
 
         # Store analyzer reference
         if self.analysis_mode == 'probabilistic':
@@ -736,24 +743,29 @@ class MainWindowEdu:
         except ImportError:
             self.current_data = None
 
+        print(f"[analyze_project {_time.time()-_t0:.3f}s] results dict + DataFrame built")
+
         # ---- Update all tabs with results ----
         try:
             self.results_tab.update_results(
                 self.results_data, self.analysis_mode)
         except Exception:
             pass
+        print(f"[analyze_project {_time.time()-_t0:.3f}s] results_tab updated")
 
         try:
             self.network_tab.update_network(
                 self.results_data, self.analysis_mode)
         except Exception:
             pass
+        print(f"[analyze_project {_time.time()-_t0:.3f}s] network_tab updated")
 
         try:
             self.pert_diagram_tab.update_network(
                 self.results_data, self.analysis_mode)
         except Exception:
             pass
+        print(f"[analyze_project {_time.time()-_t0:.3f}s] pert_diagram_tab updated")
 
         # Update Gantt (edu) with CPM data
         if hasattr(self._gantt_tab_edu, 'update_from_analysis'):
@@ -762,18 +774,21 @@ class MainWindowEdu:
                     self.results_data, self.analysis_mode)
             except Exception:
                 pass
+        print(f"[analyze_project {_time.time()-_t0:.3f}s] gantt_tab updated")
 
         # Refresh EVM tab (KPI values may now reflect CPM-synced tasks)
         try:
             self._evm_tab.on_tab_selected()
         except Exception:
             pass
+        print(f"[analyze_project {_time.time()-_t0:.3f}s] evm_tab updated")
 
         # Refresh Dashboard tab
         try:
             self._dashboard_tab.on_tab_selected()
         except Exception:
             pass
+        print(f"[analyze_project {_time.time()-_t0:.3f}s] dashboard_tab updated")
 
         # For PERT mode, update probability tab
         if self.analysis_mode == 'probabilistic':
@@ -785,12 +800,15 @@ class MainWindowEdu:
                     self._probability_tab.on_tab_selected()
             except Exception:
                 pass
+            print(f"[analyze_project {_time.time()-_t0:.3f}s] probability_tab updated")
 
         # Switch to Results tab (index 1)
         try:
             self.notebook.select(1)
         except Exception:
             pass
+
+        print(f"[analyze_project {_time.time()-_t0:.3f}s] DONE")
 
         messagebox.showinfo(
             "Analysis Complete",

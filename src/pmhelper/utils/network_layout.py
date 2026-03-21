@@ -132,6 +132,11 @@ def draw_edges_polyline(ax, G, pos, all_pos, virtual_nodes, edge_paths,
                         node_radius=0.6, critical_check=None):
     """Draw edges as polylines routed through virtual-node waypoints.
 
+    Uses **batch rendering**: intermediate segments are collected into two
+    ``ax.plot()`` calls (normal + critical) instead of one call per segment.
+    Arrow-heads remain individual ``ax.annotate()`` calls on each edge's
+    final segment.
+
     Parameters
     ----------
     ax : matplotlib Axes
@@ -145,6 +150,17 @@ def draw_edges_polyline(ax, G, pos, all_pos, virtual_nodes, edge_paths,
         If provided, returns True when the edge (u, v) should be drawn in red.
     """
     drawn_edges = set()
+    # Batch buffers — None values act as line-break markers
+    normal_xs, normal_ys = [], []
+    critical_xs, critical_ys = [], []
+
+    def _offset(x, y, tx, ty, radius):
+        """Offset (x, y) towards (tx, ty) by *radius*."""
+        dx, dy = tx - x, ty - y
+        d = (dx ** 2 + dy ** 2) ** 0.5
+        if d > 0:
+            return x + radius * dx / d, y + radius * dy / d
+        return x, y
 
     # --- edges with explicit polyline paths --------------------------
     for (u_orig, v_orig), path in edge_paths.items():
@@ -158,40 +174,40 @@ def draw_edges_polyline(ax, G, pos, all_pos, virtual_nodes, edge_paths,
         if len(waypoints) < 2:
             continue
 
-        for seg_idx in range(len(waypoints) - 1):
-            x1, y1 = waypoints[seg_idx]
-            x2, y2 = waypoints[seg_idx + 1]
-            seg_start = path[seg_idx]
-            seg_end = path[seg_idx + 1]
+        # Pre-process: offset first/last waypoints away from real nodes
+        processed = list(waypoints)
+        if path[0] not in virtual_nodes and len(processed) >= 2:
+            processed[0] = _offset(*processed[0], *processed[1], node_radius)
+        if path[-1] not in virtual_nodes and len(processed) >= 2:
+            processed[-1] = _offset(*processed[-1], *processed[-2], node_radius)
 
-            # Offset start away from real node centre
-            if seg_start not in virtual_nodes:
-                dx, dy = x2 - x1, y2 - y1
-                d = (dx ** 2 + dy ** 2) ** 0.5
-                if d > 0:
-                    x1 += node_radius * dx / d
-                    y1 += node_radius * dy / d
+        # Intermediate segments → batch buffer
+        if len(processed) > 2:
+            buf_x = critical_xs if is_critical else normal_xs
+            buf_y = critical_ys if is_critical else normal_ys
+            for wp in processed[:-1]:
+                buf_x.append(wp[0])
+                buf_y.append(wp[1])
+            buf_x.append(None)  # line break
+            buf_y.append(None)
 
-            # Offset end away from real node centre
-            if seg_end not in virtual_nodes:
-                dx, dy = x2 - x1, y2 - y1
-                d = (dx ** 2 + dy ** 2) ** 0.5
-                if d > 0:
-                    x2 -= node_radius * dx / d
-                    y2 -= node_radius * dy / d
-
-            if seg_idx == len(waypoints) - 2:
-                ax.annotate(
-                    "", xy=(x2, y2), xytext=(x1, y1),
-                    arrowprops=dict(arrowstyle="->", color=edge_color, lw=edge_lw),
-                    zorder=1,
-                )
-            else:
-                ax.plot([x1, x2], [y1, y2],
-                        color=edge_color, lw=edge_lw, zorder=1)
+        # Last segment → individual arrowhead
+        x1, y1 = processed[-2]
+        x2, y2 = processed[-1]
+        ax.annotate(
+            "", xy=(x2, y2), xytext=(x1, y1),
+            arrowprops=dict(arrowstyle="->", color=edge_color, lw=edge_lw),
+            zorder=1,
+        )
 
         for i in range(len(path) - 1):
             drawn_edges.add((path[i], path[i + 1]))
+
+    # Batch-draw intermediate segments (2 calls instead of thousands)
+    if normal_xs:
+        ax.plot(normal_xs, normal_ys, color='black', lw=1.5, zorder=1)
+    if critical_xs:
+        ax.plot(critical_xs, critical_ys, color='red', lw=2.0, zorder=1)
 
     # --- remaining direct edges not in edge_paths --------------------
     for u, v in G.edges():

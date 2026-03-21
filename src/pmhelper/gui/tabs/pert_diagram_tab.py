@@ -28,6 +28,7 @@ except ImportError as e:
     NETWORKX_AVAILABLE = False
 
 from pmhelper.utils.network_layout import sugiyama_layout, cleanup_virtual_nodes
+from pmhelper.gui.widgets.scrollable_mpl_frame import ScrollableMatplotlibFrame
 
 
 class PertDiagramTab:
@@ -65,28 +66,13 @@ class PertDiagramTab:
         self.create_plot_area(control_frame)
 
     def create_plot_area(self, control_frame):
-        """Create matplotlib plot area and control widgets"""
-        plot_frame = ttk.Frame(self.main_frame)
-        plot_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-
-        # Create toolbar frame and pack at the bottom
-        toolbar_frame = ttk.Frame(plot_frame)
-        toolbar_frame.pack(side=tk.BOTTOM, fill=tk.X)
-
-        # Create canvas frame and pack above toolbar
-        canvas_frame = ttk.Frame(plot_frame)
-        canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        # Create matplotlib figure and canvas
-        self.figure = Figure(figsize=(14, 10), dpi=100)
-        self.figure.patch.set_facecolor('white')
-        self.canvas = FigureCanvasTkAgg(self.figure, master=canvas_frame)
-        self.canvas.draw()
-        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-
-        # Create and pack the toolbar
-        self.toolbar = NavigationToolbar2Tk(self.canvas, toolbar_frame)
-        self.toolbar.update()
+        """Create matplotlib plot area with scrollable viewport and control widgets"""
+        self._scroll_frame = ScrollableMatplotlibFrame(
+            self.main_frame, figsize=(14, 10), dpi=100, toolbar=True)
+        self._scroll_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self.figure = self._scroll_frame.figure
+        self.canvas = self._scroll_frame.canvas
+        self.toolbar = self._scroll_frame.toolbar
 
         # Initialize with empty plot
         self.create_empty_plot()
@@ -352,51 +338,89 @@ class PertDiagramTab:
             for node in end_nodes:
                 G.add_edge(node, 'END')
     
+    # Adaptive sizing thresholds
+    _SIZE_SMALL = 50
+    _SIZE_MEDIUM = 200
+
+    def _adaptive_scale(self, n_activities):
+        """Return scale factor (1.0 = default) for the current project size."""
+        if n_activities <= self._SIZE_SMALL:
+            return 1.0
+        if n_activities <= self._SIZE_MEDIUM:
+            return 0.65
+        return 0.4
+
     def draw_pert_network_diagram(self, G, critical_activities):
         """Draw professional PERT network diagram with rectangle-semicircle nodes"""
         self.ax.clear()
-        
+
         # Reset virtual node tracking
         self._virtual_nodes = set()
         self._edge_paths = {}
         self._all_pos = {}
-        
+
         if not G.nodes():
-            self.ax.text(0.5, 0.5, 'No network data available', 
+            self.ax.text(0.5, 0.5, 'No network data available',
                         ha='center', va='center', transform=self.ax.transAxes)
             self.canvas.draw()
             return
-        
+
+        # Adaptive sizing
+        n_act = len([nd for nd in G.nodes() if nd not in ('START', 'END')])
+        self._scale = self._adaptive_scale(n_act)
+
         # 1. Create hierarchical layout (Sugiyama)
         pos = self.create_hierarchical_layout(G)
-        
-        # 2. Draw edges with arrows (polyline through virtual waypoints)
+
+        # 2. Set figure size for large projects (scrollable)
+        if n_act > self._SIZE_SMALL:
+            xs = [p[0] for p in pos.values()]
+            ys = [p[1] for p in pos.values()]
+            x_range = (max(xs) - min(xs)) if xs else 0
+            y_range = (max(ys) - min(ys)) if ys else 0
+            fig_w = min(120, max(14, x_range * 0.6 + 4))
+            fig_h = min(60, max(10, y_range * 1.5 + 4))
+            self._scroll_frame.set_figure_size(fig_w, fig_h)
+        else:
+            self._scroll_frame.fit_to_viewport()
+
+        # 3. Draw edges with arrows (polyline through virtual waypoints)
         self.draw_network_edges(G, pos)
-        
-        # 3. Draw nodes with rectangle-semicircle format
+
+        # 4. Draw nodes with rectangle-semicircle format
         self.draw_pert_nodes(G, pos, critical_activities)
-        
-        # 4. Add legend
+
+        # 5. Add legend
         self.add_network_legend()
-        
-        # 5. Apply display options
+
+        # 6. Apply display options
         self.apply_display_options(G, pos)
-        
-        # 6. Clean up virtual nodes from graph
+
+        # 7. Clean up virtual nodes from graph
         cleanup_virtual_nodes(G, self._virtual_nodes)
-        
-        # 7. Add node format legend
+
+        # 8. Add node format legend
         self.figure.text(0.01, 0.01, "Node Format:", fontsize=9)
         self.figure.text(0.07, 0.01, "ID   | ES | EF\nDur | LS | LF", fontsize=9)
-        
+
         self.ax.set_title("PERT Network Diagram")
         self.ax.set_aspect('equal')
         self.ax.axis('off')
         self.canvas.draw()
     
     def create_hierarchical_layout(self, G):
-        """Sugiyama-style layered layout — delegates to shared engine."""
-        result = sugiyama_layout(G, x_spacing=5.0, y_spacing=4.0)
+        """Sugiyama-style layered layout — delegates to shared engine.
+
+        Adapts spacing for large projects.
+        """
+        n = len([nd for nd in G.nodes() if not str(nd).startswith('_virt_')])
+        if n <= 50:
+            x_sp, y_sp = 5.0, 4.0
+        elif n <= 200:
+            x_sp, y_sp = 3.0, 2.5
+        else:
+            x_sp, y_sp = 1.5, 1.5
+        result = sugiyama_layout(G, x_spacing=x_sp, y_spacing=y_sp)
         self._virtual_nodes = result['virtual_nodes']
         self._edge_paths = result['edge_paths']
         self._all_pos = result['all_pos']
@@ -408,11 +432,12 @@ class PertDiagramTab:
         Handles PERT-specific node shapes: rectangle-semicircle for regular
         nodes, circles for START/END.
         """
-        width = 1.8
+        scale = getattr(self, '_scale', 1.0)
+        width = 1.8 * scale
         height = width * 2 / 3
         semicircle_width = width / 3
         square_width = width * 2 / 3
-        node_radius = 0.4  # for START/END circles
+        node_radius = 0.4 * scale  # for START/END circles
 
         all_pos = getattr(self, '_all_pos', pos)
         edge_paths = getattr(self, '_edge_paths', {})
@@ -501,13 +526,15 @@ class PertDiagramTab:
             )
     
     def draw_pert_nodes(self, G, pos, critical_activities):
-        """Draw nodes with enlarged size and improved text positioning"""
-        # ENLARGED node size parameters
-        width = 2  # Increased from 1.2
-        height = width * 2/3  # 1.2
-        semicircle_width = width/3  # 0.6
-        square_width = width * 2/3  # 1.2
-        node_radius = 0.6  # Increased from 0.3
+        """Draw nodes with adaptive size based on project scale"""
+        scale = getattr(self, '_scale', 1.0)
+        # ENLARGED node size parameters, scaled for large projects
+        width = 2 * scale
+        height = width * 2/3
+        semicircle_width = width/3
+        square_width = width * 2/3
+        node_radius = 0.6 * scale
+        label_fs = max(5, int(9 * scale))
         virtual_nodes = getattr(self, '_virtual_nodes', set())
         
         for node in G.nodes():
@@ -543,7 +570,7 @@ class PertDiagramTab:
                 display_text = 'Start' if node == 'START' else 'End'
                 self.ax.text(x, y, display_text,
                             horizontalalignment='center', verticalalignment='center',
-                            fontsize=10, fontweight='bold', zorder=5)
+                            fontsize=label_fs, fontweight='bold', zorder=5)
             else:
                 # Draw semicircle on left side
                 semicircle = mpatches.Wedge(
@@ -581,25 +608,25 @@ class PertDiagramTab:
                 # Top row: ID | ES | EF
                 self.ax.text(x - square_width / 2 - semicircle_width / 2, y + height / 4, node,
                             horizontalalignment='center', verticalalignment='center', 
-                            fontsize=9, fontweight='bold', zorder=5)
+                            fontsize=label_fs, fontweight='bold', zorder=5)
                 self.ax.text(x - square_width / 4, y + height / 4, str(G.nodes[node]['ES']),
                             horizontalalignment='center', verticalalignment='center', 
-                            fontsize=9, zorder=5)
+                            fontsize=label_fs, zorder=5)
                 self.ax.text(x + square_width / 4, y + height / 4, str(G.nodes[node]['EF']),
                             horizontalalignment='center', verticalalignment='center', 
-                            fontsize=9, zorder=5)
+                            fontsize=label_fs, zorder=5)
 
                 # IMPROVED text positioning for "Dur | LS | LF" format
                 # Bottom row: Duration | LS | LF
                 self.ax.text(x - square_width / 2 - semicircle_width / 2, y - height / 4, str(G.nodes[node]['duration']),
                             horizontalalignment='center', verticalalignment='center', 
-                            fontsize=9, zorder=5)
+                            fontsize=label_fs, zorder=5)
                 self.ax.text(x - square_width / 4, y - height / 4, str(G.nodes[node]['LS']),
                             horizontalalignment='center', verticalalignment='center', 
-                            fontsize=9, zorder=5)
+                            fontsize=label_fs, zorder=5)
                 self.ax.text(x + square_width / 4, y - height / 4, str(G.nodes[node]['LF']),
                             horizontalalignment='center', verticalalignment='center', 
-                            fontsize=9, zorder=5)
+                            fontsize=label_fs, zorder=5)
 
                 # IMPROVED activity name above node with space-based wrapping
                 activity_name = G.nodes[node].get('activity', '')
@@ -607,13 +634,13 @@ class PertDiagramTab:
                     wrapped_lines = self.wrap_activity_name(activity_name)
                     
                     # Display each line separately, stacked vertically
-                    line_height = 0.3
-                    start_y = y + height / 2 + 0.2
+                    line_height = 0.3 * scale
+                    start_y = y + height / 2 + 0.2 * scale
                     
                     for i, line in enumerate(wrapped_lines):
                         self.ax.text(x - 0.2, start_y + (i * line_height), line,
                                     horizontalalignment='center', verticalalignment='bottom',
-                                    fontsize=8, color='purple', fontweight='bold', zorder=5)
+                                    fontsize=max(5, int(8 * scale)), color='purple', fontweight='bold', zorder=5)
     
     def wrap_activity_name(self, text, max_chars_per_line=12):
         """Wrap activity name by character count, returns lines split for display"""

@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 
 from pmhelper.core.step_generators_edu import cpm_forward_steps, cpm_backward_steps
 from pmhelper.gui.widgets.worked_solution_window import WorkedSolutionWindow
+from pmhelper.gui.widgets.scrollable_mpl_frame import ScrollableMatplotlibFrame
 
 try:
     from matplotlib.figure import Figure
@@ -123,12 +124,14 @@ class GanttTabEdu:
             command=self._show_cpm_backward)
         self._cpm_bwd_btn.pack(side=tk.RIGHT, padx=2)
 
-        # Chart — professional size matching original
-        self._fig = Figure(figsize=(14, 8), dpi=100)
-        self._fig.patch.set_facecolor('white')
+        # Chart — scrollable professional Gantt
+        self._scroll_frame = ScrollableMatplotlibFrame(
+            self.frame, figsize=(14, 8), dpi=100, toolbar=True)
+        self._scroll_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self._fig = self._scroll_frame.figure
         self._ax = self._fig.add_subplot(111)
-        self._canvas = FigureCanvasTkAgg(self._fig, master=self.frame)
-        self._canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self._canvas = self._scroll_frame.canvas
+        self._toolbar = self._scroll_frame.toolbar
 
         self._baseline_set = False
 
@@ -194,7 +197,16 @@ class GanttTabEdu:
 
         import numpy as np
 
+        # Adaptive figure height for large projects
+        n = len(activities)
+        if n > 50:
+            fig_h = min(80, max(8, n * 0.25 + 2))
+            self._scroll_frame.set_figure_size(14, fig_h)
+        else:
+            self._scroll_frame.fit_to_viewport()
+
         bar_height = 0.6
+        label_fs = 10 if n <= 50 else (8 if n <= 200 else 6)
         critical_activities = self._results_data.get(
             'critical_activities', [])
         critical_color = 'red'
@@ -239,7 +251,7 @@ class GanttTabEdu:
             # Activity ID centered ON bar — matching original
             bar_center_x = es + duration / 2
             ax.text(bar_center_x, y, act_id,
-                    ha='center', va='center', fontsize=10,
+                    ha='center', va='center', fontsize=label_fs,
                     fontweight='bold', zorder=4)
 
             # Tracking overlay: match CPM activity to EVM task
@@ -287,7 +299,7 @@ class GanttTabEdu:
 
         # Y-axis: activity IDs (matching original professional style)
         ax.set_yticks(y_pos)
-        ax.set_yticklabels(activity_labels, fontsize=12, fontweight='bold')
+        ax.set_yticklabels(activity_labels, fontsize=label_fs, fontweight='bold')
         ax.set_xlabel('Time Units', fontsize=12, fontweight='bold', color='darkgreen')
         ax.set_ylabel('Activities', fontsize=12, fontweight='bold', color='darkgreen')
         title = "Project Gantt Chart"
