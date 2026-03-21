@@ -27,6 +27,7 @@ except ImportError as e:
     NETWORKX_AVAILABLE = False
 
 from pmhelper.utils.visualizations import NetworkDiagramVisualizer
+from pmhelper.utils.network_layout import sugiyama_layout, cleanup_virtual_nodes, draw_edges_polyline
 
 
 class NetworkTab:
@@ -360,9 +361,7 @@ class NetworkTab:
         self.apply_display_options(G, pos)
         
         # 6. Clean up virtual nodes from graph
-        for vn in list(self._virtual_nodes):
-            if vn in G:
-                G.remove_node(vn)
+        cleanup_virtual_nodes(G, self._virtual_nodes)
         
         self.ax.set_title("Project Network Diagram")
         self.ax.set_aspect('equal')
@@ -370,211 +369,27 @@ class NetworkTab:
         self.canvas.draw()
     
     def create_hierarchical_layout(self, G):
-        """Sugiyama-style layered layout with barycenter ordering and virtual nodes.
-        
-        Steps:
-        1. Assign layers via topological generations
-        2. Insert virtual nodes for edges spanning >1 layer
-        3. Barycenter ordering (4 iterative passes) to minimise crossings
-        4. Assign final (x, y) coordinates with even spacing
-        """
-        x_spacing = 3.5
-        y_spacing = 4.0
-
-        # --- Step 1: layer assignment via topological generations ----
-        generations = list(nx.topological_generations(G))
-        node_layer = {}  # node -> column index
-        layers = []       # list[list[node]]  (mutable per-layer lists)
-        for i, gen in enumerate(generations):
-            layer = sorted(gen)  # initial alphabetical order
-            layers.append(layer)
-            for node in layer:
-                node_layer[node] = i
-
-        # --- Step 2: insert virtual (dummy) nodes for long edges ----
-        self._virtual_nodes = set()          # track virtual node IDs
-        self._edge_paths = {}                # (u,v) -> [u, virt1, …, v]
-        edges_to_process = list(G.edges())
-        for u, v in edges_to_process:
-            span = node_layer[v] - node_layer[u]
-            if span <= 1:
-                self._edge_paths[(u, v)] = [u, v]
-                continue
-            # Insert a virtual node at each intermediate layer
-            path = [u]
-            prev = u
-            for k in range(1, span):
-                virt_id = f'_virt_{u}_{v}_{k}'
-                self._virtual_nodes.add(virt_id)
-                target_layer = node_layer[u] + k
-                layers[target_layer].append(virt_id)
-                node_layer[virt_id] = target_layer
-                G.add_node(virt_id, duration=0, virtual=True)
-                G.add_edge(prev, virt_id)
-                path.append(virt_id)
-                prev = virt_id
-            G.add_edge(prev, v)
-            path.append(v)
-            self._edge_paths[(u, v)] = path
-            # Remove original long edge (replaced by chain)
-            if G.has_edge(u, v):
-                G.remove_edge(u, v)
-
-        # --- Step 3: barycenter ordering (4 passes) -----------------
-        # Initial position: index within each layer
-        pos = {}
-        for i, layer in enumerate(layers):
-            for j, node in enumerate(layer):
-                pos[node] = (i * x_spacing, (j - len(layer) / 2 + 0.5) * y_spacing)
-
-        num_passes = 4
-        for iteration in range(num_passes):
-            if iteration % 2 == 0:
-                # Forward pass (left → right)
-                layer_range = range(1, len(layers))
-            else:
-                # Backward pass (right → left)
-                layer_range = range(len(layers) - 2, -1, -1)
-
-            for li in layer_range:
-                layer = layers[li]
-                bary_values = {}
-                for node in layer:
-                    if iteration % 2 == 0:
-                        neighbors = list(G.predecessors(node))
-                    else:
-                        neighbors = list(G.successors(node))
-                    connected = [n for n in neighbors if n in pos]
-                    if connected:
-                        bary_values[node] = sum(pos[n][1] for n in connected) / len(connected)
-                    else:
-                        bary_values[node] = pos[node][1]
-                # Sort layer by barycenter value
-                layer.sort(key=lambda n: bary_values.get(n, 0))
-                layers[li] = layer
-                # Reassign Y positions with even spacing
-                for j, node in enumerate(layer):
-                    x = node_layer[node] * x_spacing
-                    y = (j - len(layer) / 2 + 0.5) * y_spacing
-                    pos[node] = (x, y)
-
-        # --- Step 4: final coordinate map (real nodes only) ----------
-        final_pos = {}
-        for node in pos:
-            final_pos[node] = pos[node]
-
-        # Store virtual positions for edge routing (used by draw_network_edges)
-        self._all_pos = final_pos
-
-        # Return only real-node positions for drawing
-        real_pos = {n: p for n, p in final_pos.items() if n not in self._virtual_nodes}
-        return real_pos
+        """Sugiyama-style layered layout — delegates to shared engine."""
+        result = sugiyama_layout(G, x_spacing=3.5, y_spacing=4.0)
+        self._virtual_nodes = result['virtual_nodes']
+        self._edge_paths = result['edge_paths']
+        self._all_pos = result['all_pos']
+        return result['pos']
     
     def draw_network_edges(self, G, pos):
-        """Draw edges as polylines routed through virtual-node waypoints.
-        
-        Uses self._edge_paths (populated by create_hierarchical_layout) to
-        draw multi-segment polylines that bend around intermediate columns
-        instead of cutting straight through nodes.
-        """
-        node_radius = 0.6
-        all_pos = getattr(self, '_all_pos', pos)
-        edge_paths = getattr(self, '_edge_paths', {})
-        virtual_nodes = getattr(self, '_virtual_nodes', set())
+        """Draw edges as polylines routed through virtual-node waypoints."""
+        show_crit = self.show_critical_var.get()
 
-        # Collect original edges (before virtual-node expansion)
-        drawn_edges = set()
+        def critical_check(u, v):
+            return (show_crit
+                    and G.nodes.get(u, {}).get('critical', False)
+                    and G.nodes.get(v, {}).get('critical', False))
 
-        # First draw edges that have explicit polyline paths
-        for (u_orig, v_orig), path in edge_paths.items():
-            if len(path) < 2:
-                continue
-            # Determine if this is a critical edge
-            is_critical = (self.show_critical_var.get()
-                           and G.nodes.get(u_orig, {}).get('critical', False)
-                           and G.nodes.get(v_orig, {}).get('critical', False))
-            edge_color = 'red' if is_critical else 'black'
-            edge_lw = 2.0 if is_critical else 1.5
-
-            # Build list of waypoints
-            waypoints = []
-            for node in path:
-                if node in all_pos:
-                    waypoints.append(all_pos[node])
-
-            if len(waypoints) < 2:
-                continue
-
-            # Draw segment by segment
-            for seg_idx in range(len(waypoints) - 1):
-                x1, y1 = waypoints[seg_idx]
-                x2, y2 = waypoints[seg_idx + 1]
-                seg_node_start = path[seg_idx]
-                seg_node_end = path[seg_idx + 1]
-
-                # Offset start away from real node centre
-                if seg_node_start not in virtual_nodes:
-                    dx = x2 - x1
-                    dy = y2 - y1
-                    d = (dx ** 2 + dy ** 2) ** 0.5
-                    if d > 0:
-                        x1 += node_radius * dx / d
-                        y1 += node_radius * dy / d
-
-                # Offset end away from real node centre
-                if seg_node_end not in virtual_nodes:
-                    dx = x2 - x1
-                    dy = y2 - y1
-                    d = (dx ** 2 + dy ** 2) ** 0.5
-                    if d > 0:
-                        x2 -= node_radius * dx / d
-                        y2 -= node_radius * dy / d
-
-                # Only put arrowhead on the LAST segment
-                if seg_idx == len(waypoints) - 2:
-                    self.ax.annotate(
-                        "", xy=(x2, y2), xytext=(x1, y1),
-                        arrowprops=dict(arrowstyle="->", color=edge_color, lw=edge_lw),
-                        zorder=1
-                    )
-                else:
-                    self.ax.plot([x1, x2], [y1, y2],
-                                color=edge_color, lw=edge_lw, zorder=1)
-
-            # Record as drawn
-            for i in range(len(path) - 1):
-                drawn_edges.add((path[i], path[i + 1]))
-
-        # Draw any remaining direct edges not covered by edge_paths
-        for u, v in G.edges():
-            if (u, v) in drawn_edges:
-                continue
-            if u in virtual_nodes or v in virtual_nodes:
-                continue  # skip virtual-chain edges already drawn
-            if u not in pos or v not in pos:
-                continue
-            x1, y1 = pos[u]
-            x2, y2 = pos[v]
-            dx = x2 - x1
-            dy = y2 - y1
-            distance = (dx ** 2 + dy ** 2) ** 0.5
-            if distance > 0:
-                dx_norm = dx / distance
-                dy_norm = dy / distance
-                start_x = x1 + node_radius * dx_norm
-                start_y = y1 + node_radius * dy_norm
-                end_x = x2 - node_radius * dx_norm
-                end_y = y2 - node_radius * dy_norm
-                is_critical = (self.show_critical_var.get()
-                               and G.nodes.get(u, {}).get('critical', False)
-                               and G.nodes.get(v, {}).get('critical', False))
-                edge_color = 'red' if is_critical else 'black'
-                edge_lw = 2.0 if is_critical else 1.5
-                self.ax.annotate(
-                    "", xy=(end_x, end_y), xytext=(start_x, start_y),
-                    arrowprops=dict(arrowstyle="->", color=edge_color, lw=edge_lw),
-                    zorder=1
-                )
+        draw_edges_polyline(
+            self.ax, G, pos,
+            self._all_pos, self._virtual_nodes, self._edge_paths,
+            node_radius=0.6, critical_check=critical_check,
+        )
     
     def draw_network_nodes(self, G, pos, critical_activities):
         """Draw nodes with corrected critical path highlighting"""

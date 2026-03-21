@@ -2207,18 +2207,19 @@ The current `create_hierarchical_layout()` in `network_tab.py` uses `nx.topologi
 
 #### Phase 14 — Tasks
 
-| #    | Task                                              | Files to Change                           | What to Do                                                                                                                                                                                  | Effort  | Status      |
-| ---- | ------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------- |
-| 14.1 | Implement Sugiyama layout engine                  | `gui/tabs/network_tab.py`                 | Replace `create_hierarchical_layout()` with: (a) topological generation layering, (b) virtual node insertion for long edges, (c) barycenter Y-ordering with 4 iterative passes, (d) final coordinate assignment with even spacing | 1 day   | ✅ Done     |
-| 14.2 | Implement polyline edge routing                   | `gui/tabs/network_tab.py`                 | Replace `draw_network_edges()` with polyline routing through virtual node waypoints. Straight segments between consecutive waypoints, arrowhead only on final segment. Critical path edges in red, lw=2 | 0.5 day | ✅ Done     |
-| 14.3 | Adjust node spacing and margins                   | `gui/tabs/network_tab.py`                 | Tune `x_spacing` and `y_spacing` to prevent node overlap in the new layout. Add padding for float labels when "Show Float" is enabled. Ensure START/END nodes positioned correctly          | 0.25 day| ✅ Done     |
-| 14.4 | Tests — layout correctness + no overlap           | `tests/test_phase14_network_layout.py` (NEW) | Test: no two real nodes overlap, all edges avoid node interiors, barycenter reduces crossings vs alphabetical, virtual nodes created for long edges, polyline waypoints correct, START/END positioned at extremes | 0.5 day | ✅ Done     |
+| #    | Task                                    | Files to Change                              | What to Do                                                                                                                                                                                                                        | Effort   | Status  |
+| ---- | --------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------- |
+| 14.1 | Implement Sugiyama layout engine        | `gui/tabs/network_tab.py`                    | Replace `create_hierarchical_layout()` with: (a) topological generation layering, (b) virtual node insertion for long edges, (c) barycenter Y-ordering with 4 iterative passes, (d) final coordinate assignment with even spacing | 1 day    | ✅ Done |
+| 14.2 | Implement polyline edge routing         | `gui/tabs/network_tab.py`                    | Replace `draw_network_edges()` with polyline routing through virtual node waypoints. Straight segments between consecutive waypoints, arrowhead only on final segment. Critical path edges in red, lw=2                           | 0.5 day  | ✅ Done |
+| 14.3 | Adjust node spacing and margins         | `gui/tabs/network_tab.py`                    | Tune `x_spacing` and `y_spacing` to prevent node overlap in the new layout. Add padding for float labels when "Show Float" is enabled. Ensure START/END nodes positioned correctly                                                | 0.25 day | ✅ Done |
+| 14.4 | Tests — layout correctness + no overlap | `tests/test_phase14_network_layout.py` (NEW) | Test: no two real nodes overlap, all edges avoid node interiors, barycenter reduces crossings vs alphabetical, virtual nodes created for long edges, polyline waypoints correct, START/END positioned at extremes                 | 0.5 day  | ✅ Done |
 
 **Total Phase 14: 2.25 days**
 
 #### Technical Design
 
 **Barycenter heuristic:**
+
 ```python
 def barycenter_y(node, G, pos, direction='forward'):
     """Compute barycenter = avg Y of connected nodes in previous layer."""
@@ -2232,6 +2233,7 @@ def barycenter_y(node, G, pos, direction='forward'):
 ```
 
 **Virtual node insertion:**
+
 ```python
 # For edge (u, v) spanning columns col_u → col_v where col_v - col_u > 1:
 # Insert virtual nodes virt_u_v_1, virt_u_v_2, ... at each intermediate column
@@ -2240,6 +2242,7 @@ def barycenter_y(node, G, pos, direction='forward'):
 ```
 
 **Polyline edge drawing:**
+
 ```python
 # For each original edge (u, v):
 #   Collect waypoints: [pos[u], pos[virt_1], pos[virt_2], ..., pos[v]]
@@ -2248,6 +2251,7 @@ def barycenter_y(node, G, pos, direction='forward'):
 ```
 
 **Iterative refinement (4 passes):**
+
 1. Forward pass (left→right): order each column by barycenter of predecessors
 2. Backward pass (right→left): order each column by barycenter of successors
 3. Forward pass (refinement)
@@ -2255,12 +2259,42 @@ def barycenter_y(node, G, pos, direction='forward'):
 
 #### Decisions
 
-| #   | Decision                             | Answer                                                                                       | Reasoning                                                                                                                                 |
-| --- | ------------------------------------ | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Modify original NetworkTab or copy?  | **Modify original** — the edu app already uses `NetworkTab` directly                         | Creating a copy would duplicate 600+ lines. The layout improvement benefits both modes.                                                   |
-| 2   | How many barycenter iterations?      | **4 passes** (2 forward + 2 backward)                                                        | Empirically 2–4 passes gives most of the crossing reduction benefit. More passes have diminishing returns.                                |
-| 3   | Virtual node rendering?              | **Invisible** — virtual nodes are layout-only; only the polyline segments through them render | Virtual nodes are an implementation detail of the routing algorithm. Users should see clean curved/bent edges, not intermediate dots.      |
-| 4   | Critical path edge styling?          | **Red, lw=2** for critical edges; **black, lw=1.5** for normal                               | Matches the existing node coloring convention (red = critical). Thicker lines make the critical path visually prominent in the path.       |
+| #   | Decision                            | Answer                                                                                        | Reasoning                                                                                                                             |
+| --- | ----------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Modify original NetworkTab or copy? | **Modify original** — the edu app already uses `NetworkTab` directly                          | Creating a copy would duplicate 600+ lines. The layout improvement benefits both modes.                                               |
+| 2   | How many barycenter iterations?     | **4 passes** (2 forward + 2 backward)                                                         | Empirically 2–4 passes gives most of the crossing reduction benefit. More passes have diminishing returns.                            |
+| 3   | Virtual node rendering?             | **Invisible** — virtual nodes are layout-only; only the polyline segments through them render | Virtual nodes are an implementation detail of the routing algorithm. Users should see clean curved/bent edges, not intermediate dots. |
+| 4   | Critical path edge styling?         | **Red, lw=2** for critical edges; **black, lw=1.5** for normal                                | Matches the existing node coloring convention (red = critical). Thicker lines make the critical path visually prominent in the path.  |
+
+---
+
+### ✅ PHASE 14A — Shared Sugiyama Layout Engine for All Network-Based Tabs (Complete)
+
+> **Goal:** Extract the Phase 14 Sugiyama layout into a shared module and apply it to PERT diagram and both Crashing visualization modules, so every network-based diagram benefits from crossing minimisation and arrow-avoids-node routing.
+> **Dependencies:** Phase 14 complete
+> **Priority:** P1 (consistency — all network diagrams should look equally good)
+> **Applies to:** Both UG and PG modes
+
+#### What Changed
+
+1. **Shared layout engine** — `src/pmhelper/utils/network_layout.py` (NEW): extracted `sugiyama_layout()`, `cleanup_virtual_nodes()`, and `draw_edges_polyline()` from `network_tab.py` so every consumer uses a single implementation.
+2. **`network_tab.py`** — refactored to delegate to the shared engine (no behaviour change).
+3. **`pert_diagram_tab.py`** — Sugiyama layout + polyline edges; PERT-specific rectangle-semicircle node shapes preserved with custom `_edge_start` / `_edge_end` helpers; virtual nodes skipped in node & float-label drawing.
+4. **`gui/tabs/crashing_visualization.py`** — both `draw_network_diagram_on_ax` and `draw_network_diagram_on_ax_small` use shared engine.
+5. **`core/crashing_visualization.py`** — same upgrade; `initial=True` deep-copy safety preserved.
+
+#### Phase 14A — Tasks
+
+| #     | Task                                    | Files Changed                                    | Status  |
+| ----- | --------------------------------------- | ------------------------------------------------ | ------- |
+| 14A.1 | Extract shared Sugiyama layout module   | `utils/network_layout.py` (NEW)                  | ✅ Done |
+| 14A.2 | Refactor NetworkTab to use shared module| `gui/tabs/network_tab.py`                        | ✅ Done |
+| 14A.3 | Upgrade PERT diagram tab                | `gui/tabs/pert_diagram_tab.py`                   | ✅ Done |
+| 14A.4 | Upgrade Crashing viz (gui/tabs)         | `gui/tabs/crashing_visualization.py`             | ✅ Done |
+| 14A.5 | Upgrade Crashing viz (core)             | `core/crashing_visualization.py`                 | ✅ Done |
+| 14A.6 | Tests — shared engine + integration     | `tests/test_phase14a_shared_layout_engine.py`    | ✅ Done |
+
+**Tests:** 24 new (10 unit for shared engine, 3 cleanup, 3 draw-edges smoke, 2 PERT integration, 2 gui-crashing integration, 3 core-crashing integration, 1 network-tab delegation). **Total: 797 passing.**
 
 ---
 

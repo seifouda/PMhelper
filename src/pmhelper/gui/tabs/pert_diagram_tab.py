@@ -27,6 +27,8 @@ except ImportError as e:
     MATPLOTLIB_AVAILABLE = False
     NETWORKX_AVAILABLE = False
 
+from pmhelper.utils.network_layout import sugiyama_layout, cleanup_virtual_nodes
+
 
 class PertDiagramTab:
     """PERT Diagram tab with professional rectangle-semicircle node visualization"""
@@ -351,8 +353,13 @@ class PertDiagramTab:
                 G.add_edge(node, 'END')
     
     def draw_pert_network_diagram(self, G, critical_activities):
-        """Draw professional PERT network diagram with rectangle-semicircle nodes - BASED ON cmp_app.py"""
+        """Draw professional PERT network diagram with rectangle-semicircle nodes"""
         self.ax.clear()
+        
+        # Reset virtual node tracking
+        self._virtual_nodes = set()
+        self._edge_paths = {}
+        self._all_pos = {}
         
         if not G.nodes():
             self.ax.text(0.5, 0.5, 'No network data available', 
@@ -360,10 +367,10 @@ class PertDiagramTab:
             self.canvas.draw()
             return
         
-        # 1. Create hierarchical layout
+        # 1. Create hierarchical layout (Sugiyama)
         pos = self.create_hierarchical_layout(G)
         
-        # 2. Draw edges with arrows
+        # 2. Draw edges with arrows (polyline through virtual waypoints)
         self.draw_network_edges(G, pos)
         
         # 3. Draw nodes with rectangle-semicircle format
@@ -375,82 +382,123 @@ class PertDiagramTab:
         # 5. Apply display options
         self.apply_display_options(G, pos)
         
-        # 6. Add node format legend
+        # 6. Clean up virtual nodes from graph
+        cleanup_virtual_nodes(G, self._virtual_nodes)
+        
+        # 7. Add node format legend
         self.figure.text(0.01, 0.01, "Node Format:", fontsize=9)
         self.figure.text(0.07, 0.01, "ID   | ES | EF\nDur | LS | LF", fontsize=9)
         
         self.ax.set_title("PERT Network Diagram")
-        self.ax.axis('equal')
+        self.ax.set_aspect('equal')
         self.ax.axis('off')
         self.canvas.draw()
     
     def create_hierarchical_layout(self, G):
-        """Create hierarchical layout with increased spacing for larger nodes"""
-        pos = {}
-        generations = list(nx.topological_generations(G))
-        
-        for i, gen in enumerate(generations):
-            sorted_gen = sorted(gen)
-            for j, node in enumerate(sorted_gen):
-                # INCREASED spacing for larger nodes
-                y_pos = (j - len(sorted_gen) / 2 + 0.5) * 4  # Increased from 3 to 4
-                pos[node] = (i * 5, y_pos)  # Increased from 4 to 5
-        
-        return pos
+        """Sugiyama-style layered layout — delegates to shared engine."""
+        result = sugiyama_layout(G, x_spacing=5.0, y_spacing=4.0)
+        self._virtual_nodes = result['virtual_nodes']
+        self._edge_paths = result['edge_paths']
+        self._all_pos = result['all_pos']
+        return result['pos']
     
     def draw_network_edges(self, G, pos):
-        """Draw edges with proper arrows - UPDATED for larger nodes"""
-        # UPDATED node size parameters for larger nodes
-        width = 1.8  # Increased from 1.2
-        height = width * 2/3
-        semicircle_width = width/3
-        square_width = width * 2/3
-        node_radius = 0.4  # Increased from 0.3
+        """Draw edges as polylines routed through virtual-node waypoints.
         
-        for u, v in G.edges():
-            x1, y1 = pos[u]
-            x2, y2 = pos[v]
-            
-            # Calculate starting and ending points based on node type
-            if u in ['START', 'END']:
-                # For START/END nodes (circles), start from edge
-                dx = x2 - x1
-                dy = y2 - y1
-                distance = (dx ** 2 + dy ** 2) ** 0.5
-                if distance > 0:
-                    dx_norm = dx / distance
-                    dy_norm = dy / distance
-                    start_x = x1 + node_radius * dx_norm
-                    start_y = y1 + node_radius * dy_norm
-                else:
-                    start_x = x1
-                    start_y = y1
-            else:
-                # For regular nodes, start from far right
-                start_x = x1 + square_width / 2
-                start_y = y1
-            
-            if v in ['START', 'END']:
-                # For START/END nodes (circles), end at edge
-                dx = x2 - x1
-                dy = y2 - y1
-                distance = (dx ** 2 + dy ** 2) ** 0.5
-                if distance > 0:
-                    dx_norm = dx / distance
-                    dy_norm = dy / distance
-                    end_x = x2 - node_radius * dx_norm
-                    end_y = y2 - node_radius * dy_norm
-                else:
-                    end_x = x2
-                    end_y = y2
-            else:
-                # For regular nodes, end at far left
-                end_x = x2 - square_width/2 - semicircle_width
-                end_y = y2
+        Handles PERT-specific node shapes: rectangle-semicircle for regular
+        nodes, circles for START/END.
+        """
+        width = 1.8
+        height = width * 2 / 3
+        semicircle_width = width / 3
+        square_width = width * 2 / 3
+        node_radius = 0.4  # for START/END circles
 
-            # Draw arrow
-            self.ax.annotate("", xy=(end_x, end_y), xytext=(start_x, start_y),
-                            arrowprops=dict(arrowstyle="->", color="black", lw=1.5))
+        all_pos = getattr(self, '_all_pos', pos)
+        edge_paths = getattr(self, '_edge_paths', {})
+        virtual_nodes = getattr(self, '_virtual_nodes', set())
+        drawn_edges = set()
+
+        def _edge_start(node, target_pos):
+            """Compute arrow start point leaving *node* toward *target_pos*."""
+            x, y = pos.get(node, all_pos.get(node, (0, 0)))
+            if node in virtual_nodes:
+                return x, y
+            if node in ['START', 'END']:
+                tx, ty = target_pos
+                dx, dy = tx - x, ty - y
+                d = (dx**2 + dy**2) ** 0.5
+                if d > 0:
+                    return x + node_radius * dx / d, y + node_radius * dy / d
+                return x, y
+            # Regular PERT node: exit from right edge of square
+            return x + square_width / 2, y
+
+        def _edge_end(node, source_pos):
+            """Compute arrow end point arriving at *node* from *source_pos*."""
+            x, y = pos.get(node, all_pos.get(node, (0, 0)))
+            if node in virtual_nodes:
+                return x, y
+            if node in ['START', 'END']:
+                sx, sy = source_pos
+                dx, dy = x - sx, y - sy
+                d = (dx**2 + dy**2) ** 0.5
+                if d > 0:
+                    return x - node_radius * dx / d, y - node_radius * dy / d
+                return x, y
+            # Regular PERT node: enter at left edge of semicircle
+            return x - square_width / 2 - semicircle_width, y
+
+        # --- polyline paths from edge_paths --------------------------
+        for (u_orig, v_orig), path in edge_paths.items():
+            if len(path) < 2:
+                continue
+            waypoints_raw = [(n, all_pos[n]) for n in path if n in all_pos]
+            if len(waypoints_raw) < 2:
+                continue
+
+            # Build adjusted waypoints
+            adjusted = []
+            for idx, (n, (wx, wy)) in enumerate(waypoints_raw):
+                if idx == 0:
+                    nxt = waypoints_raw[1][1]
+                    adjusted.append(_edge_start(n, nxt))
+                elif idx == len(waypoints_raw) - 1:
+                    prev = adjusted[-1]
+                    adjusted.append(_edge_end(n, prev))
+                else:
+                    adjusted.append((wx, wy))  # virtual: use raw position
+
+            for seg_idx in range(len(adjusted) - 1):
+                x1, y1 = adjusted[seg_idx]
+                x2, y2 = adjusted[seg_idx + 1]
+                if seg_idx == len(adjusted) - 2:
+                    self.ax.annotate(
+                        "", xy=(x2, y2), xytext=(x1, y1),
+                        arrowprops=dict(arrowstyle="->", color="black", lw=1.5),
+                        zorder=1,
+                    )
+                else:
+                    self.ax.plot([x1, x2], [y1, y2],
+                                color='black', lw=1.5, zorder=1)
+
+            for i in range(len(path) - 1):
+                drawn_edges.add((path[i], path[i + 1]))
+
+        # --- remaining direct edges ---------------------------------
+        for u, v in G.edges():
+            if (u, v) in drawn_edges:
+                continue
+            if u in virtual_nodes or v in virtual_nodes:
+                continue
+            if u not in pos or v not in pos:
+                continue
+            end_pt = _edge_end(v, pos[u])
+            start_pt = _edge_start(u, pos[v])
+            self.ax.annotate(
+                "", xy=end_pt, xytext=start_pt,
+                arrowprops=dict(arrowstyle="->", color="black", lw=1.5),
+            )
     
     def draw_pert_nodes(self, G, pos, critical_activities):
         """Draw nodes with enlarged size and improved text positioning"""
@@ -460,8 +508,13 @@ class PertDiagramTab:
         semicircle_width = width/3  # 0.6
         square_width = width * 2/3  # 1.2
         node_radius = 0.6  # Increased from 0.3
+        virtual_nodes = getattr(self, '_virtual_nodes', set())
         
         for node in G.nodes():
+            if node in virtual_nodes:
+                continue  # Skip virtual/dummy nodes
+            if node not in pos:
+                continue
             x, y = pos[node]
             
             # Determine node color based on critical path highlighting
@@ -596,9 +649,15 @@ class PertDiagramTab:
         if not self.show_float.get():
             return
         
+        virtual_nodes = getattr(self, '_virtual_nodes', set())
+        
         for node in G.nodes():
             if node in ['START', 'END']:
                 continue  # Skip START/END nodes
+            if node in virtual_nodes:
+                continue  # Skip virtual/dummy nodes
+            if node not in pos:
+                continue
             
             x, y = pos[node]
             
