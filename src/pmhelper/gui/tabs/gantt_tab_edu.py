@@ -65,50 +65,67 @@ class GanttTabEdu:
                 expand=True)
             return
 
-        # Toolbar row 1: existing buttons
-        toolbar = ttk.Frame(self.frame)
-        toolbar.pack(fill=tk.X, padx=5, pady=(5, 0))
-        self._baseline_btn = ttk.Button(toolbar, text="Set Baseline",
+        # Control frame row 1: chart options
+        control_frame = ttk.Frame(self.frame)
+        control_frame.pack(fill=tk.X, pady=(5, 0))
+
+        options_frame = ttk.LabelFrame(
+            control_frame,
+            text="Professional Gantt Chart Options",
+            padding="5")
+        options_frame.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 10))
+
+        self._baseline_btn = ttk.Button(options_frame, text="Set Baseline",
                                         command=self._toggle_baseline)
         self._baseline_btn.pack(side=tk.LEFT, padx=2)
-        ttk.Checkbutton(toolbar, text="Tracking Gantt",
+        ttk.Checkbutton(options_frame, text="Tracking Gantt",
                         variable=self._tracking_mode,
                         command=self._draw_gantt).pack(side=tk.LEFT, padx=8)
-        ttk.Checkbutton(toolbar, text="Arrows",
+        ttk.Checkbutton(options_frame, text="Show Predecessor Arrows",
                         variable=self._show_arrows,
                         command=self._draw_gantt).pack(side=tk.LEFT, padx=4)
-        ttk.Checkbutton(toolbar, text="Today Line",
+        ttk.Checkbutton(options_frame, text="Show Today Line",
                         variable=self._show_today,
                         command=self._draw_gantt).pack(side=tk.LEFT, padx=4)
-        ttk.Button(toolbar, text="Refresh", command=self._draw_gantt).pack(
-            side=tk.LEFT, padx=2)
-        ttk.Button(toolbar, text="Export PNG",
-                   command=lambda: self._export("png")).pack(side=tk.LEFT, padx=2)
-        ttk.Button(toolbar, text="Export PDF",
-                   command=lambda: self._export("pdf")).pack(side=tk.LEFT, padx=2)
 
-        # Toolbar row 2: project start date
+        # Date settings frame
+        date_frame = ttk.LabelFrame(
+            control_frame, text="Project Dates", padding="5")
+        date_frame.pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Label(date_frame, text="Start Date:").pack(side=tk.LEFT, padx=(0, 5))
+        self._start_date_var = tk.StringVar(value="")
+        self._start_date_entry = ttk.Entry(date_frame, textvariable=self._start_date_var, width=12)
+        self._start_date_entry.pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Button(date_frame, text="Update",
+                   command=self._draw_gantt).pack(side=tk.LEFT, padx=5)
+
+        # Action buttons
+        button_frame = ttk.Frame(control_frame)
+        button_frame.pack(side=tk.RIGHT)
+        ttk.Button(button_frame, text="Save Chart",
+                   command=lambda: self._export("png")).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Export Data",
+                   command=self._export_data).pack(side=tk.LEFT, padx=5)
+
+        # Toolbar row 2: CPM Worked Solution buttons
         toolbar2 = ttk.Frame(self.frame)
         toolbar2.pack(fill=tk.X, padx=5, pady=(2, 2))
-        ttk.Label(toolbar2, text="Project Start:").pack(side=tk.LEFT, padx=(0, 4))
-        self._start_date_var = tk.StringVar(value="")
-        self._start_date_entry = ttk.Entry(toolbar2, textvariable=self._start_date_var, width=12)
-        self._start_date_entry.pack(side=tk.LEFT, padx=(0, 4))
-        ttk.Label(toolbar2, text="(YYYY-MM-DD)", foreground="grey").pack(side=tk.LEFT, padx=(0, 8))
-        ttk.Button(toolbar2, text="Apply Dates", command=self._draw_gantt).pack(side=tk.LEFT, padx=2)
+        ttk.Button(toolbar2, text="Refresh", command=self._draw_gantt).pack(
+            side=tk.LEFT, padx=2)
 
         # CPM Worked Solution buttons (UG only)
         self._cpm_fwd_btn = ttk.Button(
-            toolbar2, text="📝 Forward Pass",
+            toolbar2, text="\U0001f4dd Forward Pass",
             command=self._show_cpm_forward)
         self._cpm_fwd_btn.pack(side=tk.RIGHT, padx=2)
         self._cpm_bwd_btn = ttk.Button(
-            toolbar2, text="📝 Backward Pass",
+            toolbar2, text="\U0001f4dd Backward Pass",
             command=self._show_cpm_backward)
         self._cpm_bwd_btn.pack(side=tk.RIGHT, padx=2)
 
-        # Chart
-        self._fig = Figure(figsize=(8, 5), dpi=100)
+        # Chart — professional size matching original
+        self._fig = Figure(figsize=(14, 8), dpi=100)
+        self._fig.patch.set_facecolor('white')
         self._ax = self._fig.add_subplot(111)
         self._canvas = FigureCanvasTkAgg(self._fig, master=self.frame)
         self._canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
@@ -167,7 +184,7 @@ class GanttTabEdu:
         self._canvas.draw()
 
     def _draw_cpm_gantt(self, ax, tracking):
-        """Draw Gantt chart from CPM/PERT analysis results."""
+        """Draw Gantt chart from CPM/PERT analysis results (professional style)."""
         activities = self._results_data['activities']
         if not activities:
             ax.text(0.5, 0.5, "No activities in analysis results.",
@@ -175,16 +192,23 @@ class GanttTabEdu:
                     transform=ax.transAxes)
             return
 
-        bar_height = 0.4
+        import numpy as np
+
+        bar_height = 0.6
         critical_activities = self._results_data.get(
             'critical_activities', [])
+        critical_color = 'red'
+        normal_color = 'lightblue'
+        slack_color = 'lightgrey'
 
         # Build name→y-index map for arrows
         id_to_y = {}
         id_to_ef = {}
+        y_pos = np.arange(len(activities))[::-1]
+        activity_labels = []
 
         for i, act in enumerate(activities):
-            y = len(activities) - 1 - i
+            y = y_pos[i]
             act_id = act.get('id', '')
             es = float(act.get('ES', 0))
             ef = float(act.get('EF', 0))
@@ -193,28 +217,30 @@ class GanttTabEdu:
             if duration <= 0:
                 duration = 0.5
             is_critical = act.get('critical', False)
+            float_time = max(0, lf - ef)
 
             id_to_y[act_id] = y
             id_to_ef[act_id] = ef
+            activity_labels.append(act_id)
 
-            # Main bar (critical=red, normal=steelblue)
-            colour = '#e74c3c' if is_critical else '#3498db'
+            # Main bar (critical=red, normal=lightblue) — professional style
+            bar_color = critical_color if is_critical else normal_color
             ax.barh(y, duration, left=es, height=bar_height,
-                    color=colour, edgecolor='white',
-                    linewidth=0.5, zorder=2)
+                    color=bar_color, alpha=0.7, edgecolor='black',
+                    linewidth=0.8, zorder=2)
 
-            # Float/slack bar (grey, from EF to LF)
-            slack = lf - ef
-            if slack > 0:
-                ax.barh(y, slack, left=ef, height=bar_height * 0.6,
-                        color='#bdc3c7', edgecolor='white',
-                        linewidth=0.5, alpha=0.5, zorder=1)
+            # Float/slack bar (dashed edge, full height) — matching original
+            if not is_critical and float_time > 0:
+                ax.barh(y, float_time, left=ef, height=bar_height,
+                        color=slack_color, alpha=0.5,
+                        edgecolor='gray', linewidth=0.5,
+                        linestyle='--', zorder=1)
 
-            # Duration label inside bar
-            if duration >= 1.5:
-                ax.text(es + duration / 2, y, f"{duration:.0f}",
-                        ha='center', va='center', fontsize=7,
-                        color='white', fontweight='bold', zorder=4)
+            # Activity ID centered ON bar — matching original
+            bar_center_x = es + duration / 2
+            ax.text(bar_center_x, y, act_id,
+                    ha='center', va='center', fontsize=10,
+                    fontweight='bold', zorder=4)
 
             # Tracking overlay: match CPM activity to EVM task
             if tracking:
@@ -232,66 +258,68 @@ class GanttTabEdu:
 
         # Today line
         if self._show_today.get():
-            project_duration = self._results_data.get('project_duration', 0)
-            if project_duration > 0:
-                # Use EVM current period as "today", fallback to 40% of project
-                current_period = 0
-                if self.state.evm_project and self.state.evm_project.periods:
-                    current_period = len(self.state.evm_project.periods)
-                if current_period <= 0:
-                    current_period = project_duration * 0.4
-                ax.axvline(current_period, color='#9b59b6', linewidth=2,
-                           linestyle='-.', zorder=5, alpha=0.8)
-                ax.text(current_period, len(activities) - 0.3,
-                        f" Today (t={current_period})",
-                        fontsize=7, color='#9b59b6', va='bottom')
+            # Parse project start date from UI
+            try:
+                project_start = datetime.strptime(
+                    self._start_date_var.get(), "%Y-%m-%d")
+            except Exception:
+                project_start = datetime.now()
+            today = datetime.now()
+            today_position = (today - project_start).days
+            if today_position < 0:
+                today_position = 0
+            max_lf = max(float(a.get('LF', 0)) for a in activities) if activities else 0
+            if today_position > max_lf:
+                today_position = max_lf
+            ax.axvline(x=today_position, color='green', linestyle='-',
+                       linewidth=2, alpha=0.8, zorder=5)
 
-        # Horizontal grid lines
+        # Professional grid
         ax.set_axisbelow(True)
-        ax.xaxis.grid(True, linestyle='--', alpha=0.3)
-        for y_pos in range(len(activities)):
-            ax.axhline(y=y_pos, color='#ecf0f1', linewidth=0.5, zorder=0)
+        ax.grid(True, axis='x', alpha=0.3)
+        for y_val in range(len(activities)):
+            ax.axhline(y=y_val, color='#ecf0f1', linewidth=0.5, zorder=0)
 
-        # Alternating row background
+        # Alternating row background (edu enhancement)
         for i in range(len(activities)):
             if i % 2 == 0:
                 ax.axhspan(i - 0.5, i + 0.5, color='#f8f9fa', zorder=0, alpha=0.5)
 
-        # Labels and formatting
-        task_names = []
-        for a in activities:
-            name = a.get('name', a.get('id', ''))
-            # Truncate long names
-            if len(str(name)) > 20:
-                name = str(name)[:18] + '…'
-            task_names.append(name)
-        y_ticks = list(range(len(activities) - 1, -1, -1))
-        ax.set_yticks(y_ticks)
-        ax.set_yticklabels(task_names, fontsize=8)
-        ax.set_xlabel("Time (periods)", fontsize=10)
-        title = "Gantt Chart (CPM Analysis)"
+        # Y-axis: activity IDs (matching original professional style)
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(activity_labels, fontsize=12, fontweight='bold')
+        ax.set_xlabel('Time Units', fontsize=12, fontweight='bold', color='darkgreen')
+        ax.set_ylabel('Activities', fontsize=12, fontweight='bold', color='darkgreen')
+        title = "Project Gantt Chart"
         if tracking:
             title += " + Tracking"
-        ax.set_title(title, fontsize=11, fontweight="bold")
+        ax.set_title(title, fontsize=14, fontweight="bold", pad=20)
 
-        # Legend
-        patches = [
-            mpatches.Patch(color='#e74c3c', label='Critical'),
-            mpatches.Patch(color='#3498db', label='Non-critical'),
-            mpatches.Patch(color='#bdc3c7', alpha=0.5, label='Float/Slack'),
+        # Set proper axis limits
+        if activities:
+            max_lf = max(float(a.get('LF', 0)) for a in activities)
+            ax.set_xlim(-0.5, max_lf + 0.5)
+            ax.set_ylim(-0.5, len(activities) - 0.5)
+
+        # Legend — matching original style
+        legend_elements = [
+            mpatches.Patch(color='red', alpha=0.7, label='Critical Activities'),
+            mpatches.Patch(color='lightblue', alpha=0.7, label='Non-Critical Activities'),
+            mpatches.Patch(color='lightgrey', alpha=0.5, label='Available Slack/Float'),
         ]
         if tracking:
-            patches.append(
+            legend_elements.append(
                 mpatches.Patch(color=_COLOURS["progress"],
                                alpha=0.7, label='Progress'))
         if self._show_today.get():
             import matplotlib.lines as mlines
-            patches.append(mlines.Line2D([], [], color='#9b59b6',
-                                          linestyle='-.', label='Today'))
-        ax.legend(handles=patches, loc='lower right', fontsize=7)
+            legend_elements.append(
+                mlines.Line2D([0], [0], color='green',
+                              linewidth=2, label='Today'))
+        ax.legend(handles=legend_elements, loc='lower left')
 
     def _draw_predecessor_arrows(self, ax, activities, id_to_y, id_to_ef, bar_height):
-        """Draw dependency arrows from predecessor EF to successor ES."""
+        """Draw dependency arrows from predecessor EF to successor ES (professional style)."""
         for act in activities:
             act_id = act.get('id', '')
             es = float(act.get('ES', 0))
@@ -305,14 +333,18 @@ class GanttTabEdu:
                 if pred_id in id_to_y and pred_id in id_to_ef:
                     y_pred = id_to_y[pred_id]
                     x_pred_ef = id_to_ef[pred_id]
-                    ax.annotate(
-                        '', xy=(es, y_succ),
-                        xytext=(x_pred_ef, y_pred),
-                        arrowprops=dict(
-                            arrowstyle='->', color='#7f8c8d',
-                            connectionstyle='arc3,rad=0.15',
-                            linewidth=1.0, alpha=0.6),
-                        zorder=1)
+                    # Offset slightly from bar edges for clarity
+                    from_x = x_pred_ef + 0.1
+                    to_x = es - 0.1
+                    if abs(to_x - from_x) > 0.1 or abs(y_succ - y_pred) > 0.1:
+                        ax.annotate(
+                            '', xy=(to_x, y_succ),
+                            xytext=(from_x, y_pred),
+                            arrowprops=dict(
+                                arrowstyle='->', color='#2F4F4F',
+                                connectionstyle='arc3,rad=0.1',
+                                lw=2, alpha=0.7),
+                            zorder=1)
 
     def _draw_evm_gantt(self, ax, tracking):
         """Draw Gantt chart from EVM task data (no CPM results)."""
@@ -412,8 +444,73 @@ class GanttTabEdu:
             defaultextension=ext,
             filetypes=[(f"{fmt.upper()} files", f"*{ext}"), ("All files", "*.*")])
         if filepath:
-            self._fig.savefig(filepath, dpi=150, bbox_inches="tight")
+            self._fig.savefig(filepath, dpi=300, bbox_inches="tight",
+                              facecolor='white', edgecolor='none')
             messagebox.showinfo("Export", f"Saved to {filepath}")
+
+    def _export_data(self):
+        """Export schedule data to CSV or Excel from graph nodes."""
+        if not self._results_data or not self._results_data.get('graph'):
+            messagebox.showwarning("Warning",
+                                   "No schedule data. Run analysis first.")
+            return
+        from tkinter import filedialog
+        filepath = filedialog.asksaveasfilename(
+            title="Export Schedule Data",
+            defaultextension=".csv",
+            filetypes=[("CSV files", "*.csv"),
+                       ("Excel files", "*.xlsx"),
+                       ("All files", "*.*")])
+        if not filepath:
+            return
+        try:
+            G = self._results_data['graph']
+            critical_set = set(self._results_data.get('critical_activities', []))
+            # Parse project start date
+            try:
+                project_start = datetime.strptime(
+                    self._start_date_var.get(), "%Y-%m-%d")
+            except Exception:
+                project_start = datetime.now()
+
+            rows = []
+            for node in G.nodes():
+                if node in ('START', 'END'):
+                    continue
+                nd = G.nodes[node]
+                es = nd.get('earliest_start', nd.get('ES', 0))
+                ef = nd.get('earliest_finish', nd.get('EF', 0))
+                ls = nd.get('latest_start', nd.get('LS', 0))
+                lf = nd.get('latest_finish', nd.get('LF', 0))
+                tf = nd.get('float', nd.get('total_float', 0))
+                dur = nd.get('expected_duration', nd.get('duration', 0))
+                start_date = project_start + timedelta(days=int(es))
+                finish_date = project_start + timedelta(days=int(ef))
+                preds = list(G.predecessors(node))
+                preds_str = ', '.join(str(p) for p in preds if p != 'START')
+                rows.append({
+                    'Activity_ID': node,
+                    'Activity_Name': nd.get('activity', node),
+                    'Duration': dur,
+                    'Start_Date': start_date.strftime('%Y-%m-%d'),
+                    'Finish_Date': finish_date.strftime('%Y-%m-%d'),
+                    'Earliest_Start': es,
+                    'Earliest_Finish': ef,
+                    'Latest_Start': ls,
+                    'Latest_Finish': lf,
+                    'Total_Float': tf,
+                    'Critical': 'Yes' if node in critical_set else 'No',
+                    'Predecessors': preds_str,
+                })
+            import pandas as pd
+            df = pd.DataFrame(rows)
+            if filepath.lower().endswith('.xlsx'):
+                df.to_excel(filepath, index=False, sheet_name='Project_Schedule')
+            else:
+                df.to_csv(filepath, index=False)
+            messagebox.showinfo("Export", f"Schedule data exported to {filepath}")
+        except Exception as e:
+            messagebox.showerror("Error", f"Export failed: {e}")
 
     # ----------------------------------------------------------------
     # Public interface

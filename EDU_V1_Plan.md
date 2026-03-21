@@ -4,7 +4,7 @@
 > **Approach:** 1 developer + AI agent assistance
 > **Estimated Calendar Time:** ~21 weeks (parallelism in Phases 2+3 recovers ~2 weeks; ~1 week buffer in Phase 4; Phase 8 adds ~2 weeks)
 > **Date:** March 8, 2026
-> **Last Status Update:** March 17, 2026
+> **Last Status Update:** March 21, 2026
 
 ---
 
@@ -2097,8 +2097,8 @@ tests/test_schedule_stepper_edu.py     ← Detection logic tests
 
 #### Phase 12 — Tasks
 
-| #    | Task                              | Files to Create / Change                        | What to Do                                                                                                                                                                                   | Effort   | Status      |
-| ---- | --------------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- |
+| #    | Task                              | Files to Create / Change                        | What to Do                                                                                                                                                                                   | Effort   | Status  |
+| ---- | --------------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------- |
 | 12.1 | Schedule Stepper widget           | **`gui/widgets/schedule_stepper_edu.py`** (NEW) | `ScheduleStepperWidget(ttk.Frame)` — 5 badges in a row; `refresh()` reads activities data + results_data; `_detect_steps()` returns completion dict; tooltips on hover; click→tab navigation | 1 day    | ✅ Done |
 | 12.2 | Embed stepper in Input Activities | `gui/tabs/input_tab_edu.py` (modify)            | Insert stepper between `button_frame` and `mode_label`. Add `self._stepper.refresh()` calls to `add_row`, `delete_row`, `clear_all_without_confirmation`, `load_file`, `_save_edit`          | 0.5 day  | ✅ Done |
 | 12.3 | Post-analysis stepper refresh     | `gui/main_window_edu.py` (modify)               | After successful `analyze_project()`, call `self._input_tab_edu._stepper.refresh()` to turn Step 5 green. After `_new_project()`, call refresh to reset all badges.                          | 0.25 day | ✅ Done |
@@ -2115,6 +2115,67 @@ tests/test_schedule_stepper_edu.py     ← Detection logic tests
 | 3   | Step 3 required or optional?     | **Optional** — grey "optional" badge, never red                    | Resource Demand is an optional column. Making it required contradicts current behavior where analysis works without resources.                                                                              |
 | 4   | Red badge for incomplete steps?  | **No** — only green (complete) and grey (pending)                  | The stepper should encourage, not shame. A student in the middle of data entry sees grey badges as "things to do", not "things done wrong."                                                                 |
 | 5   | Separate guide popup (12A)?      | **Removed** — tooltip text inside badges is sufficient             | A `WorkedSolutionWindow` with static PMBOK text and no calculations is just a help page in a modal. It misuses the worked-solution infrastructure, which is designed for formula→substitution→result flows. |
+
+---
+
+### ✅ PHASE 13 — UG Demo Expansion + Gantt Chart Professional Restyle (Complete)
+
+> **Goal:** (1) Expand UG demo to a realistic 15-task project with full crash data, (2) restyle `GanttTabEdu` to match the original `GanttTab` professional look while keeping edu-only enhancements.
+> **Dependencies:** Phases 0–12 complete
+> **Priority:** P1 (users immediately notice thin demo + different-looking Gantt)
+> **Date started:** March 21, 2026
+
+#### Problem Analysis
+
+**UG Demo (`office_renovation_ug.pmproj`):**
+
+| Issue | Current | Target |
+|-------|---------|--------|
+| Task count | 8 activities | 15 activities |
+| Duration range | 1–3 periods | 2–10 periods |
+| `min_duration` | All empty (`""`) | Every task has `min_duration` < `duration` (50–75%) |
+| `crash_cost` | All empty (`""`) | Every task has `crash_cost` > `normal_cost` |
+| EVM data | 7 periods, BAC=120k | ~16 periods, BAC=250k (to match expanded scope) |
+| Crashing tab usefulness | Completely broken (no crash data) | Fully functional on demo load |
+
+**Gantt Tab (`gantt_tab_edu.py` vs. original `gantt_tab.py`):**
+
+| Aspect | Original | Edu (current) | Fix |
+|--------|----------|---------------|-----|
+| Figure size | `14×8` | `8×5` | → `14×8` |
+| Bar height | `0.6` | `0.4` | → `0.6` |
+| Bar colours | `red` α=0.7 / `lightblue` α=0.7 | `#e74c3c` / `#3498db` | → match original |
+| Bar edges | `black`, `lw=0.8` | `white`, `lw=0.5` | → `black`, `lw=0.8` |
+| Label on bar | **Activity ID** (bold, fs=10) | Duration number (fs=7) | → Activity ID |
+| Y-axis labels | Activity IDs (fs=12, bold) | Names truncated (fs=8) | → Activity IDs |
+| Slack bars | Dashed edge, full height | Solid, 60% height | → dashed, full height |
+| Arrows | `#2F4F4F`, `lw=2`, α=0.7, `rad=0.1` | `#7f8c8d`, `lw=1`, α=0.6, `rad=0.15` | → match original |
+| Axis labels | fs=12 bold `darkgreen`, both axes | fs=10 X only | → match original |
+| Title | fs=14, bold, pad=20 | fs=11, bold | → match original |
+| Controls | `LabelFrame("Professional Gantt Chart Options")` | Bare `ttk.Frame` | → `LabelFrame` |
+| X-axis limits | `set_xlim(-0.5, max_lf+0.5)` | Auto | → explicit limits |
+| Legend position | `lower left` | `lower right` | → `lower left` |
+| Data export | CSV + Excel (from graph) | None | → Add CSV + Excel export |
+| **KEEP** edu-only | — | Alternating row bg, row grid lines, tracking Gantt, EVM overlay, today line, worked-solution buttons | ✅ Keep all |
+
+#### Phase 13 — Tasks
+
+| #    | Task                                              | Files to Change                              | What to Do                                                                                                                                                                | Effort  | Status      |
+| ---- | ------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------- |
+| 13.1 | Expand UG demo to 15 tasks + crash data           | `demos_edu/office_renovation_ug.pmproj`      | 15 realistic renovation activities (durations 2–10), all with `min_duration` + `crash_cost`. Update EVM tasks/periods/BAC to match. Update risk register.                  | 0.5 day | ✅ Done |
+| 13.2 | Restyle Gantt Edu to match original professional   | `gui/tabs/gantt_tab_edu.py`                  | Figure 14×8, bar 0.6, red/lightblue α=0.7, black edges, activity ID on bar, ID y-labels, dashed slack, thick arrows, darkgreen axis labels, LabelFrame controls, x-limits | 1 day   | ✅ Done |
+| 13.3 | Add CSV/Excel schedule data export to Gantt Edu    | `gui/tabs/gantt_tab_edu.py`                  | Add "Export Data" button → CSV/Excel via graph node extraction (port logic from original `_export_csv` / `_export_excel`)                                                  | 0.5 day | ✅ Done |
+| 13.4 | Tests — demo loads, crash data present, Gantt ok   | `tests/test_phase13_demo_gantt.py` (NEW)     | 21 tests: 15+ activities, unique IDs, duration range, min_duration/crash_cost populated, predecessor refs valid, EVM 15 tasks + 16 periods, BAC ≥ 200k, risk register, Gantt module methods | 0.5 day | ✅ Done |
+
+**Total Phase 13: 2.5 days**
+
+#### Decisions
+
+| #   | Decision                        | Answer                                                                         | Reasoning                                                                                                     |
+| --- | ------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| 1   | Keep edu-only Gantt features?   | **Yes** — tracking Gantt, EVM overlay, alternating rows, worked-solution btns  | These are pedagogically valuable. The restyle only changes the visual appearance to match the professional look |
+| 2   | Activity ID or name on Y-axis?  | **Activity ID** (matching original)                                            | Original uses IDs; students need to cross-reference with the input table. IDs are shorter and fit better.      |
+| 3   | Update PG demo too?             | **No** (out of scope)                                                          | PG demo uses PERT mode with different columns. Keep this phase focused on UG.                                  |
 
 ---
 
