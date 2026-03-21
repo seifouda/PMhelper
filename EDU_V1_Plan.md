@@ -2129,53 +2129,138 @@ tests/test_schedule_stepper_edu.py     ← Detection logic tests
 
 **UG Demo (`office_renovation_ug.pmproj`):**
 
-| Issue | Current | Target |
-|-------|---------|--------|
-| Task count | 8 activities | 15 activities |
-| Duration range | 1–3 periods | 2–10 periods |
-| `min_duration` | All empty (`""`) | Every task has `min_duration` < `duration` (50–75%) |
-| `crash_cost` | All empty (`""`) | Every task has `crash_cost` > `normal_cost` |
-| EVM data | 7 periods, BAC=120k | ~16 periods, BAC=250k (to match expanded scope) |
-| Crashing tab usefulness | Completely broken (no crash data) | Fully functional on demo load |
+| Issue                   | Current                           | Target                                              |
+| ----------------------- | --------------------------------- | --------------------------------------------------- |
+| Task count              | 8 activities                      | 15 activities                                       |
+| Duration range          | 1–3 periods                       | 2–10 periods                                        |
+| `min_duration`          | All empty (`""`)                  | Every task has `min_duration` < `duration` (50–75%) |
+| `crash_cost`            | All empty (`""`)                  | Every task has `crash_cost` > `normal_cost`         |
+| EVM data                | 7 periods, BAC=120k               | ~16 periods, BAC=250k (to match expanded scope)     |
+| Crashing tab usefulness | Completely broken (no crash data) | Fully functional on demo load                       |
 
 **Gantt Tab (`gantt_tab_edu.py` vs. original `gantt_tab.py`):**
 
-| Aspect | Original | Edu (current) | Fix |
-|--------|----------|---------------|-----|
-| Figure size | `14×8` | `8×5` | → `14×8` |
-| Bar height | `0.6` | `0.4` | → `0.6` |
-| Bar colours | `red` α=0.7 / `lightblue` α=0.7 | `#e74c3c` / `#3498db` | → match original |
-| Bar edges | `black`, `lw=0.8` | `white`, `lw=0.5` | → `black`, `lw=0.8` |
-| Label on bar | **Activity ID** (bold, fs=10) | Duration number (fs=7) | → Activity ID |
-| Y-axis labels | Activity IDs (fs=12, bold) | Names truncated (fs=8) | → Activity IDs |
-| Slack bars | Dashed edge, full height | Solid, 60% height | → dashed, full height |
-| Arrows | `#2F4F4F`, `lw=2`, α=0.7, `rad=0.1` | `#7f8c8d`, `lw=1`, α=0.6, `rad=0.15` | → match original |
-| Axis labels | fs=12 bold `darkgreen`, both axes | fs=10 X only | → match original |
-| Title | fs=14, bold, pad=20 | fs=11, bold | → match original |
-| Controls | `LabelFrame("Professional Gantt Chart Options")` | Bare `ttk.Frame` | → `LabelFrame` |
-| X-axis limits | `set_xlim(-0.5, max_lf+0.5)` | Auto | → explicit limits |
-| Legend position | `lower left` | `lower right` | → `lower left` |
-| Data export | CSV + Excel (from graph) | None | → Add CSV + Excel export |
-| **KEEP** edu-only | — | Alternating row bg, row grid lines, tracking Gantt, EVM overlay, today line, worked-solution buttons | ✅ Keep all |
+| Aspect            | Original                                         | Edu (current)                                                                                        | Fix                      |
+| ----------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------- | ------------------------ |
+| Figure size       | `14×8`                                           | `8×5`                                                                                                | → `14×8`                 |
+| Bar height        | `0.6`                                            | `0.4`                                                                                                | → `0.6`                  |
+| Bar colours       | `red` α=0.7 / `lightblue` α=0.7                  | `#e74c3c` / `#3498db`                                                                                | → match original         |
+| Bar edges         | `black`, `lw=0.8`                                | `white`, `lw=0.5`                                                                                    | → `black`, `lw=0.8`      |
+| Label on bar      | **Activity ID** (bold, fs=10)                    | Duration number (fs=7)                                                                               | → Activity ID            |
+| Y-axis labels     | Activity IDs (fs=12, bold)                       | Names truncated (fs=8)                                                                               | → Activity IDs           |
+| Slack bars        | Dashed edge, full height                         | Solid, 60% height                                                                                    | → dashed, full height    |
+| Arrows            | `#2F4F4F`, `lw=2`, α=0.7, `rad=0.1`              | `#7f8c8d`, `lw=1`, α=0.6, `rad=0.15`                                                                 | → match original         |
+| Axis labels       | fs=12 bold `darkgreen`, both axes                | fs=10 X only                                                                                         | → match original         |
+| Title             | fs=14, bold, pad=20                              | fs=11, bold                                                                                          | → match original         |
+| Controls          | `LabelFrame("Professional Gantt Chart Options")` | Bare `ttk.Frame`                                                                                     | → `LabelFrame`           |
+| X-axis limits     | `set_xlim(-0.5, max_lf+0.5)`                     | Auto                                                                                                 | → explicit limits        |
+| Legend position   | `lower left`                                     | `lower right`                                                                                        | → `lower left`           |
+| Data export       | CSV + Excel (from graph)                         | None                                                                                                 | → Add CSV + Excel export |
+| **KEEP** edu-only | —                                                | Alternating row bg, row grid lines, tracking Gantt, EVM overlay, today line, worked-solution buttons | ✅ Keep all              |
 
 #### Phase 13 — Tasks
 
-| #    | Task                                              | Files to Change                              | What to Do                                                                                                                                                                | Effort  | Status      |
-| ---- | ------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------- |
-| 13.1 | Expand UG demo to 15 tasks + crash data           | `demos_edu/office_renovation_ug.pmproj`      | 15 realistic renovation activities (durations 2–10), all with `min_duration` + `crash_cost`. Update EVM tasks/periods/BAC to match. Update risk register.                  | 0.5 day | ✅ Done |
-| 13.2 | Restyle Gantt Edu to match original professional   | `gui/tabs/gantt_tab_edu.py`                  | Figure 14×8, bar 0.6, red/lightblue α=0.7, black edges, activity ID on bar, ID y-labels, dashed slack, thick arrows, darkgreen axis labels, LabelFrame controls, x-limits | 1 day   | ✅ Done |
-| 13.3 | Add CSV/Excel schedule data export to Gantt Edu    | `gui/tabs/gantt_tab_edu.py`                  | Add "Export Data" button → CSV/Excel via graph node extraction (port logic from original `_export_csv` / `_export_excel`)                                                  | 0.5 day | ✅ Done |
-| 13.4 | Tests — demo loads, crash data present, Gantt ok   | `tests/test_phase13_demo_gantt.py` (NEW)     | 21 tests: 15+ activities, unique IDs, duration range, min_duration/crash_cost populated, predecessor refs valid, EVM 15 tasks + 16 periods, BAC ≥ 200k, risk register, Gantt module methods | 0.5 day | ✅ Done |
+| #    | Task                                             | Files to Change                          | What to Do                                                                                                                                                                                  | Effort  | Status  |
+| ---- | ------------------------------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------- |
+| 13.1 | Expand UG demo to 15 tasks + crash data          | `demos_edu/office_renovation_ug.pmproj`  | 15 realistic renovation activities (durations 2–10), all with `min_duration` + `crash_cost`. Update EVM tasks/periods/BAC to match. Update risk register.                                   | 0.5 day | ✅ Done |
+| 13.2 | Restyle Gantt Edu to match original professional | `gui/tabs/gantt_tab_edu.py`              | Figure 14×8, bar 0.6, red/lightblue α=0.7, black edges, activity ID on bar, ID y-labels, dashed slack, thick arrows, darkgreen axis labels, LabelFrame controls, x-limits                   | 1 day   | ✅ Done |
+| 13.3 | Add CSV/Excel schedule data export to Gantt Edu  | `gui/tabs/gantt_tab_edu.py`              | Add "Export Data" button → CSV/Excel via graph node extraction (port logic from original `_export_csv` / `_export_excel`)                                                                   | 0.5 day | ✅ Done |
+| 13.4 | Tests — demo loads, crash data present, Gantt ok | `tests/test_phase13_demo_gantt.py` (NEW) | 21 tests: 15+ activities, unique IDs, duration range, min_duration/crash_cost populated, predecessor refs valid, EVM 15 tasks + 16 periods, BAC ≥ 200k, risk register, Gantt module methods | 0.5 day | ✅ Done |
 
 **Total Phase 13: 2.5 days**
 
 #### Decisions
 
-| #   | Decision                        | Answer                                                                         | Reasoning                                                                                                     |
-| --- | ------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
-| 1   | Keep edu-only Gantt features?   | **Yes** — tracking Gantt, EVM overlay, alternating rows, worked-solution btns  | These are pedagogically valuable. The restyle only changes the visual appearance to match the professional look |
-| 2   | Activity ID or name on Y-axis?  | **Activity ID** (matching original)                                            | Original uses IDs; students need to cross-reference with the input table. IDs are shorter and fit better.      |
-| 3   | Update PG demo too?             | **No** (out of scope)                                                          | PG demo uses PERT mode with different columns. Keep this phase focused on UG.                                  |
+| #   | Decision                       | Answer                                                                        | Reasoning                                                                                                       |
+| --- | ------------------------------ | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| 1   | Keep edu-only Gantt features?  | **Yes** — tracking Gantt, EVM overlay, alternating rows, worked-solution btns | These are pedagogically valuable. The restyle only changes the visual appearance to match the professional look |
+| 2   | Activity ID or name on Y-axis? | **Activity ID** (matching original)                                           | Original uses IDs; students need to cross-reference with the input table. IDs are shorter and fit better.       |
+| 3   | Update PG demo too?            | **No** (out of scope)                                                         | PG demo uses PERT mode with different columns. Keep this phase focused on UG.                                   |
+
+---
+
+### ✅ PHASE 14 — Network Diagram Smart Layout (Strategy 5: Barycenter + Virtual Nodes) (Complete)
+
+> **Goal:** Eliminate arrows passing through intermediate nodes by implementing a Sugiyama-style layered layout with barycenter ordering and virtual node edge routing.
+> **Dependencies:** Phases 0–8 complete (NetworkTab, CPM Analyzer)
+> **Priority:** P1 (usability — arrows through nodes makes the diagram hard to read)
+> **Applies to:** Both UG and PG modes (original NetworkTab used by edu app)
+> **Strategy:** #5 — Barycenter Y-ordering + Virtual Nodes + Polyline edges
+
+#### Problem Analysis
+
+The current `create_hierarchical_layout()` in `network_tab.py` uses `nx.topological_generations(G)` with alphabetical sorting within each column and fixed `y = (j - len/2 + 0.5) * 4` spacing. This produces:
+
+1. **Arrows through nodes:** When edge (A→D) passes through the column containing B/C, the straight-line arrow goes right through those nodes
+2. **No crossing minimization:** Alphabetical sort within columns ignores graph connectivity, creating unnecessary edge crossings
+3. **No long-edge routing:** Edges spanning multiple columns are drawn as single straight lines through all intermediate columns
+
+#### Solution: Sugiyama-style Layered Layout (Strategy 5)
+
+**Phase 1 — Barycenter Y-ordering:** Instead of alphabetical sort within each topological column, order nodes by the average Y position of their predecessors (barycenter heuristic). This minimizes edge crossings.
+
+**Phase 2 — Virtual node insertion:** For any edge (u→v) that spans more than one column, insert virtual (invisible) nodes at each intermediate column. This creates a path: u → virt₁ → virt₂ → ... → v.
+
+**Phase 3 — Polyline edge routing:** Draw edges as polylines through virtual node positions. Virtual nodes are positioned by the same barycenter ordering, so the edge bends to avoid real nodes.
+
+**Phase 4 — Iterative refinement:** Run 2–4 passes of barycenter ordering (alternating forward/backward) to further reduce crossings.
+
+#### Phase 14 — Tasks
+
+| #    | Task                                              | Files to Change                           | What to Do                                                                                                                                                                                  | Effort  | Status      |
+| ---- | ------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------- |
+| 14.1 | Implement Sugiyama layout engine                  | `gui/tabs/network_tab.py`                 | Replace `create_hierarchical_layout()` with: (a) topological generation layering, (b) virtual node insertion for long edges, (c) barycenter Y-ordering with 4 iterative passes, (d) final coordinate assignment with even spacing | 1 day   | ✅ Done     |
+| 14.2 | Implement polyline edge routing                   | `gui/tabs/network_tab.py`                 | Replace `draw_network_edges()` with polyline routing through virtual node waypoints. Straight segments between consecutive waypoints, arrowhead only on final segment. Critical path edges in red, lw=2 | 0.5 day | ✅ Done     |
+| 14.3 | Adjust node spacing and margins                   | `gui/tabs/network_tab.py`                 | Tune `x_spacing` and `y_spacing` to prevent node overlap in the new layout. Add padding for float labels when "Show Float" is enabled. Ensure START/END nodes positioned correctly          | 0.25 day| ✅ Done     |
+| 14.4 | Tests — layout correctness + no overlap           | `tests/test_phase14_network_layout.py` (NEW) | Test: no two real nodes overlap, all edges avoid node interiors, barycenter reduces crossings vs alphabetical, virtual nodes created for long edges, polyline waypoints correct, START/END positioned at extremes | 0.5 day | ✅ Done     |
+
+**Total Phase 14: 2.25 days**
+
+#### Technical Design
+
+**Barycenter heuristic:**
+```python
+def barycenter_y(node, G, pos, direction='forward'):
+    """Compute barycenter = avg Y of connected nodes in previous layer."""
+    if direction == 'forward':
+        neighbors = list(G.predecessors(node))
+    else:
+        neighbors = list(G.successors(node))
+    if not neighbors:
+        return pos.get(node, (0, 0))[1]  # Keep current Y
+    return sum(pos[n][1] for n in neighbors if n in pos) / len([n for n in neighbors if n in pos])
+```
+
+**Virtual node insertion:**
+```python
+# For edge (u, v) spanning columns col_u → col_v where col_v - col_u > 1:
+# Insert virtual nodes virt_u_v_1, virt_u_v_2, ... at each intermediate column
+# Replace edge (u, v) with path: u → virt_1 → virt_2 → ... → v
+# Virtual nodes participate in barycenter ordering but are not rendered
+```
+
+**Polyline edge drawing:**
+```python
+# For each original edge (u, v):
+#   Collect waypoints: [pos[u], pos[virt_1], pos[virt_2], ..., pos[v]]
+#   Draw line segments between consecutive waypoints
+#   Arrowhead only on the last segment (virt_n → v)
+```
+
+**Iterative refinement (4 passes):**
+1. Forward pass (left→right): order each column by barycenter of predecessors
+2. Backward pass (right→left): order each column by barycenter of successors
+3. Forward pass (refinement)
+4. Backward pass (refinement)
+
+#### Decisions
+
+| #   | Decision                             | Answer                                                                                       | Reasoning                                                                                                                                 |
+| --- | ------------------------------------ | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Modify original NetworkTab or copy?  | **Modify original** — the edu app already uses `NetworkTab` directly                         | Creating a copy would duplicate 600+ lines. The layout improvement benefits both modes.                                                   |
+| 2   | How many barycenter iterations?      | **4 passes** (2 forward + 2 backward)                                                        | Empirically 2–4 passes gives most of the crossing reduction benefit. More passes have diminishing returns.                                |
+| 3   | Virtual node rendering?              | **Invisible** — virtual nodes are layout-only; only the polyline segments through them render | Virtual nodes are an implementation detail of the routing algorithm. Users should see clean curved/bent edges, not intermediate dots.      |
+| 4   | Critical path edge styling?          | **Red, lw=2** for critical edges; **black, lw=1.5** for normal                               | Matches the existing node coloring convention (red = critical). Thicker lines make the critical path visually prominent in the path.       |
 
 ---
 
