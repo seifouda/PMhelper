@@ -82,10 +82,21 @@ class MainWindowEdu:
                               command=self._save_project_as,
                               accelerator="Ctrl+Shift+S")
         file_menu.add_separator()
-        file_menu.add_command(label="Load UG Demo",
-                              command=lambda: self._load_demo("ug"))
-        file_menu.add_command(label="Load PG Demo",
-                              command=lambda: self._load_demo("pg"))
+        demo_menu = tk.Menu(file_menu, tearoff=0)
+        demo_menu.add_command(
+            label="UG Demo — Small (15 tasks)",
+            command=lambda: self._load_demo("ug", "small"))
+        demo_menu.add_command(
+            label="UG Demo — Large (600 tasks)",
+            command=lambda: self._load_demo("ug", "large"))
+        demo_menu.add_separator()
+        demo_menu.add_command(
+            label="PG Demo — Small (12 tasks)",
+            command=lambda: self._load_demo("pg", "small"))
+        demo_menu.add_command(
+            label="PG Demo — Large (600 tasks)",
+            command=lambda: self._load_demo("pg", "large"))
+        file_menu.add_cascade(label="Load Demo", menu=demo_menu)
         file_menu.add_separator()
         file_menu.add_command(label="Export All Charts...",
                               command=self._export_all_charts)
@@ -516,7 +527,14 @@ class MainWindowEdu:
         except Exception as exc:
             messagebox.showerror("Save Error", str(exc))
 
-    def _load_demo(self, level: str):
+    _DEMO_FILES = {
+        ("ug", "small"): "office_renovation_ug.pmproj",
+        ("ug", "large"): "campus_construction_ug_large.pmproj",
+        ("pg", "small"): "software_development_pg.pmproj",
+        ("pg", "large"): "erp_implementation_pg_large.pmproj",
+    }
+
+    def _load_demo(self, level: str, size: str = "small"):
         """Load a built-in demo dataset."""
         if self.state.is_dirty():
             answer = messagebox.askyesnocancel(
@@ -529,10 +547,11 @@ class MainWindowEdu:
 
         # Look for demo files in the demos directory
         demo_dir = os.path.join(os.path.dirname(__file__), "..", "demos_edu")
-        if level.lower() == "ug":
-            demo_file = os.path.join(demo_dir, "office_renovation_ug.pmproj")
-        else:
-            demo_file = os.path.join(demo_dir, "software_development_pg.pmproj")
+        filename = self._DEMO_FILES.get((level.lower(), size.lower()))
+        if not filename:
+            messagebox.showerror("Demo Error", f"Unknown demo: {level}/{size}")
+            return
+        demo_file = os.path.join(demo_dir, filename)
 
         if not os.path.exists(demo_file):
             messagebox.showinfo(
