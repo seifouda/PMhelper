@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from pmhelper.core.step_generators_edu import cpm_forward_steps, cpm_backward_steps
 from pmhelper.gui.widgets.worked_solution_window import WorkedSolutionWindow
 from pmhelper.gui.widgets.scrollable_mpl_frame import ScrollableMatplotlibFrame
+from pmhelper.utils.interactive_network import open_interactive_gantt, PLOTLY_AVAILABLE
 
 try:
     from matplotlib.figure import Figure
@@ -107,6 +108,9 @@ class GanttTabEdu:
                    command=lambda: self._export("png")).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="Export Data",
                    command=self._export_data).pack(side=tk.LEFT, padx=5)
+        if PLOTLY_AVAILABLE:
+            ttk.Button(button_frame, text="\U0001f310 Interactive View",
+                       command=self._open_interactive_gantt).pack(side=tk.LEFT, padx=5)
 
         # Toolbar row 2: CPM Worked Solution buttons
         toolbar2 = ttk.Frame(self.frame)
@@ -449,6 +453,19 @@ class GanttTabEdu:
         self._results_data = results_data
         self._analysis_mode = analysis_mode
         self._draw_gantt()
+
+    def _open_interactive_gantt(self):
+        """Open interactive Plotly Gantt chart in the default browser."""
+        if not self._results_data:
+            messagebox.showwarning("Warning",
+                                   "No chart to display. Please run analysis first.")
+            return
+        html_path = open_interactive_gantt(
+            self._results_data, analysis_mode=self._analysis_mode)
+        if not html_path:
+            messagebox.showerror("Error",
+                                 "Could not generate interactive Gantt. "
+                                 "Please ensure plotly is installed.")
 
     def _export(self, fmt):
         from tkinter import filedialog
