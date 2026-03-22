@@ -57,7 +57,7 @@ def generate_interactive_network(results_data, analysis_mode=None,
     net = _create_pyvis_network(project_duration, analysis_mode)
     _add_nodes(net, activities, critical_activities, analysis_mode, mode)
     _add_edges(net, activities, critical_activities)
-    _apply_options(net)
+    _apply_options(net, mode)
 
     # --- write HTML -------------------------------------------------------
     html_path = _write_html(net)
@@ -477,58 +477,68 @@ def _add_edges(net, activities, critical_activities):
             )
 
 
-def _apply_options(net):
+def _apply_options(net, mode='network'):
     """Apply vis.js options for hierarchical layout, physics, interaction."""
-    net.set_options("""
-    {
-      "layout": {
-        "hierarchical": {
+    # PERT SVG nodes are 180×72px — need wider spacing to prevent overlap
+    if mode == 'pert':
+        level_sep = 280
+        node_spacing = 250
+        tree_spacing = 220
+    else:
+        level_sep = 200
+        node_spacing = 120
+        tree_spacing = 150
+
+    net.set_options(f"""
+    {{
+      "layout": {{
+        "hierarchical": {{
           "enabled": true,
           "direction": "LR",
           "sortMethod": "directed",
-          "levelSeparation": 200,
-          "nodeSpacing": 120,
-          "treeSpacing": 150,
+          "levelSeparation": {level_sep},
+          "nodeSpacing": {node_spacing},
+          "treeSpacing": {tree_spacing},
           "blockShifting": true,
           "edgeMinimization": true,
           "parentCentralization": true
-        }
-      },
-      "physics": {
+        }}
+      }},
+      "physics": {{
         "enabled": false
-      },
-      "edges": {
-        "arrows": {
-          "to": {
+      }},
+      "edges": {{
+        "arrows": {{
+          "to": {{
             "enabled": true,
             "scaleFactor": 0.8
-          }
-        },
-        "smooth": {
+          }}
+        }},
+        "smooth": {{
           "type": "cubicBezier",
           "forceDirection": "horizontal",
           "roundness": 0.4
-        }
-      },
-      "interaction": {
+        }}
+      }},
+      "interaction": {{
         "hover": true,
         "tooltipDelay": 100,
         "navigationButtons": true,
-        "keyboard": {
+        "keyboard": {{
           "enabled": true,
           "bindToWindow": true
-        },
+        }},
         "zoomView": true,
         "dragView": true
-      },
-      "nodes": {
-        "font": {
+      }},
+      "nodes": {{
+        "font": {{
           "size": 12,
           "face": "Arial"
-        },
+        }},
         "margin": 10
-      }
-    }
+      }}
+    }}
     """)
 
 
