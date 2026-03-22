@@ -9,6 +9,8 @@ diagrams (NetworkTab, PertDiagramTab).
 Phase 17 — PMhelper Edu V1.
 """
 
+import os
+import platform
 import tempfile
 import webbrowser
 from pathlib import Path
@@ -69,8 +71,45 @@ def open_interactive_network(results_data, analysis_mode=None, mode='network'):
     html_path = generate_interactive_network(
         results_data, analysis_mode=analysis_mode, mode=mode)
     if html_path:
-        webbrowser.open(Path(html_path).as_uri())
+        _open_in_browser(html_path)
     return html_path
+
+
+def _open_in_browser(path):
+    """Open an HTML file in the default *browser*, not the default .html app.
+
+    On Windows the default handler for .html may be VS Code or an editor,
+    so we read the OS-registered browser from the registry and launch it
+    directly.  Falls back to webbrowser.open() on other platforms.
+    """
+    url = Path(path).as_uri()          # file:///C:/Users/…
+    if platform.system() == 'Windows':
+        import subprocess
+        import shlex
+        # Read the system HTTP handler — this is always the browser
+        try:
+            import winreg
+            with winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                r"Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice"
+            ) as key:
+                prog_id = winreg.QueryValueEx(key, "ProgId")[0]
+            with winreg.OpenKey(
+                winreg.HKEY_CLASSES_ROOT,
+                rf"{prog_id}\shell\open\command"
+            ) as key:
+                cmd_template = winreg.QueryValueEx(key, "")[0]
+            # cmd_template looks like: "C:\Program Files\...\chrome.exe" --flag "%1"
+            # Replace %1 with our URL
+            cmd = cmd_template.replace('%1', url)
+            subprocess.Popen(cmd)
+            return
+        except Exception:
+            pass
+        # Fallback: webbrowser module
+        webbrowser.open(url)
+    else:
+        webbrowser.open(url)
 
 
 # ── internal helpers ─────────────────────────────────────────────────────
