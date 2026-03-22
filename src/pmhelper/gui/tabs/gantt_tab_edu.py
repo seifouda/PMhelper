@@ -183,7 +183,10 @@ class GanttTabEdu:
             # Fall back to EVM task data
             self._draw_evm_gantt(ax, tracking)
 
-        self._fig.subplots_adjust(left=0.22, right=0.96, top=0.92, bottom=0.12)
+        # Adaptive margins: shrink left margin for wider figures
+        n_acts = len(self._results_data.get('activities', [])) if self._results_data else 0
+        left_margin = 0.22 if n_acts <= 50 else max(0.06, min(0.22, 3.0 / max(1, self._fig.get_figwidth())))
+        self._fig.subplots_adjust(left=left_margin, right=0.96, top=0.95, bottom=0.06)
         self._canvas.draw()
 
     def _draw_cpm_gantt(self, ax, tracking):
@@ -197,11 +200,16 @@ class GanttTabEdu:
 
         import numpy as np
 
-        # Adaptive figure height for large projects
+        # Adaptive figure sizing for large projects
         n = len(activities)
+        max_lf = max(float(a.get('LF', 0)) for a in activities) if activities else 10
+
         if n > 50:
+            # Height: enough room per activity bar
             fig_h = min(80, max(8, n * 0.25 + 2))
-            self._scroll_frame.set_figure_size(14, fig_h)
+            # Width: at least 14, scale with project duration
+            fig_w = max(14, min(200, max_lf * 0.08 + 4))
+            self._scroll_frame.set_figure_size(fig_w, fig_h)
         else:
             self._scroll_frame.fit_to_viewport()
 

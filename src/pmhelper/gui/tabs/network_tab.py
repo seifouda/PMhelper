@@ -208,8 +208,7 @@ class NetworkTab:
             
             self.ax.set_title(title, fontsize=14, fontweight='bold', pad=20)
             
-            # Adjust layout and draw
-            self.figure.tight_layout()
+            # Final draw (draw_network_diagram sets layout; title added above)
             self.canvas.draw()
             
         except Exception as e:
@@ -323,14 +322,29 @@ class NetworkTab:
         # 1. Create hierarchical layout (inserts virtual nodes into G)
         pos = self.create_hierarchical_layout(G)
 
-        # 2. Set figure size for large projects (scrollable)
+        # 2. Set figure size proportional to data range
+        xs = [p[0] for p in pos.values()]
+        ys = [p[1] for p in pos.values()]
+        if xs and ys:
+            pad = self._node_radius + 1
+            x_min, x_max = min(xs) - pad, max(xs) + pad
+            y_min, y_max = min(ys) - pad, max(ys) + pad
+            data_w = x_max - x_min
+            data_h = y_max - y_min
+        else:
+            x_min, x_max, y_min, y_max = 0, 10, 0, 10
+            data_w = data_h = 10
+
         if n_act > self._SIZE_SMALL:
-            xs = [p[0] for p in pos.values()]
-            ys = [p[1] for p in pos.values()]
-            x_range = (max(xs) - min(xs)) if xs else 0
-            y_range = (max(ys) - min(ys)) if ys else 0
-            fig_w = min(120, max(14, x_range * 0.6 + 4))
-            fig_h = min(60, max(10, y_range * 1.5 + 4))
+            # Use the same scale factor for both axes so circles stay round.
+            px_per_unit = 50  # pixels per data-coordinate unit
+            dpi = self.figure.dpi
+            fig_w = max(14, data_w * px_per_unit / dpi)
+            fig_h = max(6, data_h * px_per_unit / dpi)
+            # Cap width at 300 inches; scale height proportionally if needed
+            if fig_w > 300:
+                fig_h = fig_h * (300 / fig_w)
+                fig_w = 300
             self._scroll_frame.set_figure_size(fig_w, fig_h)
         else:
             self._scroll_frame.fit_to_viewport()
@@ -351,8 +365,12 @@ class NetworkTab:
         cleanup_virtual_nodes(G, self._virtual_nodes)
 
         self.ax.set_title("Project Network Diagram")
+        # Set explicit data limits and minimal margins so content fills figure
+        self.ax.set_xlim(x_min, x_max)
+        self.ax.set_ylim(y_min, y_max)
         self.ax.set_aspect('equal')
         self.ax.axis('off')
+        self.figure.subplots_adjust(left=0.01, right=0.99, top=0.95, bottom=0.02)
         self.canvas.draw()
     
     def create_hierarchical_layout(self, G):

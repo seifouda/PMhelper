@@ -95,7 +95,14 @@ class ScrollableMatplotlibFrame(ttk.Frame):
     def set_figure_size(self, width_in, height_in):
         """Set figure to a fixed size (inches).  Scrollbars appear if needed."""
         self._auto_fit = False
+        dpi = self.figure.dpi
+        w_px = int(width_in * dpi)
+        h_px = int(height_in * dpi)
         self.figure.set_size_inches(width_in, height_in, forward=True)
+        # Explicitly resize the tk widget and scroll region so the viewport
+        # knows the new content size immediately (avoids Tk idle-scheduling lag).
+        self._mpl_widget.configure(width=w_px, height=h_px)
+        self._viewport.configure(scrollregion=(0, 0, w_px, h_px))
         self.canvas.draw_idle()
 
     def fit_to_viewport(self):
