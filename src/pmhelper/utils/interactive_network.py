@@ -81,7 +81,7 @@ def _create_pyvis_network(project_duration, analysis_mode):
     title = "Project Network Diagram"
     if analysis_mode == 'probabilistic':
         title = "PERT Network Diagram"
-    title += f"  —  Duration: {project_duration}"
+    title += f"  -  Duration: {project_duration}"
 
     net = PyvisNetwork(
         height="100vh",
@@ -90,6 +90,8 @@ def _create_pyvis_network(project_duration, analysis_mode):
         heading=title,
         bgcolor="#ffffff",
         font_color="#333333",
+        notebook=False,
+        cdn_resources='in_line',
     )
     return net
 
@@ -129,7 +131,6 @@ def _add_nodes(net, activities, critical_activities, analysis_mode, mode):
         size=30,
         font={'size': 14, 'face': 'Arial', 'bold': True},
         title='Project Start',
-        level=0,
     )
 
     # Add activity nodes
@@ -199,7 +200,7 @@ def _build_tooltip(act, aid, duration, is_critical, mode):
         lines.append(f"LS: {ls}  |  LF: {lf}")
         lines.append(f"Float: {flt}")
 
-    status = "✔ Critical" if is_critical else "Non-critical"
+    status = "CRITICAL" if is_critical else "Non-critical"
     lines.append(f"Status: {status}")
     return "<br>".join(lines)
 
@@ -286,5 +287,9 @@ def _write_html(net):
         suffix='.html', prefix='pmhelper_network_', delete=False, mode='w',
         encoding='utf-8')
     tmp.close()
-    net.save_graph(tmp.name)
+    # Generate the HTML string via pyvis, then write with explicit UTF-8
+    # to avoid cp1252 encoding errors on Windows.
+    net.generate_html(name=tmp.name)
+    with open(tmp.name, 'w', encoding='utf-8') as f:
+        f.write(net.html)
     return tmp.name
