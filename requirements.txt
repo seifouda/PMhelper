@@ -1,0 +1,32 @@
+# Production dependencies for Render.com
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+sqlalchemy>=2.0.0
+asyncpg>=0.29.0
+aiosqlite>=0.19.0
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+
+# Core analysis dependencies
+numpy>=1.21.0
+pandas>=1.3.0
+scipy>=1.7.0
+networkx>=2.6
+matplotlib>=3.4.0
+plotly>=5.0.0
+tabulate>=0.8.9
+openpyxl>=3.0.7
+
+# Project Selection dependencies
+pulp>=2.7.0              # Linear programming solver for portfolio optimization
+numpy-financial>=1.0.0   # Financial calculations (PMT function) for B/C analysis
+
+# GUI dependencies for Project Charter feature
+customtkinter>=5.2.0
+reportlab>=4.0.0
+Pillow>=10.0.0
+python-dateutil>=2.8.0
+jsonschema>=4.19.0
+
+# Interactive network visualization
+pyvis>=0.3.1

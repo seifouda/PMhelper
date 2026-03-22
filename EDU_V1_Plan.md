@@ -4,7 +4,7 @@
 > **Approach:** 1 developer + AI agent assistance
 > **Estimated Calendar Time:** ~21 weeks (parallelism in Phases 2+3 recovers ~2 weeks; ~1 week buffer in Phase 4; Phase 8 adds ~2 weeks)
 > **Date:** March 8, 2026
-> **Last Status Update:** March 21, 2026
+> **Last Status Update:** March 22, 2026
 
 ---
 
@@ -21,13 +21,34 @@
 | Phase 4 | Monte Carlo Engine — `monte_carlo_edu.py` (threaded, progress bar), `ProbabilityTabEdu` (Monte Carlo + PERT Analysis sub-tabs), Tracking Gantt (baseline bars, % complete shading) | ✅ Done |
 | Phase 5 | Mode Toggle (UG/PG), Chart Export, Demo Data (.pmproj), Dashboard Tab, Save/Load, Unsaved-Changes Warning, PyInstaller spec                                                        | ✅ Done |
 | Phase 6 | Testing & Stabilisation — all test files pass (381 tests)                                                                                                                          | ✅ Done |
-| Phase 7 | CPM/PERT Integration — Analyze button, real Results/Network/PERT/Crashing tabs reused, CPM→EVM sync, `.pmproj` CPM activity persistence                                            | ✅ Done |
+| Phase 7   | CPM/PERT Integration — Analyze button, real Results/Network/PERT/Crashing tabs reused, CPM→EVM sync, `.pmproj` CPM activity persistence                                       | ✅ Done |
+| Phase 8   | Production Hardening — Gantt arrows + today line, RCPS leveling sub-tab, PERT analysis sub-tab, Charter + Charter Mgr wiring, DPCI wiring, full tab refresh                      | ✅ Done |
+| Phase 9   | SWOT & PESTEL Strategic Analysis — `SWOTTabEdu`, `PESTELTabEdu`, auto-extraction engine, models, save/load in `.pmproj`                                                           | ✅ Done |
+| Phase 9C  | WBS Diagram — data model, validator, builder, aggregator, Walker's layout engine, interactive Canvas tab, file export                                                             | ✅ Done |
+| Phase 10  | Polish & Packaging — recent files list, Excel KPI export, PyInstaller `--onedir` spec                                                                                            | ✅ Partial |
+| Phase 11  | UG Worked Solutions — `step_generators_edu.py`, `WorkedSolutionWindow` widget, "Show Worked Solution" buttons on EVM/PERT/CPM tabs (UG-only)                                     | ✅ Done |
+| Phase 12  | Schedule Process Stepper — `ScheduleStepperWidget` (5 PMBOK steps, event-driven), embedded in Input Activities tab, both UG + PG modes                                           | ✅ Done |
+| Phase 13  | UG Demo Expansion + Gantt Restyle — 15-task renovation demo with crash data, professional Gantt styling (14×8, bar 0.6h, CSV/Excel export)                                        | ✅ Done |
+| Phase 14  | Network Diagram Smart Layout — Sugiyama layered layout, barycenter Y-ordering, virtual node insertion, polyline edge routing                                                       | ✅ Done |
+| Phase 14A | Shared Sugiyama Layout Engine — `utils/network_layout.py` extracted, applied to NetworkTab + PERT diagram + both Crashing visualization modules                                   | ✅ Done |
+| Phase 15  | Large Project Support — O(V+E) critical-path fix, `ScrollableMatplotlibFrame` widget, batch polyline rendering, adaptive layout sizing for 600-task demos                         | ✅ Done |
+| Phase 16  | Large Demo Predecessor Quality — 19 DAG constraints implemented via `_build_predecessors_map()`, both 600-task demos regenerated and validated                                    | ✅ Done |
+| Phase 17  | Interactive Network Viewer — `pyvis` (vis.js) HTML generation for NetworkTab + PERT tab, browser-based exploration with hover tooltips, zoom/pan, critical path highlighting      | ✅ Done |
 
-### 🔧 IN PROGRESS — Phase 8: Production Hardening (P1 + P2 fixes)
+### ✅ COMPLETED — Phase 17: Interactive Network Viewer
+
+> **Goal:** Add an alternative interactive browser-based network visualization using vis.js (via `pyvis`), coexisting alongside the current Matplotlib in-app diagrams.
+> **Effort:** ~1 working day
+> **Date started:** March 22, 2026
+> **Date completed:** March 22, 2026
+> **Dependencies:** Phase 14A (shared Sugiyama engine), Phase 15 (large project support)
+
+### ✅ COMPLETED — Phase 8: Production Hardening (P1 + P2 fixes)
 
 > **Goal:** Fix all remaining gaps that prevent the app from being production-ready.
-> **Estimated effort:** ~5 working days
+> **Effort:** ~5 working days
 > **Date started:** March 9, 2026
+> **Date completed:** March 21, 2026
 
 #### Phase 8 — Priority 1 (Must Fix)
 
@@ -419,71 +440,81 @@ src/pmhelper/
 │   ├── cpm_analyzer.py          ✅ reuse unchanged
 │   ├── pert_analyzer.py         ✅ reuse unchanged
 │   ├── cost_optimization.py     ✅ reuse unchanged (crashing)
-│   ├── edu_state.py             ❌ NEW  ← Phase 0  (EduProjectState + AppConfig)
-│   ├── evm_models.py            ❌ NEW  ← Phase 1  (EVMTask, EVMPeriod, EVMProject)
-│   ├── evm_calculations.py      ❌ NEW  ← Phase 2  (pure KPI functions + RAG)
-│   ├── risk_register.py         ✅ DONE  ← Phase 3  (risk_register_edu.py)
-│   ├── monte_carlo.py           ✅ DONE  ← Phase 4  (monte_carlo_edu.py)
-│   ├── swot_models_edu.py       ❌ NEW  ← Phase 9A (SWOTFactor, SWOTAnalysis)
-│   ├── pestel_models_edu.py     ❌ NEW  ← Phase 9B (PESTELFactor, PESTELAnalysis)
-│   ├── wbs_models_edu.py        ❌ NEW  ← Phase 9C (WBSNode, WBSStatus)
-│   ├── wbs_validator_edu.py     ❌ NEW  ← Phase 9C (validation + DFS cycle detection)
-│   ├── wbs_builder_edu.py       ❌ NEW  ← Phase 9C (tree build + BFS levels + WBS codes)
-│   ├── wbs_aggregator_edu.py    ❌ NEW  ← Phase 9C (rollup with caching)
-│   └── wbs_layout_edu.py        ❌ NEW  ← Phase 9C (Walker's layout + LayoutNode/LayoutEdge)
+│   ├── edu_state.py             ✅ Done ← Phase 0  (EduProjectState + AppConfig)
+│   ├── evm_models.py            ✅ Done ← Phase 1  (EVMTask, EVMPeriod, EVMProject)
+│   ├── evm_calculations.py      ✅ Done ← Phase 2  (pure KPI functions + RAG)
+│   ├── risk_register.py         ✅ Done ← Phase 3  (risk_register_edu.py)
+│   ├── monte_carlo.py           ✅ Done ← Phase 4  (monte_carlo_edu.py)
+│   ├── swot_models_edu.py       ✅ Done ← Phase 9A (SWOTFactor, SWOTAnalysis)
+│   ├── pestel_models_edu.py     ✅ Done ← Phase 9B (PESTELFactor, PESTELAnalysis)
+│   ├── wbs_models_edu.py        ✅ Done ← Phase 9C (WBSNode, WBSStatus)
+│   ├── wbs_validator_edu.py     ✅ Done ← Phase 9C (validation + DFS cycle detection)
+│   ├── wbs_builder_edu.py       ✅ Done ← Phase 9C (tree build + BFS levels + WBS codes)
+│   ├── wbs_aggregator_edu.py    ✅ Done ← Phase 9C (rollup with caching)
+│   ├── wbs_layout_edu.py        ✅ Done ← Phase 9C (Walker's layout + LayoutNode/LayoutEdge)
+│   └── step_generators_edu.py   ✅ Done ← Phase 11 (Step dataclass; pert_steps, evm_steps, cpm_steps)
 ├── gui/
-│   ├── main_window.py           ✅ DONE  (main_window_edu.py — edu edition; Phase 9: wire SWOT + PESTEL tabs)
+│   ├── main_window.py           ✅ Done (main_window_edu.py — all tabs wired through Phase 16)
+│   ├── widgets/
+│   │   ├── worked_solution_window.py  ✅ Done ← Phase 11 (scrollable Toplevel, Step cards, export)
+│   │   ├── schedule_stepper_edu.py    ✅ Done ← Phase 12 (5-badge PMBOK stepper, event-driven)
+│   │   └── scrollable_mpl_frame.py   ✅ Done ← Phase 15 (viewport + scrollbars + toolbar)
 │   └── tabs/
-│       ├── input_tab_edu.py     ✅ DONE  (EVM panel + period table + PV spreading)
-│       ├── gantt_tab_edu.py     ✅ DONE  (baseline + tracking + arrows + today line)
-│       ├── network_tab_edu.py   ✅ DONE  reused with edu wiring
-│       ├── evm_tab_edu.py       ✅ DONE  ← Phase 2
-│       ├── risk_tab_edu.py      ✅ DONE  (register CRUD + 5×5 heat map)
-│       ├── pert_tab_edu.py      ✅ DONE  reused with edu wiring
-│       ├── probability_tab_edu.py ✅ DONE (Monte Carlo + PERT Analysis sub-tabs)
-│       ├── crashing_tab_edu.py  ✅ DONE  reused
-│       ├── rcps_tab_edu.py      ✅ DONE  (schedule + histograms)
-│       ├── rcps_crashing_tab.py ✅ DONE  (PG-only)
-│       ├── dashboard_tab_edu.py ✅ DONE  ← Phase 5
-│       ├── charter_tab.py       ✅ DONE  wired (PG-only)
-│       ├── charter_manager.py   ✅ DONE  wired (PG-only)
-│       ├── dpci_tab.py          ✅ DONE  wired (PG-only)
-│       ├── swot_tab_edu.py      ❌ NEW  ← Phase 9A (2×2 SWOT matrix UI)
-│       ├── pestel_tab_edu.py    ❌ NEW  ← Phase 9B (6-cell PESTEL heatmap UI)
-│       └── wbs_tab_edu.py       ❌ NEW  ← Phase 9C (interactive WBS Canvas viewer + editor)
+│       ├── input_tab_edu.py       ✅ Done (EVM panel + period table + PV spreading + stepper)
+│       ├── gantt_tab_edu.py       ✅ Done (professional restyle, scrollable, tracking, EVM overlay)
+│       ├── network_tab_edu.py     ✅ Done (Sugiyama layout, scrollable, adaptive sizing)
+│       ├── evm_tab_edu.py         ✅ Done ← Phase 2  (KPI cards, RAG, step-by-step, S-curve)
+│       ├── risk_tab_edu.py        ✅ Done (register CRUD + 5×5 heat map)
+│       ├── pert_tab_edu.py        ✅ Done (Sugiyama layout, scrollable)
+│       ├── probability_tab_edu.py ✅ Done (PERT Analysis + Monte Carlo sub-tabs)
+│       ├── crashing_tab_edu.py    ✅ Done (reused)
+│       ├── rcps_tab_edu.py        ✅ Done (RCPS Schedule + Histograms sub-tabs)
+│       ├── rcps_crashing_tab.py   ✅ Done (PG-only)
+│       ├── dashboard_tab_edu.py   ✅ Done ← Phase 5  (project health overview)
+│       ├── charter_tab.py         ✅ Done (PG-only)
+│       ├── charter_manager.py     ✅ Done (PG-only)
+│       ├── dpci_tab.py            ✅ Done (PG-only)
+│       ├── swot_tab_edu.py        ✅ Done ← Phase 9A (2×2 SWOT matrix UI)
+│       ├── pestel_tab_edu.py      ✅ Done ← Phase 9B (6-cell PESTEL heatmap UI)
+│       └── wbs_tab_edu.py         ✅ Done ← Phase 9C (interactive WBS Canvas viewer + editor)
 └── utils/
-    ├── evm_io_edu.py            ✅ DONE  ← Phase 1
-    ├── risk_io_edu.py           ✅ DONE  ← Phase 3
-    ├── swot_extractor_edu.py    ❌ NEW  ← Phase 9A (auto-extraction from Charter/Risk/EVM)
-    ├── wbs_io_edu.py             ❌ NEW  ← Phase 9C (CSV/JSON import, hierarchical input)
-    ├── wbs_export_edu.py         ❌ NEW  ← Phase 9C (Excel/PDF/JSON/CSV export + Matplotlib renderer)
-    ├── project_io_edu.py        ✅ DONE  ← Phase 5  (Phase 9: add SWOT+PESTEL+WBS keys)
-    └── chart_export_edu.py      ✅ DONE  ← Phase 5  (Phase 9: add SWOT/PESTEL export functions)
+    ├── evm_io_edu.py            ✅ Done ← Phase 1
+    ├── risk_io_edu.py           ✅ Done ← Phase 3
+    ├── swot_extractor_edu.py    ✅ Done ← Phase 9A (auto-extraction from Charter/Risk/EVM)
+    ├── wbs_io_edu.py            ✅ Done ← Phase 9C (CSV/JSON import, hierarchical input)
+    ├── wbs_export_edu.py        ✅ Done ← Phase 9C (Excel/PDF/JSON/CSV export + renderer)
+    ├── project_io_edu.py        ✅ Done ← Phase 5  (SWOT + PESTEL + WBS + CPM keys)
+    ├── chart_export_edu.py      ✅ Done ← Phase 5  (SWOT/PESTEL export functions)
+    ├── network_layout.py        ✅ Done ← Phase 14A (shared Sugiyama engine)
+    └── interactive_network.py   ✅ Done ← Phase 17 (vis.js HTML generator via pyvis)
+
+scripts/
+    └── generate_large_demos.py  ✅ Done ← Phase 16 (_build_predecessors_map, 6-step algorithm)
 ```
 
 **Tab structure inside `MainWindow` after Phases 0–9:**
 
 ```
-Tab Name             Phase 8 Status              Phase 9 Target
+Tab Name               Status                      Notes
 ──────────────────────────────────────────────────────────────────
-Input Activities   ✅ done                       no change
-Results            ✅ done                       no change
-Network Diagram    ✅ done                       no change
-PERT Diagram       ✅ done                       no change
-Gantt Chart        ✅ done (arrows + today)      no change
-EVM Dashboard      ✅ done                       no change
-Risk Analysis      ✅ done                       no change
-Probability        ✅ done (MC + PERT)           no change
-Crashing           ✅ done                       no change
-Resources (RCPS)   ✅ done (schedule)            no change
-RCPS Crashing      ✅ done (PG-only)             no change
-Dashboard          ✅ done                       no change
-Project Charter    ✅ done (PG-only)             no change
-Charter Manager    ✅ done (PG-only)             no change
-DPCI Assessment    ✅ done (PG-only)             no change
-SWOT Analysis      ❌ missing                    9A: 2×2 matrix (PG-only)
-PESTEL Analysis    ❌ missing                    9B: 6-cell heatmap (PG-only)
-WBS Diagram        ❌ missing                    9C: interactive tree (PG-only)
+Input Activities     ✅ Done                       stepper widget added (Phase 12)
+Results              ✅ Done                       no change
+Network Diagram      ✅ Done                       Sugiyama layout + scrollable (Phase 14/15)
+PERT Diagram         ✅ Done                       Sugiyama layout + scrollable (Phase 14A/15)
+Gantt Chart          ✅ Done                       professional restyle + scrollable (Phase 13/15)
+EVM Dashboard        ✅ Done                       no change
+Risk Analysis        ✅ Done                       no change
+Probability          ✅ Done                       PERT Analysis + Monte Carlo sub-tabs
+Crashing             ✅ Done                       no change
+Resources (RCPS)     ✅ Done                       RCPS Schedule sub-tab added (Phase 8)
+RCPS Crashing        ✅ Done (PG-only)             no change
+Dashboard            ✅ Done                       no change
+Project Charter      ✅ Done (PG-only)             no change
+Charter Manager      ✅ Done (PG-only)             no change
+DPCI Assessment      ✅ Done (PG-only)             no change
+SWOT Analysis        ✅ Done (PG-only)             complete (Phase 9A)
+PESTEL Analysis      ✅ Done (PG-only)             complete (Phase 9B)
+WBS Diagram          ✅ Done (PG-only)             complete (Phase 9C)
 ```
 
 > **Tab overflow risk resolved:** 18 tabs total. Mitigation: short labels (≤ 12 chars). Test on 1366×768 screen. If overflow occurs, upgrade to collapsible tab groups in v1.1.
@@ -1797,7 +1828,7 @@ These items affect multiple sub-tasks and must be addressed during implementatio
 
 3. **Help method stubs**: `MainWindowEdu` must have stubs for `show_probability_tab_help()` and `show_charter_tab_help()` — called by the respective tab modules.
 
-4. **Tab overflow on small screens**: With 15 tabs, test on 1366×768 resolution. If tab headers overflow, shorten labels: "Resources" → "RCPS", "Charter Manager" → "Charter Mgr", "RCPS Crashing" → "RCPS Crash".
+4. **Tab overflow on small screens**: With 18 tabs, test on 1366×768 resolution. If tab headers overflow, shorten labels: "Resources" → "RCPS", "Charter Manager" → "Charter Mgr", "RCPS Crashing" → "RCPS Crash".
 
 5. **341 existing tests must remain green** after all Phase 8 changes. Run `pytest` after each sub-task.
 
@@ -1824,7 +1855,7 @@ These items affect multiple sub-tasks and must be addressed during implementatio
 - [ ] 8.5: `show_charter_tab_help()` stub exists on `MainWindowEdu`
 - [ ] 8.7: "DPCI" tab visible in PG mode, hidden in UG mode
 - [ ] 8.7: DPCI assessment can be created and calculated
-- [ ] `pytest` passes with 0 regressions (341+ tests) after all Phase 8 items
+- [ ] `pytest` passes with 0 regressions (797+ tests) after all Phase 8 items
 
 ---
 
@@ -2309,15 +2340,16 @@ def barycenter_y(node, G, pos, direction='forward'):
 
 Loading the 600-task UG Large demo crashes the application. Root causes identified via measurement:
 
-| # | Problem | Root Cause | Impact |
-|---|---------|-----------|--------|
-| 1 | **Analysis never completes** | `identify_critical_path()` calls `nx.all_simple_paths()` — **O(2^n)** on large DAGs. 600 nodes → hangs indefinitely. | **P0 crash** — app freezes, OS kills it |
-| 2 | **Sugiyama blows up** | 600 nodes → **220 topological layers**, max 6/layer, **643 long edges** → **8,361 virtual nodes** inserted. At `x_spacing=3.5`, the x-axis spans 770 units crammed into a 12-inch figure. | Diagram unreadable, rendering slow |
-| 3 | **Edge drawing is O(n) calls** | `draw_edges_polyline()` makes one `ax.plot()` per segment → ~8,400 individual matplotlib artist objects. | 10–30 s render time for large graph |
-| 4 | **Gantt is unscrollable** | 600 bars in a fixed 14×8 figure with no scrollbar or toolbar → bars are 1 px tall | Gantt unusable for >50 activities |
-| 5 | **No timing visibility** | `analyze_project()` has no timing output — user sees a frozen window with no feedback | UX: user thinks app crashed |
+| #   | Problem                        | Root Cause                                                                                                                                                                                | Impact                                  |
+| --- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| 1   | **Analysis never completes**   | `identify_critical_path()` calls `nx.all_simple_paths()` — **O(2^n)** on large DAGs. 600 nodes → hangs indefinitely.                                                                      | **P0 crash** — app freezes, OS kills it |
+| 2   | **Sugiyama blows up**          | 600 nodes → **220 topological layers**, max 6/layer, **643 long edges** → **8,361 virtual nodes** inserted. At `x_spacing=3.5`, the x-axis spans 770 units crammed into a 12-inch figure. | Diagram unreadable, rendering slow      |
+| 3   | **Edge drawing is O(n) calls** | `draw_edges_polyline()` makes one `ax.plot()` per segment → ~8,400 individual matplotlib artist objects.                                                                                  | 10–30 s render time for large graph     |
+| 4   | **Gantt is unscrollable**      | 600 bars in a fixed 14×8 figure with no scrollbar or toolbar → bars are 1 px tall                                                                                                         | Gantt unusable for >50 activities       |
+| 5   | **No timing visibility**       | `analyze_project()` has no timing output — user sees a frozen window with no feedback                                                                                                     | UX: user thinks app crashed             |
 
 Measured graph statistics for `campus_construction_ug_large.pmproj`:
+
 ```
 Activities:       600
 Topological layers: 220
@@ -2329,14 +2361,14 @@ Total graph objects: 8,963
 
 #### Criticism of Approach (Scrollable Canvas + Toolbar)
 
-| Concern | Assessment | Mitigation |
-|---------|-----------|------------|
-| **Memory** — large matplotlib figure (e.g. 80×10 inches @ 100 dpi = 3.2 MB) | Acceptable. RGBA buffer ~32 MB max. | Cap figure at 120×60 inches; reduce DPI for very large graphs if needed. |
-| **Tk.Canvas 32K pixel limit** — some platforms clip widgets >32,767 px | 120 in × 100 dpi = 12,000 px, within limits. | Cap enforced in code. |
-| **Label readability at full zoom-out** — 600 labels in one view | Inherent — no layout can make 600 labels readable simultaneously. | Adaptive font size + toolbar zoom lets user inspect regions. Plus the toolbar "zoom to rectangle" is ideal for students. |
-| **Scrollbar + toolbar confusion** — two navigation mechanisms | Scrollbars for coarse movement, toolbar for precise zoom. Complementary, not conflicting. | Scrollbar only appears when figure exceeds viewport (small projects unaffected). |
-| **`on_canvas_resize` conflict** — existing handler shrinks figure back to frame | Must be disabled for large projects. | `ScrollableMatplotlibFrame` widget replaces this with `_auto_fit` flag: True for small projects (resize-to-fill), False for large (fixed size, scrollbars active). |
-| **`all_simple_paths` is O(2^n)** — not a rendering issue | Must be fixed independently. `dag_longest_path` is O(V+E). | Replace in `network_builder.py`. |
+| Concern                                                                         | Assessment                                                                                | Mitigation                                                                                                                                                         |
+| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Memory** — large matplotlib figure (e.g. 80×10 inches @ 100 dpi = 3.2 MB)     | Acceptable. RGBA buffer ~32 MB max.                                                       | Cap figure at 120×60 inches; reduce DPI for very large graphs if needed.                                                                                           |
+| **Tk.Canvas 32K pixel limit** — some platforms clip widgets >32,767 px          | 120 in × 100 dpi = 12,000 px, within limits.                                              | Cap enforced in code.                                                                                                                                              |
+| **Label readability at full zoom-out** — 600 labels in one view                 | Inherent — no layout can make 600 labels readable simultaneously.                         | Adaptive font size + toolbar zoom lets user inspect regions. Plus the toolbar "zoom to rectangle" is ideal for students.                                           |
+| **Scrollbar + toolbar confusion** — two navigation mechanisms                   | Scrollbars for coarse movement, toolbar for precise zoom. Complementary, not conflicting. | Scrollbar only appears when figure exceeds viewport (small projects unaffected).                                                                                   |
+| **`on_canvas_resize` conflict** — existing handler shrinks figure back to frame | Must be disabled for large projects.                                                      | `ScrollableMatplotlibFrame` widget replaces this with `_auto_fit` flag: True for small projects (resize-to-fill), False for large (fixed size, scrollbars active). |
+| **`all_simple_paths` is O(2^n)** — not a rendering issue                        | Must be fixed independently. `dag_longest_path` is O(V+E).                                | Replace in `network_builder.py`.                                                                                                                                   |
 
 #### Solution Design
 
@@ -2345,22 +2377,23 @@ Replace `all_simple_paths(critical_subgraph, start, end)` with `nx.dag_longest_p
 
 **Fix 2 — `ScrollableMatplotlibFrame` widget:**
 New reusable widget `gui/widgets/scrollable_mpl_frame.py` embedding `FigureCanvasTkAgg` inside a `tk.Canvas` viewport with scrollbars. Two modes:
+
 - `_auto_fit = True` (small projects): figure resizes to fill viewport, scrollbars inactive.
 - `_auto_fit = False` (large projects): fixed figure size, scrollbars appear when figure exceeds viewport.
-Includes `NavigationToolbar2Tk` at the bottom. Mouse wheel support for vertical/horizontal scroll.
+  Includes `NavigationToolbar2Tk` at the bottom. Mouse wheel support for vertical/horizontal scroll.
 
 **Fix 3 — Batch polyline rendering:**
 Replace per-segment `ax.plot()` calls in `draw_edges_polyline()` with 2 batch `ax.plot()` calls (one for normal edges, one for critical). Insert `None` as line-break markers between edges. Arrowheads remain as individual `ax.annotate()` calls on each edge's final segment. Reduces ~8,400 artist objects to ~650.
 
 **Fix 4 — Adaptive layout + sizing:**
 
-| Parameter | ≤50 nodes | 51–200 nodes | >200 nodes |
-|-----------|-----------|-------------|------------|
-| `x_spacing` | 3.5 (network) / 5.0 (PERT) | 2.0 / 3.0 | 1.0 / 1.5 |
-| `y_spacing` | 4.0 | 2.5 | 1.5 |
-| Node radius | 0.6 (network) / custom (PERT) | 0.4 / scaled | 0.25 / scaled |
-| Label fontsize | 10 | 7 | 5 |
-| Figure size | Fit-to-frame | Computed from layout bbox | Computed, capped 120×60 |
+| Parameter      | ≤50 nodes                     | 51–200 nodes              | >200 nodes              |
+| -------------- | ----------------------------- | ------------------------- | ----------------------- |
+| `x_spacing`    | 3.5 (network) / 5.0 (PERT)    | 2.0 / 3.0                 | 1.0 / 1.5               |
+| `y_spacing`    | 4.0                           | 2.5                       | 1.5                     |
+| Node radius    | 0.6 (network) / custom (PERT) | 0.4 / scaled              | 0.25 / scaled           |
+| Label fontsize | 10                            | 7                         | 5                       |
+| Figure size    | Fit-to-frame                  | Computed from layout bbox | Computed, capped 120×60 |
 
 Gantt adaptive height: `fig_h = min(80, max(8, n_activities × 0.25 + 2))` inches.
 
@@ -2369,33 +2402,250 @@ Print `time.time()` timestamps at each major step of `analyze_project()` to term
 
 #### Phase 15 — Tasks
 
-| #    | Task                                           | Files to Create / Change                                | What to Do                                                                                                          | Status      |
-| ---- | ---------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------- |
-| 15.1 | Fix exponential `identify_critical_path`       | `core/network_builder.py`                               | Replace `all_simple_paths` loop with `nx.dag_longest_path(critical_subgraph)` — O(V+E).                             | ✅ Done     |
-| 15.2 | Create `ScrollableMatplotlibFrame` widget      | **`gui/widgets/scrollable_mpl_frame.py`** (NEW)         | Reusable scrollable matplotlib container with viewport, scrollbars, `NavigationToolbar2Tk`, auto-fit/fixed modes.   | ✅ Done     |
-| 15.3 | Optimise `draw_edges_polyline` batch rendering | `utils/network_layout.py`                               | Batch intermediate segments into 2 `ax.plot()` calls (normal + critical); keep individual `ax.annotate` arrowheads. | ✅ Done     |
-| 15.4 | Scrollable + adaptive `NetworkTab`             | `gui/tabs/network_tab.py`                               | Use `ScrollableMatplotlibFrame`; adaptive x/y spacing, node radius, font size, figure size based on activity count. | ✅ Done     |
-| 15.5 | Scrollable + adaptive `PertDiagramTab`         | `gui/tabs/pert_diagram_tab.py`                          | Same pattern as 15.4 with PERT-specific spacing (x=5.0 baseline) and node shapes.                                  | ✅ Done     |
-| 15.6 | Scrollable + adaptive `GanttTabEdu`            | `gui/tabs/gantt_tab_edu.py`                             | Use `ScrollableMatplotlibFrame`; dynamic figure height; adaptive bar label size.                                    | ✅ Done     |
-| 15.7 | Runtime timing in `analyze_project()`          | `gui/main_window_edu.py`                                | Print elapsed-time checkpoints to terminal at each analysis and tab-update step.                                    | ✅ Done     |
+| #    | Task                                           | Files to Create / Change                        | What to Do                                                                                                          | Status  |
+| ---- | ---------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------- |
+| 15.1 | Fix exponential `identify_critical_path`       | `core/network_builder.py`                       | Replace `all_simple_paths` loop with `nx.dag_longest_path(critical_subgraph)` — O(V+E).                             | ✅ Done |
+| 15.2 | Create `ScrollableMatplotlibFrame` widget      | **`gui/widgets/scrollable_mpl_frame.py`** (NEW) | Reusable scrollable matplotlib container with viewport, scrollbars, `NavigationToolbar2Tk`, auto-fit/fixed modes.   | ✅ Done |
+| 15.3 | Optimise `draw_edges_polyline` batch rendering | `utils/network_layout.py`                       | Batch intermediate segments into 2 `ax.plot()` calls (normal + critical); keep individual `ax.annotate` arrowheads. | ✅ Done |
+| 15.4 | Scrollable + adaptive `NetworkTab`             | `gui/tabs/network_tab.py`                       | Use `ScrollableMatplotlibFrame`; adaptive x/y spacing, node radius, font size, figure size based on activity count. | ✅ Done |
+| 15.5 | Scrollable + adaptive `PertDiagramTab`         | `gui/tabs/pert_diagram_tab.py`                  | Same pattern as 15.4 with PERT-specific spacing (x=5.0 baseline) and node shapes.                                   | ✅ Done |
+| 15.6 | Scrollable + adaptive `GanttTabEdu`            | `gui/tabs/gantt_tab_edu.py`                     | Use `ScrollableMatplotlibFrame`; dynamic figure height; adaptive bar label size.                                    | ✅ Done |
+| 15.7 | Runtime timing in `analyze_project()`          | `gui/main_window_edu.py`                        | Print elapsed-time checkpoints to terminal at each analysis and tab-update step.                                    | ✅ Done |
 
 #### Decisions
 
-| #   | Decision                                | Answer                                                                               | Reasoning                                                                                                                    |
-| --- | --------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Scrollable container vs. toolbar only?  | **Both** — scrollable canvas (Option A) + toolbar (Option B)                         | Scrollbars for coarse navigation, toolbar zoom for precise inspection. Scrollbars only appear when figure exceeds viewport. |
-| 2   | Shared widget or inline per tab?        | **Shared `ScrollableMatplotlibFrame`**                                               | 3 tabs need identical scroll logic — a shared widget avoids 45 lines of duplication and ensures consistent behavior.         |
-| 3   | Figure size cap?                        | **120 × 60 inches** (12,000 × 6,000 px at 100 dpi)                                  | Stays within Tk.Canvas 32K pixel limit with margin. ~288 MB max RGBA buffer — within typical desktop memory.                 |
-| 4   | `all_simple_paths` → what replacement?  | **`nx.dag_longest_path()`**                                                          | O(V+E) for DAGs. The critical subgraph is always a DAG (subset of original DAG). Returns single longest path directly.      |
-| 5   | Batch rendering approach?               | **2 batch `ax.plot()` + individual `ax.annotate()` arrowheads**                      | Reduces ~8,400 artist objects to ~650. `None` values in arrays create line breaks for separate edge polylines.               |
+| #   | Decision                               | Answer                                                          | Reasoning                                                                                                                   |
+| --- | -------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Scrollable container vs. toolbar only? | **Both** — scrollable canvas (Option A) + toolbar (Option B)    | Scrollbars for coarse navigation, toolbar zoom for precise inspection. Scrollbars only appear when figure exceeds viewport. |
+| 2   | Shared widget or inline per tab?       | **Shared `ScrollableMatplotlibFrame`**                          | 3 tabs need identical scroll logic — a shared widget avoids 45 lines of duplication and ensures consistent behavior.        |
+| 3   | Figure size cap?                       | **120 × 60 inches** (12,000 × 6,000 px at 100 dpi)              | Stays within Tk.Canvas 32K pixel limit with margin. ~288 MB max RGBA buffer — within typical desktop memory.                |
+| 4   | `all_simple_paths` → what replacement? | **`nx.dag_longest_path()`**                                     | O(V+E) for DAGs. The critical subgraph is always a DAG (subset of original DAG). Returns single longest path directly.      |
+| 5   | Batch rendering approach?              | **2 batch `ax.plot()` + individual `ax.annotate()` arrowheads** | Reduces ~8,400 artist objects to ~650. `None` values in arrays create line breaks for separate edge polylines.              |
+
+---
+
+### ✅ PHASE 16 — Large Demo Predecessor Network Quality (Complete)
+
+> **Goal:** Ensure both 600-task demo files satisfy all 19 DAG quality constraints, producing structurally sound networks with meaningful critical paths and efficient Sugiyama rendering.
+> **Dependencies:** Phase 15 (large project support, `ScrollableMatplotlibFrame`, adaptive rendering)
+> **Priority:** P1 — invalid predecessor networks caused thousands of redundant virtual nodes in the Sugiyama layout and produced misleading critical path results in both demos
+> **Commit:** `0fa9efd` — March 22, 2026
+
+#### Problem Analysis
+
+The original `scripts/generate_large_demos.py` produced predecessor networks that violated five key constraints:
+
+| Violation | Constraint # | Impact |
+| --------- | ------------ | ------ |
+| Transitive redundancy (A→B, B→C, A→C all present) | #12 | Thousands of extra virtual nodes; inflated Sugiyama rendering time |
+| Up to 7 predecessors per task | #10 | Unrealistic convergence; distorted critical path weights |
+| Fan-out explosion at phase boundaries (all 5 early tasks independently link back to final 2–8 tasks of prior phase) | #13, #15 | Layout explosion at every phase transition |
+| No chain guarantee — critical path potentially 2–3 tasks only | #18, #19 | Meaningless CPM/PERT results for a 600-task project |
+| 5% per-task random cross-phase rule fired multiple times per task | #17 | Uncontrolled connectivity; violated phase structure |
+
+#### The 19 DAG Quality Constraints
+
+These constraints define what a structurally valid, pedagogically useful project network must satisfy.
+
+**Category 1 — Graph Structure**
+
+| # | Constraint | Verification |
+| - | ---------- | ------------ |
+| 1 | **Valid DAG** — no directed cycles anywhere in the network | `nx.is_directed_acyclic_graph(G) == True` |
+| 2 | **No self-loops** — a task cannot list itself as a predecessor | All edges `(u, v)` have `u ≠ v` |
+| 3 | **No dangling references** — every predecessor ID must exist as a valid task in the project | Set membership check against all task IDs |
+| 4 | **Full reachability** — all tasks reachable from at least one start task via forward traversal | `nx.is_weakly_connected(G) == True` |
+| 5 | **Forward connectivity** — all tasks lie on at least one path to an end task (no dead-end sub-graphs) | BFS from all end tasks in reverse direction |
+
+**Category 2 — Start / End Structure**
+
+| # | Constraint | Verification |
+| - | ---------- | ------------ |
+| 6 | **Minimum start tasks** — at least 1 task with `in_degree = 0` | `start_count >= 1` |
+| 7 | **Maximum start tasks** — no more than 5 start tasks (prevents fully flat networks) | `start_count <= 5` |
+| 8 | **No isolated tasks** — no task with both `in_degree = 0` AND `out_degree = 0` simultaneously | `isolated_node_count == 0` |
+
+**Category 3 — Predecessor Count**
+
+| # | Constraint | Verification |
+| - | ---------- | ------------ |
+| 9 | **Minimum predecessors** — every non-start task has at least 1 predecessor (no mid-network orphans) | All non-start `in_degree >= 1` |
+| 10 | **Maximum predecessors** — hard cap of 3 predecessors per task | `max(G.in_degree(n) for n in G) <= 3` |
+| 11 | **Typical predecessors** — median in-degree = 1 (most tasks have simple, single dependencies) | `median(in_degrees) == 1` |
+
+**Category 4 — Transitive Redundancy**
+
+| # | Constraint | Verification |
+| - | ---------- | ------------ |
+| 12 | **No transitive redundancy** — if a path A→…→C exists via intermediate nodes, no direct A→C edge is permitted | Ancestor-set traversal: `redundant_edges == 0` |
+
+**Category 5 — Fan-out and Convergence**
+
+| # | Constraint | Verification |
+| - | ---------- | ------------ |
+| 13 | **Fan-out cap** — no single task directly precedes more than 8 successors | `max(G.out_degree(n) for n in G) <= 8` |
+| 14 | **Convergence cap** — same as constraint #10; no task has more than 3 direct predecessors | `max(G.in_degree(n) for n in G) <= 3` |
+
+**Category 6 — Phase Topology**
+
+| # | Constraint | Verification |
+| - | ---------- | ------------ |
+| 15 | **Phase boundary single gateway** — exactly ONE task per phase boundary serves as the connection gateway from the previous phase | Gateway count per transition = 1 |
+| 16 | **Within-phase locality** — intra-phase connections are limited to a sliding window of the preceding 8 tasks; no long-range within-phase jumps | No within-phase edge skips more than 8 positions |
+| 17 | **No random cross-phase edges** — cross-phase connections only via the designated gateway mechanism; no opportunistic 5%-rule jumps | Cross-phase edges from non-gateway tasks = 0 |
+
+**Category 7 — Critical Chain**
+
+| # | Constraint | Verification |
+| - | ---------- | ------------ |
+| 18 | **Minimum critical path** — the longest path must span at least 30% of all tasks | `len(critical_path) / total_tasks >= 0.30` |
+| 19 | **Spine requirement** — a sequential chain of every 3rd task (≥ N/3 tasks) forms the backbone, guaranteeing a well-defined project progression | Critical spine coverage ≥ 33% of total |
+
+#### Implementation — 6-Step Algorithm
+
+The generator uses a shared `_build_predecessors_map()` function (both UG and PG 600-task demos call it):
+
+```
+Step 1 — Critical spine      Every 3rd task in project order forms a sequential
+                              chain: T₀→T₃→T₆→…→T_{N-3}.
+                              Satisfies constraints #18 and #19.
+                              Result: critical path ≈ 33–55% of all tasks.
+
+Step 2 — Phase gateways      For each phase boundary, designate exactly ONE
+                              gateway task in the new phase that links back to a
+                              single task in the previous phase.
+                              Satisfies constraints #13, #15.
+
+Step 3 — Within-phase local  For each non-spine, non-gateway task, sample 1–3
+                              predecessors from the preceding 8 tasks within the
+                              same phase (sliding window).
+                              Satisfies constraints #11, #16.
+
+Step 4 — Isolation fallback  Any task still with no predecessors (non-start) is
+                              assigned an immediate predecessor.
+                              Satisfies constraints #8, #9.
+
+Step 5 — Transitive reduce   Remove any edge A→C where A is already an ancestor
+                              of C via another path. O(V+E) via ancestor-set pass.
+                              Satisfies constraint #12.
+
+Step 6 — Hard predecessor cap Enforce max 3 predecessors on all tasks, removing
+                              the weakest links when over the limit.
+                              Satisfies constraint #10.
+```
+
+Three helper functions added to `scripts/generate_large_demos.py`:
+
+- `_build_ancestor_sets(pred_map, all_ids)` — O(V+E) ancestor computation in topological order
+- `_transitive_reduce(pred_map, all_ids)` — removes A→C edges where A is already an ancestor
+- `_build_predecessors_map(phase_codes, phase_task_ids, rng)` — orchestrates all 6 steps
+
+#### Validation Results (March 22, 2026)
+
+Both regenerated demo files passed all constraint checks:
+
+| Metric                    | UG Large (campus_construction) | PG Large (erp_implementation) | Constraint |
+| ------------------------- | ------------------------------ | ----------------------------- | ---------- |
+| Valid DAG                 | ✅ True                        | ✅ True                        | #1         |
+| Start tasks               | ✅ 3                           | ✅ 3                           | #6, #7     |
+| Isolated nodes            | ✅ 0                           | ✅ 0                           | #8         |
+| Max predecessors          | ✅ 3                           | ✅ 3                           | #10        |
+| Transitive-redundant edges| ✅ 0                           | ✅ 0                           | #12        |
+| Topological layers        | ✅ 335                         | ✅ 331                         | #4, #18    |
+| Critical path length      | ✅ 335 tasks (55%)             | ✅ 331 tasks (55%)             | #18, #19   |
+| All 797 tests pass        | ✅                             | ✅                             | —          |
+
+#### Phase 16 — Tasks
+
+| #    | Task                                                     | Files Changed                                                                                                   | Status  |
+| ---- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------- |
+| 16.1 | Implement `_build_ancestor_sets()` helper                | `scripts/generate_large_demos.py`                                                                               | ✅ Done |
+| 16.2 | Implement `_transitive_reduce()` helper                  | `scripts/generate_large_demos.py`                                                                               | ✅ Done |
+| 16.3 | Implement `_build_predecessors_map()` 6-step algorithm   | `scripts/generate_large_demos.py`                                                                               | ✅ Done |
+| 16.4 | Replace UG generator predecessor-building block          | `scripts/generate_large_demos.py`                                                                               | ✅ Done |
+| 16.5 | Replace PG generator predecessor-building block          | `scripts/generate_large_demos.py`                                                                               | ✅ Done |
+| 16.6 | Regenerate both 600-task demo files and validate         | `demos_edu/campus_construction_ug_large.pmproj`, `demos_edu/erp_implementation_pg_large.pmproj`                 | ✅ Done |
+
+---
+
+### 🔧 PHASE 17 — Interactive Network Viewer (Complete)
+
+> **Goal:** Add a browser-based interactive network visualization using vis.js (via Python `pyvis` wrapper), coexisting with the current Matplotlib in-app diagrams. Solves the 600-task crowding problem by giving users zoom, pan, hover tooltips, and drag in a full browser window.
+> **Dependencies:** Phase 14A (shared layout engine), Phase 15 (large project support), Phase 16 (quality predecessor networks)
+
+#### Problem Statement
+
+The Sugiyama + Matplotlib approach works well for ≤50-task projects but produces illegible diagrams for 600-task demos:
+- 335 topological layers crammed into viewport width
+- ~250 virtual nodes clutter the layout
+- No interactive exploration (zoom is toolbar-only, no hover/search)
+- `fit_to_viewport()` squashes everything to fit
+
+#### Strategy: Dual Rendering (Matplotlib + vis.js)
+
+| Aspect                | Matplotlib (existing)                   | vis.js / pyvis (new)                        |
+| --------------------- | --------------------------------------- | ------------------------------------------- |
+| Rendering target      | In-app Tk canvas                        | Self-contained HTML → browser               |
+| Best for              | ≤50 tasks, static export (PNG/PDF/SVG)  | Any size, especially >50 tasks              |
+| Interactivity         | Toolbar zoom/pan only                   | Hover tooltips, drag, search, cluster       |
+| Critical path         | Red node fill + bold edges              | Red nodes + red edges + tooltip details     |
+| Dependencies          | matplotlib, networkx (already present)  | pyvis (~50 KB, pure Python, no binaries)    |
+| PyInstaller impact    | None (already bundled)                  | None (generates HTML, browser renders)      |
+| Export                | PNG, PDF, SVG, JPG                      | HTML file (self-contained, shareable)       |
+
+#### Architecture
+
+```
+src/pmhelper/utils/interactive_network.py   ← NEW: HTML generator
+    generate_interactive_network(results_data, mode) → str (path to HTML file)
+    _build_pyvis_graph(activities, critical_activities, mode) → pyvis.Network
+    _apply_hierarchical_options(net) → None
+```
+
+- **NetworkTab** gets "🌐 Interactive View" button → calls `generate_interactive_network()` → `webbrowser.open()`
+- **PertDiagramTab** gets same button → identical call path
+- Both buttons always visible (useful even for small projects)
+- Matplotlib rendering is untouched — zero regression risk
+
+#### Node Design (vis.js)
+
+Each activity node displays:
+- **Label:** Activity ID (e.g., "A101")
+- **Title (hover tooltip):** ID, Duration, ES, EF, LS, LF, Float, Critical status
+- **Color:** Red (#FF6B6B) for critical, Light Blue (#97C2FC) for non-critical, Green (#7BE141) for START, Orange (#FFA807) for END
+- **Shape:** Box (clean, readable at any zoom level)
+- **Border:** Bold for critical activities
+
+#### Key Design Decisions
+
+| #   | Decision                              | Choice                                                    | Rationale                                                                |
+| --- | ------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------ |
+| 1   | vis.js or Graphviz?                   | **vis.js (via `pyvis`)**                                   | No system binary needed; interactive; zero PyInstaller breakage          |
+| 2   | Replace or coexist with Matplotlib?   | **Coexist** — both available simultaneously                | User chooses preferred view; Matplotlib kept for static export           |
+| 3   | Threshold gating?                     | **No threshold** — button always available                 | Interactive view is useful even for small projects                        |
+| 4   | vis.js layout algorithm?              | **Hierarchical (direction: LR)** with physics disabled     | Matches Sugiyama left-to-right flow; physics off = instant stable layout |
+| 5   | HTML output location?                 | `tempfile.NamedTemporaryFile(suffix='.html', delete=False)` | OS temp dir; auto-cleaned eventually; no user-visible file management    |
+| 6   | Include activity names in labels?     | **ID only in label; full details in hover tooltip**        | Keeps nodes compact; hover reveals everything                            |
+
+#### Phase 17 — Tasks
+
+| #    | Task                                                      | Files Changed                                               | Status      |
+| ---- | --------------------------------------------------------- | ----------------------------------------------------------- | ----------- |
+| 17.1 | Add `pyvis` to `requirements.txt`                         | `requirements.txt`                                          | ✅ Done |
+| 17.2 | Create `interactive_network.py` module                    | `src/pmhelper/utils/interactive_network.py`                  | ✅ Done |
+| 17.3 | Add "Interactive View" button to `NetworkTab`              | `src/pmhelper/gui/tabs/network_tab.py`                      | ✅ Done |
+| 17.4 | Add "Interactive View" button to `PertDiagramTab`          | `src/pmhelper/gui/tabs/pert_diagram_tab.py`                 | ✅ Done |
+| 17.5 | Test with small project (≤15 tasks) — verify layout       | Manual test                                                 | ✅ Done |
+| 17.6 | Test with large project (600 tasks) — verify performance  | Manual test                                                 | ⬜ Not Done |
+| 17.7 | Run full test suite — verify zero regressions             | All test files                                              | ✅ Done |
 
 ---
 
 ## Definition of Done (V1 Release)
 
 - [ ] All ~50 V1 features listed in `FEATURES_LIST_EDU.md` are reachable and functional in the running app
-- [ ] `DECISIONS.md` has answers to all 7 decisions from the Key Decisions Log
-- [ ] `pytest` passes with 0 failures across all test files (341+ tests)
+- [ ] `DECISIONS.md` has answers to all 12 decisions from the Key Decisions Log
+- [ ] `pytest` passes with 0 failures across all test files (797+ tests)
 - [ ] All 6.3 edge cases produce graceful UI messages — no unhandled exceptions
 - [ ] All 6.4 smoke-test checklist items are checked
 - [ ] UG demo loads and produces: `CPI < 1`, `SPI < 1`, 2 flagged risks (verified by integration test)
@@ -2412,6 +2662,10 @@ Print `time.time()` timestamps at each major step of `analyze_project()` to term
 - [ ] Dashboard tab renders correctly in both UG and PG modes
 - [ ] No known data-loss bugs identified during Phase 6 integration testing
 - [ ] Phase 8 Acceptance Checklist (22 items) — all checked
-- [ ] All PG-only tabs (Probability, Resources, RCPS Crashing, Charter, Charter Mgr, DPCI) hidden in UG mode
-- [ ] `_PG_ONLY_TABS` and `_pg_only_widgets` updated for all new tabs
-- [ ] `_all_tabs_ordered` matches notebook tab indices exactly (15 tabs total)
+- [ ] All PG-only tabs (Probability, Resources, RCPS Crashing, Charter, Charter Mgr, DPCI, SWOT, PESTEL, WBS) hidden in UG mode
+- [ ] `_PG_ONLY_TABS` and `_pg_only_widgets` updated for all new tabs (Phases 9–16)
+- [ ] `_all_tabs_ordered` matches notebook tab indices exactly (18 tabs total)
+- [ ] Large demo (`campus_construction_ug_large.pmproj`, `erp_implementation_pg_large.pmproj`) loads without freezing — critical path O(V+E) confirmed
+- [ ] Both 600-task demos pass all 19 DAG predecessor constraints (valid DAG, 0 redundant edges, max 3 predecessors, critical path ≥ 30%)
+- [ ] `ScrollableMatplotlibFrame` renders network/PERT/Gantt for 600-task project with scrollbars active
+- [ ] All scrollable diagrams also render correctly for small (<50 task) projects in auto-fit mode

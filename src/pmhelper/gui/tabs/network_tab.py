@@ -29,6 +29,7 @@ except ImportError as e:
 from pmhelper.utils.visualizations import NetworkDiagramVisualizer
 from pmhelper.utils.network_layout import sugiyama_layout, cleanup_virtual_nodes, draw_edges_polyline
 from pmhelper.gui.widgets.scrollable_mpl_frame import ScrollableMatplotlibFrame
+from pmhelper.utils.interactive_network import open_interactive_network, PYVIS_AVAILABLE
 
 
 class NetworkTab:
@@ -128,6 +129,9 @@ class NetworkTab:
         
         ttk.Button(button_frame, text="Save Image", 
                   command=self.save_diagram).pack(side=tk.LEFT, padx=5)
+        if PYVIS_AVAILABLE:
+            ttk.Button(button_frame, text="\U0001f310 Interactive View",
+                      command=self._open_interactive_view).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="? Help", 
                   command=self.main_window.show_network_tab_help).pack(side=tk.LEFT, padx=5)
         # Removed Refresh and Reset View buttons
@@ -542,6 +546,19 @@ class NetworkTab:
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to save diagram: {str(e)}")
     
+    def _open_interactive_view(self):
+        """Open the interactive vis.js network viewer in the default browser."""
+        if not self.results_data:
+            messagebox.showwarning("Warning",
+                                   "No diagram to display. Please run analysis first.")
+            return
+        html_path = open_interactive_network(
+            self.results_data, analysis_mode=self.analysis_mode, mode='network')
+        if not html_path:
+            messagebox.showerror("Error",
+                                 "Could not generate interactive view. "
+                                 "Please ensure pyvis is installed.")
+
     def reset_view(self):
         """Reset the plot view"""
         if not MATPLOTLIB_AVAILABLE:
