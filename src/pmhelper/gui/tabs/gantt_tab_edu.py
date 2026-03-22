@@ -204,14 +204,8 @@ class GanttTabEdu:
         n = len(activities)
         max_lf = max(float(a.get('LF', 0)) for a in activities) if activities else 10
 
-        if n > 50:
-            # Height: enough room per activity bar
-            fig_h = min(80, max(8, n * 0.25 + 2))
-            # Width: at least 14, scale with project duration
-            fig_w = max(14, min(200, max_lf * 0.08 + 4))
-            self._scroll_frame.set_figure_size(fig_w, fig_h)
-        else:
-            self._scroll_frame.fit_to_viewport()
+        # Always fit to viewport so the full chart is visible on screen.
+        self._scroll_frame.fit_to_viewport()
 
         bar_height = 0.6
         label_fs = 10 if n <= 50 else (8 if n <= 200 else 6)

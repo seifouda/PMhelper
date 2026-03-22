@@ -384,17 +384,8 @@ class PertDiagramTab:
             x_min, x_max, y_min, y_max = 0, 10, 0, 10
             data_w = data_h = 10
 
-        if n_act > self._SIZE_SMALL:
-            px_per_unit = 50
-            dpi = self.figure.dpi
-            fig_w = max(14, data_w * px_per_unit / dpi)
-            fig_h = max(6, data_h * px_per_unit / dpi)
-            if fig_w > 300:
-                fig_h = fig_h * (300 / fig_w)
-                fig_w = 300
-            self._scroll_frame.set_figure_size(fig_w, fig_h)
-        else:
-            self._scroll_frame.fit_to_viewport()
+        # Always fit to the available viewport so the full diagram is visible.
+        self._scroll_frame.fit_to_viewport()
 
         # 3. Draw edges with arrows (polyline through virtual waypoints)
         self.draw_network_edges(G, pos)
@@ -418,7 +409,6 @@ class PertDiagramTab:
         self.ax.set_title("PERT Network Diagram")
         self.ax.set_xlim(x_min, x_max)
         self.ax.set_ylim(y_min, y_max)
-        self.ax.set_aspect('equal')
         self.ax.axis('off')
         self.figure.subplots_adjust(left=0.01, right=0.99, top=0.95, bottom=0.02)
         self.canvas.draw()
