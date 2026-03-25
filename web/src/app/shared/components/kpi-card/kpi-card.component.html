@@ -1,0 +1,48 @@
+<mat-card
+  class="kpi-card"
+  [class.kpi-card--clickable]="clickable"
+  [class.kpi-card--red]="rag === 'red'"
+  [class.kpi-card--amber]="rag === 'amber'"
+  [class.kpi-card--green]="rag === 'green'"
+  [attr.role]="clickable ? 'button' : 'region'"
+  [attr.aria-label]="
+    label + ': ' + value + (unit ? ' ' + unit : '') + (rag ? ' — status ' + rag : '')
+  "
+  [attr.tabindex]="clickable ? 0 : null"
+>
+  <mat-card-header>
+    <mat-icon mat-card-avatar class="kpi-card__icon" aria-hidden="true">{{ icon }}</mat-icon>
+    <mat-card-title class="kpi-card__label">
+      {{ label }}
+      <app-explainer [term]="label"></app-explainer>
+      @if (tooltip) {
+        <mat-icon
+          class="kpi-card__help"
+          [matTooltip]="tooltip"
+          matTooltipPosition="above"
+          aria-hidden="true"
+          >help_outline</mat-icon
+        >
+      }
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="kpi-card__value" aria-hidden="true">
+      {{ value }}<span class="kpi-card__unit">{{ unit }}</span>
+    </div>
+    @if (rag) {
+      <div class="kpi-card__rag" [class]="'rag-' + rag" [attr.aria-label]="'Status: ' + rag">
+        <mat-icon aria-hidden="true">{{
+          rag === 'green' ? 'check_circle' : rag === 'amber' ? 'warning' : 'cancel'
+        }}</mat-icon>
+        {{ rag | uppercase }}
+      </div>
+    }
+    @if (formula) {
+      <div class="kpi-card__formula" aria-hidden="true">
+        <app-formula-display [tex]="formula"></app-formula-display>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

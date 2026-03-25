@@ -266,56 +266,31 @@ Results will appear here after running RCPS crashing analysis...
     def get_rcps_table_data(self):
         """Get RCPS table data from RCPS tab with improved access methods"""
         try:
-            print("[DEBUG] Attempting to get RCPS table data...")
-            
-            # Method 1: Through app's rcps_tab using get_rcps_table_data method
-            if hasattr(self.app, 'rcps_tab') and self.app.rcps_tab:
-                print("[DEBUG] Found app.rcps_tab, checking for get_rcps_table_data method...")
-                if hasattr(self.app.rcps_tab, 'get_rcps_table_data'):
-                    data = self.app.rcps_tab.get_rcps_table_data()
+            # Method 1: Through app's _rcps_tab (edu app uses underscore prefix)
+            rcps_tab = getattr(self.app, '_rcps_tab', None) or getattr(self.app, 'rcps_tab', None)
+            if rcps_tab:
+                if hasattr(rcps_tab, 'get_rcps_table_data'):
+                    data = rcps_tab.get_rcps_table_data()
                     if data is not None:
-                        print("[DEBUG] ✅ Got RCPS data via app.rcps_tab.get_rcps_table_data()")
                         return data.copy()
-                elif hasattr(self.app.rcps_tab, 'rcps_table_data') and self.app.rcps_tab.rcps_table_data is not None:
-                    print("[DEBUG] ✅ Got RCPS data via app.rcps_tab.rcps_table_data")
-                    return self.app.rcps_tab.rcps_table_data.copy()
             
             # Method 2: Through tab manager references  
             if hasattr(self.app, 'tab_managers'):
-                print("[DEBUG] Checking tab_managers...")
                 for tab_name, tab_manager in self.app.tab_managers.items():
                     if 'rcps' in tab_name.lower() and 'crashing' not in tab_name.lower():
                         if hasattr(tab_manager, 'get_rcps_table_data'):
                             data = tab_manager.get_rcps_table_data()
                             if data is not None:
-                                print(f"[DEBUG] ✅ Got RCPS data via tab_managers[{tab_name}]")
                                 return data.copy()
-                        elif hasattr(tab_manager, 'rcps_table_data') and tab_manager.rcps_table_data is not None:
-                            print(f"[DEBUG] ✅ Got RCPS data via tab_managers[{tab_name}].rcps_table_data")
-                            return tab_manager.rcps_table_data.copy()
                             
-            # Method 3: Search for RCPS tab in app's attributes
-            print("[DEBUG] Searching app attributes for RCPS tab...")
-            for attr_name in dir(self.app):
-                if 'rcps' in attr_name.lower() and not attr_name.startswith('_'):
-                    tab_obj = getattr(self.app, attr_name)
-                    if hasattr(tab_obj, 'get_rcps_table_data'):
-                        data = tab_obj.get_rcps_table_data()
-                        if data is not None:
-                            print(f"[DEBUG] ✅ Got RCPS data via app.{attr_name}")
-                            return data.copy()
-                    elif hasattr(tab_obj, 'rcps_table_data') and tab_obj.rcps_table_data is not None:
-                        print(f"[DEBUG] ✅ Got RCPS data via app.{attr_name}.rcps_table_data")
-                        return tab_obj.rcps_table_data.copy()
+            # Method 3: Fallback through tab reference set by set_rcps_tab_reference()
+            rcps_ref = getattr(self.tab, 'rcps_tab', None)
+            if rcps_ref:
+                if hasattr(rcps_ref, 'get_rcps_table_data'):
+                    data = rcps_ref.get_rcps_table_data()
+                    if data is not None:
+                        return data.copy()
                         
-            # Fallback: try to get through tab reference
-            if hasattr(self.tab, 'rcps_tab') and self.tab.rcps_tab:
-                rcps_tab = self.tab.rcps_tab
-                if hasattr(rcps_tab, 'rcps_table_data') and rcps_tab.rcps_table_data is not None:
-                    print("[DEBUG] ✅ Got RCPS data via tab.rcps_tab.rcps_table_data")
-                    return rcps_tab.rcps_table_data.copy()
-                        
-            print("[ERROR] ❌ No RCPS table data found through any access method")
             return None
             
         except Exception as e:

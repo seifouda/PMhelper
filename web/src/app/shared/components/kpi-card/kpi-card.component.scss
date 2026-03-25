@@ -1,0 +1,87 @@
+.kpi-card {
+  border-radius: 8px !important;
+  transition:
+    box-shadow 0.2s,
+    transform 0.15s;
+
+  &--clickable {
+    cursor: pointer;
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+  }
+
+  &--red {
+    border-left: 4px solid #d32f2f;
+  }
+  &--amber {
+    border-left: 4px solid #f57c00;
+  }
+  &--green {
+    border-left: 4px solid #2e7d32;
+  }
+
+  &__label {
+    font-size: 0.85rem !important;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__help {
+    font-size: 0.9rem !important;
+    width: 0.9rem;
+    height: 0.9rem;
+    color: #90a4ae;
+    cursor: help;
+  }
+
+  &__value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.2;
+    margin-top: 0.25rem;
+  }
+
+  &__unit {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #64748b;
+    margin-left: 2px;
+  }
+
+  &__rag {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-top: 4px;
+
+    mat-icon {
+      font-size: 0.9rem;
+      width: 0.9rem;
+      height: 0.9rem;
+    }
+
+    &.rag-red {
+      color: #d32f2f;
+    }
+    &.rag-amber {
+      color: #f57c00;
+    }
+    &.rag-green {
+      color: #2e7d32;
+    }
+  }
+
+  &__formula {
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: #546e7a;
+    opacity: 0.85;
+  }
+}

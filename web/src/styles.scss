@@ -1,0 +1,83 @@
+// Custom Theming for Angular Material
+// @use rules MUST come before any other rules in SCSS
+@use '@angular/material' as mat;
+
+@import 'tailwindcss';
+
+@include mat.core();
+
+$pmhelper-edu-web-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    density: (
+      scale: 0,
+    ),
+  )
+);
+
+:root {
+  @include mat.all-component-themes($pmhelper-edu-web-theme);
+
+  // PMHelper design tokens
+  --pm-primary: #1565c0;
+  --pm-primary-light: #42a5f5;
+  --pm-accent: #0288d1;
+  --pm-critical: #d32f2f;
+  --pm-warning: #f57c00;
+  --pm-success: #2e7d32;
+  --pm-learn-bg: #e3f2fd;
+  --pm-sidebar-width: 240px;
+  --pm-sidebar-collapsed-width: 60px;
+  --pm-topbar-height: 64px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+
+// Comment out the line below if you want to use the pre-defined typography utility classes.
+// For more information: https://material.angular.io/guide/typography#using-typography-styles-in-your-application.
+// @include mat.typography-hierarchy($pmhelper-edu-web-theme);
+
+// Comment out the line below if you want to use the deprecated `color` inputs.
+// @include mat.color-variants-backwards-compatibility($pmhelper-edu-web-theme);
+/* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+/* ── Responsive table scroll ─────────────────────────────────────────────── */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Responsive chart container ──────────────────────────────────────────── */
+.chart-container {
+  width: 100%;
+  min-width: 0;
+
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+}

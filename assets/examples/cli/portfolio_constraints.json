@@ -1,0 +1,17 @@
+[
+  {
+    "type": "require",
+    "projects": ["Security Upgrade"],
+    "description": "Security Upgrade is mandatory"
+  },
+  {
+    "type": "exclude",
+    "projects": ["AI Research", "Blockchain POC"],
+    "description": "AI Research and Blockchain POC cannot both be selected"
+  },
+  {
+    "type": "dependency",
+    "projects": ["Cloud Migration", "Mobile App"],
+    "description": "Mobile App requires Cloud Migration"
+  }
+]

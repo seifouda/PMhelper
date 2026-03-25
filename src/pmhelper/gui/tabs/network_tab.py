@@ -27,6 +27,9 @@ except ImportError as e:
     NETWORKX_AVAILABLE = False
 
 from pmhelper.utils.visualizations import NetworkDiagramVisualizer
+from pmhelper.utils.network_layout import sugiyama_layout, cleanup_virtual_nodes, draw_edges_polyline
+from pmhelper.gui.widgets.scrollable_mpl_frame import ScrollableMatplotlibFrame
+from pmhelper.utils.interactive_network import open_interactive_network, PYVIS_AVAILABLE
 
 
 class NetworkTab:
@@ -126,58 +129,22 @@ class NetworkTab:
         
         ttk.Button(button_frame, text="Save Image", 
                   command=self.save_diagram).pack(side=tk.LEFT, padx=5)
+        if PYVIS_AVAILABLE:
+            ttk.Button(button_frame, text="\U0001f310 Interactive View",
+                      command=self._open_interactive_view).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="? Help", 
                   command=self.main_window.show_network_tab_help).pack(side=tk.LEFT, padx=5)
         # Removed Refresh and Reset View buttons
     
     def create_plot_area(self):
-        """Create matplotlib plot area"""
-        # Create a dedicated plot area frame inside network_frame
-        plot_area_frame = ttk.Frame(self.network_frame)
-        plot_area_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-
-        # CRITICAL FIX: Pack toolbar frame FIRST at bottom (like PERT tab)
-        toolbar_frame = ttk.Frame(plot_area_frame)
-        toolbar_frame.pack(side=tk.BOTTOM, fill=tk.X)
-
-        # Then pack canvas frame at top with expand (like PERT tab)
-        canvas_frame = ttk.Frame(plot_area_frame)
-        canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        # Create matplotlib figure
-        self.figure = Figure(figsize=(12, 8), dpi=100, constrained_layout=True)
-        self.figure.patch.set_facecolor('white')
-
-        # Create canvas in canvas_frame
-        self.canvas = FigureCanvasTkAgg(self.figure, canvas_frame)
-        self.canvas.draw()
-        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-
-        # Create toolbar in toolbar_frame (exactly like PERT tab)
-        self.toolbar = NavigationToolbar2Tk(self.canvas, toolbar_frame)
-        self.toolbar.update()
-
-        # Initialize with empty plot
-        self.figure.tight_layout()
+        """Create matplotlib plot area with scrollable viewport."""
+        self._scroll_frame = ScrollableMatplotlibFrame(
+            self.network_frame, figsize=(12, 8), dpi=100, toolbar=True)
+        self._scroll_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self.figure = self._scroll_frame.figure
+        self.canvas = self._scroll_frame.canvas
+        self.toolbar = self._scroll_frame.toolbar
         self.create_empty_plot()
-
-        # Bind resize event to dynamically resize figure
-        canvas_frame.bind('<Configure>', self.on_canvas_resize)
-    def on_canvas_resize(self, event):
-        """Dynamically resize the matplotlib figure to fit the canvas_frame."""
-        # Get current frame dimensions
-        width = event.width
-        height = event.height
-        dpi = self.figure.dpi
-        # Avoid zero size
-        if width < 10 or height < 10:
-            return
-        # Set figure size in inches
-        fig_width = width / dpi
-        fig_height = height / dpi
-        self.figure.set_size_inches(fig_width, fig_height, forward=True)
-        # Redraw chart
-        self.canvas.draw()
         
     def create_empty_plot(self):
         """Create empty plot with instruction message"""
@@ -245,8 +212,7 @@ class NetworkTab:
             
             self.ax.set_title(title, fontsize=14, fontweight='bold', pad=20)
             
-            # Adjust layout and draw
-            self.figure.tight_layout()
+            # Final draw (draw_network_diagram sets layout; title added above)
             self.canvas.draw()
             
         except Exception as e:
@@ -282,10 +248,6 @@ class NetworkTab:
             
             # ENSURE float value is captured from multiple possible field names
             float_value = activity.get('float', activity.get('total_float', activity.get('Float', 0)))
-            
-            # DEBUG: Print float values being stored
-            if activity_id not in ['START', 'END']:
-                print(f"DEBUG: Storing {activity_id} with float={float_value}")
             
             G.add_node(activity_id, 
                       duration=duration,
@@ -329,78 +291,127 @@ class NetworkTab:
             for node in end_nodes:
                 G.add_edge(node, 'END')
     
+    # Adaptive sizing thresholds
+    _SIZE_SMALL = 50
+    _SIZE_MEDIUM = 200
+
+    def _adaptive_params(self, n_activities):
+        """Return (node_radius, label_fontsize) for the current project size."""
+        if n_activities <= self._SIZE_SMALL:
+            return 0.6, 10
+        if n_activities <= self._SIZE_MEDIUM:
+            return 0.4, 7
+        return 0.25, 5
+
     def draw_network_diagram(self, G, critical_activities):
         """Professional network diagram with critical path highlighting"""
         self.ax.clear()
-        
+
+        # Reset virtual node tracking
+        self._virtual_nodes = set()
+        self._edge_paths = {}
+        self._all_pos = {}
+
         if not G.nodes():
-            self.ax.text(0.5, 0.5, 'No network data available', 
+            self.ax.text(0.5, 0.5, 'No network data available',
                         ha='center', va='center', transform=self.ax.transAxes)
             self.canvas.draw()
             return
-        
-        # 1. Create hierarchical layout
+
+        # Adaptive sizing
+        n_act = len([nd for nd in G.nodes()
+                     if nd not in ('START', 'END')])
+        self._node_radius, self._label_fs = self._adaptive_params(n_act)
+
+        # 1. Create hierarchical layout (inserts virtual nodes into G)
         pos = self.create_hierarchical_layout(G)
-        
-        # 2. Draw edges with arrows
+
+        # 2. Set figure size proportional to data range
+        xs = [p[0] for p in pos.values()]
+        ys = [p[1] for p in pos.values()]
+        if xs and ys:
+            pad = self._node_radius + 1
+            x_min, x_max = min(xs) - pad, max(xs) + pad
+            y_min, y_max = min(ys) - pad, max(ys) + pad
+            data_w = x_max - x_min
+            data_h = y_max - y_min
+        else:
+            x_min, x_max, y_min, y_max = 0, 10, 0, 10
+            data_w = data_h = 10
+
+        # Always fit to the available viewport so the full diagram is visible.
+        # The toolbar provides zoom / pan for detail.
+        self._scroll_frame.fit_to_viewport()
+
+        # 3. Draw edges with arrows (polyline through virtual waypoints)
         self.draw_network_edges(G, pos)
-        
-        # 3. Draw nodes with critical path coloring
+
+        # 4. Draw nodes with critical path coloring (skips virtual nodes)
         self.draw_network_nodes(G, pos, critical_activities)
-        
-        # 4. Add legend
+
+        # 5. Add legend
         self.add_network_legend()
-        
-        # 5. Apply display options
+
+        # 6. Apply display options
         self.apply_display_options(G, pos)
-        
+
+        # 7. Clean up virtual nodes from graph
+        cleanup_virtual_nodes(G, self._virtual_nodes)
+
         self.ax.set_title("Project Network Diagram")
-        self.ax.axis('equal')
+        # Set explicit data limits and minimal margins so content fills figure
+        self.ax.set_xlim(x_min, x_max)
+        self.ax.set_ylim(y_min, y_max)
         self.ax.axis('off')
+        self.figure.subplots_adjust(left=0.01, right=0.99, top=0.95, bottom=0.02)
         self.canvas.draw()
     
     def create_hierarchical_layout(self, G):
-        """Create hierarchical layout using topological generations"""
-        pos = {}
-        generations = list(nx.topological_generations(G))
-        
-        for i, gen in enumerate(generations):
-            sorted_gen = sorted(gen)
-            for j, node in enumerate(sorted_gen):
-                y_pos = (j - len(sorted_gen) / 2 + 0.5) * 4
-                pos[node] = (i * 3, y_pos)
-        
-        return pos
+        """Sugiyama-style layered layout — delegates to shared engine.
+
+        Adapts spacing for large projects so the layout stays within
+        renderable figure dimensions.
+        """
+        n = len([nd for nd in G.nodes() if not str(nd).startswith('_virt_')])
+        if n <= 50:
+            x_sp, y_sp = 3.5, 4.0
+        elif n <= 200:
+            x_sp, y_sp = 2.0, 2.5
+        else:
+            x_sp, y_sp = 1.0, 1.5
+        result = sugiyama_layout(G, x_spacing=x_sp, y_spacing=y_sp)
+        self._virtual_nodes = result['virtual_nodes']
+        self._edge_paths = result['edge_paths']
+        self._all_pos = result['all_pos']
+        return result['pos']
     
     def draw_network_edges(self, G, pos):
-        """Draw edges with proper arrows"""
-        node_radius = 0.6
-        
-        for u, v in G.edges():
-            x1, y1 = pos[u]
-            x2, y2 = pos[v]
-            # Calculate arrow start/end points
-            dx = x2 - x1
-            dy = y2 - y1
-            distance = (dx ** 2 + dy ** 2) ** 0.5
-            if distance > 0:
-                dx_norm = dx / distance
-                dy_norm = dy / distance
-                start_x = x1 + node_radius * dx_norm
-                start_y = y1 + node_radius * dy_norm
-                end_x = x2 - node_radius * dx_norm
-                end_y = y2 - node_radius * dy_norm
-                self.ax.annotate(
-                    "", xy=(end_x, end_y), xytext=(start_x, start_y),
-                    arrowprops=dict(arrowstyle="->", color="black", lw=1.5),
-                    zorder=1  # Ensure arrows are under nodes
-                )
+        """Draw edges as polylines routed through virtual-node waypoints."""
+        show_crit = self.show_critical_var.get()
+
+        def critical_check(u, v):
+            return (show_crit
+                    and G.nodes.get(u, {}).get('critical', False)
+                    and G.nodes.get(v, {}).get('critical', False))
+
+        draw_edges_polyline(
+            self.ax, G, pos,
+            self._all_pos, self._virtual_nodes, self._edge_paths,
+            node_radius=getattr(self, '_node_radius', 0.6),
+            critical_check=critical_check,
+        )
     
     def draw_network_nodes(self, G, pos, critical_activities):
         """Draw nodes with corrected critical path highlighting"""
-        node_radius = 0.6
+        node_radius = getattr(self, '_node_radius', 0.6)
+        label_fs = getattr(self, '_label_fs', 10)
+        virtual_nodes = getattr(self, '_virtual_nodes', set())
         
         for node in G.nodes():
+            if node in virtual_nodes:
+                continue  # Skip virtual/dummy nodes
+            if node not in pos:
+                continue
             x, y = pos[node]
             
             # NEW LOGIC: Critical path highlighting behavior
@@ -429,7 +440,7 @@ class NetworkTab:
             if node in ['START', 'END']:
                 display_text = 'Start' if node == 'START' else 'End'
                 self.ax.text(x, y, display_text, ha='center', va='center',
-                            fontsize=10, fontweight='bold')
+                            fontsize=label_fs, fontweight='bold')
             else:
                 if self.show_times_var.get():
                     # Split node into ID and duration sections
@@ -438,16 +449,16 @@ class NetworkTab:
                     
                     # Activity ID (top) - ALWAYS SHOWN
                     self.ax.text(x, y + node_radius / 2, node, ha='center', va='center',
-                                fontsize=10, fontweight='bold')
+                                fontsize=label_fs, fontweight='bold')
                     
                     # Duration (bottom) - ALWAYS SHOWN
                     duration = G.nodes[node].get('duration', 0)
                     self.ax.text(x, y - node_radius / 2, str(duration),
-                                ha='center', va='center', fontsize=9)
+                                ha='center', va='center', fontsize=max(5, label_fs - 1))
                 else:
                     # Just show activity ID - ALWAYS SHOWN
                     self.ax.text(x, y, node, ha='center', va='center',
-                                fontsize=10, fontweight='bold')
+                                fontsize=label_fs, fontweight='bold')
     
     def add_network_legend(self):
         """Add simplified legend without START/END entries"""
@@ -479,9 +490,15 @@ class NetworkTab:
         if not self.show_float_var.get():
             return
         
+        virtual_nodes = getattr(self, '_virtual_nodes', set())
+        
         for node in G.nodes():
             if node in ['START', 'END']:
                 continue  # Skip START/END nodes
+            if node in virtual_nodes:
+                continue  # Skip virtual/dummy nodes
+            if node not in pos:
+                continue
             
             x, y = pos[node]
             
@@ -529,6 +546,19 @@ class NetworkTab:
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to save diagram: {str(e)}")
     
+    def _open_interactive_view(self):
+        """Open the interactive vis.js network viewer in the default browser."""
+        if not self.results_data:
+            messagebox.showwarning("Warning",
+                                   "No diagram to display. Please run analysis first.")
+            return
+        html_path = open_interactive_network(
+            self.results_data, analysis_mode=self.analysis_mode, mode='network')
+        if not html_path:
+            messagebox.showerror("Error",
+                                 "Could not generate interactive view. "
+                                 "Please ensure pyvis is installed.")
+
     def reset_view(self):
         """Reset the plot view"""
         if not MATPLOTLIB_AVAILABLE:

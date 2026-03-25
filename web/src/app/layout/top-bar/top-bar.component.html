@@ -1,0 +1,63 @@
+<mat-toolbar color="primary" class="pm-topbar">
+  <!-- Hamburger toggle -->
+  <button
+    mat-icon-button
+    class="pm-topbar__hamburger"
+    (click)="onToggleSidebar()"
+    [matTooltip]="sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+    aria-label="Toggle sidebar"
+  >
+    <mat-icon>{{ sidebarCollapsed() ? 'menu' : 'menu_open' }}</mat-icon>
+  </button>
+
+  <div class="pm-topbar__brand">
+    <mat-icon class="pm-topbar__logo">insights</mat-icon>
+    <span class="pm-topbar__title">PM Scholar</span>
+  </div>
+
+  <span class="pm-topbar__spacer"></span>
+
+  <!-- Mode toggle -->
+  <button
+    mat-stroked-button
+    class="pm-topbar__toggle"
+    [matTooltip]="mode() === 'learn' ? 'Switch to Clean View' : 'Switch to Learn Mode'"
+    (click)="toggleMode()"
+  >
+    <mat-icon>{{ mode() === 'learn' ? 'visibility_off' : 'school' }}</mat-icon>
+    <span class="pm-topbar__toggle-label">{{
+      mode() === 'learn' ? 'Learn Mode' : 'Clean View'
+    }}</span>
+  </button>
+
+  <!-- Level toggle -->
+  <button
+    mat-stroked-button
+    class="pm-topbar__toggle pm-topbar__toggle--level"
+    [matTooltip]="level() === 'ug' ? 'Switch to Postgraduate mode' : 'Switch to Undergraduate mode'"
+    (click)="toggleLevel()"
+  >
+    <mat-icon>{{ level() === 'pg' ? 'school' : 'person' }}</mat-icon>
+    {{ level() === 'ug' ? 'UG' : 'PG' }}
+  </button>
+
+  <!-- Actions menu -->
+  <button mat-icon-button [matMenuTriggerFor]="actionsMenu" matTooltip="Project actions">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+  <mat-menu #actionsMenu="matMenu">
+    <button mat-menu-item (click)="openProject()">
+      <mat-icon>folder_open</mat-icon>
+      <span>Open project…</span>
+    </button>
+    <button mat-menu-item (click)="saveProject()">
+      <mat-icon>save</mat-icon>
+      <span>Save project</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="exportCsv()">
+      <mat-icon>download</mat-icon>
+      <span>Export CSV</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>

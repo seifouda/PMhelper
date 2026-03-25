@@ -1,0 +1,970 @@
+{
+  "version": 1,
+  "evm_project": {
+    "schema_version": 1,
+    "project_name": "Software Development (PG Demo)",
+    "bac": 500000.0,
+    "bac_auto_compute": false,
+    "currency_symbol": "$",
+    "tasks": [
+      {
+        "task_id": "SD1",
+        "name": "Requirements Gathering",
+        "budget": 25000.0,
+        "pct_complete": 100.0,
+        "planned_start": 0,
+        "planned_finish": 1,
+        "actual_start": 0,
+        "actual_finish": 1,
+        "baseline_start": 0,
+        "baseline_finish": 1,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": []
+      },
+      {
+        "task_id": "SD2",
+        "name": "Architecture Design",
+        "budget": 40000.0,
+        "pct_complete": 100.0,
+        "planned_start": 1,
+        "planned_finish": 3,
+        "actual_start": 1,
+        "actual_finish": 2,
+        "baseline_start": 1,
+        "baseline_finish": 3,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "SD1"
+        ]
+      },
+      {
+        "task_id": "SD3",
+        "name": "Database Design",
+        "budget": 20000.0,
+        "pct_complete": 100.0,
+        "planned_start": 2,
+        "planned_finish": 3,
+        "actual_start": 2,
+        "actual_finish": 3,
+        "baseline_start": 2,
+        "baseline_finish": 3,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "SD1"
+        ]
+      },
+      {
+        "task_id": "SD4",
+        "name": "Backend Development",
+        "budget": 80000.0,
+        "pct_complete": 100.0,
+        "planned_start": 3,
+        "planned_finish": 7,
+        "actual_start": 3,
+        "actual_finish": 6,
+        "baseline_start": 3,
+        "baseline_finish": 7,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "SD2",
+          "SD3"
+        ]
+      },
+      {
+        "task_id": "SD5",
+        "name": "Frontend Development",
+        "budget": 70000.0,
+        "pct_complete": 100.0,
+        "planned_start": 3,
+        "planned_finish": 7,
+        "actual_start": 3,
+        "actual_finish": 7,
+        "baseline_start": 3,
+        "baseline_finish": 7,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "SD2"
+        ]
+      },
+      {
+        "task_id": "SD6",
+        "name": "API Integration",
+        "budget": 35000.0,
+        "pct_complete": 90.0,
+        "planned_start": 6,
+        "planned_finish": 8,
+        "actual_start": 6,
+        "actual_finish": null,
+        "baseline_start": 6,
+        "baseline_finish": 8,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "SD4"
+        ]
+      },
+      {
+        "task_id": "SD7",
+        "name": "Unit Testing",
+        "budget": 30000.0,
+        "pct_complete": 80.0,
+        "planned_start": 6,
+        "planned_finish": 9,
+        "actual_start": 6,
+        "actual_finish": null,
+        "baseline_start": 6,
+        "baseline_finish": 9,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "SD4",
+          "SD5"
+        ]
+      },
+      {
+        "task_id": "SD8",
+        "name": "Integration Testing",
+        "budget": 40000.0,
+        "pct_complete": 50.0,
+        "planned_start": 8,
+        "planned_finish": 10,
+        "actual_start": 8,
+        "actual_finish": null,
+        "baseline_start": 8,
+        "baseline_finish": 10,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "SD6",
+          "SD7"
+        ]
+      },
+      {
+        "task_id": "SD9",
+        "name": "Security Audit",
+        "budget": 25000.0,
+        "pct_complete": 30.0,
+        "planned_start": 9,
+        "planned_finish": 10,
+        "actual_start": 9,
+        "actual_finish": null,
+        "baseline_start": 9,
+        "baseline_finish": 10,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "SD8"
+        ]
+      },
+      {
+        "task_id": "SD10",
+        "name": "User Acceptance Testing",
+        "budget": 35000.0,
+        "pct_complete": 10.0,
+        "planned_start": 10,
+        "planned_finish": 12,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 10,
+        "baseline_finish": 12,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "SD8",
+          "SD9"
+        ]
+      },
+      {
+        "task_id": "SD11",
+        "name": "Deployment & DevOps",
+        "budget": 50000.0,
+        "pct_complete": 0.0,
+        "planned_start": 12,
+        "planned_finish": 13,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 12,
+        "baseline_finish": 13,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "SD10"
+        ]
+      },
+      {
+        "task_id": "SD12",
+        "name": "Documentation & Training",
+        "budget": 50000.0,
+        "pct_complete": 0.0,
+        "planned_start": 12,
+        "planned_finish": 14,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 12,
+        "baseline_finish": 14,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "SD10"
+        ]
+      }
+    ],
+    "periods": [
+      {
+        "index": 0,
+        "label": "Sprint 1",
+        "pv_cumulative": 12500.0,
+        "ev_cumulative": 13000.0,
+        "ac_cumulative": 11500.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 1,
+        "label": "Sprint 2",
+        "pv_cumulative": 25000.0,
+        "ev_cumulative": 26000.0,
+        "ac_cumulative": 23000.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 2,
+        "label": "Sprint 3",
+        "pv_cumulative": 55000.0,
+        "ev_cumulative": 57000.0,
+        "ac_cumulative": 51000.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 3,
+        "label": "Sprint 4",
+        "pv_cumulative": 92500.0,
+        "ev_cumulative": 95000.0,
+        "ac_cumulative": 85000.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 4,
+        "label": "Sprint 5",
+        "pv_cumulative": 130000.0,
+        "ev_cumulative": 135000.0,
+        "ac_cumulative": 120000.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 5,
+        "label": "Sprint 6",
+        "pv_cumulative": 167500.0,
+        "ev_cumulative": 172000.0,
+        "ac_cumulative": 153000.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 6,
+        "label": "Sprint 7",
+        "pv_cumulative": 220000.0,
+        "ev_cumulative": 225000.0,
+        "ac_cumulative": 200000.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 7,
+        "label": "Sprint 8",
+        "pv_cumulative": 272500.0,
+        "ev_cumulative": 278000.0,
+        "ac_cumulative": 247000.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 8,
+        "label": "Sprint 9",
+        "pv_cumulative": 320000.0,
+        "ev_cumulative": 330000.0,
+        "ac_cumulative": 293000.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 9,
+        "label": "Sprint 10",
+        "pv_cumulative": 367500.0,
+        "ev_cumulative": 375000.0,
+        "ac_cumulative": 335000.0,
+        "ev_source": "manual"
+      }
+    ]
+  },
+  "risk_register": {
+    "bac": 500000.0,
+    "high_exposure_threshold_pct": 0.05,
+    "risks": [
+      {
+        "id": "SR1",
+        "name": "Key Developer Attrition",
+        "description": "Senior developer leaves during critical development phase",
+        "probability": 0.2,
+        "impact": 80000.0,
+        "category": "Schedule"
+      },
+      {
+        "id": "SR2",
+        "name": "Scope Creep",
+        "description": "Stakeholders request additional features beyond MVP",
+        "probability": 0.6,
+        "impact": 60000.0,
+        "category": "Scope"
+      },
+      {
+        "id": "SR3",
+        "name": "Third-Party API Changes",
+        "description": "External API vendors release breaking changes",
+        "probability": 0.35,
+        "impact": 25000.0,
+        "category": "Cost"
+      },
+      {
+        "id": "SR4",
+        "name": "Security Vulnerability",
+        "description": "Critical security issue found during audit requiring rework",
+        "probability": 0.25,
+        "impact": 45000.0,
+        "category": "Quality"
+      },
+      {
+        "id": "SR5",
+        "name": "Infrastructure Cost Overrun",
+        "description": "Cloud infrastructure costs exceed budget estimates",
+        "probability": 0.4,
+        "impact": 30000.0,
+        "category": "Cost"
+      },
+      {
+        "id": "SR6",
+        "name": "Performance Issues",
+        "description": "Application fails performance benchmarks requiring optimization",
+        "probability": 0.3,
+        "impact": 35000.0,
+        "category": "Quality"
+      },
+      {
+        "id": "SR7",
+        "name": "Regulatory Compliance",
+        "description": "New data protection regulations require additional features",
+        "probability": 0.15,
+        "impact": 50000.0,
+        "category": "Scope"
+      },
+      {
+        "id": "SR8",
+        "name": "Integration Complexity",
+        "description": "Legacy system integration more complex than estimated",
+        "probability": 0.45,
+        "impact": 40000.0,
+        "category": "Schedule"
+      }
+    ]
+  },
+  "mc_results": null,
+  "app_config": {
+    "mode": "PG",
+    "currency_symbol": "$"
+  },
+  "cpm_activities": [
+    {
+      "id": "SD1",
+      "activity": "Requirements Gathering",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "",
+      "min_duration": "3",
+      "crash_cost": "37000",
+      "resource_demand": "2",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "SD2",
+      "activity": "Architecture Design",
+      "optimistic": "2",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "SD1",
+      "min_duration": "3",
+      "crash_cost": "65000",
+      "resource_demand": "3",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "SD3",
+      "activity": "Database Design",
+      "optimistic": "1",
+      "most_likely": "2",
+      "pessimistic": "4",
+      "predecessors": "SD1",
+      "min_duration": "2",
+      "crash_cost": "32000",
+      "resource_demand": "2",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "SD4",
+      "activity": "Backend Development",
+      "optimistic": "5",
+      "most_likely": "8",
+      "pessimistic": "14",
+      "predecessors": "SD2,SD3",
+      "min_duration": "7",
+      "crash_cost": "120000",
+      "resource_demand": "5",
+      "normal_cost": "80000"
+    },
+    {
+      "id": "SD5",
+      "activity": "Frontend Development",
+      "optimistic": "4",
+      "most_likely": "7",
+      "pessimistic": "11",
+      "predecessors": "SD2",
+      "min_duration": "6",
+      "crash_cost": "105000",
+      "resource_demand": "4",
+      "normal_cost": "70000"
+    },
+    {
+      "id": "SD6",
+      "activity": "API Integration",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "6",
+      "predecessors": "SD4",
+      "min_duration": "3",
+      "crash_cost": "55000",
+      "resource_demand": "3",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "SD7",
+      "activity": "Unit Testing",
+      "optimistic": "3",
+      "most_likely": "5",
+      "pessimistic": "9",
+      "predecessors": "SD4,SD5",
+      "min_duration": "4",
+      "crash_cost": "48000",
+      "resource_demand": "4",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "SD8",
+      "activity": "Integration Testing",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "6",
+      "predecessors": "SD6,SD7",
+      "min_duration": "3",
+      "crash_cost": "64000",
+      "resource_demand": "3",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "SD9",
+      "activity": "Security Audit",
+      "optimistic": "1",
+      "most_likely": "2",
+      "pessimistic": "4",
+      "predecessors": "SD8",
+      "min_duration": "2",
+      "crash_cost": "40000",
+      "resource_demand": "2",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "SD10",
+      "activity": "User Acceptance Testing",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "SD8,SD9",
+      "min_duration": "3",
+      "crash_cost": "53000",
+      "resource_demand": "3",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "SD11",
+      "activity": "Deployment & DevOps",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "4",
+      "predecessors": "SD10",
+      "min_duration": "2",
+      "crash_cost": "78000",
+      "resource_demand": "3",
+      "normal_cost": "50000"
+    },
+    {
+      "id": "SD12",
+      "activity": "Documentation & Training",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "SD10",
+      "min_duration": "3",
+      "crash_cost": "75000",
+      "resource_demand": "2",
+      "normal_cost": "50000"
+    }
+  ],
+  "cpm_mode": "probabilistic",
+  "swot_analysis": {
+    "factors": [
+      {
+        "text": "Experienced development team with full-stack capabilities",
+        "category": "Strength",
+        "source": "Charter",
+        "weight": 0.9,
+        "linked_to": "team_capability"
+      },
+      {
+        "text": "Well-defined requirements from stakeholder workshops",
+        "category": "Strength",
+        "source": "Charter",
+        "weight": 0.8,
+        "linked_to": "business_case"
+      },
+      {
+        "text": "CPI = 1.05 \u2014 project under budget",
+        "category": "Strength",
+        "source": "EVM",
+        "weight": 0.7,
+        "linked_to": "evm_cpi"
+      },
+      {
+        "text": "SPI = 1.02 \u2014 slightly ahead of schedule",
+        "category": "Strength",
+        "source": "EVM",
+        "weight": 0.6,
+        "linked_to": "evm_spi"
+      },
+      {
+        "text": "Limited cloud infrastructure experience in team",
+        "category": "Weakness",
+        "source": "Charter",
+        "weight": 0.7,
+        "linked_to": "skill_gap"
+      },
+      {
+        "text": "Tight budget with only 5% contingency reserve",
+        "category": "Weakness",
+        "source": "Charter",
+        "weight": 0.8,
+        "linked_to": "budget_constraint"
+      },
+      {
+        "text": "Single point of failure: one senior backend developer",
+        "category": "Weakness",
+        "source": "Manual",
+        "weight": 0.9,
+        "linked_to": ""
+      },
+      {
+        "text": "Strategic alignment with company digital transformation initiative",
+        "category": "Opportunity",
+        "source": "Charter",
+        "weight": 0.8,
+        "linked_to": "business_case"
+      },
+      {
+        "text": "Reusable microservice architecture for future projects",
+        "category": "Opportunity",
+        "source": "Manual",
+        "weight": 0.7,
+        "linked_to": ""
+      },
+      {
+        "text": "Open-source tooling reduces licensing costs",
+        "category": "Opportunity",
+        "source": "Manual",
+        "weight": 0.5,
+        "linked_to": ""
+      },
+      {
+        "text": "Key Developer Attrition \u2014 senior developer may leave",
+        "category": "Threat",
+        "source": "Risk Register",
+        "weight": 0.8,
+        "linked_to": "SR1"
+      },
+      {
+        "text": "Scope Creep \u2014 stakeholders requesting additional features",
+        "category": "Threat",
+        "source": "Risk Register",
+        "weight": 0.9,
+        "linked_to": "SR2"
+      },
+      {
+        "text": "Third-Party API Changes \u2014 external vendors may release breaking changes",
+        "category": "Threat",
+        "source": "Risk Register",
+        "weight": 0.6,
+        "linked_to": "SR3"
+      },
+      {
+        "text": "New data protection regulations may require rework",
+        "category": "Threat",
+        "source": "Risk Register",
+        "weight": 0.5,
+        "linked_to": "SR7"
+      }
+    ]
+  },
+  "pestel_analysis": {
+    "factors": [
+      {
+        "category": "Political",
+        "description": "Government incentives for digital transformation projects",
+        "impact_score": 3.0,
+        "probability": 0.6,
+        "timeframe": "Medium-term",
+        "mitigation": "Monitor policy announcements and apply for available grants",
+        "linked_to": ""
+      },
+      {
+        "category": "Political",
+        "description": "Data sovereignty regulations require on-shore hosting",
+        "impact_score": -2.0,
+        "probability": 0.4,
+        "timeframe": "Long-term",
+        "mitigation": "Use cloud provider with local data centres",
+        "linked_to": ""
+      },
+      {
+        "category": "Economic",
+        "description": "Rising inflation increases contractor rates by 8-12%",
+        "impact_score": -3.0,
+        "probability": 0.7,
+        "timeframe": "Short-term",
+        "mitigation": "Lock in fixed-price contracts with key vendors",
+        "linked_to": ""
+      },
+      {
+        "category": "Economic",
+        "description": "Budget cycle alignment \u2014 funding approved for FY2026",
+        "impact_score": 4.0,
+        "probability": 0.9,
+        "timeframe": "Short-term",
+        "mitigation": "Ensure deliverables align with budget milestones",
+        "linked_to": ""
+      },
+      {
+        "category": "Social",
+        "description": "Remote work trend enables access to wider talent pool",
+        "impact_score": 3.0,
+        "probability": 0.8,
+        "timeframe": "Medium-term",
+        "mitigation": "Implement robust remote collaboration tools",
+        "linked_to": ""
+      },
+      {
+        "category": "Social",
+        "description": "User expectations for mobile-first design increasing",
+        "impact_score": -2.0,
+        "probability": 0.6,
+        "timeframe": "Short-term",
+        "mitigation": "Include responsive design in sprint 2 requirements",
+        "linked_to": ""
+      },
+      {
+        "category": "Technological",
+        "description": "AI-assisted code review tools reduce QA effort by 20%",
+        "impact_score": 4.0,
+        "probability": 0.7,
+        "timeframe": "Short-term",
+        "mitigation": "Pilot AI tools in unit testing phase",
+        "linked_to": ""
+      },
+      {
+        "category": "Technological",
+        "description": "Legacy system APIs use deprecated authentication protocol",
+        "impact_score": -3.0,
+        "probability": 0.5,
+        "timeframe": "Medium-term",
+        "mitigation": "Build adapter layer for backward compatibility",
+        "linked_to": "SR3"
+      },
+      {
+        "category": "Environmental",
+        "description": "ESG reporting requirements for cloud carbon footprint",
+        "impact_score": -1.0,
+        "probability": 0.3,
+        "timeframe": "Long-term",
+        "mitigation": "Select green-certified cloud regions",
+        "linked_to": ""
+      },
+      {
+        "category": "Legal",
+        "description": "GDPR compliance requires data encryption at rest and in transit",
+        "impact_score": -2.0,
+        "probability": 0.9,
+        "timeframe": "Short-term",
+        "mitigation": "Use AES-256 encryption; document data processing agreements",
+        "linked_to": "SR4"
+      },
+      {
+        "category": "Legal",
+        "description": "Open-source license audit needed for all dependencies",
+        "impact_score": -1.5,
+        "probability": 0.5,
+        "timeframe": "Medium-term",
+        "mitigation": "Run automated license scanner in CI pipeline",
+        "linked_to": ""
+      }
+    ]
+  },
+  "wbs_tree": {
+    "project_name": "Software Development (PG Demo)",
+    "nodes": [
+      {
+        "id": "wbs-root",
+        "wbs_code": "1",
+        "name": "Software Development Project",
+        "parent_id": "",
+        "duration": 34,
+        "cost": 500000,
+        "progress": 45.0,
+        "status": "In Progress",
+        "responsible": "Project Manager",
+        "description": "Enterprise software development project",
+        "linked_task_id": "",
+        "sort_order": 0
+      },
+      {
+        "id": "wbs-plan",
+        "wbs_code": "1.1",
+        "name": "Planning & Design",
+        "parent_id": "wbs-root",
+        "duration": 10,
+        "cost": 85000,
+        "progress": 100.0,
+        "status": "Completed",
+        "responsible": "Lead Architect",
+        "description": "Requirements, architecture, and database design",
+        "linked_task_id": "",
+        "sort_order": 0
+      },
+      {
+        "id": "wbs-dev",
+        "wbs_code": "1.2",
+        "name": "Development",
+        "parent_id": "wbs-root",
+        "duration": 18,
+        "cost": 185000,
+        "progress": 50.0,
+        "status": "In Progress",
+        "responsible": "Dev Lead",
+        "description": "Backend, frontend, and API integration",
+        "linked_task_id": "",
+        "sort_order": 1
+      },
+      {
+        "id": "wbs-test",
+        "wbs_code": "1.3",
+        "name": "Testing & QA",
+        "parent_id": "wbs-root",
+        "duration": 12,
+        "cost": 130000,
+        "progress": 15.0,
+        "status": "In Progress",
+        "responsible": "QA Lead",
+        "description": "Unit testing, integration testing, security audit, UAT",
+        "linked_task_id": "",
+        "sort_order": 2
+      },
+      {
+        "id": "wbs-deploy",
+        "wbs_code": "1.4",
+        "name": "Deployment & Closeout",
+        "parent_id": "wbs-root",
+        "duration": 8,
+        "cost": 100000,
+        "progress": 0.0,
+        "status": "Not Started",
+        "responsible": "DevOps Lead",
+        "description": "Deployment, documentation, and training",
+        "linked_task_id": "",
+        "sort_order": 3
+      },
+      {
+        "id": "wbs-req",
+        "wbs_code": "1.1.1",
+        "name": "Requirements Gathering",
+        "parent_id": "wbs-plan",
+        "duration": 5,
+        "cost": 25000,
+        "progress": 100.0,
+        "status": "Completed",
+        "responsible": "Business Analyst",
+        "description": "Stakeholder interviews, requirements document, sign-off",
+        "linked_task_id": "SD1",
+        "sort_order": 0
+      },
+      {
+        "id": "wbs-arch",
+        "wbs_code": "1.1.2",
+        "name": "Architecture Design",
+        "parent_id": "wbs-plan",
+        "duration": 8,
+        "cost": 40000,
+        "progress": 100.0,
+        "status": "Completed",
+        "responsible": "Lead Architect",
+        "description": "System architecture, tech stack selection, design docs",
+        "linked_task_id": "SD2",
+        "sort_order": 1
+      },
+      {
+        "id": "wbs-db",
+        "wbs_code": "1.1.3",
+        "name": "Database Design",
+        "parent_id": "wbs-plan",
+        "duration": 4,
+        "cost": 20000,
+        "progress": 100.0,
+        "status": "Completed",
+        "responsible": "DBA",
+        "description": "Schema design, ER diagrams, migration scripts",
+        "linked_task_id": "SD3",
+        "sort_order": 2
+      },
+      {
+        "id": "wbs-back",
+        "wbs_code": "1.2.1",
+        "name": "Backend Development",
+        "parent_id": "wbs-dev",
+        "duration": 15,
+        "cost": 80000,
+        "progress": 70.0,
+        "status": "In Progress",
+        "responsible": "Senior Developer",
+        "description": "API endpoints, business logic, data access layer",
+        "linked_task_id": "SD4",
+        "sort_order": 0
+      },
+      {
+        "id": "wbs-front",
+        "wbs_code": "1.2.2",
+        "name": "Frontend Development",
+        "parent_id": "wbs-dev",
+        "duration": 18,
+        "cost": 70000,
+        "progress": 40.0,
+        "status": "In Progress",
+        "responsible": "Frontend Developer",
+        "description": "UI components, state management, responsive design",
+        "linked_task_id": "SD5",
+        "sort_order": 1
+      },
+      {
+        "id": "wbs-api",
+        "wbs_code": "1.2.3",
+        "name": "API Integration",
+        "parent_id": "wbs-dev",
+        "duration": 10,
+        "cost": 35000,
+        "progress": 20.0,
+        "status": "In Progress",
+        "responsible": "Integration Engineer",
+        "description": "Third-party API connectors, OAuth, data mapping",
+        "linked_task_id": "SD6",
+        "sort_order": 2
+      },
+      {
+        "id": "wbs-unit",
+        "wbs_code": "1.3.1",
+        "name": "Unit Testing",
+        "parent_id": "wbs-test",
+        "duration": 8,
+        "cost": 30000,
+        "progress": 30.0,
+        "status": "In Progress",
+        "responsible": "QA Engineer",
+        "description": "Unit test coverage > 80%, automated test suite",
+        "linked_task_id": "SD7",
+        "sort_order": 0
+      },
+      {
+        "id": "wbs-integ",
+        "wbs_code": "1.3.2",
+        "name": "Integration Testing",
+        "parent_id": "wbs-test",
+        "duration": 10,
+        "cost": 40000,
+        "progress": 0.0,
+        "status": "Not Started",
+        "responsible": "QA Engineer",
+        "description": "End-to-end scenarios, API contract testing",
+        "linked_task_id": "SD8",
+        "sort_order": 1
+      },
+      {
+        "id": "wbs-sec",
+        "wbs_code": "1.3.3",
+        "name": "Security Audit",
+        "parent_id": "wbs-test",
+        "duration": 5,
+        "cost": 25000,
+        "progress": 0.0,
+        "status": "Not Started",
+        "responsible": "Security Analyst",
+        "description": "Penetration testing, vulnerability scan, OWASP compliance",
+        "linked_task_id": "SD9",
+        "sort_order": 2
+      },
+      {
+        "id": "wbs-uat",
+        "wbs_code": "1.3.4",
+        "name": "User Acceptance Testing",
+        "parent_id": "wbs-test",
+        "duration": 12,
+        "cost": 35000,
+        "progress": 0.0,
+        "status": "Not Started",
+        "responsible": "Product Owner",
+        "description": "UAT scenarios, bug triage, sign-off",
+        "linked_task_id": "SD10",
+        "sort_order": 3
+      },
+      {
+        "id": "wbs-devops",
+        "wbs_code": "1.4.1",
+        "name": "Deployment & DevOps",
+        "parent_id": "wbs-deploy",
+        "duration": 6,
+        "cost": 50000,
+        "progress": 0.0,
+        "status": "Not Started",
+        "responsible": "DevOps Engineer",
+        "description": "CI/CD pipeline, staging/prod environments, monitoring",
+        "linked_task_id": "SD11",
+        "sort_order": 0
+      },
+      {
+        "id": "wbs-docs",
+        "wbs_code": "1.4.2",
+        "name": "Documentation & Training",
+        "parent_id": "wbs-deploy",
+        "duration": 8,
+        "cost": 50000,
+        "progress": 0.0,
+        "status": "Not Started",
+        "responsible": "Technical Writer",
+        "description": "User guides, API docs, training sessions",
+        "linked_task_id": "SD12",
+        "sort_order": 1
+      }
+    ]
+  }
+}

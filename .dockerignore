@@ -1,0 +1,35 @@
+# Ignore everything except what we need
+**/__pycache__
+**/*.pyc
+.git
+.github
+.env*
+*.md
+*.txt
+!requirements.txt
+*.csv
+*.json
+!pyproject.toml
+!setup.py
+*.png
+*.xlsx
+*.pdf
+*.spec
+
+# Desktop app artifacts
+build/
+dist/
+code/
+lib/
+templates/
+tests/
+scripts/
+assets/
+docs/
+config/
+data/
+
+# Web build artifacts (rebuilt in Docker stage 1)
+web/dist
+web/node_modules
+web/.angular

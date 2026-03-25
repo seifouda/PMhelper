@@ -1,0 +1,6806 @@
+{
+  "version": 1,
+  "evm_project": {
+    "schema_version": 1,
+    "project_name": "Campus Construction (Large UG Demo)",
+    "bac": 13201000.0,
+    "bac_auto_compute": false,
+    "currency_symbol": "$",
+    "tasks": [
+      {
+        "task_id": "WP01",
+        "name": "Pre-Construction",
+        "budget": 684000.0,
+        "pct_complete": 100.0,
+        "planned_start": 0,
+        "planned_finish": 139,
+        "actual_start": 2,
+        "actual_finish": 142,
+        "baseline_start": 0,
+        "baseline_finish": 139,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": []
+      },
+      {
+        "task_id": "WP02",
+        "name": "Site Preparation",
+        "budget": 1013000.0,
+        "pct_complete": 100.0,
+        "planned_start": 139,
+        "planned_finish": 342,
+        "actual_start": 140,
+        "actual_finish": 343,
+        "baseline_start": 139,
+        "baseline_finish": 342,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "WP01"
+        ]
+      },
+      {
+        "task_id": "WP03",
+        "name": "Foundations",
+        "budget": 1163000.0,
+        "pct_complete": 100.0,
+        "planned_start": 334,
+        "planned_finish": 588,
+        "actual_start": 336,
+        "actual_finish": 588,
+        "baseline_start": 334,
+        "baseline_finish": 588,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "WP02"
+        ]
+      },
+      {
+        "task_id": "WP04",
+        "name": "Structural Steel",
+        "budget": 1279000.0,
+        "pct_complete": 100.0,
+        "planned_start": 588,
+        "planned_finish": 909,
+        "actual_start": 589,
+        "actual_finish": 912,
+        "baseline_start": 588,
+        "baseline_finish": 909,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "WP03"
+        ]
+      },
+      {
+        "task_id": "WP05",
+        "name": "MEP Rough-In",
+        "budget": 1537000.0,
+        "pct_complete": 63.0,
+        "planned_start": 909,
+        "planned_finish": 1246,
+        "actual_start": 909,
+        "actual_finish": 1247,
+        "baseline_start": 909,
+        "baseline_finish": 1246,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "WP04"
+        ]
+      },
+      {
+        "task_id": "WP06",
+        "name": "Building Envelope",
+        "budget": 1075000.0,
+        "pct_complete": 48.0,
+        "planned_start": 1246,
+        "planned_finish": 1499,
+        "actual_start": 1247,
+        "actual_finish": 1500,
+        "baseline_start": 1246,
+        "baseline_finish": 1499,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "WP05"
+        ]
+      },
+      {
+        "task_id": "WP07",
+        "name": "Interior Framing",
+        "budget": 1177000.0,
+        "pct_complete": 83.0,
+        "planned_start": 1496,
+        "planned_finish": 1834,
+        "actual_start": 1498,
+        "actual_finish": 1835,
+        "baseline_start": 1496,
+        "baseline_finish": 1834,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "WP06"
+        ]
+      },
+      {
+        "task_id": "WP08",
+        "name": "MEP Finishes",
+        "budget": 1187000.0,
+        "pct_complete": 33.0,
+        "planned_start": 1834,
+        "planned_finish": 2132,
+        "actual_start": 1834,
+        "actual_finish": 2135,
+        "baseline_start": 1834,
+        "baseline_finish": 2132,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "WP07"
+        ]
+      },
+      {
+        "task_id": "WP09",
+        "name": "Interior Finishes",
+        "budget": 1320000.0,
+        "pct_complete": 20.0,
+        "planned_start": 2117,
+        "planned_finish": 2449,
+        "actual_start": 2118,
+        "actual_finish": 2450,
+        "baseline_start": 2117,
+        "baseline_finish": 2449,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "WP08"
+        ]
+      },
+      {
+        "task_id": "WP10",
+        "name": "Landscaping & Exterior",
+        "budget": 749000.0,
+        "pct_complete": 7.0,
+        "planned_start": 2437,
+        "planned_finish": 2659,
+        "actual_start": 2437,
+        "actual_finish": 2658,
+        "baseline_start": 2437,
+        "baseline_finish": 2659,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "WP09"
+        ]
+      },
+      {
+        "task_id": "WP11",
+        "name": "Commissioning",
+        "budget": 1124000.0,
+        "pct_complete": 7.0,
+        "planned_start": 2659,
+        "planned_finish": 2928,
+        "actual_start": 2659,
+        "actual_finish": 2928,
+        "baseline_start": 2659,
+        "baseline_finish": 2928,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "WP10"
+        ]
+      },
+      {
+        "task_id": "WP12",
+        "name": "Closeout & Handover",
+        "budget": 893000.0,
+        "pct_complete": 7.0,
+        "planned_start": 2928,
+        "planned_finish": 3133,
+        "actual_start": 2929,
+        "actual_finish": 3134,
+        "baseline_start": 2928,
+        "baseline_finish": 3133,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "WP11"
+        ]
+      }
+    ],
+    "periods": [
+      {
+        "index": 0,
+        "label": "Week 1",
+        "pv_cumulative": 4424.21,
+        "ev_cumulative": 3919.29,
+        "ac_cumulative": 4270.9,
+        "ev_source": "manual"
+      },
+      {
+        "index": 1,
+        "label": "Week 2",
+        "pv_cumulative": 8848.42,
+        "ev_cumulative": 8009.3,
+        "ac_cumulative": 8592.78,
+        "ev_source": "manual"
+      },
+      {
+        "index": 2,
+        "label": "Week 3",
+        "pv_cumulative": 13272.63,
+        "ev_cumulative": 12086.89,
+        "ac_cumulative": 14013.94,
+        "ev_source": "manual"
+      },
+      {
+        "index": 3,
+        "label": "Week 4",
+        "pv_cumulative": 17696.84,
+        "ev_cumulative": 16561.97,
+        "ac_cumulative": 17691.5,
+        "ev_source": "manual"
+      },
+      {
+        "index": 4,
+        "label": "Week 5",
+        "pv_cumulative": 22121.05,
+        "ev_cumulative": 19994.37,
+        "ac_cumulative": 21678.31,
+        "ev_source": "manual"
+      },
+      {
+        "index": 5,
+        "label": "Week 6",
+        "pv_cumulative": 26545.26,
+        "ev_cumulative": 24916.27,
+        "ac_cumulative": 26409.76,
+        "ev_source": "manual"
+      },
+      {
+        "index": 6,
+        "label": "Week 7",
+        "pv_cumulative": 30969.47,
+        "ev_cumulative": 26557.56,
+        "ac_cumulative": 27949.76,
+        "ev_source": "manual"
+      },
+      {
+        "index": 7,
+        "label": "Week 8",
+        "pv_cumulative": 35393.68,
+        "ev_cumulative": 31879.72,
+        "ac_cumulative": 33602.99,
+        "ev_source": "manual"
+      },
+      {
+        "index": 8,
+        "label": "Week 9",
+        "pv_cumulative": 39817.89,
+        "ev_cumulative": 36162.17,
+        "ac_cumulative": 39874.85,
+        "ev_source": "manual"
+      },
+      {
+        "index": 9,
+        "label": "Week 10",
+        "pv_cumulative": 44242.1,
+        "ev_cumulative": 40216.23,
+        "ac_cumulative": 46965.3,
+        "ev_source": "manual"
+      },
+      {
+        "index": 10,
+        "label": "Week 11",
+        "pv_cumulative": 48666.31,
+        "ev_cumulative": 44050.77,
+        "ac_cumulative": 49365.54,
+        "ev_source": "manual"
+      },
+      {
+        "index": 11,
+        "label": "Week 12",
+        "pv_cumulative": 53090.52,
+        "ev_cumulative": 50429.24,
+        "ac_cumulative": 56045.72,
+        "ev_source": "manual"
+      },
+      {
+        "index": 12,
+        "label": "Week 13",
+        "pv_cumulative": 57514.73,
+        "ev_cumulative": 53346.05,
+        "ac_cumulative": 58550.3,
+        "ev_source": "manual"
+      },
+      {
+        "index": 13,
+        "label": "Week 14",
+        "pv_cumulative": 61938.94,
+        "ev_cumulative": 54031.24,
+        "ac_cumulative": 62156.39,
+        "ev_source": "manual"
+      },
+      {
+        "index": 14,
+        "label": "Week 15",
+        "pv_cumulative": 66363.15,
+        "ev_cumulative": 61274.6,
+        "ac_cumulative": 66656.34,
+        "ev_source": "manual"
+      },
+      {
+        "index": 15,
+        "label": "Week 16",
+        "pv_cumulative": 70787.36,
+        "ev_cumulative": 63458.75,
+        "ac_cumulative": 70842.4,
+        "ev_source": "manual"
+      },
+      {
+        "index": 16,
+        "label": "Week 17",
+        "pv_cumulative": 75211.57,
+        "ev_cumulative": 66914.12,
+        "ac_cumulative": 74628.09,
+        "ev_source": "manual"
+      },
+      {
+        "index": 17,
+        "label": "Week 18",
+        "pv_cumulative": 79635.78,
+        "ev_cumulative": 72967.71,
+        "ac_cumulative": 84659.88,
+        "ev_source": "manual"
+      },
+      {
+        "index": 18,
+        "label": "Week 19",
+        "pv_cumulative": 84059.99,
+        "ev_cumulative": 78230.77,
+        "ac_cumulative": 88387.05,
+        "ev_source": "manual"
+      },
+      {
+        "index": 19,
+        "label": "Week 20",
+        "pv_cumulative": 88484.2,
+        "ev_cumulative": 76679.02,
+        "ac_cumulative": 85638.03,
+        "ev_source": "manual"
+      },
+      {
+        "index": 20,
+        "label": "Week 21",
+        "pv_cumulative": 92908.41,
+        "ev_cumulative": 83117.91,
+        "ac_cumulative": 89209.53,
+        "ev_source": "manual"
+      },
+      {
+        "index": 21,
+        "label": "Week 22",
+        "pv_cumulative": 97332.62,
+        "ev_cumulative": 91966.79,
+        "ac_cumulative": 104448.86,
+        "ev_source": "manual"
+      },
+      {
+        "index": 22,
+        "label": "Week 23",
+        "pv_cumulative": 101756.83,
+        "ev_cumulative": 96340.68,
+        "ac_cumulative": 110374.58,
+        "ev_source": "manual"
+      },
+      {
+        "index": 23,
+        "label": "Week 24",
+        "pv_cumulative": 106181.04,
+        "ev_cumulative": 95387.77,
+        "ac_cumulative": 104606.37,
+        "ev_source": "manual"
+      },
+      {
+        "index": 24,
+        "label": "Week 25",
+        "pv_cumulative": 110605.25,
+        "ev_cumulative": 96434.72,
+        "ac_cumulative": 107369.79,
+        "ev_source": "manual"
+      },
+      {
+        "index": 25,
+        "label": "Week 26",
+        "pv_cumulative": 115029.46,
+        "ev_cumulative": 98498.13,
+        "ac_cumulative": 108153.56,
+        "ev_source": "manual"
+      },
+      {
+        "index": 26,
+        "label": "Week 27",
+        "pv_cumulative": 119453.67,
+        "ev_cumulative": 102046.98,
+        "ac_cumulative": 109892.42,
+        "ev_source": "manual"
+      },
+      {
+        "index": 27,
+        "label": "Week 28",
+        "pv_cumulative": 123877.88,
+        "ev_cumulative": 116540.92,
+        "ac_cumulative": 127841.04,
+        "ev_source": "manual"
+      },
+      {
+        "index": 28,
+        "label": "Week 29",
+        "pv_cumulative": 128302.09,
+        "ev_cumulative": 115082.8,
+        "ac_cumulative": 127638.75,
+        "ev_source": "manual"
+      },
+      {
+        "index": 29,
+        "label": "Week 30",
+        "pv_cumulative": 132726.3,
+        "ev_cumulative": 113433.7,
+        "ac_cumulative": 133565.54,
+        "ev_source": "manual"
+      },
+      {
+        "index": 30,
+        "label": "Week 31",
+        "pv_cumulative": 137150.51,
+        "ev_cumulative": 121022.59,
+        "ac_cumulative": 138145.55,
+        "ev_source": "manual"
+      },
+      {
+        "index": 31,
+        "label": "Week 32",
+        "pv_cumulative": 141574.72,
+        "ev_cumulative": 127719.83,
+        "ac_cumulative": 147880.94,
+        "ev_source": "manual"
+      },
+      {
+        "index": 32,
+        "label": "Week 33",
+        "pv_cumulative": 145998.93,
+        "ev_cumulative": 136288.14,
+        "ac_cumulative": 147767.84,
+        "ev_source": "manual"
+      },
+      {
+        "index": 33,
+        "label": "Week 34",
+        "pv_cumulative": 150423.14,
+        "ev_cumulative": 136047.95,
+        "ac_cumulative": 145925.1,
+        "ev_source": "manual"
+      },
+      {
+        "index": 34,
+        "label": "Week 35",
+        "pv_cumulative": 154847.35,
+        "ev_cumulative": 141742.24,
+        "ac_cumulative": 155560.49,
+        "ev_source": "manual"
+      },
+      {
+        "index": 35,
+        "label": "Week 36",
+        "pv_cumulative": 159271.56,
+        "ev_cumulative": 145786.62,
+        "ac_cumulative": 168909.98,
+        "ev_source": "manual"
+      },
+      {
+        "index": 36,
+        "label": "Week 37",
+        "pv_cumulative": 163695.77,
+        "ev_cumulative": 147598.96,
+        "ac_cumulative": 162199.85,
+        "ev_source": "manual"
+      },
+      {
+        "index": 37,
+        "label": "Week 38",
+        "pv_cumulative": 168119.98,
+        "ev_cumulative": 158154.54,
+        "ac_cumulative": 176678.92,
+        "ev_source": "manual"
+      },
+      {
+        "index": 38,
+        "label": "Week 39",
+        "pv_cumulative": 172544.19,
+        "ev_cumulative": 152751.61,
+        "ac_cumulative": 177620.11,
+        "ev_source": "manual"
+      },
+      {
+        "index": 39,
+        "label": "Week 40",
+        "pv_cumulative": 176968.4,
+        "ev_cumulative": 159039.05,
+        "ac_cumulative": 176958.67,
+        "ev_source": "manual"
+      },
+      {
+        "index": 40,
+        "label": "Week 41",
+        "pv_cumulative": 181392.61,
+        "ev_cumulative": 165143.66,
+        "ac_cumulative": 184174.62,
+        "ev_source": "manual"
+      },
+      {
+        "index": 41,
+        "label": "Week 42",
+        "pv_cumulative": 185816.82,
+        "ev_cumulative": 160526.56,
+        "ac_cumulative": 172008.83,
+        "ev_source": "manual"
+      },
+      {
+        "index": 42,
+        "label": "Week 43",
+        "pv_cumulative": 190241.03,
+        "ev_cumulative": 163171.41,
+        "ac_cumulative": 184979.6,
+        "ev_source": "manual"
+      },
+      {
+        "index": 43,
+        "label": "Week 44",
+        "pv_cumulative": 194665.24,
+        "ev_cumulative": 169582.96,
+        "ac_cumulative": 182182.59,
+        "ev_source": "manual"
+      },
+      {
+        "index": 44,
+        "label": "Week 45",
+        "pv_cumulative": 199089.45,
+        "ev_cumulative": 176437.51,
+        "ac_cumulative": 201712.07,
+        "ev_source": "manual"
+      },
+      {
+        "index": 45,
+        "label": "Week 46",
+        "pv_cumulative": 203513.66,
+        "ev_cumulative": 175394.79,
+        "ac_cumulative": 189416.73,
+        "ev_source": "manual"
+      },
+      {
+        "index": 46,
+        "label": "Week 47",
+        "pv_cumulative": 207937.87,
+        "ev_cumulative": 193614.54,
+        "ac_cumulative": 221424.02,
+        "ev_source": "manual"
+      },
+      {
+        "index": 47,
+        "label": "Week 48",
+        "pv_cumulative": 212362.08,
+        "ev_cumulative": 190733.36,
+        "ac_cumulative": 212142.39,
+        "ev_source": "manual"
+      },
+      {
+        "index": 48,
+        "label": "Week 49",
+        "pv_cumulative": 216786.29,
+        "ev_cumulative": 188836.12,
+        "ac_cumulative": 202236.31,
+        "ev_source": "manual"
+      },
+      {
+        "index": 49,
+        "label": "Week 50",
+        "pv_cumulative": 221210.5,
+        "ev_cumulative": 206463.83,
+        "ac_cumulative": 217389.48,
+        "ev_source": "manual"
+      },
+      {
+        "index": 50,
+        "label": "Week 51",
+        "pv_cumulative": 225634.71,
+        "ev_cumulative": 192762.99,
+        "ac_cumulative": 216772.25,
+        "ev_source": "manual"
+      },
+      {
+        "index": 51,
+        "label": "Week 52",
+        "pv_cumulative": 230058.92,
+        "ev_cumulative": 199257.0,
+        "ac_cumulative": 225527.1,
+        "ev_source": "manual"
+      },
+      {
+        "index": 52,
+        "label": "Week 53",
+        "pv_cumulative": 234483.13,
+        "ev_cumulative": 200229.62,
+        "ac_cumulative": 225137.19,
+        "ev_source": "manual"
+      },
+      {
+        "index": 53,
+        "label": "Week 54",
+        "pv_cumulative": 238907.34,
+        "ev_cumulative": 204407.02,
+        "ac_cumulative": 221490.08,
+        "ev_source": "manual"
+      },
+      {
+        "index": 54,
+        "label": "Week 55",
+        "pv_cumulative": 243331.55,
+        "ev_cumulative": 211212.7,
+        "ac_cumulative": 248084.31,
+        "ev_source": "manual"
+      },
+      {
+        "index": 55,
+        "label": "Week 56",
+        "pv_cumulative": 247755.76,
+        "ev_cumulative": 225441.82,
+        "ac_cumulative": 253231.73,
+        "ev_source": "manual"
+      },
+      {
+        "index": 56,
+        "label": "Week 57",
+        "pv_cumulative": 252179.97,
+        "ev_cumulative": 214822.54,
+        "ac_cumulative": 245658.41,
+        "ev_source": "manual"
+      },
+      {
+        "index": 57,
+        "label": "Week 58",
+        "pv_cumulative": 256604.18,
+        "ev_cumulative": 235094.21,
+        "ac_cumulative": 255511.93,
+        "ev_source": "manual"
+      },
+      {
+        "index": 58,
+        "label": "Week 59",
+        "pv_cumulative": 261028.39,
+        "ev_cumulative": 224112.41,
+        "ac_cumulative": 248405.4,
+        "ev_source": "manual"
+      },
+      {
+        "index": 59,
+        "label": "Week 60",
+        "pv_cumulative": 265452.6,
+        "ev_cumulative": 251988.2,
+        "ac_cumulative": 292999.11,
+        "ev_source": "manual"
+      }
+    ]
+  },
+  "risk_register": {
+    "bac": 13201000.0,
+    "high_exposure_threshold_pct": 0.05,
+    "risks": [
+      {
+        "id": "CR1",
+        "name": "Subcontractor Default",
+        "description": "Major subcontractor goes bankrupt during construction",
+        "probability": 0.1,
+        "impact": 1980150.0,
+        "category": "Cost"
+      },
+      {
+        "id": "CR2",
+        "name": "Steel Price Escalation",
+        "description": "Global steel prices increase beyond budget allowance",
+        "probability": 0.5,
+        "impact": 1056080.0,
+        "category": "Cost"
+      },
+      {
+        "id": "CR3",
+        "name": "Severe Weather Delays",
+        "description": "Extended rain/snow season delays exterior work by 4-6 weeks",
+        "probability": 0.4,
+        "impact": 792060.0,
+        "category": "Schedule"
+      },
+      {
+        "id": "CR4",
+        "name": "Permit Delays",
+        "description": "Building permit review takes 8 weeks instead of 4",
+        "probability": 0.35,
+        "impact": 528040.0,
+        "category": "Schedule"
+      },
+      {
+        "id": "CR5",
+        "name": "Design Changes",
+        "description": "Client requests significant design modifications after steel erection",
+        "probability": 0.3,
+        "impact": 1320100.0,
+        "category": "Scope"
+      },
+      {
+        "id": "CR6",
+        "name": "Labour Shortage",
+        "description": "Skilled trade shortage delays MEP and finishing work",
+        "probability": 0.45,
+        "impact": 924070.0000000001,
+        "category": "Schedule"
+      },
+      {
+        "id": "CR7",
+        "name": "Soil Contamination",
+        "description": "Contaminated soil discovered during excavation requiring remediation",
+        "probability": 0.15,
+        "impact": 1584120.0,
+        "category": "Cost"
+      },
+      {
+        "id": "CR8",
+        "name": "Utility Conflicts",
+        "description": "Unmarked underground utilities conflict with foundation layout",
+        "probability": 0.25,
+        "impact": 660050.0,
+        "category": "Schedule"
+      },
+      {
+        "id": "CR9",
+        "name": "Code Compliance Issues",
+        "description": "Building inspector requires structural modifications for code compliance",
+        "probability": 0.2,
+        "impact": 792060.0,
+        "category": "Quality"
+      },
+      {
+        "id": "CR10",
+        "name": "Equipment Failure",
+        "description": "Tower crane malfunction requiring extended repair or replacement",
+        "probability": 0.15,
+        "impact": 528040.0,
+        "category": "Schedule"
+      },
+      {
+        "id": "CR11",
+        "name": "Concrete Supply Disruption",
+        "description": "Concrete batch plant failure or ready-mix shortage",
+        "probability": 0.2,
+        "impact": 660050.0,
+        "category": "Schedule"
+      },
+      {
+        "id": "CR12",
+        "name": "Safety Incident",
+        "description": "Major safety incident resulting in work stoppage and investigation",
+        "probability": 0.1,
+        "impact": 1056080.0,
+        "category": "Quality"
+      }
+    ]
+  },
+  "mc_results": null,
+  "app_config": {
+    "mode": "UG",
+    "currency_symbol": "$"
+  },
+  "cpm_activities": [
+    {
+      "id": "A001",
+      "activity": "Feasibility Study",
+      "duration": "5",
+      "predecessors": "",
+      "min_duration": "2",
+      "crash_cost": "23000",
+      "resource_demand": "9",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "A002",
+      "activity": "Environmental Assessment",
+      "duration": "11",
+      "predecessors": "",
+      "min_duration": "8",
+      "crash_cost": "38000",
+      "resource_demand": "9",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A003",
+      "activity": "Geotechnical Survey",
+      "duration": "10",
+      "predecessors": "",
+      "min_duration": "5",
+      "crash_cost": "27000",
+      "resource_demand": "4",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "A004",
+      "activity": "Topographic Survey",
+      "duration": "4",
+      "predecessors": "A001",
+      "min_duration": "2",
+      "crash_cost": "63000",
+      "resource_demand": "2",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A005",
+      "activity": "Traffic Impact Study",
+      "duration": "10",
+      "predecessors": "A003",
+      "min_duration": "7",
+      "crash_cost": "14000",
+      "resource_demand": "10",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "A006",
+      "activity": "Utility Mapping",
+      "duration": "14",
+      "predecessors": "A002,A003",
+      "min_duration": "6",
+      "crash_cost": "49000",
+      "resource_demand": "9",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A007",
+      "activity": "Architect Selection",
+      "duration": "8",
+      "predecessors": "A004",
+      "min_duration": "3",
+      "crash_cost": "59000",
+      "resource_demand": "5",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A008",
+      "activity": "Structural Engineer Engagement",
+      "duration": "2",
+      "predecessors": "A004,A005,A006",
+      "min_duration": "1",
+      "crash_cost": "54000",
+      "resource_demand": "8",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A009",
+      "activity": "MEP Consultant Engagement",
+      "duration": "8",
+      "predecessors": "A005",
+      "min_duration": "5",
+      "crash_cost": "22000",
+      "resource_demand": "7",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A010",
+      "activity": "Schematic Design",
+      "duration": "3",
+      "predecessors": "A007",
+      "min_duration": "2",
+      "crash_cost": "44000",
+      "resource_demand": "12",
+      "normal_cost": "24000"
+    },
+    {
+      "id": "A011",
+      "activity": "Design Development",
+      "duration": "4",
+      "predecessors": "A008,A009",
+      "min_duration": "1",
+      "crash_cost": "20000",
+      "resource_demand": "9",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A012",
+      "activity": "Construction Documents",
+      "duration": "9",
+      "predecessors": "A010,A011",
+      "min_duration": "5",
+      "crash_cost": "10000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "A013",
+      "activity": "Building Permit Application",
+      "duration": "5",
+      "predecessors": "A012",
+      "min_duration": "3",
+      "crash_cost": "57000",
+      "resource_demand": "10",
+      "normal_cost": "36000"
+    },
+    {
+      "id": "A014",
+      "activity": "Fire Department Review",
+      "duration": "14",
+      "predecessors": "A012",
+      "min_duration": "7",
+      "crash_cost": "13000",
+      "resource_demand": "6",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "A015",
+      "activity": "Zoning Approval",
+      "duration": "8",
+      "predecessors": "A014",
+      "min_duration": "4",
+      "crash_cost": "43000",
+      "resource_demand": "11",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "A016",
+      "activity": "Bid Package Preparation",
+      "duration": "15",
+      "predecessors": "A013",
+      "min_duration": "10",
+      "crash_cost": "48000",
+      "resource_demand": "11",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A017",
+      "activity": "Contractor Pre-Qualification",
+      "duration": "10",
+      "predecessors": "A013,A015",
+      "min_duration": "6",
+      "crash_cost": "33000",
+      "resource_demand": "4",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A018",
+      "activity": "General Contractor Selection",
+      "duration": "11",
+      "predecessors": "A017",
+      "min_duration": "5",
+      "crash_cost": "41000",
+      "resource_demand": "11",
+      "normal_cost": "29000"
+    },
+    {
+      "id": "A019",
+      "activity": "Subcontractor Bidding",
+      "duration": "12",
+      "predecessors": "A016",
+      "min_duration": "5",
+      "crash_cost": "13000",
+      "resource_demand": "7",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A020",
+      "activity": "Contract Negotiation",
+      "duration": "10",
+      "predecessors": "A018,A019",
+      "min_duration": "5",
+      "crash_cost": "49000",
+      "resource_demand": "10",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A021",
+      "activity": "Insurance & Bonds",
+      "duration": "15",
+      "predecessors": "A017,A019",
+      "min_duration": "8",
+      "crash_cost": "53000",
+      "resource_demand": "12",
+      "normal_cost": "27000"
+    },
+    {
+      "id": "A022",
+      "activity": "Construction Schedule Baseline",
+      "duration": "6",
+      "predecessors": "A017,A019",
+      "min_duration": "3",
+      "crash_cost": "10000",
+      "resource_demand": "7",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A023",
+      "activity": "Safety Plan Development",
+      "duration": "13",
+      "predecessors": "A021",
+      "min_duration": "8",
+      "crash_cost": "72000",
+      "resource_demand": "3",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "A024",
+      "activity": "Quality Control Plan",
+      "duration": "7",
+      "predecessors": "A022,A023",
+      "min_duration": "3",
+      "crash_cost": "56000",
+      "resource_demand": "7",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A025",
+      "activity": "Material Procurement Strategy",
+      "duration": "12",
+      "predecessors": "A020,A022",
+      "min_duration": "5",
+      "crash_cost": "63000",
+      "resource_demand": "12",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "A026",
+      "activity": "Equipment Planning",
+      "duration": "9",
+      "predecessors": "A023",
+      "min_duration": "5",
+      "crash_cost": "12000",
+      "resource_demand": "4",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A027",
+      "activity": "Temporary Facilities Plan",
+      "duration": "9",
+      "predecessors": "A026",
+      "min_duration": "3",
+      "crash_cost": "9000",
+      "resource_demand": "5",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "A028",
+      "activity": "Mobilisation Plan",
+      "duration": "2",
+      "predecessors": "A025",
+      "min_duration": "1",
+      "crash_cost": "55000",
+      "resource_demand": "6",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A029",
+      "activity": "Stakeholder Communication Plan",
+      "duration": "15",
+      "predecessors": "A027",
+      "min_duration": "8",
+      "crash_cost": "9000",
+      "resource_demand": "6",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "A030",
+      "activity": "Project Kickoff",
+      "duration": "5",
+      "predecessors": "A029",
+      "min_duration": "2",
+      "crash_cost": "35000",
+      "resource_demand": "2",
+      "normal_cost": "24000"
+    },
+    {
+      "id": "A031",
+      "activity": "Tree Removal & Clearing",
+      "duration": "14",
+      "predecessors": "A028,A030",
+      "min_duration": "7",
+      "crash_cost": "59000",
+      "resource_demand": "8",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A032",
+      "activity": "Topsoil Stripping",
+      "duration": "8",
+      "predecessors": "A031",
+      "min_duration": "4",
+      "crash_cost": "60000",
+      "resource_demand": "4",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A033",
+      "activity": "Bulk Earthwork Cut",
+      "duration": "7",
+      "predecessors": "A031",
+      "min_duration": "5",
+      "crash_cost": "37000",
+      "resource_demand": "10",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A034",
+      "activity": "Bulk Earthwork Fill",
+      "duration": "13",
+      "predecessors": "A032,A033",
+      "min_duration": "7",
+      "crash_cost": "23000",
+      "resource_demand": "8",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A035",
+      "activity": "Rock Excavation",
+      "duration": "7",
+      "predecessors": "A034",
+      "min_duration": "3",
+      "crash_cost": "31000",
+      "resource_demand": "7",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A036",
+      "activity": "Dewatering System",
+      "duration": "11",
+      "predecessors": "A035",
+      "min_duration": "7",
+      "crash_cost": "47000",
+      "resource_demand": "4",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A037",
+      "activity": "Silt Fence Installation",
+      "duration": "2",
+      "predecessors": "A034",
+      "min_duration": "1",
+      "crash_cost": "44000",
+      "resource_demand": "7",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "A038",
+      "activity": "Erosion Control Blankets",
+      "duration": "14",
+      "predecessors": "A035",
+      "min_duration": "10",
+      "crash_cost": "43000",
+      "resource_demand": "3",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A039",
+      "activity": "Sediment Basins",
+      "duration": "14",
+      "predecessors": "A035,A037",
+      "min_duration": "9",
+      "crash_cost": "5000",
+      "resource_demand": "4",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "A040",
+      "activity": "Storm Water Diversion",
+      "duration": "11",
+      "predecessors": "A037,A038",
+      "min_duration": "7",
+      "crash_cost": "6000",
+      "resource_demand": "9",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "A041",
+      "activity": "Temporary Access Road",
+      "duration": "5",
+      "predecessors": "A040",
+      "min_duration": "3",
+      "crash_cost": "40000",
+      "resource_demand": "7",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A042",
+      "activity": "Haul Road Construction",
+      "duration": "11",
+      "predecessors": "A039,A041",
+      "min_duration": "4",
+      "crash_cost": "60000",
+      "resource_demand": "4",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A043",
+      "activity": "Site Grading Level 1",
+      "duration": "7",
+      "predecessors": "A039,A040",
+      "min_duration": "3",
+      "crash_cost": "54000",
+      "resource_demand": "3",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A044",
+      "activity": "Site Grading Level 2",
+      "duration": "7",
+      "predecessors": "A042,A043",
+      "min_duration": "3",
+      "crash_cost": "29000",
+      "resource_demand": "12",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A045",
+      "activity": "Compaction Testing",
+      "duration": "3",
+      "predecessors": "A044",
+      "min_duration": "1",
+      "crash_cost": "56000",
+      "resource_demand": "4",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A046",
+      "activity": "Sanitary Sewer Main",
+      "duration": "10",
+      "predecessors": "A045",
+      "min_duration": "4",
+      "crash_cost": "44000",
+      "resource_demand": "6",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A047",
+      "activity": "Storm Sewer Main",
+      "duration": "11",
+      "predecessors": "A043",
+      "min_duration": "5",
+      "crash_cost": "20000",
+      "resource_demand": "9",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "A048",
+      "activity": "Water Main Installation",
+      "duration": "15",
+      "predecessors": "A045",
+      "min_duration": "6",
+      "crash_cost": "61000",
+      "resource_demand": "4",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A049",
+      "activity": "Gas Line Relocation",
+      "duration": "14",
+      "predecessors": "A046,A048",
+      "min_duration": "8",
+      "crash_cost": "44000",
+      "resource_demand": "7",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A050",
+      "activity": "Electrical Duct Bank",
+      "duration": "10",
+      "predecessors": "A046,A047,A048",
+      "min_duration": "5",
+      "crash_cost": "23000",
+      "resource_demand": "6",
+      "normal_cost": "13000"
+    },
+    {
+      "id": "A051",
+      "activity": "Telecom Conduit",
+      "duration": "13",
+      "predecessors": "A049,A050",
+      "min_duration": "8",
+      "crash_cost": "50000",
+      "resource_demand": "7",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A052",
+      "activity": "Fire Hydrant Installation",
+      "duration": "5",
+      "predecessors": "A049,A050",
+      "min_duration": "3",
+      "crash_cost": "44000",
+      "resource_demand": "5",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A053",
+      "activity": "Manholes & Catch Basins",
+      "duration": "10",
+      "predecessors": "A051",
+      "min_duration": "6",
+      "crash_cost": "52000",
+      "resource_demand": "9",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A054",
+      "activity": "Utility Connections",
+      "duration": "3",
+      "predecessors": "A051",
+      "min_duration": "1",
+      "crash_cost": "55000",
+      "resource_demand": "8",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A055",
+      "activity": "Perimeter Fencing",
+      "duration": "14",
+      "predecessors": "A051,A052",
+      "min_duration": "7",
+      "crash_cost": "9000",
+      "resource_demand": "11",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A056",
+      "activity": "Security Lighting",
+      "duration": "7",
+      "predecessors": "A052,A054",
+      "min_duration": "4",
+      "crash_cost": "56000",
+      "resource_demand": "9",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "A057",
+      "activity": "Site Office Setup",
+      "duration": "7",
+      "predecessors": "A054,A055",
+      "min_duration": "3",
+      "crash_cost": "57000",
+      "resource_demand": "10",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "A058",
+      "activity": "Material Laydown Area",
+      "duration": "4",
+      "predecessors": "A055",
+      "min_duration": "2",
+      "crash_cost": "16000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "A059",
+      "activity": "Crane Pad Preparation",
+      "duration": "6",
+      "predecessors": "A055,A056",
+      "min_duration": "2",
+      "crash_cost": "26000",
+      "resource_demand": "7",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A060",
+      "activity": "Tower Crane Erection",
+      "duration": "10",
+      "predecessors": "A057,A058",
+      "min_duration": "7",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "19000"
+    },
+    {
+      "id": "A061",
+      "activity": "Personnel Hoist Installation",
+      "duration": "10",
+      "predecessors": "A058,A059",
+      "min_duration": "4",
+      "crash_cost": "38000",
+      "resource_demand": "12",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A062",
+      "activity": "Construction Elevator",
+      "duration": "3",
+      "predecessors": "A061",
+      "min_duration": "1",
+      "crash_cost": "78000",
+      "resource_demand": "4",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "A063",
+      "activity": "Temporary Power Supply",
+      "duration": "4",
+      "predecessors": "A061",
+      "min_duration": "1",
+      "crash_cost": "45000",
+      "resource_demand": "11",
+      "normal_cost": "24000"
+    },
+    {
+      "id": "A064",
+      "activity": "Temporary Water Supply",
+      "duration": "11",
+      "predecessors": "A060,A061",
+      "min_duration": "4",
+      "crash_cost": "10000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "A065",
+      "activity": "Temporary Sanitation",
+      "duration": "12",
+      "predecessors": "A062",
+      "min_duration": "8",
+      "crash_cost": "29000",
+      "resource_demand": "6",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "A066",
+      "activity": "Waste Management Setup",
+      "duration": "8",
+      "predecessors": "A063,A065",
+      "min_duration": "4",
+      "crash_cost": "65000",
+      "resource_demand": "2",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A067",
+      "activity": "Concrete Batch Plant Setup",
+      "duration": "10",
+      "predecessors": "A064",
+      "min_duration": "5",
+      "crash_cost": "48000",
+      "resource_demand": "6",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A068",
+      "activity": "Rebar Fabrication Yard",
+      "duration": "14",
+      "predecessors": "A065,A067",
+      "min_duration": "8",
+      "crash_cost": "43000",
+      "resource_demand": "6",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "A069",
+      "activity": "Formwork Storage Area",
+      "duration": "2",
+      "predecessors": "A066,A068",
+      "min_duration": "1",
+      "crash_cost": "53000",
+      "resource_demand": "8",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A070",
+      "activity": "Site Survey Control Points",
+      "duration": "7",
+      "predecessors": "A066,A067",
+      "min_duration": "4",
+      "crash_cost": "41000",
+      "resource_demand": "7",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A071",
+      "activity": "Excavation Zone A",
+      "duration": "15",
+      "predecessors": "A070",
+      "min_duration": "7",
+      "crash_cost": "20000",
+      "resource_demand": "8",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A072",
+      "activity": "Excavation Zone B",
+      "duration": "10",
+      "predecessors": "A071",
+      "min_duration": "5",
+      "crash_cost": "29000",
+      "resource_demand": "7",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "A073",
+      "activity": "Excavation Zone C",
+      "duration": "6",
+      "predecessors": "A072",
+      "min_duration": "3",
+      "crash_cost": "12000",
+      "resource_demand": "4",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A074",
+      "activity": "Excavation Zone D",
+      "duration": "8",
+      "predecessors": "A071",
+      "min_duration": "5",
+      "crash_cost": "35000",
+      "resource_demand": "8",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "A075",
+      "activity": "Pile Driving Zone A",
+      "duration": "4",
+      "predecessors": "A072",
+      "min_duration": "2",
+      "crash_cost": "32000",
+      "resource_demand": "11",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A076",
+      "activity": "Pile Driving Zone B",
+      "duration": "4",
+      "predecessors": "A073",
+      "min_duration": "2",
+      "crash_cost": "52000",
+      "resource_demand": "10",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "A077",
+      "activity": "Pile Driving Zone C",
+      "duration": "6",
+      "predecessors": "A073,A074,A075",
+      "min_duration": "3",
+      "crash_cost": "46000",
+      "resource_demand": "3",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A078",
+      "activity": "Pile Cap Rebar Zone A",
+      "duration": "5",
+      "predecessors": "A074",
+      "min_duration": "2",
+      "crash_cost": "8000",
+      "resource_demand": "7",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A079",
+      "activity": "Pile Cap Rebar Zone B",
+      "duration": "9",
+      "predecessors": "A076",
+      "min_duration": "5",
+      "crash_cost": "49000",
+      "resource_demand": "12",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A080",
+      "activity": "Pile Cap Formwork Zone A",
+      "duration": "2",
+      "predecessors": "A079",
+      "min_duration": "1",
+      "crash_cost": "21000",
+      "resource_demand": "8",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A081",
+      "activity": "Pile Cap Formwork Zone B",
+      "duration": "13",
+      "predecessors": "A077,A079",
+      "min_duration": "6",
+      "crash_cost": "34000",
+      "resource_demand": "8",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A082",
+      "activity": "Pile Cap Concrete Zone A",
+      "duration": "2",
+      "predecessors": "A080",
+      "min_duration": "1",
+      "crash_cost": "43000",
+      "resource_demand": "5",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A083",
+      "activity": "Pile Cap Concrete Zone B",
+      "duration": "3",
+      "predecessors": "A080,A081",
+      "min_duration": "1",
+      "crash_cost": "56000",
+      "resource_demand": "9",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A084",
+      "activity": "Grade Beam Rebar North",
+      "duration": "11",
+      "predecessors": "A083",
+      "min_duration": "7",
+      "crash_cost": "21000",
+      "resource_demand": "3",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A085",
+      "activity": "Grade Beam Rebar South",
+      "duration": "8",
+      "predecessors": "A082,A084",
+      "min_duration": "4",
+      "crash_cost": "74000",
+      "resource_demand": "7",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A086",
+      "activity": "Grade Beam Rebar East",
+      "duration": "14",
+      "predecessors": "A085",
+      "min_duration": "6",
+      "crash_cost": "55000",
+      "resource_demand": "11",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A087",
+      "activity": "Grade Beam Rebar West",
+      "duration": "2",
+      "predecessors": "A085",
+      "min_duration": "1",
+      "crash_cost": "44000",
+      "resource_demand": "4",
+      "normal_cost": "24000"
+    },
+    {
+      "id": "A088",
+      "activity": "Grade Beam Formwork North",
+      "duration": "10",
+      "predecessors": "A087",
+      "min_duration": "5",
+      "crash_cost": "48000",
+      "resource_demand": "11",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A089",
+      "activity": "Grade Beam Formwork South",
+      "duration": "11",
+      "predecessors": "A085",
+      "min_duration": "5",
+      "crash_cost": "37000",
+      "resource_demand": "8",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A090",
+      "activity": "Grade Beam Formwork East",
+      "duration": "10",
+      "predecessors": "A089",
+      "min_duration": "6",
+      "crash_cost": "61000",
+      "resource_demand": "10",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A091",
+      "activity": "Grade Beam Formwork West",
+      "duration": "6",
+      "predecessors": "A086,A088",
+      "min_duration": "3",
+      "crash_cost": "39000",
+      "resource_demand": "2",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A092",
+      "activity": "Grade Beam Concrete North",
+      "duration": "3",
+      "predecessors": "A088,A089",
+      "min_duration": "2",
+      "crash_cost": "40000",
+      "resource_demand": "11",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A093",
+      "activity": "Grade Beam Concrete South",
+      "duration": "13",
+      "predecessors": "A090,A092",
+      "min_duration": "9",
+      "crash_cost": "6000",
+      "resource_demand": "12",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "A094",
+      "activity": "Grade Beam Concrete East",
+      "duration": "6",
+      "predecessors": "A091,A092",
+      "min_duration": "4",
+      "crash_cost": "56000",
+      "resource_demand": "11",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A095",
+      "activity": "Grade Beam Concrete West",
+      "duration": "2",
+      "predecessors": "A091,A092",
+      "min_duration": "1",
+      "crash_cost": "62000",
+      "resource_demand": "4",
+      "normal_cost": "36000"
+    },
+    {
+      "id": "A096",
+      "activity": "Foundation Wall Rebar A",
+      "duration": "11",
+      "predecessors": "A095",
+      "min_duration": "7",
+      "crash_cost": "22000",
+      "resource_demand": "8",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "A097",
+      "activity": "Foundation Wall Rebar B",
+      "duration": "5",
+      "predecessors": "A094,A096",
+      "min_duration": "2",
+      "crash_cost": "19000",
+      "resource_demand": "3",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "A098",
+      "activity": "Foundation Wall Formwork A",
+      "duration": "7",
+      "predecessors": "A097",
+      "min_duration": "3",
+      "crash_cost": "25000",
+      "resource_demand": "8",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "A099",
+      "activity": "Foundation Wall Formwork B",
+      "duration": "14",
+      "predecessors": "A098",
+      "min_duration": "8",
+      "crash_cost": "10000",
+      "resource_demand": "9",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A100",
+      "activity": "Foundation Wall Concrete A",
+      "duration": "10",
+      "predecessors": "A097",
+      "min_duration": "4",
+      "crash_cost": "55000",
+      "resource_demand": "7",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A101",
+      "activity": "Foundation Wall Concrete B",
+      "duration": "7",
+      "predecessors": "A100",
+      "min_duration": "5",
+      "crash_cost": "56000",
+      "resource_demand": "9",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A102",
+      "activity": "Waterproofing North",
+      "duration": "7",
+      "predecessors": "A099,A100",
+      "min_duration": "4",
+      "crash_cost": "32000",
+      "resource_demand": "12",
+      "normal_cost": "19000"
+    },
+    {
+      "id": "A103",
+      "activity": "Waterproofing South",
+      "duration": "5",
+      "predecessors": "A102",
+      "min_duration": "3",
+      "crash_cost": "57000",
+      "resource_demand": "6",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A104",
+      "activity": "Waterproofing East",
+      "duration": "6",
+      "predecessors": "A103",
+      "min_duration": "4",
+      "crash_cost": "51000",
+      "resource_demand": "5",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A105",
+      "activity": "Waterproofing West",
+      "duration": "7",
+      "predecessors": "A101,A102",
+      "min_duration": "4",
+      "crash_cost": "29000",
+      "resource_demand": "6",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A106",
+      "activity": "Underslab Plumbing Zone A",
+      "duration": "12",
+      "predecessors": "A101,A104",
+      "min_duration": "7",
+      "crash_cost": "49000",
+      "resource_demand": "8",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A107",
+      "activity": "Underslab Plumbing Zone B",
+      "duration": "14",
+      "predecessors": "A106",
+      "min_duration": "6",
+      "crash_cost": "41000",
+      "resource_demand": "2",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A108",
+      "activity": "Underslab Electrical Zone A",
+      "duration": "3",
+      "predecessors": "A107",
+      "min_duration": "1",
+      "crash_cost": "34000",
+      "resource_demand": "9",
+      "normal_cost": "19000"
+    },
+    {
+      "id": "A109",
+      "activity": "Underslab Electrical Zone B",
+      "duration": "5",
+      "predecessors": "A106",
+      "min_duration": "2",
+      "crash_cost": "39000",
+      "resource_demand": "10",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A110",
+      "activity": "Slab on Grade Rebar A",
+      "duration": "13",
+      "predecessors": "A108,A109",
+      "min_duration": "6",
+      "crash_cost": "58000",
+      "resource_demand": "3",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "A111",
+      "activity": "Slab on Grade Rebar B",
+      "duration": "2",
+      "predecessors": "A110",
+      "min_duration": "1",
+      "crash_cost": "29000",
+      "resource_demand": "10",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A112",
+      "activity": "Slab on Grade Mesh",
+      "duration": "2",
+      "predecessors": "A107,A109",
+      "min_duration": "1",
+      "crash_cost": "45000",
+      "resource_demand": "7",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A113",
+      "activity": "Slab on Grade Pour A",
+      "duration": "14",
+      "predecessors": "A111",
+      "min_duration": "6",
+      "crash_cost": "20000",
+      "resource_demand": "10",
+      "normal_cost": "13000"
+    },
+    {
+      "id": "A114",
+      "activity": "Slab on Grade Pour B",
+      "duration": "9",
+      "predecessors": "A111,A112",
+      "min_duration": "5",
+      "crash_cost": "32000",
+      "resource_demand": "5",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A115",
+      "activity": "Elevator Pit Excavation",
+      "duration": "12",
+      "predecessors": "A111,A112",
+      "min_duration": "5",
+      "crash_cost": "57000",
+      "resource_demand": "3",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A116",
+      "activity": "Elevator Pit Concrete",
+      "duration": "13",
+      "predecessors": "A113,A115",
+      "min_duration": "8",
+      "crash_cost": "22000",
+      "resource_demand": "2",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A117",
+      "activity": "Sump Pit Construction",
+      "duration": "15",
+      "predecessors": "A114,A115",
+      "min_duration": "6",
+      "crash_cost": "51000",
+      "resource_demand": "2",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A118",
+      "activity": "Foundation Backfill",
+      "duration": "4",
+      "predecessors": "A117",
+      "min_duration": "2",
+      "crash_cost": "6000",
+      "resource_demand": "6",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "A119",
+      "activity": "Compaction & Grading",
+      "duration": "11",
+      "predecessors": "A118",
+      "min_duration": "6",
+      "crash_cost": "33000",
+      "resource_demand": "7",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A120",
+      "activity": "Foundation Inspection Sign-off",
+      "duration": "12",
+      "predecessors": "A116,A119",
+      "min_duration": "7",
+      "crash_cost": "20000",
+      "resource_demand": "9",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A121",
+      "activity": "Anchor Bolt Survey Floor 1",
+      "duration": "9",
+      "predecessors": "A120",
+      "min_duration": "4",
+      "crash_cost": "33000",
+      "resource_demand": "3",
+      "normal_cost": "24000"
+    },
+    {
+      "id": "A122",
+      "activity": "Anchor Bolt Survey Floor 2",
+      "duration": "9",
+      "predecessors": "A121",
+      "min_duration": "5",
+      "crash_cost": "5000",
+      "resource_demand": "4",
+      "normal_cost": "3000"
+    },
+    {
+      "id": "A123",
+      "activity": "Column Erection Level 1 Zone A",
+      "duration": "14",
+      "predecessors": "A122",
+      "min_duration": "7",
+      "crash_cost": "21000",
+      "resource_demand": "12",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "A124",
+      "activity": "Column Erection Level 1 Zone B",
+      "duration": "15",
+      "predecessors": "A123",
+      "min_duration": "9",
+      "crash_cost": "49000",
+      "resource_demand": "8",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "A125",
+      "activity": "Column Erection Level 2 Zone A",
+      "duration": "3",
+      "predecessors": "A124",
+      "min_duration": "1",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A126",
+      "activity": "Column Erection Level 2 Zone B",
+      "duration": "9",
+      "predecessors": "A125",
+      "min_duration": "4",
+      "crash_cost": "4000",
+      "resource_demand": "5",
+      "normal_cost": "3000"
+    },
+    {
+      "id": "A127",
+      "activity": "Column Erection Level 3 Zone A",
+      "duration": "5",
+      "predecessors": "A126",
+      "min_duration": "2",
+      "crash_cost": "36000",
+      "resource_demand": "6",
+      "normal_cost": "24000"
+    },
+    {
+      "id": "A128",
+      "activity": "Column Erection Level 3 Zone B",
+      "duration": "13",
+      "predecessors": "A125",
+      "min_duration": "7",
+      "crash_cost": "46000",
+      "resource_demand": "6",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A129",
+      "activity": "Beam Installation Level 1 North",
+      "duration": "2",
+      "predecessors": "A128",
+      "min_duration": "1",
+      "crash_cost": "31000",
+      "resource_demand": "9",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A130",
+      "activity": "Beam Installation Level 1 South",
+      "duration": "12",
+      "predecessors": "A127,A129",
+      "min_duration": "6",
+      "crash_cost": "17000",
+      "resource_demand": "6",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "A131",
+      "activity": "Beam Installation Level 2 North",
+      "duration": "6",
+      "predecessors": "A129",
+      "min_duration": "3",
+      "crash_cost": "33000",
+      "resource_demand": "5",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A132",
+      "activity": "Beam Installation Level 2 South",
+      "duration": "9",
+      "predecessors": "A130",
+      "min_duration": "4",
+      "crash_cost": "41000",
+      "resource_demand": "11",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A133",
+      "activity": "Beam Installation Level 3 North",
+      "duration": "10",
+      "predecessors": "A132",
+      "min_duration": "7",
+      "crash_cost": "29000",
+      "resource_demand": "10",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "A134",
+      "activity": "Beam Installation Level 3 South",
+      "duration": "12",
+      "predecessors": "A133",
+      "min_duration": "7",
+      "crash_cost": "58000",
+      "resource_demand": "3",
+      "normal_cost": "36000"
+    },
+    {
+      "id": "A135",
+      "activity": "Bracing Level 1",
+      "duration": "13",
+      "predecessors": "A131,A133",
+      "min_duration": "6",
+      "crash_cost": "13000",
+      "resource_demand": "11",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "A136",
+      "activity": "Bracing Level 2",
+      "duration": "10",
+      "predecessors": "A133",
+      "min_duration": "7",
+      "crash_cost": "65000",
+      "resource_demand": "5",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A137",
+      "activity": "Bracing Level 3",
+      "duration": "4",
+      "predecessors": "A134,A135",
+      "min_duration": "2",
+      "crash_cost": "42000",
+      "resource_demand": "10",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A138",
+      "activity": "Metal Deck Level 1 Zone A",
+      "duration": "5",
+      "predecessors": "A135,A136",
+      "min_duration": "3",
+      "crash_cost": "15000",
+      "resource_demand": "9",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "A139",
+      "activity": "Metal Deck Level 1 Zone B",
+      "duration": "9",
+      "predecessors": "A138",
+      "min_duration": "6",
+      "crash_cost": "18000",
+      "resource_demand": "9",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A140",
+      "activity": "Metal Deck Level 2 Zone A",
+      "duration": "9",
+      "predecessors": "A139",
+      "min_duration": "5",
+      "crash_cost": "56000",
+      "resource_demand": "10",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "A141",
+      "activity": "Metal Deck Level 2 Zone B",
+      "duration": "6",
+      "predecessors": "A137,A138",
+      "min_duration": "3",
+      "crash_cost": "35000",
+      "resource_demand": "8",
+      "normal_cost": "19000"
+    },
+    {
+      "id": "A142",
+      "activity": "Metal Deck Level 3 Zone A",
+      "duration": "13",
+      "predecessors": "A139,A141",
+      "min_duration": "6",
+      "crash_cost": "7000",
+      "resource_demand": "3",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "A143",
+      "activity": "Metal Deck Level 3 Zone B",
+      "duration": "13",
+      "predecessors": "A140",
+      "min_duration": "5",
+      "crash_cost": "13000",
+      "resource_demand": "2",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A144",
+      "activity": "Shear Stud Welding Level 1",
+      "duration": "9",
+      "predecessors": "A140,A141",
+      "min_duration": "3",
+      "crash_cost": "25000",
+      "resource_demand": "8",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A145",
+      "activity": "Shear Stud Welding Level 2",
+      "duration": "14",
+      "predecessors": "A142",
+      "min_duration": "8",
+      "crash_cost": "45000",
+      "resource_demand": "12",
+      "normal_cost": "29000"
+    },
+    {
+      "id": "A146",
+      "activity": "Shear Stud Welding Level 3",
+      "duration": "8",
+      "predecessors": "A144",
+      "min_duration": "4",
+      "crash_cost": "36000",
+      "resource_demand": "8",
+      "normal_cost": "27000"
+    },
+    {
+      "id": "A147",
+      "activity": "Concrete Pour Level 1 Zone A",
+      "duration": "12",
+      "predecessors": "A143,A145,A146",
+      "min_duration": "8",
+      "crash_cost": "34000",
+      "resource_demand": "4",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A148",
+      "activity": "Concrete Pour Level 1 Zone B",
+      "duration": "10",
+      "predecessors": "A144,A145",
+      "min_duration": "5",
+      "crash_cost": "32000",
+      "resource_demand": "4",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A149",
+      "activity": "Concrete Pour Level 2 Zone A",
+      "duration": "14",
+      "predecessors": "A148",
+      "min_duration": "5",
+      "crash_cost": "56000",
+      "resource_demand": "6",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "A150",
+      "activity": "Concrete Pour Level 2 Zone B",
+      "duration": "10",
+      "predecessors": "A147,A148",
+      "min_duration": "5",
+      "crash_cost": "25000",
+      "resource_demand": "8",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A151",
+      "activity": "Concrete Pour Level 3 Zone A",
+      "duration": "7",
+      "predecessors": "A149",
+      "min_duration": "3",
+      "crash_cost": "13000",
+      "resource_demand": "5",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "A152",
+      "activity": "Concrete Pour Level 3 Zone B",
+      "duration": "12",
+      "predecessors": "A149",
+      "min_duration": "6",
+      "crash_cost": "25000",
+      "resource_demand": "2",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "A153",
+      "activity": "Rebar Placement Level 1",
+      "duration": "3",
+      "predecessors": "A152",
+      "min_duration": "1",
+      "crash_cost": "8000",
+      "resource_demand": "9",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A154",
+      "activity": "Rebar Placement Level 2",
+      "duration": "2",
+      "predecessors": "A150,A151",
+      "min_duration": "1",
+      "crash_cost": "53000",
+      "resource_demand": "5",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A155",
+      "activity": "Rebar Placement Level 3",
+      "duration": "15",
+      "predecessors": "A153",
+      "min_duration": "10",
+      "crash_cost": "69000",
+      "resource_demand": "4",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A156",
+      "activity": "Post-Tension Cables Level 1",
+      "duration": "5",
+      "predecessors": "A153",
+      "min_duration": "3",
+      "crash_cost": "39000",
+      "resource_demand": "11",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A157",
+      "activity": "Post-Tension Cables Level 2",
+      "duration": "14",
+      "predecessors": "A154,A156",
+      "min_duration": "8",
+      "crash_cost": "27000",
+      "resource_demand": "7",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "A158",
+      "activity": "Post-Tension Cables Level 3",
+      "duration": "4",
+      "predecessors": "A154,A156",
+      "min_duration": "2",
+      "crash_cost": "27000",
+      "resource_demand": "10",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A159",
+      "activity": "Core Wall Rebar Level 1",
+      "duration": "6",
+      "predecessors": "A157,A158",
+      "min_duration": "2",
+      "crash_cost": "24000",
+      "resource_demand": "11",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A160",
+      "activity": "Core Wall Rebar Level 2",
+      "duration": "8",
+      "predecessors": "A159",
+      "min_duration": "4",
+      "crash_cost": "48000",
+      "resource_demand": "2",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A161",
+      "activity": "Core Wall Rebar Level 3",
+      "duration": "12",
+      "predecessors": "A160",
+      "min_duration": "6",
+      "crash_cost": "41000",
+      "resource_demand": "10",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A162",
+      "activity": "Core Wall Formwork Level 1",
+      "duration": "8",
+      "predecessors": "A160",
+      "min_duration": "3",
+      "crash_cost": "25000",
+      "resource_demand": "8",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A163",
+      "activity": "Core Wall Formwork Level 2",
+      "duration": "9",
+      "predecessors": "A160",
+      "min_duration": "4",
+      "crash_cost": "41000",
+      "resource_demand": "5",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A164",
+      "activity": "Core Wall Formwork Level 3",
+      "duration": "4",
+      "predecessors": "A163",
+      "min_duration": "2",
+      "crash_cost": "60000",
+      "resource_demand": "2",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A165",
+      "activity": "Core Wall Pour Level 1",
+      "duration": "8",
+      "predecessors": "A162,A163",
+      "min_duration": "4",
+      "crash_cost": "39000",
+      "resource_demand": "4",
+      "normal_cost": "27000"
+    },
+    {
+      "id": "A166",
+      "activity": "Core Wall Pour Level 2",
+      "duration": "5",
+      "predecessors": "A161,A162,A163",
+      "min_duration": "2",
+      "crash_cost": "58000",
+      "resource_demand": "3",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A167",
+      "activity": "Core Wall Pour Level 3",
+      "duration": "3",
+      "predecessors": "A164,A166",
+      "min_duration": "1",
+      "crash_cost": "8000",
+      "resource_demand": "5",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A168",
+      "activity": "Stair Steel Level 1",
+      "duration": "12",
+      "predecessors": "A164,A166",
+      "min_duration": "7",
+      "crash_cost": "10000",
+      "resource_demand": "2",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A169",
+      "activity": "Stair Steel Level 2",
+      "duration": "14",
+      "predecessors": "A165,A168",
+      "min_duration": "8",
+      "crash_cost": "55000",
+      "resource_demand": "12",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A170",
+      "activity": "Stair Steel Level 3",
+      "duration": "5",
+      "predecessors": "A168",
+      "min_duration": "3",
+      "crash_cost": "43000",
+      "resource_demand": "7",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A171",
+      "activity": "Roof Steel Erection North",
+      "duration": "2",
+      "predecessors": "A169,A170",
+      "min_duration": "1",
+      "crash_cost": "18000",
+      "resource_demand": "5",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "A172",
+      "activity": "Roof Steel Erection South",
+      "duration": "14",
+      "predecessors": "A169",
+      "min_duration": "7",
+      "crash_cost": "25000",
+      "resource_demand": "5",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "A173",
+      "activity": "Roof Bracing",
+      "duration": "5",
+      "predecessors": "A171,A172",
+      "min_duration": "2",
+      "crash_cost": "43000",
+      "resource_demand": "6",
+      "normal_cost": "27000"
+    },
+    {
+      "id": "A174",
+      "activity": "Roof Deck Installation",
+      "duration": "12",
+      "predecessors": "A171,A172",
+      "min_duration": "6",
+      "crash_cost": "43000",
+      "resource_demand": "6",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A175",
+      "activity": "Roof Concrete Pour",
+      "duration": "9",
+      "predecessors": "A171,A172",
+      "min_duration": "5",
+      "crash_cost": "44000",
+      "resource_demand": "9",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A176",
+      "activity": "Parapet Framing",
+      "duration": "7",
+      "predecessors": "A174,A175",
+      "min_duration": "3",
+      "crash_cost": "74000",
+      "resource_demand": "2",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A177",
+      "activity": "Penthouse Steel",
+      "duration": "13",
+      "predecessors": "A174,A175",
+      "min_duration": "5",
+      "crash_cost": "74000",
+      "resource_demand": "6",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A178",
+      "activity": "Structural Inspection Level 1",
+      "duration": "11",
+      "predecessors": "A176",
+      "min_duration": "7",
+      "crash_cost": "17000",
+      "resource_demand": "6",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "A179",
+      "activity": "Structural Inspection Level 2",
+      "duration": "5",
+      "predecessors": "A176,A177",
+      "min_duration": "2",
+      "crash_cost": "57000",
+      "resource_demand": "5",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A180",
+      "activity": "Structural Inspection Level 3",
+      "duration": "12",
+      "predecessors": "A178,A179",
+      "min_duration": "6",
+      "crash_cost": "55000",
+      "resource_demand": "9",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A181",
+      "activity": "Electrical Riser Installation",
+      "duration": "13",
+      "predecessors": "A180",
+      "min_duration": "8",
+      "crash_cost": "19000",
+      "resource_demand": "4",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A182",
+      "activity": "Main Switchgear Setup",
+      "duration": "9",
+      "predecessors": "A181",
+      "min_duration": "4",
+      "crash_cost": "10000",
+      "resource_demand": "10",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A183",
+      "activity": "Distribution Panel Level 1",
+      "duration": "15",
+      "predecessors": "A182",
+      "min_duration": "10",
+      "crash_cost": "11000",
+      "resource_demand": "12",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A184",
+      "activity": "Distribution Panel Level 2",
+      "duration": "8",
+      "predecessors": "A183",
+      "min_duration": "3",
+      "crash_cost": "22000",
+      "resource_demand": "12",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A185",
+      "activity": "Distribution Panel Level 3",
+      "duration": "4",
+      "predecessors": "A183",
+      "min_duration": "1",
+      "crash_cost": "49000",
+      "resource_demand": "10",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "A186",
+      "activity": "Conduit Rough-In Level 1 Zone A",
+      "duration": "11",
+      "predecessors": "A184,A185",
+      "min_duration": "6",
+      "crash_cost": "58000",
+      "resource_demand": "11",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A187",
+      "activity": "Conduit Rough-In Level 1 Zone B",
+      "duration": "2",
+      "predecessors": "A184",
+      "min_duration": "1",
+      "crash_cost": "37000",
+      "resource_demand": "10",
+      "normal_cost": "29000"
+    },
+    {
+      "id": "A188",
+      "activity": "Conduit Rough-In Level 2 Zone A",
+      "duration": "10",
+      "predecessors": "A184,A185",
+      "min_duration": "6",
+      "crash_cost": "27000",
+      "resource_demand": "10",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A189",
+      "activity": "Conduit Rough-In Level 2 Zone B",
+      "duration": "15",
+      "predecessors": "A186",
+      "min_duration": "9",
+      "crash_cost": "19000",
+      "resource_demand": "8",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A190",
+      "activity": "Conduit Rough-In Level 3 Zone A",
+      "duration": "3",
+      "predecessors": "A185,A187",
+      "min_duration": "1",
+      "crash_cost": "26000",
+      "resource_demand": "5",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "A191",
+      "activity": "Conduit Rough-In Level 3 Zone B",
+      "duration": "6",
+      "predecessors": "A189,A190",
+      "min_duration": "4",
+      "crash_cost": "37000",
+      "resource_demand": "6",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A192",
+      "activity": "Wire Pull Level 1",
+      "duration": "8",
+      "predecessors": "A191",
+      "min_duration": "4",
+      "crash_cost": "25000",
+      "resource_demand": "5",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A193",
+      "activity": "Wire Pull Level 2",
+      "duration": "15",
+      "predecessors": "A192",
+      "min_duration": "10",
+      "crash_cost": "6000",
+      "resource_demand": "12",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "A194",
+      "activity": "Wire Pull Level 3",
+      "duration": "8",
+      "predecessors": "A192",
+      "min_duration": "4",
+      "crash_cost": "10000",
+      "resource_demand": "9",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A195",
+      "activity": "Fire Alarm Rough-In Level 1",
+      "duration": "13",
+      "predecessors": "A191",
+      "min_duration": "5",
+      "crash_cost": "52000",
+      "resource_demand": "9",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "A196",
+      "activity": "Fire Alarm Rough-In Level 2",
+      "duration": "7",
+      "predecessors": "A193",
+      "min_duration": "4",
+      "crash_cost": "69000",
+      "resource_demand": "3",
+      "normal_cost": "36000"
+    },
+    {
+      "id": "A197",
+      "activity": "Fire Alarm Rough-In Level 3",
+      "duration": "5",
+      "predecessors": "A196",
+      "min_duration": "2",
+      "crash_cost": "49000",
+      "resource_demand": "11",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A198",
+      "activity": "Plumbing Riser Installation",
+      "duration": "3",
+      "predecessors": "A194,A195,A197",
+      "min_duration": "1",
+      "crash_cost": "62000",
+      "resource_demand": "6",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A199",
+      "activity": "Domestic Water Main",
+      "duration": "2",
+      "predecessors": "A198",
+      "min_duration": "1",
+      "crash_cost": "7000",
+      "resource_demand": "7",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "A200",
+      "activity": "Hot Water Recirculation",
+      "duration": "11",
+      "predecessors": "A199",
+      "min_duration": "4",
+      "crash_cost": "10000",
+      "resource_demand": "8",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A201",
+      "activity": "Sanitary Waste Level 1",
+      "duration": "11",
+      "predecessors": "A200",
+      "min_duration": "5",
+      "crash_cost": "56000",
+      "resource_demand": "8",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A202",
+      "activity": "Sanitary Waste Level 2",
+      "duration": "14",
+      "predecessors": "A200",
+      "min_duration": "9",
+      "crash_cost": "63000",
+      "resource_demand": "3",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A203",
+      "activity": "Sanitary Waste Level 3",
+      "duration": "7",
+      "predecessors": "A201,A202",
+      "min_duration": "2",
+      "crash_cost": "32000",
+      "resource_demand": "8",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A204",
+      "activity": "Vent Piping Level 1",
+      "duration": "7",
+      "predecessors": "A203",
+      "min_duration": "4",
+      "crash_cost": "55000",
+      "resource_demand": "11",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A205",
+      "activity": "Vent Piping Level 2",
+      "duration": "7",
+      "predecessors": "A202",
+      "min_duration": "2",
+      "crash_cost": "50000",
+      "resource_demand": "6",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A206",
+      "activity": "Vent Piping Level 3",
+      "duration": "7",
+      "predecessors": "A203,A205",
+      "min_duration": "4",
+      "crash_cost": "42000",
+      "resource_demand": "8",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "A207",
+      "activity": "Storm Drainage Level 1",
+      "duration": "11",
+      "predecessors": "A206",
+      "min_duration": "6",
+      "crash_cost": "39000",
+      "resource_demand": "3",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A208",
+      "activity": "Storm Drainage Level 2",
+      "duration": "13",
+      "predecessors": "A205",
+      "min_duration": "5",
+      "crash_cost": "18000",
+      "resource_demand": "6",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "A209",
+      "activity": "Storm Drainage Level 3",
+      "duration": "14",
+      "predecessors": "A206",
+      "min_duration": "8",
+      "crash_cost": "35000",
+      "resource_demand": "8",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A210",
+      "activity": "Gas Piping Level 1",
+      "duration": "3",
+      "predecessors": "A207,A208",
+      "min_duration": "1",
+      "crash_cost": "48000",
+      "resource_demand": "6",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A211",
+      "activity": "Gas Piping Level 2",
+      "duration": "6",
+      "predecessors": "A206,A208",
+      "min_duration": "2",
+      "crash_cost": "22000",
+      "resource_demand": "3",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A212",
+      "activity": "Natural Gas Metre",
+      "duration": "10",
+      "predecessors": "A209,A211",
+      "min_duration": "5",
+      "crash_cost": "11000",
+      "resource_demand": "8",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A213",
+      "activity": "HVAC Ductwork Level 1 Zone A",
+      "duration": "7",
+      "predecessors": "A210,A212",
+      "min_duration": "4",
+      "crash_cost": "43000",
+      "resource_demand": "11",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A214",
+      "activity": "HVAC Ductwork Level 1 Zone B",
+      "duration": "2",
+      "predecessors": "A213",
+      "min_duration": "1",
+      "crash_cost": "14000",
+      "resource_demand": "8",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "A215",
+      "activity": "HVAC Ductwork Level 2 Zone A",
+      "duration": "10",
+      "predecessors": "A213",
+      "min_duration": "7",
+      "crash_cost": "64000",
+      "resource_demand": "5",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A216",
+      "activity": "HVAC Ductwork Level 2 Zone B",
+      "duration": "12",
+      "predecessors": "A215",
+      "min_duration": "6",
+      "crash_cost": "30000",
+      "resource_demand": "4",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A217",
+      "activity": "HVAC Ductwork Level 3 Zone A",
+      "duration": "9",
+      "predecessors": "A214,A215",
+      "min_duration": "4",
+      "crash_cost": "44000",
+      "resource_demand": "4",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "A218",
+      "activity": "HVAC Ductwork Level 3 Zone B",
+      "duration": "6",
+      "predecessors": "A216,A217",
+      "min_duration": "3",
+      "crash_cost": "38000",
+      "resource_demand": "3",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A219",
+      "activity": "AHU Installation Level 1",
+      "duration": "5",
+      "predecessors": "A218",
+      "min_duration": "3",
+      "crash_cost": "24000",
+      "resource_demand": "9",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "A220",
+      "activity": "AHU Installation Level 2",
+      "duration": "4",
+      "predecessors": "A219",
+      "min_duration": "2",
+      "crash_cost": "45000",
+      "resource_demand": "8",
+      "normal_cost": "24000"
+    },
+    {
+      "id": "A221",
+      "activity": "AHU Installation Level 3",
+      "duration": "8",
+      "predecessors": "A218",
+      "min_duration": "5",
+      "crash_cost": "47000",
+      "resource_demand": "7",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A222",
+      "activity": "Chilled Water Piping",
+      "duration": "15",
+      "predecessors": "A220,A221",
+      "min_duration": "10",
+      "crash_cost": "16000",
+      "resource_demand": "12",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A223",
+      "activity": "Hot Water Piping",
+      "duration": "11",
+      "predecessors": "A222",
+      "min_duration": "8",
+      "crash_cost": "50000",
+      "resource_demand": "5",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A224",
+      "activity": "Refrigerant Piping",
+      "duration": "8",
+      "predecessors": "A220,A221",
+      "min_duration": "5",
+      "crash_cost": "67000",
+      "resource_demand": "6",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A225",
+      "activity": "Exhaust Ductwork Level 1",
+      "duration": "14",
+      "predecessors": "A222,A224",
+      "min_duration": "6",
+      "crash_cost": "37000",
+      "resource_demand": "8",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A226",
+      "activity": "Exhaust Ductwork Level 2",
+      "duration": "8",
+      "predecessors": "A223,A225",
+      "min_duration": "4",
+      "crash_cost": "25000",
+      "resource_demand": "11",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "A227",
+      "activity": "Exhaust Ductwork Level 3",
+      "duration": "10",
+      "predecessors": "A223,A224",
+      "min_duration": "4",
+      "crash_cost": "7000",
+      "resource_demand": "10",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "A228",
+      "activity": "Fire Sprinkler Main",
+      "duration": "9",
+      "predecessors": "A226",
+      "min_duration": "6",
+      "crash_cost": "57000",
+      "resource_demand": "5",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A229",
+      "activity": "Fire Sprinkler Branches Level 1",
+      "duration": "15",
+      "predecessors": "A226,A227",
+      "min_duration": "9",
+      "crash_cost": "47000",
+      "resource_demand": "8",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A230",
+      "activity": "Fire Sprinkler Branches Level 2",
+      "duration": "6",
+      "predecessors": "A229",
+      "min_duration": "2",
+      "crash_cost": "21000",
+      "resource_demand": "12",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "A231",
+      "activity": "Fire Sprinkler Branches Level 3",
+      "duration": "14",
+      "predecessors": "A229",
+      "min_duration": "7",
+      "crash_cost": "56000",
+      "resource_demand": "9",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A232",
+      "activity": "Sprinkler Head Installation L1",
+      "duration": "10",
+      "predecessors": "A229",
+      "min_duration": "5",
+      "crash_cost": "49000",
+      "resource_demand": "8",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A233",
+      "activity": "Sprinkler Head Installation L2",
+      "duration": "7",
+      "predecessors": "A230,A232",
+      "min_duration": "4",
+      "crash_cost": "11000",
+      "resource_demand": "10",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "A234",
+      "activity": "Sprinkler Head Installation L3",
+      "duration": "5",
+      "predecessors": "A230",
+      "min_duration": "3",
+      "crash_cost": "22000",
+      "resource_demand": "7",
+      "normal_cost": "13000"
+    },
+    {
+      "id": "A235",
+      "activity": "Smoke Detector Rough-In L1",
+      "duration": "2",
+      "predecessors": "A232",
+      "min_duration": "1",
+      "crash_cost": "55000",
+      "resource_demand": "12",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A236",
+      "activity": "Smoke Detector Rough-In L2",
+      "duration": "7",
+      "predecessors": "A233",
+      "min_duration": "5",
+      "crash_cost": "11000",
+      "resource_demand": "8",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A237",
+      "activity": "Smoke Detector Rough-In L3",
+      "duration": "6",
+      "predecessors": "A233,A234,A235",
+      "min_duration": "2",
+      "crash_cost": "64000",
+      "resource_demand": "10",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A238",
+      "activity": "BMS Controls Level 1",
+      "duration": "11",
+      "predecessors": "A233,A235",
+      "min_duration": "5",
+      "crash_cost": "45000",
+      "resource_demand": "7",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A239",
+      "activity": "BMS Controls Level 2",
+      "duration": "12",
+      "predecessors": "A236,A237,A238",
+      "min_duration": "7",
+      "crash_cost": "18000",
+      "resource_demand": "10",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "A240",
+      "activity": "BMS Controls Level 3",
+      "duration": "2",
+      "predecessors": "A237,A238",
+      "min_duration": "1",
+      "crash_cost": "56000",
+      "resource_demand": "6",
+      "normal_cost": "29000"
+    },
+    {
+      "id": "A241",
+      "activity": "Insulation Piping Level 1",
+      "duration": "3",
+      "predecessors": "A236,A240",
+      "min_duration": "1",
+      "crash_cost": "37000",
+      "resource_demand": "4",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A242",
+      "activity": "Insulation Piping Level 2",
+      "duration": "9",
+      "predecessors": "A240",
+      "min_duration": "6",
+      "crash_cost": "50000",
+      "resource_demand": "10",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A243",
+      "activity": "Insulation Piping Level 3",
+      "duration": "3",
+      "predecessors": "A241",
+      "min_duration": "1",
+      "crash_cost": "30000",
+      "resource_demand": "9",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A244",
+      "activity": "Pressure Testing Plumbing",
+      "duration": "2",
+      "predecessors": "A243",
+      "min_duration": "1",
+      "crash_cost": "7000",
+      "resource_demand": "3",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "A245",
+      "activity": "Pressure Testing HVAC",
+      "duration": "12",
+      "predecessors": "A243",
+      "min_duration": "5",
+      "crash_cost": "29000",
+      "resource_demand": "4",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "A246",
+      "activity": "Pressure Testing Sprinkler",
+      "duration": "10",
+      "predecessors": "A242,A244",
+      "min_duration": "4",
+      "crash_cost": "59000",
+      "resource_demand": "10",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "A247",
+      "activity": "MEP Coordination Sign-off L1",
+      "duration": "5",
+      "predecessors": "A242,A244",
+      "min_duration": "3",
+      "crash_cost": "20000",
+      "resource_demand": "12",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A248",
+      "activity": "MEP Coordination Sign-off L2",
+      "duration": "12",
+      "predecessors": "A245,A246",
+      "min_duration": "6",
+      "crash_cost": "24000",
+      "resource_demand": "2",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "A249",
+      "activity": "MEP Coordination Sign-off L3",
+      "duration": "8",
+      "predecessors": "A245,A247",
+      "min_duration": "4",
+      "crash_cost": "23000",
+      "resource_demand": "5",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "A250",
+      "activity": "MEP Rough-In Task 70",
+      "duration": "13",
+      "predecessors": "A245,A247",
+      "min_duration": "8",
+      "crash_cost": "53000",
+      "resource_demand": "3",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A251",
+      "activity": "Curtain Wall Framing North L1",
+      "duration": "15",
+      "predecessors": "A250",
+      "min_duration": "8",
+      "crash_cost": "33000",
+      "resource_demand": "7",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A252",
+      "activity": "Curtain Wall Framing North L2",
+      "duration": "3",
+      "predecessors": "A251",
+      "min_duration": "1",
+      "crash_cost": "71000",
+      "resource_demand": "9",
+      "normal_cost": "36000"
+    },
+    {
+      "id": "A253",
+      "activity": "Curtain Wall Framing North L3",
+      "duration": "7",
+      "predecessors": "A252",
+      "min_duration": "4",
+      "crash_cost": "47000",
+      "resource_demand": "11",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A254",
+      "activity": "Curtain Wall Framing South L1",
+      "duration": "7",
+      "predecessors": "A253",
+      "min_duration": "3",
+      "crash_cost": "26000",
+      "resource_demand": "9",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A255",
+      "activity": "Curtain Wall Framing South L2",
+      "duration": "13",
+      "predecessors": "A253",
+      "min_duration": "8",
+      "crash_cost": "54000",
+      "resource_demand": "11",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "A256",
+      "activity": "Curtain Wall Framing South L3",
+      "duration": "4",
+      "predecessors": "A254,A255",
+      "min_duration": "2",
+      "crash_cost": "30000",
+      "resource_demand": "5",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A257",
+      "activity": "Curtain Wall Glazing North L1",
+      "duration": "7",
+      "predecessors": "A256",
+      "min_duration": "4",
+      "crash_cost": "43000",
+      "resource_demand": "10",
+      "normal_cost": "27000"
+    },
+    {
+      "id": "A258",
+      "activity": "Curtain Wall Glazing North L2",
+      "duration": "4",
+      "predecessors": "A256",
+      "min_duration": "2",
+      "crash_cost": "22000",
+      "resource_demand": "8",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A259",
+      "activity": "Curtain Wall Glazing North L3",
+      "duration": "10",
+      "predecessors": "A256",
+      "min_duration": "6",
+      "crash_cost": "23000",
+      "resource_demand": "12",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A260",
+      "activity": "Curtain Wall Glazing South L1",
+      "duration": "9",
+      "predecessors": "A259",
+      "min_duration": "4",
+      "crash_cost": "43000",
+      "resource_demand": "4",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A261",
+      "activity": "Curtain Wall Glazing South L2",
+      "duration": "11",
+      "predecessors": "A258,A260",
+      "min_duration": "4",
+      "crash_cost": "4000",
+      "resource_demand": "7",
+      "normal_cost": "3000"
+    },
+    {
+      "id": "A262",
+      "activity": "Curtain Wall Glazing South L3",
+      "duration": "5",
+      "predecessors": "A259",
+      "min_duration": "3",
+      "crash_cost": "61000",
+      "resource_demand": "10",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A263",
+      "activity": "Window Installation East L1",
+      "duration": "8",
+      "predecessors": "A261",
+      "min_duration": "5",
+      "crash_cost": "50000",
+      "resource_demand": "8",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A264",
+      "activity": "Window Installation East L2",
+      "duration": "3",
+      "predecessors": "A263",
+      "min_duration": "1",
+      "crash_cost": "27000",
+      "resource_demand": "5",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A265",
+      "activity": "Window Installation East L3",
+      "duration": "5",
+      "predecessors": "A262,A263",
+      "min_duration": "2",
+      "crash_cost": "54000",
+      "resource_demand": "4",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "A266",
+      "activity": "Window Installation West L1",
+      "duration": "14",
+      "predecessors": "A264,A265",
+      "min_duration": "9",
+      "crash_cost": "48000",
+      "resource_demand": "10",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A267",
+      "activity": "Window Installation West L2",
+      "duration": "3",
+      "predecessors": "A264",
+      "min_duration": "1",
+      "crash_cost": "43000",
+      "resource_demand": "10",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A268",
+      "activity": "Window Installation West L3",
+      "duration": "14",
+      "predecessors": "A265",
+      "min_duration": "5",
+      "crash_cost": "53000",
+      "resource_demand": "9",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A269",
+      "activity": "Exterior Cladding North",
+      "duration": "8",
+      "predecessors": "A266,A268",
+      "min_duration": "3",
+      "crash_cost": "27000",
+      "resource_demand": "12",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "A270",
+      "activity": "Exterior Cladding South",
+      "duration": "2",
+      "predecessors": "A267,A269",
+      "min_duration": "1",
+      "crash_cost": "12000",
+      "resource_demand": "7",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "A271",
+      "activity": "Exterior Cladding East",
+      "duration": "3",
+      "predecessors": "A270",
+      "min_duration": "2",
+      "crash_cost": "29000",
+      "resource_demand": "5",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "A272",
+      "activity": "Exterior Cladding West",
+      "duration": "11",
+      "predecessors": "A268",
+      "min_duration": "7",
+      "crash_cost": "42000",
+      "resource_demand": "11",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "A273",
+      "activity": "Roof Membrane Installation",
+      "duration": "4",
+      "predecessors": "A270,A272",
+      "min_duration": "2",
+      "crash_cost": "10000",
+      "resource_demand": "5",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A274",
+      "activity": "Roof Insulation",
+      "duration": "10",
+      "predecessors": "A271,A272",
+      "min_duration": "4",
+      "crash_cost": "19000",
+      "resource_demand": "10",
+      "normal_cost": "13000"
+    },
+    {
+      "id": "A275",
+      "activity": "Roof Flashing",
+      "duration": "13",
+      "predecessors": "A273,A274",
+      "min_duration": "6",
+      "crash_cost": "39000",
+      "resource_demand": "11",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A276",
+      "activity": "Roof Drainage",
+      "duration": "10",
+      "predecessors": "A273,A274",
+      "min_duration": "7",
+      "crash_cost": "12000",
+      "resource_demand": "12",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A277",
+      "activity": "Skylight Installation",
+      "duration": "14",
+      "predecessors": "A275",
+      "min_duration": "9",
+      "crash_cost": "38000",
+      "resource_demand": "2",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A278",
+      "activity": "Exterior Sealant North",
+      "duration": "4",
+      "predecessors": "A276",
+      "min_duration": "2",
+      "crash_cost": "25000",
+      "resource_demand": "4",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "A279",
+      "activity": "Exterior Sealant South",
+      "duration": "7",
+      "predecessors": "A276",
+      "min_duration": "4",
+      "crash_cost": "45000",
+      "resource_demand": "12",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A280",
+      "activity": "Exterior Sealant East",
+      "duration": "11",
+      "predecessors": "A277",
+      "min_duration": "6",
+      "crash_cost": "45000",
+      "resource_demand": "12",
+      "normal_cost": "29000"
+    },
+    {
+      "id": "A281",
+      "activity": "Exterior Sealant West",
+      "duration": "3",
+      "predecessors": "A277,A278,A279",
+      "min_duration": "1",
+      "crash_cost": "46000",
+      "resource_demand": "3",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A282",
+      "activity": "Loading Dock Door",
+      "duration": "6",
+      "predecessors": "A280,A281",
+      "min_duration": "3",
+      "crash_cost": "62000",
+      "resource_demand": "7",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "A283",
+      "activity": "Main Entrance Door",
+      "duration": "7",
+      "predecessors": "A280,A281",
+      "min_duration": "4",
+      "crash_cost": "55000",
+      "resource_demand": "3",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "A284",
+      "activity": "Emergency Exit Doors",
+      "duration": "13",
+      "predecessors": "A282",
+      "min_duration": "6",
+      "crash_cost": "58000",
+      "resource_demand": "3",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A285",
+      "activity": "Exterior Soffit",
+      "duration": "8",
+      "predecessors": "A284",
+      "min_duration": "5",
+      "crash_cost": "30000",
+      "resource_demand": "9",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A286",
+      "activity": "Metal Panel Accent North",
+      "duration": "6",
+      "predecessors": "A283",
+      "min_duration": "3",
+      "crash_cost": "18000",
+      "resource_demand": "11",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A287",
+      "activity": "Metal Panel Accent South",
+      "duration": "9",
+      "predecessors": "A284,A286",
+      "min_duration": "6",
+      "crash_cost": "7000",
+      "resource_demand": "12",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A288",
+      "activity": "Parapet Capping",
+      "duration": "12",
+      "predecessors": "A286",
+      "min_duration": "8",
+      "crash_cost": "5000",
+      "resource_demand": "9",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "A289",
+      "activity": "Bird Deterrent System",
+      "duration": "15",
+      "predecessors": "A288",
+      "min_duration": "6",
+      "crash_cost": "5000",
+      "resource_demand": "9",
+      "normal_cost": "3000"
+    },
+    {
+      "id": "A290",
+      "activity": "Facade Cleaning System Rails",
+      "duration": "8",
+      "predecessors": "A286",
+      "min_duration": "3",
+      "crash_cost": "31000",
+      "resource_demand": "4",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A291",
+      "activity": "Exterior Waterproofing Below Grade",
+      "duration": "6",
+      "predecessors": "A289,A290",
+      "min_duration": "2",
+      "crash_cost": "25000",
+      "resource_demand": "7",
+      "normal_cost": "19000"
+    },
+    {
+      "id": "A292",
+      "activity": "Window Testing & Certification",
+      "duration": "12",
+      "predecessors": "A289,A290",
+      "min_duration": "8",
+      "crash_cost": "9000",
+      "resource_demand": "4",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A293",
+      "activity": "Cladding Inspection",
+      "duration": "6",
+      "predecessors": "A289,A290",
+      "min_duration": "3",
+      "crash_cost": "52000",
+      "resource_demand": "5",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "A294",
+      "activity": "Roof Inspection",
+      "duration": "13",
+      "predecessors": "A293",
+      "min_duration": "5",
+      "crash_cost": "44000",
+      "resource_demand": "5",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A295",
+      "activity": "Balcony Waterproofing",
+      "duration": "11",
+      "predecessors": "A292,A294",
+      "min_duration": "5",
+      "crash_cost": "40000",
+      "resource_demand": "12",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A296",
+      "activity": "Balcony Railings",
+      "duration": "13",
+      "predecessors": "A292",
+      "min_duration": "6",
+      "crash_cost": "53000",
+      "resource_demand": "3",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "A297",
+      "activity": "Fire Escape Installation",
+      "duration": "9",
+      "predecessors": "A295",
+      "min_duration": "3",
+      "crash_cost": "14000",
+      "resource_demand": "8",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "A298",
+      "activity": "Exterior Signage Preparation",
+      "duration": "3",
+      "predecessors": "A295",
+      "min_duration": "1",
+      "crash_cost": "30000",
+      "resource_demand": "7",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A299",
+      "activity": "Canopy Steel Structure",
+      "duration": "14",
+      "predecessors": "A297",
+      "min_duration": "9",
+      "crash_cost": "16000",
+      "resource_demand": "4",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "A300",
+      "activity": "Canopy Glazing",
+      "duration": "11",
+      "predecessors": "A297,A298",
+      "min_duration": "4",
+      "crash_cost": "20000",
+      "resource_demand": "12",
+      "normal_cost": "13000"
+    },
+    {
+      "id": "A301",
+      "activity": "Metal Stud Framing L1 Zone A",
+      "duration": "13",
+      "predecessors": "A300",
+      "min_duration": "6",
+      "crash_cost": "50000",
+      "resource_demand": "4",
+      "normal_cost": "29000"
+    },
+    {
+      "id": "A302",
+      "activity": "Metal Stud Framing L1 Zone B",
+      "duration": "9",
+      "predecessors": "A301",
+      "min_duration": "6",
+      "crash_cost": "12000",
+      "resource_demand": "3",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A303",
+      "activity": "Metal Stud Framing L1 Zone C",
+      "duration": "3",
+      "predecessors": "A302",
+      "min_duration": "1",
+      "crash_cost": "49000",
+      "resource_demand": "8",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A304",
+      "activity": "Metal Stud Framing L2 Zone A",
+      "duration": "7",
+      "predecessors": "A303",
+      "min_duration": "4",
+      "crash_cost": "35000",
+      "resource_demand": "5",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A305",
+      "activity": "Metal Stud Framing L2 Zone B",
+      "duration": "5",
+      "predecessors": "A304",
+      "min_duration": "2",
+      "crash_cost": "38000",
+      "resource_demand": "11",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A306",
+      "activity": "Metal Stud Framing L2 Zone C",
+      "duration": "13",
+      "predecessors": "A303",
+      "min_duration": "5",
+      "crash_cost": "31000",
+      "resource_demand": "12",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A307",
+      "activity": "Metal Stud Framing L3 Zone A",
+      "duration": "11",
+      "predecessors": "A304",
+      "min_duration": "6",
+      "crash_cost": "36000",
+      "resource_demand": "8",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A308",
+      "activity": "Metal Stud Framing L3 Zone B",
+      "duration": "14",
+      "predecessors": "A306,A307",
+      "min_duration": "9",
+      "crash_cost": "53000",
+      "resource_demand": "5",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A309",
+      "activity": "Metal Stud Framing L3 Zone C",
+      "duration": "5",
+      "predecessors": "A308",
+      "min_duration": "2",
+      "crash_cost": "11000",
+      "resource_demand": "11",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A310",
+      "activity": "Drywall Hanging L1 Zone A",
+      "duration": "2",
+      "predecessors": "A309",
+      "min_duration": "1",
+      "crash_cost": "17000",
+      "resource_demand": "7",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A311",
+      "activity": "Drywall Hanging L1 Zone B",
+      "duration": "15",
+      "predecessors": "A308",
+      "min_duration": "8",
+      "crash_cost": "65000",
+      "resource_demand": "7",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A312",
+      "activity": "Drywall Hanging L1 Zone C",
+      "duration": "14",
+      "predecessors": "A310,A311",
+      "min_duration": "7",
+      "crash_cost": "6000",
+      "resource_demand": "3",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "A313",
+      "activity": "Drywall Hanging L2 Zone A",
+      "duration": "2",
+      "predecessors": "A310",
+      "min_duration": "1",
+      "crash_cost": "11000",
+      "resource_demand": "2",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A314",
+      "activity": "Drywall Hanging L2 Zone B",
+      "duration": "8",
+      "predecessors": "A312,A313",
+      "min_duration": "4",
+      "crash_cost": "64000",
+      "resource_demand": "12",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A315",
+      "activity": "Drywall Hanging L2 Zone C",
+      "duration": "8",
+      "predecessors": "A314",
+      "min_duration": "5",
+      "crash_cost": "62000",
+      "resource_demand": "3",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A316",
+      "activity": "Drywall Hanging L3 Zone A",
+      "duration": "4",
+      "predecessors": "A314",
+      "min_duration": "1",
+      "crash_cost": "13000",
+      "resource_demand": "6",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "A317",
+      "activity": "Drywall Hanging L3 Zone B",
+      "duration": "5",
+      "predecessors": "A315",
+      "min_duration": "3",
+      "crash_cost": "56000",
+      "resource_demand": "4",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A318",
+      "activity": "Drywall Hanging L3 Zone C",
+      "duration": "11",
+      "predecessors": "A314",
+      "min_duration": "6",
+      "crash_cost": "10000",
+      "resource_demand": "12",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A319",
+      "activity": "Drywall Taping L1 Zone A",
+      "duration": "8",
+      "predecessors": "A316,A317",
+      "min_duration": "5",
+      "crash_cost": "8000",
+      "resource_demand": "5",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A320",
+      "activity": "Drywall Taping L1 Zone B",
+      "duration": "8",
+      "predecessors": "A316,A317,A318",
+      "min_duration": "3",
+      "crash_cost": "9000",
+      "resource_demand": "11",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A321",
+      "activity": "Drywall Taping L1 Zone C",
+      "duration": "13",
+      "predecessors": "A319,A320",
+      "min_duration": "8",
+      "crash_cost": "13000",
+      "resource_demand": "4",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "A322",
+      "activity": "Drywall Taping L2 Zone A",
+      "duration": "4",
+      "predecessors": "A319,A320",
+      "min_duration": "2",
+      "crash_cost": "66000",
+      "resource_demand": "4",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A323",
+      "activity": "Drywall Taping L2 Zone B",
+      "duration": "10",
+      "predecessors": "A322",
+      "min_duration": "5",
+      "crash_cost": "20000",
+      "resource_demand": "6",
+      "normal_cost": "13000"
+    },
+    {
+      "id": "A324",
+      "activity": "Drywall Taping L2 Zone C",
+      "duration": "13",
+      "predecessors": "A321,A322",
+      "min_duration": "8",
+      "crash_cost": "18000",
+      "resource_demand": "6",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "A325",
+      "activity": "Drywall Taping L3 Zone A",
+      "duration": "2",
+      "predecessors": "A323",
+      "min_duration": "1",
+      "crash_cost": "33000",
+      "resource_demand": "8",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A326",
+      "activity": "Drywall Taping L3 Zone B",
+      "duration": "6",
+      "predecessors": "A323",
+      "min_duration": "3",
+      "crash_cost": "11000",
+      "resource_demand": "11",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A327",
+      "activity": "Drywall Taping L3 Zone C",
+      "duration": "10",
+      "predecessors": "A324,A325",
+      "min_duration": "5",
+      "crash_cost": "55000",
+      "resource_demand": "9",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A328",
+      "activity": "Ceiling Grid L1 Zone A",
+      "duration": "4",
+      "predecessors": "A327",
+      "min_duration": "1",
+      "crash_cost": "69000",
+      "resource_demand": "3",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A329",
+      "activity": "Ceiling Grid L1 Zone B",
+      "duration": "3",
+      "predecessors": "A326,A328",
+      "min_duration": "1",
+      "crash_cost": "3000",
+      "resource_demand": "10",
+      "normal_cost": "3000"
+    },
+    {
+      "id": "A330",
+      "activity": "Ceiling Grid L1 Zone C",
+      "duration": "15",
+      "predecessors": "A329",
+      "min_duration": "6",
+      "crash_cost": "51000",
+      "resource_demand": "2",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A331",
+      "activity": "Ceiling Grid L2 Zone A",
+      "duration": "4",
+      "predecessors": "A326,A328",
+      "min_duration": "1",
+      "crash_cost": "70000",
+      "resource_demand": "2",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A332",
+      "activity": "Ceiling Grid L2 Zone B",
+      "duration": "13",
+      "predecessors": "A330",
+      "min_duration": "8",
+      "crash_cost": "25000",
+      "resource_demand": "8",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A333",
+      "activity": "Ceiling Grid L2 Zone C",
+      "duration": "8",
+      "predecessors": "A331,A332",
+      "min_duration": "5",
+      "crash_cost": "37000",
+      "resource_demand": "7",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A334",
+      "activity": "Ceiling Grid L3 Zone A",
+      "duration": "11",
+      "predecessors": "A331",
+      "min_duration": "5",
+      "crash_cost": "8000",
+      "resource_demand": "10",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A335",
+      "activity": "Ceiling Grid L3 Zone B",
+      "duration": "14",
+      "predecessors": "A333",
+      "min_duration": "8",
+      "crash_cost": "37000",
+      "resource_demand": "2",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A336",
+      "activity": "Ceiling Grid L3 Zone C",
+      "duration": "9",
+      "predecessors": "A334,A335",
+      "min_duration": "6",
+      "crash_cost": "31000",
+      "resource_demand": "6",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A337",
+      "activity": "Acoustic Insulation L1",
+      "duration": "9",
+      "predecessors": "A332,A334",
+      "min_duration": "3",
+      "crash_cost": "35000",
+      "resource_demand": "5",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A338",
+      "activity": "Acoustic Insulation L2",
+      "duration": "6",
+      "predecessors": "A334,A335",
+      "min_duration": "3",
+      "crash_cost": "49000",
+      "resource_demand": "5",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "A339",
+      "activity": "Acoustic Insulation L3",
+      "duration": "9",
+      "predecessors": "A335,A337",
+      "min_duration": "6",
+      "crash_cost": "67000",
+      "resource_demand": "5",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A340",
+      "activity": "Fire Stopping L1",
+      "duration": "5",
+      "predecessors": "A335,A337",
+      "min_duration": "2",
+      "crash_cost": "5000",
+      "resource_demand": "8",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "A341",
+      "activity": "Fire Stopping L2",
+      "duration": "7",
+      "predecessors": "A338,A340",
+      "min_duration": "4",
+      "crash_cost": "31000",
+      "resource_demand": "2",
+      "normal_cost": "24000"
+    },
+    {
+      "id": "A342",
+      "activity": "Fire Stopping L3",
+      "duration": "12",
+      "predecessors": "A341",
+      "min_duration": "6",
+      "crash_cost": "12000",
+      "resource_demand": "6",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A343",
+      "activity": "Door Frame Installation L1",
+      "duration": "5",
+      "predecessors": "A342",
+      "min_duration": "2",
+      "crash_cost": "21000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "A344",
+      "activity": "Door Frame Installation L2",
+      "duration": "3",
+      "predecessors": "A341",
+      "min_duration": "1",
+      "crash_cost": "57000",
+      "resource_demand": "5",
+      "normal_cost": "36000"
+    },
+    {
+      "id": "A345",
+      "activity": "Door Frame Installation L3",
+      "duration": "7",
+      "predecessors": "A342,A344",
+      "min_duration": "3",
+      "crash_cost": "54000",
+      "resource_demand": "3",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "A346",
+      "activity": "Access Floor L1 Server Room",
+      "duration": "4",
+      "predecessors": "A343,A345",
+      "min_duration": "2",
+      "crash_cost": "12000",
+      "resource_demand": "8",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A347",
+      "activity": "Millwork L1 Reception",
+      "duration": "2",
+      "predecessors": "A343",
+      "min_duration": "1",
+      "crash_cost": "27000",
+      "resource_demand": "4",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "A348",
+      "activity": "Speciality Framing Atrium",
+      "duration": "15",
+      "predecessors": "A346",
+      "min_duration": "7",
+      "crash_cost": "35000",
+      "resource_demand": "8",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A349",
+      "activity": "Shaft Wall Construction L1",
+      "duration": "6",
+      "predecessors": "A346",
+      "min_duration": "2",
+      "crash_cost": "20000",
+      "resource_demand": "5",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A350",
+      "activity": "Shaft Wall Construction L2",
+      "duration": "11",
+      "predecessors": "A348,A349",
+      "min_duration": "4",
+      "crash_cost": "20000",
+      "resource_demand": "3",
+      "normal_cost": "13000"
+    },
+    {
+      "id": "A351",
+      "activity": "Shaft Wall Construction L3",
+      "duration": "7",
+      "predecessors": "A350",
+      "min_duration": "3",
+      "crash_cost": "49000",
+      "resource_demand": "10",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A352",
+      "activity": "Bulkhead Framing L1",
+      "duration": "5",
+      "predecessors": "A349",
+      "min_duration": "2",
+      "crash_cost": "36000",
+      "resource_demand": "9",
+      "normal_cost": "19000"
+    },
+    {
+      "id": "A353",
+      "activity": "Bulkhead Framing L2",
+      "duration": "3",
+      "predecessors": "A351,A352",
+      "min_duration": "1",
+      "crash_cost": "41000",
+      "resource_demand": "12",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A354",
+      "activity": "Bulkhead Framing L3",
+      "duration": "13",
+      "predecessors": "A351,A352",
+      "min_duration": "7",
+      "crash_cost": "32000",
+      "resource_demand": "5",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A355",
+      "activity": "Column Enclosures L1",
+      "duration": "13",
+      "predecessors": "A354",
+      "min_duration": "6",
+      "crash_cost": "46000",
+      "resource_demand": "7",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A356",
+      "activity": "Column Enclosures L2",
+      "duration": "12",
+      "predecessors": "A355",
+      "min_duration": "6",
+      "crash_cost": "7000",
+      "resource_demand": "4",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "A357",
+      "activity": "Column Enclosures L3",
+      "duration": "15",
+      "predecessors": "A353,A356",
+      "min_duration": "8",
+      "crash_cost": "24000",
+      "resource_demand": "10",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "A358",
+      "activity": "Interior Inspection L1",
+      "duration": "3",
+      "predecessors": "A353,A355",
+      "min_duration": "2",
+      "crash_cost": "13000",
+      "resource_demand": "4",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "A359",
+      "activity": "Interior Inspection L2",
+      "duration": "15",
+      "predecessors": "A356,A358",
+      "min_duration": "10",
+      "crash_cost": "15000",
+      "resource_demand": "5",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A360",
+      "activity": "Interior Inspection L3",
+      "duration": "8",
+      "predecessors": "A357,A358",
+      "min_duration": "4",
+      "crash_cost": "13000",
+      "resource_demand": "12",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "A361",
+      "activity": "Light Fixture Install L1 Zone A",
+      "duration": "6",
+      "predecessors": "A360",
+      "min_duration": "4",
+      "crash_cost": "7000",
+      "resource_demand": "3",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "A362",
+      "activity": "Light Fixture Install L1 Zone B",
+      "duration": "5",
+      "predecessors": "A361",
+      "min_duration": "3",
+      "crash_cost": "15000",
+      "resource_demand": "9",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A363",
+      "activity": "Light Fixture Install L2 Zone A",
+      "duration": "15",
+      "predecessors": "A362",
+      "min_duration": "10",
+      "crash_cost": "13000",
+      "resource_demand": "7",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "A364",
+      "activity": "Light Fixture Install L2 Zone B",
+      "duration": "9",
+      "predecessors": "A363",
+      "min_duration": "3",
+      "crash_cost": "56000",
+      "resource_demand": "11",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "A365",
+      "activity": "Light Fixture Install L3 Zone A",
+      "duration": "8",
+      "predecessors": "A364",
+      "min_duration": "4",
+      "crash_cost": "42000",
+      "resource_demand": "8",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "A366",
+      "activity": "Light Fixture Install L3 Zone B",
+      "duration": "5",
+      "predecessors": "A364",
+      "min_duration": "3",
+      "crash_cost": "32000",
+      "resource_demand": "6",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A367",
+      "activity": "Switch & Outlet Install L1",
+      "duration": "4",
+      "predecessors": "A364",
+      "min_duration": "1",
+      "crash_cost": "31000",
+      "resource_demand": "11",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "A368",
+      "activity": "Switch & Outlet Install L2",
+      "duration": "9",
+      "predecessors": "A365",
+      "min_duration": "4",
+      "crash_cost": "44000",
+      "resource_demand": "10",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A369",
+      "activity": "Switch & Outlet Install L3",
+      "duration": "6",
+      "predecessors": "A366,A368",
+      "min_duration": "3",
+      "crash_cost": "26000",
+      "resource_demand": "8",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "A370",
+      "activity": "Panel Terminations L1",
+      "duration": "14",
+      "predecessors": "A367,A369",
+      "min_duration": "8",
+      "crash_cost": "68000",
+      "resource_demand": "12",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A371",
+      "activity": "Panel Terminations L2",
+      "duration": "8",
+      "predecessors": "A368",
+      "min_duration": "5",
+      "crash_cost": "55000",
+      "resource_demand": "7",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A372",
+      "activity": "Panel Terminations L3",
+      "duration": "9",
+      "predecessors": "A370",
+      "min_duration": "4",
+      "crash_cost": "53000",
+      "resource_demand": "11",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A373",
+      "activity": "Fire Alarm Devices L1",
+      "duration": "6",
+      "predecessors": "A370",
+      "min_duration": "2",
+      "crash_cost": "22000",
+      "resource_demand": "7",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A374",
+      "activity": "Fire Alarm Devices L2",
+      "duration": "14",
+      "predecessors": "A372,A373",
+      "min_duration": "9",
+      "crash_cost": "55000",
+      "resource_demand": "2",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A375",
+      "activity": "Fire Alarm Devices L3",
+      "duration": "14",
+      "predecessors": "A371,A372",
+      "min_duration": "8",
+      "crash_cost": "17000",
+      "resource_demand": "5",
+      "normal_cost": "13000"
+    },
+    {
+      "id": "A376",
+      "activity": "Emergency Lighting L1",
+      "duration": "12",
+      "predecessors": "A374",
+      "min_duration": "5",
+      "crash_cost": "11000",
+      "resource_demand": "10",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A377",
+      "activity": "Emergency Lighting L2",
+      "duration": "5",
+      "predecessors": "A375,A376",
+      "min_duration": "3",
+      "crash_cost": "48000",
+      "resource_demand": "8",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A378",
+      "activity": "Emergency Lighting L3",
+      "duration": "15",
+      "predecessors": "A376",
+      "min_duration": "6",
+      "crash_cost": "60000",
+      "resource_demand": "5",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "A379",
+      "activity": "Plumbing Fixture Rough L1",
+      "duration": "13",
+      "predecessors": "A375,A378",
+      "min_duration": "8",
+      "crash_cost": "7000",
+      "resource_demand": "11",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "A380",
+      "activity": "Plumbing Fixture Rough L2",
+      "duration": "7",
+      "predecessors": "A378",
+      "min_duration": "5",
+      "crash_cost": "20000",
+      "resource_demand": "11",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "A381",
+      "activity": "Plumbing Fixture Rough L3",
+      "duration": "5",
+      "predecessors": "A378",
+      "min_duration": "3",
+      "crash_cost": "56000",
+      "resource_demand": "9",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A382",
+      "activity": "Plumbing Fixture Set L1",
+      "duration": "9",
+      "predecessors": "A379",
+      "min_duration": "3",
+      "crash_cost": "29000",
+      "resource_demand": "2",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A383",
+      "activity": "Plumbing Fixture Set L2",
+      "duration": "2",
+      "predecessors": "A382",
+      "min_duration": "1",
+      "crash_cost": "46000",
+      "resource_demand": "2",
+      "normal_cost": "24000"
+    },
+    {
+      "id": "A384",
+      "activity": "Plumbing Fixture Set L3",
+      "duration": "5",
+      "predecessors": "A380",
+      "min_duration": "3",
+      "crash_cost": "27000",
+      "resource_demand": "7",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A385",
+      "activity": "Toilet Accessory Install L1",
+      "duration": "15",
+      "predecessors": "A381,A382",
+      "min_duration": "10",
+      "crash_cost": "5000",
+      "resource_demand": "2",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "A386",
+      "activity": "Toilet Accessory Install L2",
+      "duration": "13",
+      "predecessors": "A385",
+      "min_duration": "9",
+      "crash_cost": "68000",
+      "resource_demand": "3",
+      "normal_cost": "36000"
+    },
+    {
+      "id": "A387",
+      "activity": "Toilet Accessory Install L3",
+      "duration": "3",
+      "predecessors": "A383,A384",
+      "min_duration": "1",
+      "crash_cost": "47000",
+      "resource_demand": "12",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A388",
+      "activity": "VAV Box Install L1",
+      "duration": "7",
+      "predecessors": "A386",
+      "min_duration": "3",
+      "crash_cost": "23000",
+      "resource_demand": "4",
+      "normal_cost": "13000"
+    },
+    {
+      "id": "A389",
+      "activity": "VAV Box Install L2",
+      "duration": "8",
+      "predecessors": "A386",
+      "min_duration": "5",
+      "crash_cost": "32000",
+      "resource_demand": "9",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A390",
+      "activity": "VAV Box Install L3",
+      "duration": "10",
+      "predecessors": "A388,A389",
+      "min_duration": "6",
+      "crash_cost": "36000",
+      "resource_demand": "11",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A391",
+      "activity": "Diffuser & Grille Install L1",
+      "duration": "11",
+      "predecessors": "A387,A388",
+      "min_duration": "7",
+      "crash_cost": "39000",
+      "resource_demand": "8",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A392",
+      "activity": "Diffuser & Grille Install L2",
+      "duration": "6",
+      "predecessors": "A391",
+      "min_duration": "2",
+      "crash_cost": "61000",
+      "resource_demand": "2",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A393",
+      "activity": "Diffuser & Grille Install L3",
+      "duration": "14",
+      "predecessors": "A390,A392",
+      "min_duration": "10",
+      "crash_cost": "24000",
+      "resource_demand": "2",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A394",
+      "activity": "Thermostat Install L1",
+      "duration": "14",
+      "predecessors": "A393",
+      "min_duration": "10",
+      "crash_cost": "53000",
+      "resource_demand": "5",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A395",
+      "activity": "Thermostat Install L2",
+      "duration": "9",
+      "predecessors": "A394",
+      "min_duration": "4",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "A396",
+      "activity": "Thermostat Install L3",
+      "duration": "7",
+      "predecessors": "A395",
+      "min_duration": "3",
+      "crash_cost": "38000",
+      "resource_demand": "3",
+      "normal_cost": "24000"
+    },
+    {
+      "id": "A397",
+      "activity": "BMS Programming L1",
+      "duration": "6",
+      "predecessors": "A394",
+      "min_duration": "2",
+      "crash_cost": "36000",
+      "resource_demand": "3",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A398",
+      "activity": "BMS Programming L2",
+      "duration": "3",
+      "predecessors": "A397",
+      "min_duration": "1",
+      "crash_cost": "43000",
+      "resource_demand": "2",
+      "normal_cost": "27000"
+    },
+    {
+      "id": "A399",
+      "activity": "BMS Programming L3",
+      "duration": "8",
+      "predecessors": "A398",
+      "min_duration": "5",
+      "crash_cost": "65000",
+      "resource_demand": "8",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A400",
+      "activity": "Ceiling Tile Install L1 Zone A",
+      "duration": "7",
+      "predecessors": "A398",
+      "min_duration": "4",
+      "crash_cost": "61000",
+      "resource_demand": "3",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A401",
+      "activity": "Ceiling Tile Install L1 Zone B",
+      "duration": "11",
+      "predecessors": "A399",
+      "min_duration": "6",
+      "crash_cost": "24000",
+      "resource_demand": "12",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A402",
+      "activity": "Ceiling Tile Install L2 Zone A",
+      "duration": "3",
+      "predecessors": "A401",
+      "min_duration": "2",
+      "crash_cost": "27000",
+      "resource_demand": "2",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A403",
+      "activity": "Ceiling Tile Install L2 Zone B",
+      "duration": "6",
+      "predecessors": "A400,A402",
+      "min_duration": "4",
+      "crash_cost": "34000",
+      "resource_demand": "3",
+      "normal_cost": "24000"
+    },
+    {
+      "id": "A404",
+      "activity": "Ceiling Tile Install L3 Zone A",
+      "duration": "8",
+      "predecessors": "A403",
+      "min_duration": "3",
+      "crash_cost": "74000",
+      "resource_demand": "3",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A405",
+      "activity": "Ceiling Tile Install L3 Zone B",
+      "duration": "3",
+      "predecessors": "A403",
+      "min_duration": "1",
+      "crash_cost": "59000",
+      "resource_demand": "11",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A406",
+      "activity": "Generator Installation",
+      "duration": "8",
+      "predecessors": "A404",
+      "min_duration": "5",
+      "crash_cost": "42000",
+      "resource_demand": "4",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "A407",
+      "activity": "ATS Installation",
+      "duration": "3",
+      "predecessors": "A403",
+      "min_duration": "1",
+      "crash_cost": "51000",
+      "resource_demand": "5",
+      "normal_cost": "29000"
+    },
+    {
+      "id": "A408",
+      "activity": "UPS Installation",
+      "duration": "13",
+      "predecessors": "A404,A405,A407",
+      "min_duration": "9",
+      "crash_cost": "33000",
+      "resource_demand": "10",
+      "normal_cost": "19000"
+    },
+    {
+      "id": "A409",
+      "activity": "Transformer Energisation",
+      "duration": "6",
+      "predecessors": "A406,A407",
+      "min_duration": "2",
+      "crash_cost": "47000",
+      "resource_demand": "2",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A410",
+      "activity": "Main Bus Energisation",
+      "duration": "15",
+      "predecessors": "A408,A409",
+      "min_duration": "8",
+      "crash_cost": "33000",
+      "resource_demand": "2",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A411",
+      "activity": "Paint Prep L1 Zone A",
+      "duration": "3",
+      "predecessors": "A410",
+      "min_duration": "1",
+      "crash_cost": "47000",
+      "resource_demand": "12",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A412",
+      "activity": "Paint Prep L1 Zone B",
+      "duration": "2",
+      "predecessors": "A409",
+      "min_duration": "1",
+      "crash_cost": "41000",
+      "resource_demand": "12",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A413",
+      "activity": "Paint Prep L2 Zone A",
+      "duration": "9",
+      "predecessors": "A412",
+      "min_duration": "6",
+      "crash_cost": "45000",
+      "resource_demand": "6",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A414",
+      "activity": "Paint Prep L2 Zone B",
+      "duration": "12",
+      "predecessors": "A411,A412",
+      "min_duration": "5",
+      "crash_cost": "58000",
+      "resource_demand": "12",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A415",
+      "activity": "Paint Prep L3 Zone A",
+      "duration": "7",
+      "predecessors": "A411,A412",
+      "min_duration": "4",
+      "crash_cost": "22000",
+      "resource_demand": "7",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A416",
+      "activity": "Paint Prep L3 Zone B",
+      "duration": "6",
+      "predecessors": "A414,A415",
+      "min_duration": "3",
+      "crash_cost": "32000",
+      "resource_demand": "6",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A417",
+      "activity": "Paint Application L1 Zone A",
+      "duration": "11",
+      "predecessors": "A413,A414",
+      "min_duration": "4",
+      "crash_cost": "12000",
+      "resource_demand": "12",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A418",
+      "activity": "Paint Application L1 Zone B",
+      "duration": "7",
+      "predecessors": "A416",
+      "min_duration": "4",
+      "crash_cost": "58000",
+      "resource_demand": "8",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "A419",
+      "activity": "Paint Application L2 Zone A",
+      "duration": "2",
+      "predecessors": "A416,A417",
+      "min_duration": "1",
+      "crash_cost": "57000",
+      "resource_demand": "10",
+      "normal_cost": "29000"
+    },
+    {
+      "id": "A420",
+      "activity": "Paint Application L2 Zone B",
+      "duration": "12",
+      "predecessors": "A418,A419",
+      "min_duration": "8",
+      "crash_cost": "74000",
+      "resource_demand": "9",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A421",
+      "activity": "Paint Application L3 Zone A",
+      "duration": "9",
+      "predecessors": "A418",
+      "min_duration": "4",
+      "crash_cost": "8000",
+      "resource_demand": "8",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "A422",
+      "activity": "Paint Application L3 Zone B",
+      "duration": "10",
+      "predecessors": "A421",
+      "min_duration": "6",
+      "crash_cost": "16000",
+      "resource_demand": "12",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "A423",
+      "activity": "Tile Floor L1 Zone A",
+      "duration": "14",
+      "predecessors": "A422",
+      "min_duration": "7",
+      "crash_cost": "29000",
+      "resource_demand": "4",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "A424",
+      "activity": "Tile Floor L1 Zone B",
+      "duration": "4",
+      "predecessors": "A419,A421",
+      "min_duration": "1",
+      "crash_cost": "43000",
+      "resource_demand": "3",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "A425",
+      "activity": "Tile Floor L2 Zone A",
+      "duration": "15",
+      "predecessors": "A422",
+      "min_duration": "9",
+      "crash_cost": "28000",
+      "resource_demand": "11",
+      "normal_cost": "19000"
+    },
+    {
+      "id": "A426",
+      "activity": "Tile Floor L2 Zone B",
+      "duration": "13",
+      "predecessors": "A423,A424",
+      "min_duration": "9",
+      "crash_cost": "12000",
+      "resource_demand": "3",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "A427",
+      "activity": "Tile Floor L3 Zone A",
+      "duration": "8",
+      "predecessors": "A426",
+      "min_duration": "4",
+      "crash_cost": "58000",
+      "resource_demand": "6",
+      "normal_cost": "36000"
+    },
+    {
+      "id": "A428",
+      "activity": "Tile Floor L3 Zone B",
+      "duration": "15",
+      "predecessors": "A426",
+      "min_duration": "6",
+      "crash_cost": "66000",
+      "resource_demand": "11",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "A429",
+      "activity": "Carpet Installation L1",
+      "duration": "8",
+      "predecessors": "A425,A428",
+      "min_duration": "3",
+      "crash_cost": "20000",
+      "resource_demand": "4",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "A430",
+      "activity": "Carpet Installation L2",
+      "duration": "11",
+      "predecessors": "A427,A429",
+      "min_duration": "7",
+      "crash_cost": "15000",
+      "resource_demand": "3",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A431",
+      "activity": "Carpet Installation L3",
+      "duration": "3",
+      "predecessors": "A427,A429",
+      "min_duration": "2",
+      "crash_cost": "47000",
+      "resource_demand": "10",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A432",
+      "activity": "Vinyl Floor L1 Wet Areas",
+      "duration": "6",
+      "predecessors": "A430,A431",
+      "min_duration": "3",
+      "crash_cost": "67000",
+      "resource_demand": "9",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A433",
+      "activity": "Vinyl Floor L2 Wet Areas",
+      "duration": "2",
+      "predecessors": "A430",
+      "min_duration": "1",
+      "crash_cost": "20000",
+      "resource_demand": "8",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "A434",
+      "activity": "Vinyl Floor L3 Wet Areas",
+      "duration": "12",
+      "predecessors": "A433",
+      "min_duration": "7",
+      "crash_cost": "53000",
+      "resource_demand": "2",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A435",
+      "activity": "Wood Floor Reception",
+      "duration": "7",
+      "predecessors": "A431,A434",
+      "min_duration": "4",
+      "crash_cost": "64000",
+      "resource_demand": "2",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A436",
+      "activity": "Epoxy Floor Garage",
+      "duration": "7",
+      "predecessors": "A433",
+      "min_duration": "2",
+      "crash_cost": "32000",
+      "resource_demand": "6",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A437",
+      "activity": "Polished Concrete Lobby",
+      "duration": "9",
+      "predecessors": "A434,A436",
+      "min_duration": "6",
+      "crash_cost": "17000",
+      "resource_demand": "12",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A438",
+      "activity": "Wall Tile Washrooms L1",
+      "duration": "5",
+      "predecessors": "A437",
+      "min_duration": "2",
+      "crash_cost": "34000",
+      "resource_demand": "9",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A439",
+      "activity": "Wall Tile Washrooms L2",
+      "duration": "8",
+      "predecessors": "A438",
+      "min_duration": "4",
+      "crash_cost": "24000",
+      "resource_demand": "3",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "A440",
+      "activity": "Wall Tile Washrooms L3",
+      "duration": "15",
+      "predecessors": "A439",
+      "min_duration": "8",
+      "crash_cost": "68000",
+      "resource_demand": "9",
+      "normal_cost": "36000"
+    },
+    {
+      "id": "A441",
+      "activity": "Door Installation L1",
+      "duration": "15",
+      "predecessors": "A440",
+      "min_duration": "6",
+      "crash_cost": "10000",
+      "resource_demand": "4",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A442",
+      "activity": "Door Installation L2",
+      "duration": "10",
+      "predecessors": "A441",
+      "min_duration": "5",
+      "crash_cost": "51000",
+      "resource_demand": "10",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A443",
+      "activity": "Door Installation L3",
+      "duration": "5",
+      "predecessors": "A441",
+      "min_duration": "3",
+      "crash_cost": "8000",
+      "resource_demand": "5",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A444",
+      "activity": "Door Hardware L1",
+      "duration": "9",
+      "predecessors": "A443",
+      "min_duration": "3",
+      "crash_cost": "22000",
+      "resource_demand": "7",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "A445",
+      "activity": "Door Hardware L2",
+      "duration": "15",
+      "predecessors": "A442,A443",
+      "min_duration": "8",
+      "crash_cost": "17000",
+      "resource_demand": "8",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "A446",
+      "activity": "Door Hardware L3",
+      "duration": "5",
+      "predecessors": "A444",
+      "min_duration": "2",
+      "crash_cost": "44000",
+      "resource_demand": "11",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A447",
+      "activity": "Base Trim L1",
+      "duration": "15",
+      "predecessors": "A444,A445",
+      "min_duration": "8",
+      "crash_cost": "38000",
+      "resource_demand": "10",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A448",
+      "activity": "Base Trim L2",
+      "duration": "15",
+      "predecessors": "A444,A445",
+      "min_duration": "10",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A449",
+      "activity": "Base Trim L3",
+      "duration": "2",
+      "predecessors": "A448",
+      "min_duration": "1",
+      "crash_cost": "30000",
+      "resource_demand": "11",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "A450",
+      "activity": "Window Sills & Trim L1",
+      "duration": "12",
+      "predecessors": "A447",
+      "min_duration": "5",
+      "crash_cost": "35000",
+      "resource_demand": "5",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A451",
+      "activity": "Window Sills & Trim L2",
+      "duration": "10",
+      "predecessors": "A446,A448,A450",
+      "min_duration": "4",
+      "crash_cost": "4000",
+      "resource_demand": "12",
+      "normal_cost": "3000"
+    },
+    {
+      "id": "A452",
+      "activity": "Window Sills & Trim L3",
+      "duration": "4",
+      "predecessors": "A449",
+      "min_duration": "2",
+      "crash_cost": "4000",
+      "resource_demand": "11",
+      "normal_cost": "3000"
+    },
+    {
+      "id": "A453",
+      "activity": "Millwork Installation L1",
+      "duration": "11",
+      "predecessors": "A449,A451",
+      "min_duration": "7",
+      "crash_cost": "31000",
+      "resource_demand": "6",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A454",
+      "activity": "Millwork Installation L2",
+      "duration": "8",
+      "predecessors": "A449,A451",
+      "min_duration": "5",
+      "crash_cost": "27000",
+      "resource_demand": "9",
+      "normal_cost": "19000"
+    },
+    {
+      "id": "A455",
+      "activity": "Millwork Installation L3",
+      "duration": "6",
+      "predecessors": "A452,A453",
+      "min_duration": "3",
+      "crash_cost": "47000",
+      "resource_demand": "11",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A456",
+      "activity": "Countertop Installation L1",
+      "duration": "2",
+      "predecessors": "A454",
+      "min_duration": "1",
+      "crash_cost": "44000",
+      "resource_demand": "12",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A457",
+      "activity": "Countertop Installation L2",
+      "duration": "11",
+      "predecessors": "A453,A454",
+      "min_duration": "6",
+      "crash_cost": "14000",
+      "resource_demand": "6",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A458",
+      "activity": "Countertop Installation L3",
+      "duration": "7",
+      "predecessors": "A456,A457",
+      "min_duration": "5",
+      "crash_cost": "43000",
+      "resource_demand": "12",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A459",
+      "activity": "Signage & Wayfinding L1",
+      "duration": "6",
+      "predecessors": "A456",
+      "min_duration": "3",
+      "crash_cost": "31000",
+      "resource_demand": "12",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A460",
+      "activity": "Signage & Wayfinding L2",
+      "duration": "10",
+      "predecessors": "A457",
+      "min_duration": "6",
+      "crash_cost": "49000",
+      "resource_demand": "2",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A461",
+      "activity": "Signage & Wayfinding L3",
+      "duration": "12",
+      "predecessors": "A458,A459",
+      "min_duration": "5",
+      "crash_cost": "67000",
+      "resource_demand": "2",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A462",
+      "activity": "Window Blinds L1",
+      "duration": "6",
+      "predecessors": "A461",
+      "min_duration": "4",
+      "crash_cost": "49000",
+      "resource_demand": "8",
+      "normal_cost": "27000"
+    },
+    {
+      "id": "A463",
+      "activity": "Window Blinds L2",
+      "duration": "11",
+      "predecessors": "A458,A460",
+      "min_duration": "7",
+      "crash_cost": "23000",
+      "resource_demand": "11",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "A464",
+      "activity": "Window Blinds L3",
+      "duration": "13",
+      "predecessors": "A462,A463",
+      "min_duration": "6",
+      "crash_cost": "63000",
+      "resource_demand": "10",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A465",
+      "activity": "Mirror Install Washrooms L1",
+      "duration": "12",
+      "predecessors": "A461",
+      "min_duration": "6",
+      "crash_cost": "24000",
+      "resource_demand": "6",
+      "normal_cost": "13000"
+    },
+    {
+      "id": "A466",
+      "activity": "Mirror Install Washrooms L2",
+      "duration": "10",
+      "predecessors": "A463,A465",
+      "min_duration": "4",
+      "crash_cost": "45000",
+      "resource_demand": "3",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A467",
+      "activity": "Mirror Install Washrooms L3",
+      "duration": "6",
+      "predecessors": "A464",
+      "min_duration": "3",
+      "crash_cost": "27000",
+      "resource_demand": "10",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A468",
+      "activity": "Final Clean L1",
+      "duration": "7",
+      "predecessors": "A464,A466",
+      "min_duration": "4",
+      "crash_cost": "36000",
+      "resource_demand": "5",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A469",
+      "activity": "Final Clean L2",
+      "duration": "15",
+      "predecessors": "A466,A467",
+      "min_duration": "7",
+      "crash_cost": "38000",
+      "resource_demand": "7",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A470",
+      "activity": "Final Clean L3",
+      "duration": "6",
+      "predecessors": "A466",
+      "min_duration": "3",
+      "crash_cost": "44000",
+      "resource_demand": "3",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A471",
+      "activity": "Rough Grading",
+      "duration": "12",
+      "predecessors": "A470",
+      "min_duration": "7",
+      "crash_cost": "11000",
+      "resource_demand": "11",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A472",
+      "activity": "Topsoil Placement",
+      "duration": "5",
+      "predecessors": "A469,A471",
+      "min_duration": "2",
+      "crash_cost": "45000",
+      "resource_demand": "12",
+      "normal_cost": "27000"
+    },
+    {
+      "id": "A473",
+      "activity": "Irrigation Main Line",
+      "duration": "8",
+      "predecessors": "A472",
+      "min_duration": "3",
+      "crash_cost": "21000",
+      "resource_demand": "4",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A474",
+      "activity": "Irrigation Zone North",
+      "duration": "7",
+      "predecessors": "A473",
+      "min_duration": "3",
+      "crash_cost": "44000",
+      "resource_demand": "11",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "A475",
+      "activity": "Irrigation Zone South",
+      "duration": "15",
+      "predecessors": "A474",
+      "min_duration": "9",
+      "crash_cost": "52000",
+      "resource_demand": "3",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A476",
+      "activity": "Irrigation Zone East",
+      "duration": "4",
+      "predecessors": "A475",
+      "min_duration": "2",
+      "crash_cost": "4000",
+      "resource_demand": "2",
+      "normal_cost": "3000"
+    },
+    {
+      "id": "A477",
+      "activity": "Tree Planting North",
+      "duration": "5",
+      "predecessors": "A475",
+      "min_duration": "3",
+      "crash_cost": "71000",
+      "resource_demand": "4",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A478",
+      "activity": "Tree Planting South",
+      "duration": "9",
+      "predecessors": "A476",
+      "min_duration": "6",
+      "crash_cost": "19000",
+      "resource_demand": "3",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A479",
+      "activity": "Shrub Planting Entrance",
+      "duration": "12",
+      "predecessors": "A477,A478",
+      "min_duration": "6",
+      "crash_cost": "51000",
+      "resource_demand": "8",
+      "normal_cost": "33000"
+    },
+    {
+      "id": "A480",
+      "activity": "Lawn Seeding Zone A",
+      "duration": "2",
+      "predecessors": "A479",
+      "min_duration": "1",
+      "crash_cost": "5000",
+      "resource_demand": "7",
+      "normal_cost": "3000"
+    },
+    {
+      "id": "A481",
+      "activity": "Lawn Seeding Zone B",
+      "duration": "14",
+      "predecessors": "A480",
+      "min_duration": "9",
+      "crash_cost": "7000",
+      "resource_demand": "5",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "A482",
+      "activity": "Mulch & Bed Edging",
+      "duration": "12",
+      "predecessors": "A481",
+      "min_duration": "7",
+      "crash_cost": "37000",
+      "resource_demand": "5",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A483",
+      "activity": "Concrete Sidewalk North",
+      "duration": "3",
+      "predecessors": "A480",
+      "min_duration": "1",
+      "crash_cost": "31000",
+      "resource_demand": "11",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A484",
+      "activity": "Concrete Sidewalk South",
+      "duration": "15",
+      "predecessors": "A482",
+      "min_duration": "6",
+      "crash_cost": "57000",
+      "resource_demand": "6",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "A485",
+      "activity": "Concrete Sidewalk East",
+      "duration": "11",
+      "predecessors": "A481,A483",
+      "min_duration": "6",
+      "crash_cost": "16000",
+      "resource_demand": "8",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A486",
+      "activity": "Asphalt Paving Main Lot",
+      "duration": "9",
+      "predecessors": "A482,A485",
+      "min_duration": "4",
+      "crash_cost": "25000",
+      "resource_demand": "5",
+      "normal_cost": "13000"
+    },
+    {
+      "id": "A487",
+      "activity": "Asphalt Paving Staff Lot",
+      "duration": "14",
+      "predecessors": "A484",
+      "min_duration": "7",
+      "crash_cost": "30000",
+      "resource_demand": "5",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A488",
+      "activity": "Curb & Gutter",
+      "duration": "4",
+      "predecessors": "A487",
+      "min_duration": "1",
+      "crash_cost": "66000",
+      "resource_demand": "2",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "A489",
+      "activity": "Parking Lot Striping",
+      "duration": "3",
+      "predecessors": "A487",
+      "min_duration": "1",
+      "crash_cost": "7000",
+      "resource_demand": "12",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "A490",
+      "activity": "Parking Bollards",
+      "duration": "12",
+      "predecessors": "A485,A487",
+      "min_duration": "5",
+      "crash_cost": "10000",
+      "resource_demand": "10",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A491",
+      "activity": "Accessible Ramp Installation",
+      "duration": "2",
+      "predecessors": "A489,A490",
+      "min_duration": "1",
+      "crash_cost": "5000",
+      "resource_demand": "12",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "A492",
+      "activity": "Retaining Wall North",
+      "duration": "3",
+      "predecessors": "A491",
+      "min_duration": "1",
+      "crash_cost": "16000",
+      "resource_demand": "8",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "A493",
+      "activity": "Retaining Wall East",
+      "duration": "9",
+      "predecessors": "A488,A490",
+      "min_duration": "5",
+      "crash_cost": "4000",
+      "resource_demand": "5",
+      "normal_cost": "3000"
+    },
+    {
+      "id": "A494",
+      "activity": "Decorative Paving Entrance",
+      "duration": "12",
+      "predecessors": "A492",
+      "min_duration": "5",
+      "crash_cost": "34000",
+      "resource_demand": "10",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A495",
+      "activity": "Bike Rack Installation",
+      "duration": "13",
+      "predecessors": "A492",
+      "min_duration": "5",
+      "crash_cost": "63000",
+      "resource_demand": "3",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A496",
+      "activity": "Bench & Furniture Installation",
+      "duration": "3",
+      "predecessors": "A493,A495",
+      "min_duration": "1",
+      "crash_cost": "48000",
+      "resource_demand": "3",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A497",
+      "activity": "Flagpole Installation",
+      "duration": "5",
+      "predecessors": "A493,A494",
+      "min_duration": "3",
+      "crash_cost": "23000",
+      "resource_demand": "10",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "A498",
+      "activity": "Exterior Lighting Poles",
+      "duration": "8",
+      "predecessors": "A494,A496",
+      "min_duration": "4",
+      "crash_cost": "62000",
+      "resource_demand": "2",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A499",
+      "activity": "Pathway Lighting",
+      "duration": "5",
+      "predecessors": "A498",
+      "min_duration": "3",
+      "crash_cost": "35000",
+      "resource_demand": "9",
+      "normal_cost": "24000"
+    },
+    {
+      "id": "A500",
+      "activity": "Landscape Lighting Accent",
+      "duration": "2",
+      "predecessors": "A497,A498",
+      "min_duration": "1",
+      "crash_cost": "68000",
+      "resource_demand": "3",
+      "normal_cost": "39000"
+    },
+    {
+      "id": "A501",
+      "activity": "Fence Gate North",
+      "duration": "4",
+      "predecessors": "A498",
+      "min_duration": "2",
+      "crash_cost": "12000",
+      "resource_demand": "10",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A502",
+      "activity": "Fence Gate South",
+      "duration": "3",
+      "predecessors": "A499,A500",
+      "min_duration": "2",
+      "crash_cost": "27000",
+      "resource_demand": "12",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A503",
+      "activity": "Loading Dock Approach Paving",
+      "duration": "6",
+      "predecessors": "A499,A501",
+      "min_duration": "2",
+      "crash_cost": "16000",
+      "resource_demand": "2",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A504",
+      "activity": "Dumpster Enclosure",
+      "duration": "15",
+      "predecessors": "A501,A502",
+      "min_duration": "6",
+      "crash_cost": "48000",
+      "resource_demand": "6",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A505",
+      "activity": "Transformer Pad Landscaping",
+      "duration": "7",
+      "predecessors": "A502",
+      "min_duration": "3",
+      "crash_cost": "17000",
+      "resource_demand": "3",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A506",
+      "activity": "Generator Enclosure Screen",
+      "duration": "2",
+      "predecessors": "A505",
+      "min_duration": "1",
+      "crash_cost": "19000",
+      "resource_demand": "4",
+      "normal_cost": "13000"
+    },
+    {
+      "id": "A507",
+      "activity": "Snow Melt System Entry",
+      "duration": "9",
+      "predecessors": "A504,A506",
+      "min_duration": "6",
+      "crash_cost": "12000",
+      "resource_demand": "6",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "A508",
+      "activity": "Drainage Swale",
+      "duration": "7",
+      "predecessors": "A506",
+      "min_duration": "3",
+      "crash_cost": "55000",
+      "resource_demand": "8",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "A509",
+      "activity": "Landscape Final Grading",
+      "duration": "6",
+      "predecessors": "A507",
+      "min_duration": "4",
+      "crash_cost": "50000",
+      "resource_demand": "9",
+      "normal_cost": "29000"
+    },
+    {
+      "id": "A510",
+      "activity": "Landscape Inspection Sign-off",
+      "duration": "14",
+      "predecessors": "A509",
+      "min_duration": "6",
+      "crash_cost": "11000",
+      "resource_demand": "4",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A511",
+      "activity": "Electrical System Testing - Main",
+      "duration": "15",
+      "predecessors": "A508,A510",
+      "min_duration": "6",
+      "crash_cost": "65000",
+      "resource_demand": "8",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "A512",
+      "activity": "Electrical System Testing - Emergency",
+      "duration": "11",
+      "predecessors": "A511",
+      "min_duration": "7",
+      "crash_cost": "49000",
+      "resource_demand": "4",
+      "normal_cost": "27000"
+    },
+    {
+      "id": "A513",
+      "activity": "Generator Load Test",
+      "duration": "11",
+      "predecessors": "A512",
+      "min_duration": "4",
+      "crash_cost": "18000",
+      "resource_demand": "12",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A514",
+      "activity": "UPS System Test",
+      "duration": "9",
+      "predecessors": "A513",
+      "min_duration": "3",
+      "crash_cost": "41000",
+      "resource_demand": "8",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A515",
+      "activity": "Lightning Protection Test",
+      "duration": "6",
+      "predecessors": "A514",
+      "min_duration": "3",
+      "crash_cost": "66000",
+      "resource_demand": "2",
+      "normal_cost": "36000"
+    },
+    {
+      "id": "A516",
+      "activity": "Fire Alarm System Test",
+      "duration": "11",
+      "predecessors": "A514",
+      "min_duration": "7",
+      "crash_cost": "39000",
+      "resource_demand": "5",
+      "normal_cost": "24000"
+    },
+    {
+      "id": "A517",
+      "activity": "Sprinkler Flow Test",
+      "duration": "13",
+      "predecessors": "A514",
+      "min_duration": "8",
+      "crash_cost": "52000",
+      "resource_demand": "3",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "A518",
+      "activity": "Sprinkler Pressure Test",
+      "duration": "5",
+      "predecessors": "A517",
+      "min_duration": "2",
+      "crash_cost": "37000",
+      "resource_demand": "12",
+      "normal_cost": "27000"
+    },
+    {
+      "id": "A519",
+      "activity": "Fire Pump Test",
+      "duration": "15",
+      "predecessors": "A518",
+      "min_duration": "8",
+      "crash_cost": "7000",
+      "resource_demand": "11",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A520",
+      "activity": "Smoke Control System Test",
+      "duration": "4",
+      "predecessors": "A515,A517",
+      "min_duration": "2",
+      "crash_cost": "64000",
+      "resource_demand": "9",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A521",
+      "activity": "HVAC Balancing Zone A",
+      "duration": "3",
+      "predecessors": "A519,A520",
+      "min_duration": "1",
+      "crash_cost": "27000",
+      "resource_demand": "7",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "A522",
+      "activity": "HVAC Balancing Zone B",
+      "duration": "6",
+      "predecessors": "A518",
+      "min_duration": "2",
+      "crash_cost": "66000",
+      "resource_demand": "5",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A523",
+      "activity": "HVAC Balancing Zone C",
+      "duration": "8",
+      "predecessors": "A521",
+      "min_duration": "5",
+      "crash_cost": "51000",
+      "resource_demand": "3",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "A524",
+      "activity": "AHU Performance Test L1",
+      "duration": "11",
+      "predecessors": "A523",
+      "min_duration": "6",
+      "crash_cost": "47000",
+      "resource_demand": "9",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A525",
+      "activity": "AHU Performance Test L2",
+      "duration": "9",
+      "predecessors": "A523",
+      "min_duration": "5",
+      "crash_cost": "14000",
+      "resource_demand": "2",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A526",
+      "activity": "AHU Performance Test L3",
+      "duration": "2",
+      "predecessors": "A523",
+      "min_duration": "1",
+      "crash_cost": "14000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "A527",
+      "activity": "Chiller Start-up",
+      "duration": "11",
+      "predecessors": "A526",
+      "min_duration": "6",
+      "crash_cost": "54000",
+      "resource_demand": "10",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A528",
+      "activity": "Boiler Start-up",
+      "duration": "12",
+      "predecessors": "A527",
+      "min_duration": "6",
+      "crash_cost": "48000",
+      "resource_demand": "7",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A529",
+      "activity": "Cooling Tower Test",
+      "duration": "15",
+      "predecessors": "A527",
+      "min_duration": "7",
+      "crash_cost": "40000",
+      "resource_demand": "9",
+      "normal_cost": "24000"
+    },
+    {
+      "id": "A530",
+      "activity": "BMS Integration Test L1",
+      "duration": "11",
+      "predecessors": "A529",
+      "min_duration": "6",
+      "crash_cost": "46000",
+      "resource_demand": "12",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A531",
+      "activity": "BMS Integration Test L2",
+      "duration": "3",
+      "predecessors": "A530",
+      "min_duration": "1",
+      "crash_cost": "22000",
+      "resource_demand": "12",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A532",
+      "activity": "BMS Integration Test L3",
+      "duration": "7",
+      "predecessors": "A529",
+      "min_duration": "4",
+      "crash_cost": "63000",
+      "resource_demand": "6",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A533",
+      "activity": "BMS Graphics & Trending",
+      "duration": "13",
+      "predecessors": "A530",
+      "min_duration": "5",
+      "crash_cost": "47000",
+      "resource_demand": "4",
+      "normal_cost": "34000"
+    },
+    {
+      "id": "A534",
+      "activity": "Plumbing System Flush",
+      "duration": "13",
+      "predecessors": "A531,A532,A533",
+      "min_duration": "8",
+      "crash_cost": "13000",
+      "resource_demand": "8",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A535",
+      "activity": "Domestic Hot Water Test",
+      "duration": "5",
+      "predecessors": "A532,A533",
+      "min_duration": "2",
+      "crash_cost": "25000",
+      "resource_demand": "8",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "A536",
+      "activity": "Backflow Preventer Test",
+      "duration": "14",
+      "predecessors": "A535",
+      "min_duration": "6",
+      "crash_cost": "16000",
+      "resource_demand": "7",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A537",
+      "activity": "Elevator Installation Car 1",
+      "duration": "2",
+      "predecessors": "A535",
+      "min_duration": "1",
+      "crash_cost": "55000",
+      "resource_demand": "12",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "A538",
+      "activity": "Elevator Installation Car 2",
+      "duration": "9",
+      "predecessors": "A537",
+      "min_duration": "5",
+      "crash_cost": "48000",
+      "resource_demand": "11",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A539",
+      "activity": "Elevator Inspection Car 1",
+      "duration": "9",
+      "predecessors": "A536",
+      "min_duration": "3",
+      "crash_cost": "74000",
+      "resource_demand": "2",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A540",
+      "activity": "Elevator Inspection Car 2",
+      "duration": "15",
+      "predecessors": "A537",
+      "min_duration": "9",
+      "crash_cost": "24000",
+      "resource_demand": "10",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A541",
+      "activity": "Security System Programming",
+      "duration": "4",
+      "predecessors": "A538,A540",
+      "min_duration": "2",
+      "crash_cost": "14000",
+      "resource_demand": "4",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A542",
+      "activity": "Access Control Setup",
+      "duration": "11",
+      "predecessors": "A538,A539,A540",
+      "min_duration": "6",
+      "crash_cost": "67000",
+      "resource_demand": "7",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A543",
+      "activity": "CCTV Camera Install & Test",
+      "duration": "8",
+      "predecessors": "A542",
+      "min_duration": "5",
+      "crash_cost": "31000",
+      "resource_demand": "5",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "A544",
+      "activity": "Intercom System Test",
+      "duration": "7",
+      "predecessors": "A539,A541",
+      "min_duration": "5",
+      "crash_cost": "15000",
+      "resource_demand": "9",
+      "normal_cost": "11000"
+    },
+    {
+      "id": "A545",
+      "activity": "Telecom Riser Test",
+      "duration": "11",
+      "predecessors": "A543,A544",
+      "min_duration": "7",
+      "crash_cost": "41000",
+      "resource_demand": "10",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A546",
+      "activity": "Data Network Testing",
+      "duration": "10",
+      "predecessors": "A545",
+      "min_duration": "7",
+      "crash_cost": "23000",
+      "resource_demand": "10",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "A547",
+      "activity": "AV System Testing",
+      "duration": "11",
+      "predecessors": "A543,A544",
+      "min_duration": "7",
+      "crash_cost": "48000",
+      "resource_demand": "12",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A548",
+      "activity": "PA System Testing",
+      "duration": "4",
+      "predecessors": "A545",
+      "min_duration": "2",
+      "crash_cost": "23000",
+      "resource_demand": "12",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "A549",
+      "activity": "Emergency Generator Auto-Transfer Test",
+      "duration": "13",
+      "predecessors": "A546",
+      "min_duration": "8",
+      "crash_cost": "42000",
+      "resource_demand": "3",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A550",
+      "activity": "Integrated Systems Test",
+      "duration": "11",
+      "predecessors": "A546,A547,A548",
+      "min_duration": "6",
+      "crash_cost": "51000",
+      "resource_demand": "12",
+      "normal_cost": "29000"
+    },
+    {
+      "id": "A551",
+      "activity": "Occupancy Sensor Calibration",
+      "duration": "15",
+      "predecessors": "A548",
+      "min_duration": "8",
+      "crash_cost": "4000",
+      "resource_demand": "8",
+      "normal_cost": "3000"
+    },
+    {
+      "id": "A552",
+      "activity": "Daylight Harvesting Calibration",
+      "duration": "2",
+      "predecessors": "A550,A551",
+      "min_duration": "1",
+      "crash_cost": "8000",
+      "resource_demand": "2",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A553",
+      "activity": "Indoor Air Quality Test",
+      "duration": "14",
+      "predecessors": "A552",
+      "min_duration": "9",
+      "crash_cost": "26000",
+      "resource_demand": "6",
+      "normal_cost": "19000"
+    },
+    {
+      "id": "A554",
+      "activity": "Noise Level Testing",
+      "duration": "2",
+      "predecessors": "A553",
+      "min_duration": "1",
+      "crash_cost": "29000",
+      "resource_demand": "6",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "A555",
+      "activity": "Thermal Comfort Verification",
+      "duration": "2",
+      "predecessors": "A554",
+      "min_duration": "1",
+      "crash_cost": "15000",
+      "resource_demand": "9",
+      "normal_cost": "9000"
+    },
+    {
+      "id": "A556",
+      "activity": "Commissioning Report Draft",
+      "duration": "12",
+      "predecessors": "A555",
+      "min_duration": "7",
+      "crash_cost": "59000",
+      "resource_demand": "5",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A557",
+      "activity": "Punch List Generation",
+      "duration": "10",
+      "predecessors": "A556",
+      "min_duration": "6",
+      "crash_cost": "11000",
+      "resource_demand": "6",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A558",
+      "activity": "Punch List Resolution",
+      "duration": "8",
+      "predecessors": "A556",
+      "min_duration": "4",
+      "crash_cost": "45000",
+      "resource_demand": "12",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A559",
+      "activity": "Re-Inspection Items",
+      "duration": "2",
+      "predecessors": "A556",
+      "min_duration": "1",
+      "crash_cost": "26000",
+      "resource_demand": "6",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "A560",
+      "activity": "Final Commissioning Sign-off",
+      "duration": "14",
+      "predecessors": "A559",
+      "min_duration": "9",
+      "crash_cost": "32000",
+      "resource_demand": "9",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A561",
+      "activity": "As-Built Drawings Architectural",
+      "duration": "13",
+      "predecessors": "A560",
+      "min_duration": "8",
+      "crash_cost": "67000",
+      "resource_demand": "7",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "A562",
+      "activity": "As-Built Drawings Structural",
+      "duration": "11",
+      "predecessors": "A561",
+      "min_duration": "5",
+      "crash_cost": "33000",
+      "resource_demand": "5",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A563",
+      "activity": "As-Built Drawings MEP",
+      "duration": "12",
+      "predecessors": "A561",
+      "min_duration": "5",
+      "crash_cost": "48000",
+      "resource_demand": "4",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "A564",
+      "activity": "As-Built Drawings Civil",
+      "duration": "2",
+      "predecessors": "A562,A563",
+      "min_duration": "1",
+      "crash_cost": "26000",
+      "resource_demand": "10",
+      "normal_cost": "19000"
+    },
+    {
+      "id": "A565",
+      "activity": "O&M Manual Volume 1 - Architectural",
+      "duration": "11",
+      "predecessors": "A564",
+      "min_duration": "7",
+      "crash_cost": "39000",
+      "resource_demand": "2",
+      "normal_cost": "24000"
+    },
+    {
+      "id": "A566",
+      "activity": "O&M Manual Volume 2 - Structural",
+      "duration": "4",
+      "predecessors": "A565",
+      "min_duration": "1",
+      "crash_cost": "11000",
+      "resource_demand": "7",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "A567",
+      "activity": "O&M Manual Volume 3 - Mechanical",
+      "duration": "12",
+      "predecessors": "A566",
+      "min_duration": "7",
+      "crash_cost": "36000",
+      "resource_demand": "12",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A568",
+      "activity": "O&M Manual Volume 4 - Electrical",
+      "duration": "11",
+      "predecessors": "A565",
+      "min_duration": "6",
+      "crash_cost": "38000",
+      "resource_demand": "3",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A569",
+      "activity": "O&M Manual Volume 5 - Plumbing",
+      "duration": "4",
+      "predecessors": "A566",
+      "min_duration": "2",
+      "crash_cost": "20000",
+      "resource_demand": "10",
+      "normal_cost": "13000"
+    },
+    {
+      "id": "A570",
+      "activity": "O&M Manual Volume 6 - Fire Protection",
+      "duration": "10",
+      "predecessors": "A567",
+      "min_duration": "5",
+      "crash_cost": "32000",
+      "resource_demand": "7",
+      "normal_cost": "17000"
+    },
+    {
+      "id": "A571",
+      "activity": "Warranty Documentation Collection",
+      "duration": "12",
+      "predecessors": "A568",
+      "min_duration": "6",
+      "crash_cost": "30000",
+      "resource_demand": "7",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A572",
+      "activity": "Warranty Database Setup",
+      "duration": "14",
+      "predecessors": "A569,A571",
+      "min_duration": "8",
+      "crash_cost": "71000",
+      "resource_demand": "9",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A573",
+      "activity": "Spare Parts Inventory",
+      "duration": "12",
+      "predecessors": "A570,A572",
+      "min_duration": "4",
+      "crash_cost": "40000",
+      "resource_demand": "12",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A574",
+      "activity": "Attic Stock Delivery",
+      "duration": "12",
+      "predecessors": "A573",
+      "min_duration": "7",
+      "crash_cost": "35000",
+      "resource_demand": "11",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "A575",
+      "activity": "Staff Training - HVAC Operations",
+      "duration": "12",
+      "predecessors": "A574",
+      "min_duration": "8",
+      "crash_cost": "15000",
+      "resource_demand": "8",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "A576",
+      "activity": "Staff Training - Fire Life Safety",
+      "duration": "10",
+      "predecessors": "A574",
+      "min_duration": "6",
+      "crash_cost": "67000",
+      "resource_demand": "2",
+      "normal_cost": "36000"
+    },
+    {
+      "id": "A577",
+      "activity": "Staff Training - BMS",
+      "duration": "7",
+      "predecessors": "A574",
+      "min_duration": "4",
+      "crash_cost": "50000",
+      "resource_demand": "10",
+      "normal_cost": "31000"
+    },
+    {
+      "id": "A578",
+      "activity": "Staff Training - Security Systems",
+      "duration": "6",
+      "predecessors": "A576",
+      "min_duration": "4",
+      "crash_cost": "38000",
+      "resource_demand": "5",
+      "normal_cost": "23000"
+    },
+    {
+      "id": "A579",
+      "activity": "Staff Training - Plumbing & Drainage",
+      "duration": "3",
+      "predecessors": "A576,A577",
+      "min_duration": "1",
+      "crash_cost": "48000",
+      "resource_demand": "10",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A580",
+      "activity": "Staff Training - Electrical Systems",
+      "duration": "3",
+      "predecessors": "A579",
+      "min_duration": "1",
+      "crash_cost": "30000",
+      "resource_demand": "12",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "A581",
+      "activity": "Final Health & Safety Audit",
+      "duration": "8",
+      "predecessors": "A578",
+      "min_duration": "5",
+      "crash_cost": "69000",
+      "resource_demand": "5",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A582",
+      "activity": "Environmental Compliance Report",
+      "duration": "13",
+      "predecessors": "A580,A581",
+      "min_duration": "8",
+      "crash_cost": "12000",
+      "resource_demand": "12",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A583",
+      "activity": "Occupancy Permit Application",
+      "duration": "4",
+      "predecessors": "A580",
+      "min_duration": "1",
+      "crash_cost": "6000",
+      "resource_demand": "7",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "A584",
+      "activity": "Fire Department Final Inspection",
+      "duration": "2",
+      "predecessors": "A582",
+      "min_duration": "1",
+      "crash_cost": "51000",
+      "resource_demand": "6",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A585",
+      "activity": "Building Code Final Inspection",
+      "duration": "15",
+      "predecessors": "A582,A583",
+      "min_duration": "7",
+      "crash_cost": "45000",
+      "resource_demand": "6",
+      "normal_cost": "29000"
+    },
+    {
+      "id": "A586",
+      "activity": "Accessibility Compliance Review",
+      "duration": "12",
+      "predecessors": "A583,A584",
+      "min_duration": "6",
+      "crash_cost": "6000",
+      "resource_demand": "7",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "A587",
+      "activity": "Certificate of Occupancy",
+      "duration": "3",
+      "predecessors": "A585",
+      "min_duration": "1",
+      "crash_cost": "12000",
+      "resource_demand": "12",
+      "normal_cost": "7000"
+    },
+    {
+      "id": "A588",
+      "activity": "Demobilisation - Crane",
+      "duration": "11",
+      "predecessors": "A586",
+      "min_duration": "4",
+      "crash_cost": "48000",
+      "resource_demand": "3",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "A589",
+      "activity": "Demobilisation - Hoist",
+      "duration": "3",
+      "predecessors": "A586,A587",
+      "min_duration": "1",
+      "crash_cost": "37000",
+      "resource_demand": "12",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "A590",
+      "activity": "Demobilisation - Site Office",
+      "duration": "6",
+      "predecessors": "A586,A587",
+      "min_duration": "4",
+      "crash_cost": "42000",
+      "resource_demand": "9",
+      "normal_cost": "27000"
+    },
+    {
+      "id": "A591",
+      "activity": "Temporary Utilities Disconnect",
+      "duration": "12",
+      "predecessors": "A587,A588",
+      "min_duration": "4",
+      "crash_cost": "53000",
+      "resource_demand": "4",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A592",
+      "activity": "Hoarding Removal",
+      "duration": "13",
+      "predecessors": "A589",
+      "min_duration": "6",
+      "crash_cost": "41000",
+      "resource_demand": "10",
+      "normal_cost": "21000"
+    },
+    {
+      "id": "A593",
+      "activity": "Site Restoration",
+      "duration": "4",
+      "predecessors": "A589,A590,A591",
+      "min_duration": "2",
+      "crash_cost": "51000",
+      "resource_demand": "12",
+      "normal_cost": "26000"
+    },
+    {
+      "id": "A594",
+      "activity": "Final Site Survey",
+      "duration": "2",
+      "predecessors": "A592,A593",
+      "min_duration": "1",
+      "crash_cost": "16000",
+      "resource_demand": "10",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "A595",
+      "activity": "Project Lessons Learned Workshop",
+      "duration": "2",
+      "predecessors": "A591,A592",
+      "min_duration": "1",
+      "crash_cost": "62000",
+      "resource_demand": "8",
+      "normal_cost": "37000"
+    },
+    {
+      "id": "A596",
+      "activity": "Project Close-out Report",
+      "duration": "3",
+      "predecessors": "A594",
+      "min_duration": "1",
+      "crash_cost": "25000",
+      "resource_demand": "7",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "A597",
+      "activity": "Financial Close-out",
+      "duration": "12",
+      "predecessors": "A594",
+      "min_duration": "8",
+      "crash_cost": "18000",
+      "resource_demand": "4",
+      "normal_cost": "13000"
+    },
+    {
+      "id": "A598",
+      "activity": "Retention Release Preparation",
+      "duration": "11",
+      "predecessors": "A594,A595",
+      "min_duration": "7",
+      "crash_cost": "14000",
+      "resource_demand": "5",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "A599",
+      "activity": "Owner Move-In Coordination",
+      "duration": "14",
+      "predecessors": "A597,A598",
+      "min_duration": "8",
+      "crash_cost": "61000",
+      "resource_demand": "2",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "A600",
+      "activity": "Project Handover Ceremony",
+      "duration": "10",
+      "predecessors": "A597,A598",
+      "min_duration": "4",
+      "crash_cost": "10000",
+      "resource_demand": "12",
+      "normal_cost": "7000"
+    }
+  ],
+  "cpm_mode": "deterministic"
+}

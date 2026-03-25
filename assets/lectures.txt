@@ -1,0 +1,1113 @@
+IM 738
+Advanced Project 
+Management
+Lecture 1
+............................................................................ — ............................................................................
+........................................................................................................................................................
+............................................................................ — ............................................................................
+Definition of a Project
+❖ A project is a non-repetitive achievement.
+❖ Projects are temporary in nature. They are not an 
+everyday business process.
+❖ Project management is to accomplish unique outcomes 
+with limited resources under critical time constraints.
+❖ A project is a temporary endeavor to create a unique 
+product, service, or result. (Project Management Institute PMI Definition)
+............................................................................ — ............................................................................
+Project Characteristics
+❖ Projects are unique.
+❖ Projects are temporary in nature and have a definite 
+beginning and ending date.
+❖ Projects are completed when the project goals are 
+achieved or it’s determined the project is no longer 
+viable.
+A successful project is one that meets or exceeds the 
+expectations of the stakeholders.
+............................................................................ — ............................................................................
+Small            Medium          Large
+Project versus Operation
+2
+3
+Batch Size
+1
+Mass 
+Production
+Batch 
+Production
+Project
+Small            Medium
+1
+2
+          Large
+3
+Volume of Work and Resources Involved
+............................................................................ — ............................................................................
+Batch Size
+Small    Medium    Large
+Mass 
+Production
+Batch 
+Production
+Project
+Small            Medium
+          Large
+Volume of Work and Resources Involved
+Project vs. Operation
+Operation manager is oriented toward 
+continuous improvement of existing 
+processes over longer periods of time. 
+A project manager needs a different set 
+of skills to both define and successfully 
+execute temporary projects
+............................................................................ — ............................................................................
+............................................................................ — ............................................................................
+Tentative Syllabus
+❖ Project Screening and Selection
+❖ Project Scheduling Under Uncertainty
+❖ Time-Cost Optimization
+❖ Risk in Project Management
+❖ Resource Management
+............................................................................ — ............................................................................
+References
+❖ “Project Management from Simple to Complex.” By 
+University of Minnesota
+❖
+............................................................................ — ............................................................................
+Project Management Processes
+Project Initiation Context
+Examples of Factors that Lead to the Creation of a Project
+New Technology
+Competitive Forces
+Material Issues
+Political Changes
+Market Demand
+Economic Changes
+Customer Requests
+Social Needs
+Environmental Consideration
+Project Phases
+Concept development, 
+Feasibility study, 
+Customer requirements, 
+Solution development, 
+Design, 
+Prototype, 
+Build,
+Test, 
+Transition, 
+Commissioning, 
+Milestone review, and
+Lessons learned.
+Develop the 
+Project 
+Management 
+Plan (Module 3)
+............................................................................ A. ............................................................................
+Project Environment and Life Cycles
+• Project Management guidelines are just good practice but not what should be always applied uniformly to all projects.
+• Project environments and life cycles influence how each phase of the Project Development Life Cycle (PDLC) is approached 
+and managed.
+• Tailoring is necessary because each project is unique; not every process, tool, technique, input, or output identified
+• Tailoring should address the competing constraints of scope, schedule, cost, resources, quality, and risk. 
+• The importance of each constraint is different for each project, and the project manager tailors the approach for managing 
+these constraints based on the project environment, organizational culture, stakeholder needs, and other variables
+Project Environment Types
+• A project environment refers to the context and external conditions in which a project operates.
+• Types:
+• Predictive Environment (Stable): The project scope, time, and cost are determined early, and any changes are tightly controlled.
+• Example: Building a bridge where detailed blueprints are created beforehand, and the project follows a strict timeline and budget.
+• Adaptive Environment (Dynamic): he project scope evolves incrementally, with a focus on collaboration, flexibility, and rapid iteration.
+• Example: Software development for a mobile app where requirements may change based on user feedback, and features are delivered in short sprints.
+• Hybrid Environment: Combines predictive and adaptive approaches, using elements of both for different parts of the project.
+• Example: A marketing campaign where media production (predictive) is planned in advance, but social media strategy (adaptive) evolves based on audience 
+engagement.
+• During Initiation, assess the environment to determine if it’s stable (predictive) or dynamic (adaptive).
+Project 
+Life Cycle 
+A project management life cycle is a framework 
+comprising a set of distinct high-level stages 
+required to transform an idea of concept into reality 
+in an orderly and efficient manner (APM Body of 
+Knowledge 7th Edition)
+Project Development Life Cycle (PDLC) is broken down 
+into Planning and Execution. The execution phase is 
+broken down into execution and monitoring and 
+control.
+Project Life Cycle Examples
+• Life cycles define how the Execution phase is structured.
+• Predictive (Waterfall): Each phase is completed before the next begins. Changes are costly and discouraged.
+Phases: Initiation → Planning → Execution → Monitoring & Controlling → Closure
+• Example: Building a highway. Detailed plans are created, and construction progresses sequentially.
+• Iterative: focuses on revisiting and improving work done in previous phases.
+Phases: Repeated cycles of development with feedback incorporated after each.
+• Example: Developing a new vaccine where trials are conducted, analyzed, and adjusted repeatedly.
+Project Life Cycle Examples (Contd.)
+• Incremental: Delivers usable increments of the project in successive stages.
+Phases: Plan → Develop increment → Deliver → Repeat until completion.
+• Example: A streaming service where features like user profiles, video playback, and search are rolled out incrementally..
+• Agile: A flexible approach with short cycles called sprints. Collaboration and adaptability are key.
+Phases: Concept → Iteration (plan, execute, evaluate) → Release → Feedback → Repeat.
+• Example: Creating a game with regular releases and updates based on user feedback..
+• Hybrid: Combines predictive and adaptive approaches.
+Relation between Environment, Life 
+Cycle and PDLC
+• Initiation Phase: Determine the environment (predictive or adaptive) and select an appropriate life cycle.
+• Example: If the environment is uncertain, choose an agile or hybrid life cycle.
+• Planning Phase: Tailor the plan to the chosen life cycle.
+• Example: Predictive projects require a detailed Gantt chart, while adaptive projects need a backlog and sprint plans.
+• Execution Phase: Execute the project according to the life cycle framework.
+• Example: Predictive projects proceed sequentially, while iterative life cycles involve repeated cycles of design, build, and test.
+• Monitoring & Controlling Phase: Use the life cycle to establish metrics for performance and risk monitoring.
+• Example: Adaptive projects use velocity and burn-down charts, while predictive projects focus on earned value analysis.
+• Closure Phase: The environment and life cycle influence how closure is documented and evaluated.
+• Example: Predictive projects deliver a final report, while adaptive projects may deliver incremental updates and post-mortems.
+Examples Comparing Environments 
+and Life Cycles
+Project Type
+Construction of a hospital
+E-commerce website
+Launching a new tangible 
+product
+New food product line
+Environment
+Predictive
+Adaptive
+Hybrid
+Adaptive
+Life Cycle
+Predictive
+Agile
+Hybrid
+Iterative
+Example
+Fixed scope, timeline, and budget; follows a detailed project 
+plan.
+Features developed iteratively; user feedback influences future 
+sprints.
+Manufacturing follows predictive life cycle, marketing is 
+adaptive.
+Recipes and packaging are refined after consumer taste tests.
+Examples Comparing Environments 
+and Life Cycles
+Project Type
+Smartphone app launch
+Developing a space exploration 
+rover
+Mobile game development
+Launching a new fashion 
+brand
+Environment
+Adaptive
+Predictive
+Adaptive
+Hybrid
+Life Cycle
+Incremental
+Predictive
+Agile
+Incremental
+Example
+New features added in phases; early versions deliver core 
+functionalities.
+NASA missions: scope and design are defined years in advance, 
+with minimal changes.
+Features, levels, and updates are added in sprints based on 
+player feedback.
+Manufacturing follows predictive methods, while marketing 
+campaigns evolve based on customer response.
+Examples Comparing Environments 
+and Life Cycles
+Project Type
+Setting up a solar farm
+Designing a luxury car
+Smart home system 
+development
+University curriculum redesign
+Environment
+Predictive
+Hybrid
+Adaptive
+Hybrid
+Life Cycle
+Predictive
+Hybrid
+Incremental
+Iterative
+Example
+Engineering plans are followed strictly, with fixed scope and 
+budget.
+Predictive for chassis and engine design; adaptive for 
+infotainment systems and customer preferences.
+Basic functionalities (lighting) are rolled out first, followed by 
+advanced features like voice control.
+Fixed goals for core courses, iterative updates to electives based 
+on industry trends.
+Insights from Examples
+1.
+2.
+3.
+4.
+High Certainty Projects: Construction, infrastructure, and manufacturing often fit predictive environments and life cycles 
+because they benefit from detailed upfront planning.
+Innovative Projects: Software development, AI, and gaming often use adaptive environments with agile or incremental 
+life cycles, ensuring flexibility and responsiveness to feedback.
+Blended Needs: Hybrid environments and life cycles are ideal for projects like ERP implementation, IoT systems, and 
+product launches where parts of the project are predictable, but others require iterative updates.
+Continuous Refinement: Projects like pandemic planning, curriculum redesign, or website revamps align with iterative 
+life cycles, refining deliverables over time.
+Project Management Processes
+Initiating
+Closing
+Monitoring and 
+Controlling
+Planning
+Executing
+Planning Phase
+• Backlog and Sprints
+• Burn-Down Chart
+• Gantt Charts and Network Diagrams
+Develop the 
+Project 
+Management 
+Plan (Module 4)
+............................................................................ A. ............................................................................
+Project Planning Components
+Scope
+Schedule
+Risk
+Develop a 
+Plan
+Procure
+ment
+Resources
+Cost
+Quality
+Commu
+nication
+Gantt Chart
+A Gantt chart provides a visual display of a project schedule, 
+indicating when activities are scheduled to start and to finish and where 
+extra time is available and activities can be delayed. 
+A Gantt chart does not easily indicate the precedence relationships
+Network Representation
+Network representation is useful for project analysis.
+Networks show how project activities are organized and are used to determine time duration of projects.
+Network techniques used are:
+CPM (Critical Path Method)
+PERT (Project Evaluation and Review Technique)
+Both are developed independently during late 1950s.
+The Project Network
+AON Network for House Building 
+Project
+A node represents an activity, with its label and time shown on the node
+The branches show the precedence relationships
+Convention used in Microsoft Project software
+The Project Network
+Paths Through a Network
+Path
+A
+B
+C
+D
+Events
+1—>2—> 4—> 7
+1—>2—> 5—>6—> 7
+1—>3—> 4—> 7
+1—>3—> 5—>6—> 7
+Project Network
+Critical Path
+The critical path is the longest path through the network; the minimum 
+time the network can be completed.  From Figure 8.8:
+Path A: 1 2 4 7
+Path B: 1  2 5 6 7
+Path C: 1  3 4 7
+Path D: 1  3 5 6 7
+3 + 2 + 3 + 1 = 9 months
+3 + 2 + 1 + 1 + 1= 8 months
+3 + 1 + 3 + 1 = 8 months       
+3 + 1 + 1 + 1 + 1 = 7 months
+Project Network
+Project Scheduling
+Earliest Start
+Latest Finish
+Slack and Critical Path
+CPM/PERT Analysis with Excel QM 
+http://www.pearsonhighered.com/taylor
+Download Excel QM add-in for windows
+Solve on QM (1of 5)
+Choose “Single Time Estimate”
+Enter all “Activity Time” and “Predecessors”
+Solve on QM (2 of 5)
+Click on “Solve”
+Solve on QM (3 of 5)
+You can view “Project Management Results”
+Or you can view “Charts”
+Solve on QM (4 of 5)
+Project Management 
+Results
+Solve on QM (5 of 5)
+Charts
+Gantt 
+chart
+PERT (Project Evaluation and 
+Review Technique)
+a = optimistic time estimate 
+m = most likely time estimate 
+b = pessimistic time estimate 
+PERT Chart
+PERT Activities
+Critical Path
+Probabilistic Activity Times
+Expected Project Time and 
+Variance
+𝜇
+𝜇
+Expected project time is the sum of the expected times of the critical path activities.
+Project variance is the sum of the critical path activities’ variances
+The expected project time is assumed to be normally distributed (based on central limit 
+theorem).
+In example, expected project time (tp) and variance (vp) interpreted as the mean (μ) and variance 
+(σ2) of a normal distribution:
+= 25 weeks
+= 25 weeks
+
+
+2
+2
+= 62/9= 6.9 
+weeks
+= 62/9= 6.9 
+weeks
+2
+2
+Probability Analysis of Project 
+Network
+Suppose the textile company manager told customers 
+that the new order processing system would be 
+completely installed in 30 weeks. What is the probability 
+that it will, in fact, be ready by that time? 
+Lookup this value from the Z-table
+0.9713
+Probability Analysis of Project 
+Network
+Suppose the textile company manager told customers 
+that the new order processing system would be 
+completely installed in 30 weeks. What is the probability 
+that it will, in fact, be ready by that time? 
+This means that there a probability of 0.9713 that the order processing is complete by 30 weeks. 
+Probability Analysis of Project 
+Network
+Suppose that 0.9713 probability is not satisfying to you as 
+a customer and you want to know the time it would 
+take the system to be complete with a probability 0.99. 
+Lookup Z-table and find an equivalent Z that has a probability value of 0.99
+0.03
+2.3
+0.9901
+2.33
+Probability Analysis of Project 
+Network
+Suppose that 0.9713 probability is not satisfying to you as 
+a customer and you want to know the time it would 
+take the system to be complete with a probability 0.99. 
+x=
+31.12
+Solve on QM (1of 8)
+Choose “Triple Time 
+Estimate”Estimate”
+Enter all “Optimistic Time”, “Most Likely”, 
+and “Pessimistic Time” and “Predecessors”
+Solve on QM (2 of 8)
+Click on “Solve”
+Solve on QM (3 of 8)
+You can view “Project Management 
+Results”
+You can view “Activity Time 
+Computations”
+Or you can view “Charts”
+Solve on QM (4 of 8)
+Probability Analysis
+Suppose the textile company manager told 
+customers that the new order processing 
+system would be completely installed in 30 
+weeks. What is the probability that it will, 
+in fact, be ready by that time? 
+Choose “Probability given value”
+Write the 30 weeks here
+Write the Right tail of Normal Distribution
+(30-25)=5, where 25 is the mean.
+Click on “Normal 
+Distribution”
+After Entering Values, Click 
+“Compute”
+Solve on QM (5 of 8)
+Probability Analysis
+Solve on QM (6 of 8)
+Probability Analysis
+Suppose that 0.9713 probability is not 
+satisfying to you as a customer and you 
+want to know the time it would take 
+the system to be complete with a 
+probability 0.99. 
+Click on “Normal 
+Distribution”
+Choose “Value given Probability”
+Write the 0.99 here
+After Entering Values, Click 
+“Compute”
+Solve on QM (7 of 8)
+Probability Analysis
+Solve on QM (8 of 8)
+Charts
+Advanced Project 
+Management
+PROJECT SCHEDULING AND CRASHING
+1
+Project Management Process 2
+Project Crashing and 
+Time-Cost Trade-Off Overview
+ Project duration can be reduced by assigning more resources to 
+project activities.
+However, doing this increases project cost.
+Decision is based on analysis of trade-off  between time and cost.
+ Project crashing is a method for shortening project duration by 
+reducing one or more critical activities to a time less than normal 
+activity time.
+3
+Relation between Time and Cost in 
+Project Crashing
+4
+Project Time Crashing Example 
+(1/9)
+5
+Normal Time 
+Crash Time
+(Crash Cost-Normal 
+Cost)/Allowable 
+Crash Time
+GIVEN COMPUTED
+Critical Path Before Crashing (2/9) 6
+Project Time Crashing Example 
+(3/9)
+7
+Select the minimum Crash 
+Cost/week from the 
+critical activities only
+Project Time Crashing Example 
+(4/9)
+8
+As activities are crashed, 
+the critical path may 
+change, requiring 
+crashing of previously 
+noncritical activities to 
+further reduce the 
+project completion time. 
+When two paths 
+simultaneously become 
+critical, activities on both 
+must be reduced by the 
+same amount. 
+Project Time Crashing Example 
+(5/9)
+9
+If activity could have been crashed to 3 weeks only. Then the critical path 
+would have changed
+Project Time Crashing Example 
+(6/9)
+10
+Project Time Crashing Example 
+(7/9)
+11
+Project Time Crashing Example 
+(8/9)
+12
+Project Time Crashing Example 
+(9/9)
+13
+Project Indirect Costs
+ The project critical path time could be reduced by increasing 
+expenditures for labor and direct resources.
+Crashing was performed to reduce the scheduled completion time 
+for its own sake. May be to avoid direct financial penalties for not 
+completing a project on time
+As projects continue over time, they consume various indirect costs, 
+including the cost of facilities, equipment, and machinery; interest 
+on investment; utilities, labor, and personnel costs; and the loss of 
+skills and labor from members of the project team who are not 
+working at their regular jobs.
+14
+Project Crashing and Time-Cost 
+Trade-Off 
+ In general, project crashing costs and indirect costs have an inverse 
+relationship.
+Crashing costs are highest when the project is shortened. 
+ Indirect costs increase as the project duration increases.
+ The optimalproject time is at the minimum point on the total cost 
+curve.
+15
+Assignment 
+for Next Time
+16
+Choose a project from your field and try to 
+make a network diagram for it and estimate 
+the activity duration and the precedence 
+relationship.
+Advanced Project 
+Management
+RESOURCE CONSTRAINED PROJECT SCHEDULING
+1
+Assignment 
+of Previous 
+Time
+2
+Choose a project from your field and try to 
+make a network diagram for it and estimate 
+the activity duration and the precedence 
+relationship.
+Resource Constrained Project 
+Scheduling
+ Informally, a resource-constrained project scheduling problem 
+(RCPSP) considers resources of limited availability and activities of 
+known durations and resource requests, linked by precedence
+relations. 
+ The problem consists of finding a schedule of minimal duration by 
+assigning a start time to each activity such that the precedence 
+relations and the resource availabilities are respected.
+3
+Simple Heuristic Method
+Schedule a task that can start right away (in 
+terms of precedence) and its required resources 
+are within the available resources.
+When competing then choose either:
+The one with minimum slack
+The one with smallest duration
+The one with lowest ID
+4
+Example 5
+Critical Path and ES,LF 6
+Example 7
+Assume 2 tractors are available and that each activity 
+has to obtain all its required resources at start time.
+8
+9
+B and C 
+competing. 
+............................................................................ - Industrial and Management Engineering
+C has 
+minimum slack
+C finished, 
+then take the 
+next activity 
+waiting in list 
+(Activity B)
+10
+11
+............................................................................ - Industrial and Management Engineering
+B and C are 
+complete, 
+then D can 
+start
+E and F are 
+competing 
+but E has 
+slack 0
+12
+F and G are 
+competing, 
+but F is 
+already late 
+beyond its 
+slack time.
+13
+If there were 
+more constraints 
+than 2, then G 
+could have 
+started with F. 
+Now it’s G’s turn.
+14
+Now H can 
+start. Note that 
+project 
+duration has 
+extended to 16 
+weeks instead 
+of 12.
+15
+Final Project Schedule 16
+Another Example 17
+There are 
+enough 
+resources for A 
+and B to start 
+in parallel
+18
+C, D, and E 
+competing. 
+D has zero 
+slack.
+19
+D completed, then we 
+have C and E in 
+waiting list and 
+competing. 
+At first glance both 
+have slack=2. 
+BUT due to B and C 
+requiring each 2 
+resources, C’s slack 
+became 1 only.
+SO schedule C
+20
+Now E and F 
+are competing 
+but E is already 
+delayed, so 
+start E.
+21
+22
+Finally F 
+can start 
+working
+............................................................................ - Industrial and Management Engineering
+23
+Look at 
+the slack 
+change.
+............................................................................ - Industrial and Management Engineering
+Examples of objectives other than 
+minimizing project duration
+Consider each activity has a due date, then there will be a cost for 
+any delay and also cost for starting the activity early.Maximization 
+of the net present value of the project, 
+Minimization of the cost of resources purchased (resource 
+investment problem)
+Minimization of a measure of the variation of resource utilization 
+(resource levelling problem)
+Minimization of the total renting cost of resources (resource renting 
+problem).
+24
+Assignment 
+for Next Time
+25
+Choose one of the previous objectives and 
+explain it on your project you have scheduled 
+last time.
+Advanced Project 
+Management
+PROJECT SCREENING AND SELECTION
+1
+Project Screening and Selection
+Making a decisionon which project or project portfolio to choose in an 
+environment where consequence of alternative decisions is:
+Not taken into consideration (Scoring Method and Benefit/Cost 
+Method)
+ Taken into consideration with Certainty (Game Theory)
+ Taken into consideration with Uncertainty (Utility Theory)
+2
+Analytic Hierarchy Process 3
+Symbol Criterion
+P Profitability
+I Competition Intensity
+R Development Risk
+S CommercialSuccess
+9 8 7 6 5 4 3 2 1 2 3 4 5 6 7 8 9
+I X P
+R X P
+S X P
+R X I
+S X I
+S X R
+What are the criteria taken into consideration in selection of a project?
+Survey Decision Makers about the relative importance of each of the criteria
+Analytic Hierarchy Process 4
+S R I P
+4 3 0.333 1 P
+1 5 1 3 I
+3 1 0.2 0.333 R
+1 0.333 1 0.250 S
+9 8.333 2.533 4.58 SUM
+Average S R T P
+0.279 0.444 0.321 0.131 0.218 P
+0.424 0.111 0.536 0.395 0.655 I
+0.148 0.333 0.107 0.079 0.073 R
+0.149 0.111 0.036 0.395 0.055 S
+9 8 7 6 5 4 3 2 1 2 3 4 5 6 7 8 9
+I X P
+R X P
+S X P
+R X I
+S X I
+S X R
+Pairwise Comparison Normalized
+Pairwise Comparison
+Analytic Hierarchy Process 5
+Average S R T P
+0.279 0.444 0.321 0.131 0.218 P
+0.424 0.111 0.536 0.395 0.655 I
+0.148 0.333 0.107 0.079 0.073 R
+0.149 0.111 0.036 0.395 0.055 S
+Pairwise Comparison Normalized
+GM 3 2 1 DM
+0.382 0.5 0.4 0.279 P
+0.301 0.2 0.32 0.424 I
+0.169 0.18 0.18 0.148 R
+0.121 0.12 0.1 0.149 S
+Repeat this survey for each decision maker
+Take the Geometric Mean of the all 
+responses.
+Now you have weighted criteria.
+Linear Scoring Rule (1 of 3)
+Given THREE BRANDS of CARS A, B and C
+ It is required to  Arrange the three cars according to the given FOUR 
+Criteria  by applying the Linear Scoring Rule
+6
+ALTERNATIVES
+Optimality Direction Min Max C B A
+Weight Criterion
+100 200 150 200 100 0.4 Price
+0.1 0.25 0.15 0.1 0.25 0.15 Fuel 
+Consumption
+110 150 130 150 110 0.1 Speed
+30 60 30 60 40 0.35 Salvage Value
+Linear Scoring Rule (2 of 3) 7
+NormalizationRule
+MIN MAX
+C MAX
+MIN MAX
+MIN C
+MAX C X X
+X X
+X X
+X X S S 
+  
+
+
+ 
+
+
+
+ 
+MIN MAX C
+X X X , ,
+MIN MAX C
+S S S , ,
+1 MIN
+S
+Current, Maximum and Minimum valuesof Criteria measured in Natural units
+Current, Maximum and Minimum Corresponding non dimensional SCORES
+In NINE point scale 9 MAX
+S
+The GREATER The BETTER
+MIN MAX
+MIN C
+MIN MAX
+C MAX
+MAX C X X
+X X
+X X
+X X S S 
+  
+
+
+ 
+
+
+
+  The SMALLERThe BETTER
+Linear Scoring Rule (3 of 3) 8
+ALTERNATIVES
+Optimality 
+Direction
+Min Max C B A
+Weight Criterion
+Xmin
+=100
+Xmax=
+200 150 200 Xc=100 0.4 Price
+0.1 0.25 0.15 0.1 0.25 0.15 Fuel
+Consumption
+110 150 130 150 110 0.1 Speed
+30 60 30 60 40 0.35 Salvage 
+Value
+Data in Natural Units
+MIN MAX
+MIN C
+MIN MAX
+C MAX
+MAX C X X
+X X
+X X
+X X S S 
+   
+
+
+ 
+
+
+
+ 
+The SMALLER The BETTER 9 100 200
+100 100
+100 200
+100 200 *9  
+  
+  
+
+
+  C
+S
+1 100 200
+100 200
+100 200
+200 200 *9  
+  
+  
+
+
+  C
+S
+5 100 200
+100 150
+100 200
+150 200 *9  
+  
+  
+
+
+  C
+S
+Benefit to Cost Method (1 of 5)
+An individual investment opportunity is deemed to be worthwhile if its 
+B/C is greater than one.
+Consider the project of developing a new Production control system 
+with the following data:
+Initial cost                                                        $20 000
+Project Life                                                      5 years
+Salvage value                                                  $5000
+Annual savings                                                $10 000
+O&M annual cost                                             $2000
+MARR                                                               15%
+9
+𝐶𝑅=20000∗(𝐴/𝑃,15%,5)−5000∗(𝐴/𝐹,15%,5)
+PMT(periodic-rate, num-periods, present-value, future-value, when-due)
+20,000*(A/P,15%,5)PMT(15%,5,20000,0,0)
+5000*(A/F,15%,%) PMT(15%,5,0,5000,0)
+Initial cost                                                        $20 000
+Project Life                                                      5 years
+Salvage value                                                  $5000
+Annual savings                                                $10 000
+O&M annual cost                                             $2000
+MARR                                                               15%
+Benefit to Cost Method (2 of 5) 10
+𝐵/𝐶= 𝐵
+𝐶𝑅+𝑂&𝑀𝐶𝑜𝑠𝑡= 10000
+5220+2000=1.385
+Benefit to Cost Method (3 of 5) 11
+A governmental agency is considering four independent projects. Each has 30years life time.
+The current budget allows not more than $35 millions. The interest rate is 10%per annum
+D C B A
+14 000 000 10 000 000 20 000 000 12 000 000 Initial Cost
+1 850 000 750 000 4 500 000 1 250 000 Annual Expenditure
+4 050 000 1 250 000 8 000 000 3 250 000 Annual Benefits
+What is the optimum feasible portfolio of projects? 
+Step 1
+Evaluate  B/C for each project and discard projects with B/C < 1
+Benefit to Cost Method (4 of 5) 12
+D C B A
+14 000 000 10 000 000 20 000 000 12 000 000 Initial Cost
+1 850 000 750 000 4 500 000 1 250 000 Annual Expenditure
+4 050 000 1 250 000 8 000 000 3 250 000 Annual Benefits
+1 485 109 1 060 792 2 121 584 1 272 951 CR cost (annual)
+3 335 109 1 810 792 6 621 585 2 522 951 Totalannual Cost
+1.214 0.690 1.208 1.288 B/C
+Discarded B/C <1
+ABD BD AD AB D B A
+46 000 000 34000000 26000000 32 000 000 14 000 000 20 000 000 12 000 000 Initial Cost
+6350000 3100000 5750 000 1 850 000 4 500 000 1 250 000 An.Expenditure
+12050000 7300000 11 250 000 4 050 000 8 000 000 3 250 000 An. Benefits
+3606694 2758060 3394536 1 485 109 2 121 584 1 272 951 CR cost
+9956694 5858060 9144536 3 335 109 6 621 585 2 522 951 Totalannual Cost
+1.210 1.246 1.230 1.214 1.208 1.288 B/C
+Discarded Budget =35 m.
+Forming Projects Portfolio
+Benefit to Cost Method (5 of 5) 13
+Step 2  Apply INCREMENTAL Analysis to accepted project portfolio
+Rank as regards total annual cost
+BD AB B AD D A
+34000000 32000000 20000000 26000000 14000000 12000000 Initial Cost
+9956694 9144536 6621585 5858060 3335109 2522951
+Total annual 
+Cost
+12050000 11250000 8000000 7300000 4050000 3250000 Benefits
+1.210241 1.230243 1.20817 1.246146 1.214353 1.288174 B/C
+A  is the baseline
+A  is still the baseline
+Discard D
+3335109 Д C
+4050000 Д B
+1.214353 Д B /  Д C
+AD  is the New baseline
+Discard A
+812158.5 Д C
+800000 Д B
+0.985029 Д B /  Д C
+763524.5 Д C
+700000 Д B
+0.916801 Д B /  Д C
+Discard B
+AD  is still the baseline
+3286475 Д C
+3950000 Д B
+1.201895 Д B /  Д C
+AB  is the New baseline
+Discard AD
+812158.5 Д C
+800000 Д B
+0.985029 Д B /  Д C
+Discard BD
+AB  is the OPTIMUM PORTFOLIO
+14
+The problem can be  modeled in the form of A LINEAR INTEGER PROGRAM as follows:
+D C B A
+14 000 000 10 000 000 20 000 000 12 000 000 Initial Cost
+1 850 000 750 000 4 500 000 1 250 000 Annual Expenditure
+4 050 000 1 250 000 8 000 000 3 250 000 Annual Benefits
+1 485 109 1 060 792 2 121 584 1 272 951 CR cost (annual)
+3 335 109 1 810 792 6 621 585 2 522 951 Totalannual Cost
+714891-560792 1378415 727049 Benefits–Total annual cost
+Decision Variables
+Xi    is a binary variable             Xi = 1 if   project i is selected   and     Xi =  0 otherwise
+Objective Function
+4 3 2 1
+   714891   560792   1378415    727049         X X X X Z Maximize    
+Subject to:
+   35      14   10   20    21 4 3 2 1
+    X X X X
+Solution by SOLVER
+  0                    0                1              1       4 3 2 1
+    X X X X
+Projects A and B  are selected Portfolio  AB  is selected
+Assignment 
+for Next Time
+15
+Solve this Exercise using Solver on Excel:
+Assume unit price $3000 for products from Texas Plant, $3100 for 
+products from Utah Plant and $3200 for products from Minnesota 
+Plant. Assume total budget $1,500,000.
+Solve the incremental analysis by hand and using solver.
+Project Screening and Selection
+.Making a decision on which project or project portfolio to choose in an environment where consequence of alternative decisions is:
+Is not Taken into consideration (Scoring Method and Benefit/Cost Method)
+Is Taken into consideration with Certainty (Game Theory)
+Is Taken into consideration with Uncertainty (Utility Theory)
+Decision Analysis
+Addresses decision-making in the face of great uncertainty
+Provides framework and methodology for rational decision making when the outcomes are uncertain
+Decision makers are often confronted with the question whether to take decisions immediately or to first do some testing (at some expense) to reduce the level of uncertainty about the outcome of the decision.
+Decision Making without Experimentation
+Decision Making with Experimentation
+Decision Making Without Experimentation
+The decision maker needs to choose one of the decision alternatives (either drill or sell)
+Nature would then play one of the possible states of nature (either there will be oil or not)
+Each combination of an alternative and state of nature results in a payoff (this should be formulated in a payoff table)
+This payoff table is used to find an optimal alternative according to a certain criterion.
+There are three possible criteria:
+Maximin Payoff
+Maximum Likelihood 
+Bayes Decision Rule
+Decision Making Without Experimentation – Maximin Criterion
+Decision Making Without Experimentation – Maximum Likelihood Criterion
+Decision Making Without Experimentation – Bayes Decision Rule
+Sensitivity Analysis with Bayes’ Decision
+Assume that the prior probability of having oil is in the range from 0.15 to 0.35
+And the probability of dry land (no oil) is in the range from 0.85 to 0.65
+P=prior probability of oil
+The expected payoff fom drilling for any p is:
+E[Payoff(drill)]=700*p + (-100)*(1-p)=800p-100
+E[Payoff(drill)]=800p-100
+E[Payoff(sell)]=90
+Crossover point 
+[0.2375,90]
+Recall prior probability of having oil from 0.15 to 0.35
+At p=0.15 the decision is sell
+At p=0.35 the decision is drill
+Therefore, the decision is very sensitive to p.
+Therefore, we need to do more to have more precise estimates  Seismic Survey.
+Additional testing or experimentation improves the preliminary estimates of the probability off the respective states of nature.
+These improves estimates are called posterior probabilities
+The seismic test costs $30,000
+Possible survey findings
+USS: unfavorable seismic soundings
+Indicates oil is unlikely
+FSS: favorable seismic soundings
+Indicates oil is likely
+Based on past experience with seismic soundings:
+The unconditional probabilities of findings is computed as follows:
+Computer the joint probability 
+   P( State= state k, Finding = finding j) for all k.
+
+
+Then calculate the unconditional probability
+P(Finding = finding j)
+=∑_(𝑘=1)^𝑛▒〖𝑃(𝑆𝑡𝑎𝑡𝑒=𝑠𝑡𝑎𝑡𝑒 𝑘, 𝐹𝑖𝑛𝑑𝑖𝑛𝑔=𝑓𝑖𝑛𝑑𝑖𝑛𝑔 𝑗)〗
+Expected Value of Perfect Information (EVPI)
+Expected Value of Perfect Information = Expected payoff with perfect information – expected payoff without experimentation (Slide 9)
+
+EVPI= 242.5 – 100 = 142.5  >> 30   So experimentation is worthy
+Expected Value of Experimentation (EVE)
+Expected value of experimentation (EVE)
+The difference between the expected payoff with experimentation and the expected payoff without experimentation (Slide 9)
+Expected payoff with experimentation = 
+∑_𝑗▒〖𝑃(𝐹𝑖𝑛𝑑𝑖𝑛𝑔=𝑓𝑖𝑛𝑑𝑖𝑛𝑔 𝑗)∗𝐸[𝑝𝑎𝑦𝑜𝑓𝑓|𝐹𝑖𝑛𝑑𝑖𝑛𝑔=𝑓𝑖𝑛𝑑𝑖𝑛𝑔 𝑗]〗
+𝐸𝑉𝐸=153−100=53
+Since this exceeds the experiment cost, the experiment should be done
+16.4 Decision Trees
+Functions:
+Visually displaying a problem
+Organizing computational work
+Especially helpful when a sequence of decisions must be made
+Constructing the decision tree
+Should a seismic survey be conducted before a decision is chosen?
+Which action (drill for oil or sell land) should be chosen?
+Nodes (forks)
+Junction points in the tree
+Branches
+Lines in the decision tree
+Decision node
+Indicated by a square
+Indicates decision needs to be made at that point
+Event node (chance node)
+Indicates random event occurring at that point
+Note expected payoff over its decision node
+Indicate chosen alternative
+Insert a double dash as a barrier through each rejected branch
+Backward induction procedure
+Leads to optimal policy
+Risk of Project Delay
+It is the probability of not finishing on time multiplied by the delay consequences.
+Delay Consequences
+Usually there is a delay penalty in terms of:
+					Currency/unit time of delay
+Delay penalty should not exceed a certain percentage of the project contract value
+If delay penalty exceeds the above percentage then the project should be cancelled and assigned to another contractor and the old contractor will be charged with any extra fees. Loss of Money and Reputation.
+Probability of Not Finishing on Time
+Due to all kinds of work uncertainties it is accurate to analyze the project schedule as a non-deterministic schedule.
+Since factors affecting each activity’s randomness are different, the Central Limit theorem can be applied to the total project completion time and therefore assume it to be normally distributed.
+If there is a certain way to calculate the estimated delay in project completion, then it can be included in the estimates of contingencies in the project contract.
+Mathematically
+Delay = Project Completion Time (given that it is larger than contract time) – Contract Time
+The expected delay is given by
+Derivation of the Expected Delay Period
+The average or expected delay is the average area divided by the total area (to have it normalized). 
+The Normal Probability Density Function is defined as follows:
+Strategy A: Reducing Expected Project Time (Keeping Variance Constant)
+Resource Quantity Strategy
+Strategy B: Reducing Variance of Project Time(Keeping Expected Project Time Constant) 
+Mixed strategy of decreasing both TE and σP with different ratios
+
+
+
+
+

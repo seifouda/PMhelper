@@ -1,0 +1,444 @@
+{
+  "template_id": "standard_charter_v1",
+  "template_name": "Standard Project Charter",
+  "template_version": "1.0",
+  "description": "A comprehensive project charter template covering all essential project initiation elements",
+  "sections": [
+    {
+      "section_id": "identification",
+      "section_title": "Project Identification",
+      "section_order": 1,
+      "required": true,
+      "fields": [
+        {
+          "field_id": "project_name",
+          "field_label": "Project Name",
+          "field_type": "text",
+          "required": true,
+          "placeholder": "Enter project name",
+          "max_length": 200,
+          "help_text": "A clear, concise name for the project"
+        },
+        {
+          "field_id": "project_code",
+          "field_label": "Project Code",
+          "field_type": "text",
+          "required": false,
+          "placeholder": "e.g., PRJ-2024-001",
+          "max_length": 50,
+          "help_text": "Unique identifier for the project"
+        },
+        {
+          "field_id": "project_manager",
+          "field_label": "Project Manager",
+          "field_type": "text",
+          "required": true,
+          "placeholder": "Enter project manager name",
+          "max_length": 100
+        },
+        {
+          "field_id": "sponsor",
+          "field_label": "Project Sponsor",
+          "field_type": "text",
+          "required": true,
+          "placeholder": "Enter sponsor name",
+          "max_length": 100
+        },
+        {
+          "field_id": "start_date",
+          "field_label": "Planned Start Date",
+          "field_type": "date",
+          "required": true,
+          "help_text": "Expected project start date"
+        },
+        {
+          "field_id": "end_date",
+          "field_label": "Planned End Date",
+          "field_type": "date",
+          "required": true,
+          "help_text": "Expected project completion date"
+        }
+      ]
+    },
+    {
+      "section_id": "objectives",
+      "section_title": "Project Objectives",
+      "section_order": 2,
+      "required": true,
+      "fields": [
+        {
+          "field_id": "business_case",
+          "field_label": "Business Case",
+          "field_type": "textarea",
+          "required": true,
+          "placeholder": "Describe the business justification for this project",
+          "rows": 5,
+          "max_length": 2000,
+          "help_text": "Why is this project needed?"
+        },
+        {
+          "field_id": "objectives",
+          "field_label": "Project Objectives",
+          "field_type": "textarea",
+          "required": true,
+          "placeholder": "List specific, measurable objectives",
+          "rows": 8,
+          "max_length": 3000,
+          "help_text": "What will this project achieve? Use SMART criteria"
+        },
+        {
+          "field_id": "success_criteria",
+          "field_label": "Success Criteria",
+          "field_type": "textarea",
+          "required": true,
+          "placeholder": "Define measurable success criteria",
+          "rows": 5,
+          "max_length": 2000,
+          "help_text": "How will success be measured?"
+        }
+      ]
+    },
+    {
+      "section_id": "scope",
+      "section_title": "Project Scope",
+      "section_order": 3,
+      "required": true,
+      "fields": [
+        {
+          "field_id": "in_scope",
+          "field_label": "In Scope",
+          "field_type": "textarea",
+          "required": true,
+          "placeholder": "List what is included in the project",
+          "rows": 6,
+          "max_length": 3000,
+          "help_text": "Deliverables and work that IS included"
+        },
+        {
+          "field_id": "out_of_scope",
+          "field_label": "Out of Scope",
+          "field_type": "textarea",
+          "required": false,
+          "placeholder": "List what is explicitly excluded",
+          "rows": 4,
+          "max_length": 2000,
+          "help_text": "Work that is NOT included to prevent scope creep"
+        },
+        {
+          "field_id": "deliverables",
+          "field_label": "Key Deliverables",
+          "field_type": "textarea",
+          "required": true,
+          "placeholder": "List major deliverables",
+          "rows": 5,
+          "max_length": 2000,
+          "help_text": "Major outputs and deliverables"
+        },
+        {
+          "field_id": "assumptions",
+          "field_label": "Assumptions",
+          "field_type": "textarea",
+          "required": false,
+          "placeholder": "List project assumptions",
+          "rows": 4,
+          "max_length": 2000,
+          "help_text": "Factors assumed to be true for planning"
+        },
+        {
+          "field_id": "constraints",
+          "field_label": "Constraints",
+          "field_type": "textarea",
+          "required": false,
+          "placeholder": "List project constraints",
+          "rows": 4,
+          "max_length": 2000,
+          "help_text": "Limitations on the project (time, budget, resources)"
+        }
+      ]
+    },
+    {
+      "section_id": "budget",
+      "section_title": "Budget & Resources",
+      "section_order": 4,
+      "required": true,
+      "fields": [
+        {
+          "field_id": "total_budget",
+          "field_label": "Total Budget",
+          "field_type": "currency",
+          "required": true,
+          "placeholder": "0.00",
+          "help_text": "Total approved budget"
+        },
+        {
+          "field_id": "currency",
+          "field_label": "Currency",
+          "field_type": "dropdown",
+          "required": true,
+          "options": ["USD", "EUR", "GBP", "JPY", "CAD", "AUD", "Other"],
+          "default": "USD"
+        },
+        {
+          "field_id": "budget_breakdown",
+          "field_label": "Budget Breakdown",
+          "field_type": "table",
+          "required": false,
+          "columns": [
+            {
+              "id": "category",
+              "label": "Category",
+              "type": "text",
+              "width": 200
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "type": "number",
+              "width": 150
+            },
+            { "id": "notes", "label": "Notes", "type": "text", "width": 300 }
+          ],
+          "help_text": "Detailed breakdown by category"
+        },
+        {
+          "field_id": "resource_requirements",
+          "field_label": "Resource Requirements",
+          "field_type": "textarea",
+          "required": false,
+          "placeholder": "Describe resource needs",
+          "rows": 4,
+          "max_length": 1500,
+          "help_text": "Personnel, equipment, facilities needed"
+        }
+      ]
+    },
+    {
+      "section_id": "schedule",
+      "section_title": "Schedule & Milestones",
+      "section_order": 5,
+      "required": true,
+      "fields": [
+        {
+          "field_id": "milestones",
+          "field_label": "Key Milestones",
+          "field_type": "table",
+          "required": true,
+          "columns": [
+            {
+              "id": "milestone",
+              "label": "Milestone",
+              "type": "text",
+              "width": 250
+            },
+            {
+              "id": "date",
+              "label": "Target Date",
+              "type": "date",
+              "width": 150
+            },
+            {
+              "id": "deliverable",
+              "label": "Deliverable",
+              "type": "text",
+              "width": 250
+            }
+          ],
+          "help_text": "Major project milestones and dates"
+        },
+        {
+          "field_id": "phases",
+          "field_label": "Project Phases",
+          "field_type": "textarea",
+          "required": false,
+          "placeholder": "Describe major project phases",
+          "rows": 5,
+          "max_length": 2000,
+          "help_text": "High-level phases and their purpose"
+        }
+      ]
+    },
+    {
+      "section_id": "team",
+      "section_title": "Project Team",
+      "section_order": 6,
+      "required": true,
+      "fields": [
+        {
+          "field_id": "team_members",
+          "field_label": "Team Members",
+          "field_type": "table",
+          "required": true,
+          "columns": [
+            { "id": "name", "label": "Name", "type": "text", "width": 200 },
+            { "id": "role", "label": "Role", "type": "text", "width": 200 },
+            {
+              "id": "responsibility",
+              "label": "Responsibility",
+              "type": "text",
+              "width": 300
+            }
+          ],
+          "help_text": "Core project team members"
+        },
+        {
+          "field_id": "organizational_structure",
+          "field_label": "Organizational Structure",
+          "field_type": "textarea",
+          "required": false,
+          "placeholder": "Describe reporting structure",
+          "rows": 3,
+          "max_length": 1000,
+          "help_text": "How the team is organized"
+        }
+      ]
+    },
+    {
+      "section_id": "stakeholders",
+      "section_title": "Stakeholders",
+      "section_order": 7,
+      "required": true,
+      "fields": [
+        {
+          "field_id": "stakeholder_list",
+          "field_label": "Stakeholder List",
+          "field_type": "table",
+          "required": true,
+          "columns": [
+            {
+              "id": "name",
+              "label": "Name/Group",
+              "type": "text",
+              "width": 200
+            },
+            {
+              "id": "interest",
+              "label": "Interest",
+              "type": "text",
+              "width": 200
+            },
+            {
+              "id": "influence",
+              "label": "Influence",
+              "type": "dropdown",
+              "options": ["High", "Medium", "Low"],
+              "width": 100
+            },
+            {
+              "id": "strategy",
+              "label": "Engagement Strategy",
+              "type": "text",
+              "width": 250
+            }
+          ],
+          "help_text": "Key stakeholders and engagement approach"
+        },
+        {
+          "field_id": "communication_plan",
+          "field_label": "Communication Plan",
+          "field_type": "textarea",
+          "required": false,
+          "placeholder": "Describe communication approach",
+          "rows": 4,
+          "max_length": 1500,
+          "help_text": "How stakeholders will be kept informed"
+        }
+      ]
+    },
+    {
+      "section_id": "risks",
+      "section_title": "Risks & Issues",
+      "section_order": 8,
+      "required": true,
+      "fields": [
+        {
+          "field_id": "risk_register",
+          "field_label": "Risk Register",
+          "field_type": "table",
+          "required": false,
+          "columns": [
+            {
+              "id": "risk",
+              "label": "Risk Description",
+              "type": "text",
+              "width": 250
+            },
+            {
+              "id": "probability",
+              "label": "Probability",
+              "type": "dropdown",
+              "options": ["High", "Medium", "Low"],
+              "width": 100
+            },
+            {
+              "id": "impact",
+              "label": "Impact",
+              "type": "dropdown",
+              "options": ["High", "Medium", "Low"],
+              "width": 100
+            },
+            {
+              "id": "mitigation",
+              "label": "Mitigation Strategy",
+              "type": "text",
+              "width": 250
+            }
+          ],
+          "help_text": "Identified risks and mitigation plans"
+        },
+        {
+          "field_id": "known_issues",
+          "field_label": "Known Issues",
+          "field_type": "textarea",
+          "required": false,
+          "placeholder": "Document any known issues",
+          "rows": 3,
+          "max_length": 1500,
+          "help_text": "Current issues affecting the project"
+        }
+      ]
+    },
+    {
+      "section_id": "approval",
+      "section_title": "Approval",
+      "section_order": 9,
+      "required": true,
+      "fields": [
+        {
+          "field_id": "prepared_by",
+          "field_label": "Prepared By",
+          "field_type": "text",
+          "required": true,
+          "placeholder": "Name",
+          "max_length": 100
+        },
+        {
+          "field_id": "prepared_date",
+          "field_label": "Preparation Date",
+          "field_type": "date",
+          "required": true
+        },
+        {
+          "field_id": "approval_signatures",
+          "field_label": "Approval Signatures",
+          "field_type": "table",
+          "required": true,
+          "columns": [
+            { "id": "name", "label": "Name", "type": "text", "width": 200 },
+            { "id": "title", "label": "Title", "type": "text", "width": 200 },
+            { "id": "date", "label": "Date", "type": "date", "width": 150 }
+          ],
+          "help_text": "Required approvals for charter authorization"
+        },
+        {
+          "field_id": "approval_notes",
+          "field_label": "Approval Notes",
+          "field_type": "textarea",
+          "required": false,
+          "placeholder": "Additional notes or conditions",
+          "rows": 3,
+          "max_length": 1000
+        }
+      ]
+    }
+  ]
+}

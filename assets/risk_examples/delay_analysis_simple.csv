@@ -1,0 +1,7 @@
+activity,predecessor,optimistic,most_likely,pessimistic
+A,,2,3,4
+B,A,3,4,5
+C,A,4,5,9
+D,B,2,3,4
+E,"B,C",3,5,7
+F,"D,E",1,2,3

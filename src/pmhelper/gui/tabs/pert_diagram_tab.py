@@ -27,6 +27,10 @@ except ImportError as e:
     MATPLOTLIB_AVAILABLE = False
     NETWORKX_AVAILABLE = False
 
+from pmhelper.utils.network_layout import sugiyama_layout, cleanup_virtual_nodes
+from pmhelper.gui.widgets.scrollable_mpl_frame import ScrollableMatplotlibFrame
+from pmhelper.utils.interactive_network import open_interactive_network, PYVIS_AVAILABLE
+
 
 class PertDiagramTab:
     """PERT Diagram tab with professional rectangle-semicircle node visualization"""
@@ -63,28 +67,13 @@ class PertDiagramTab:
         self.create_plot_area(control_frame)
 
     def create_plot_area(self, control_frame):
-        """Create matplotlib plot area and control widgets"""
-        plot_frame = ttk.Frame(self.main_frame)
-        plot_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-
-        # Create toolbar frame and pack at the bottom
-        toolbar_frame = ttk.Frame(plot_frame)
-        toolbar_frame.pack(side=tk.BOTTOM, fill=tk.X)
-
-        # Create canvas frame and pack above toolbar
-        canvas_frame = ttk.Frame(plot_frame)
-        canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        # Create matplotlib figure and canvas
-        self.figure = Figure(figsize=(14, 10), dpi=100)
-        self.figure.patch.set_facecolor('white')
-        self.canvas = FigureCanvasTkAgg(self.figure, master=canvas_frame)
-        self.canvas.draw()
-        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-
-        # Create and pack the toolbar
-        self.toolbar = NavigationToolbar2Tk(self.canvas, toolbar_frame)
-        self.toolbar.update()
+        """Create matplotlib plot area with scrollable viewport and control widgets"""
+        self._scroll_frame = ScrollableMatplotlibFrame(
+            self.main_frame, figsize=(14, 10), dpi=100, toolbar=True)
+        self._scroll_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self.figure = self._scroll_frame.figure
+        self.canvas = self._scroll_frame.canvas
+        self.toolbar = self._scroll_frame.toolbar
 
         # Initialize with empty plot
         self.create_empty_plot()
@@ -111,6 +100,9 @@ class PertDiagramTab:
 
         ttk.Button(button_frame, text="Save Image", 
             command=self.save_diagram).pack(side=tk.LEFT, padx=5)
+        if PYVIS_AVAILABLE:
+            ttk.Button(button_frame, text="\U0001f310 Interactive View",
+                      command=self._open_interactive_view).pack(side=tk.LEFT, padx=5)
         # Help button
         ttk.Button(button_frame, text="? Help", command=self.show_pert_tab_help).pack(side=tk.LEFT, padx=5)
     def show_pert_tab_help(self):
@@ -257,8 +249,7 @@ class PertDiagramTab:
             
             self.ax.set_title(title, fontsize=14, fontweight='bold', pad=20)
             
-            # Adjust layout and draw
-            self.figure.tight_layout()
+            # Final draw (draw_pert_network_diagram sets layout; title added above)
             self.canvas.draw()
             
         except Exception as e:
@@ -350,118 +341,216 @@ class PertDiagramTab:
             for node in end_nodes:
                 G.add_edge(node, 'END')
     
+    # Adaptive sizing thresholds
+    _SIZE_SMALL = 50
+    _SIZE_MEDIUM = 200
+
+    def _adaptive_scale(self, n_activities):
+        """Return scale factor (1.0 = default) for the current project size."""
+        if n_activities <= self._SIZE_SMALL:
+            return 1.0
+        if n_activities <= self._SIZE_MEDIUM:
+            return 0.65
+        return 0.4
+
     def draw_pert_network_diagram(self, G, critical_activities):
-        """Draw professional PERT network diagram with rectangle-semicircle nodes - BASED ON cmp_app.py"""
+        """Draw professional PERT network diagram with rectangle-semicircle nodes"""
         self.ax.clear()
-        
+
+        # Reset virtual node tracking
+        self._virtual_nodes = set()
+        self._edge_paths = {}
+        self._all_pos = {}
+
         if not G.nodes():
-            self.ax.text(0.5, 0.5, 'No network data available', 
+            self.ax.text(0.5, 0.5, 'No network data available',
                         ha='center', va='center', transform=self.ax.transAxes)
             self.canvas.draw()
             return
-        
-        # 1. Create hierarchical layout
+
+        # Adaptive sizing
+        n_act = len([nd for nd in G.nodes() if nd not in ('START', 'END')])
+        self._scale = self._adaptive_scale(n_act)
+
+        # 1. Create hierarchical layout (Sugiyama)
         pos = self.create_hierarchical_layout(G)
-        
-        # 2. Draw edges with arrows
+
+        # 2. Set figure size proportional to data range
+        xs = [p[0] for p in pos.values()]
+        ys = [p[1] for p in pos.values()]
+        if xs and ys:
+            pad = 1.5 * self._scale + 1
+            x_min, x_max = min(xs) - pad, max(xs) + pad
+            y_min, y_max = min(ys) - pad, max(ys) + pad
+            data_w = x_max - x_min
+            data_h = y_max - y_min
+        else:
+            x_min, x_max, y_min, y_max = 0, 10, 0, 10
+            data_w = data_h = 10
+
+        # Always fit to the available viewport so the full diagram is visible.
+        self._scroll_frame.fit_to_viewport()
+
+        # 3. Draw edges with arrows (polyline through virtual waypoints)
         self.draw_network_edges(G, pos)
-        
-        # 3. Draw nodes with rectangle-semicircle format
+
+        # 4. Draw nodes with rectangle-semicircle format
         self.draw_pert_nodes(G, pos, critical_activities)
-        
-        # 4. Add legend
+
+        # 5. Add legend
         self.add_network_legend()
-        
-        # 5. Apply display options
+
+        # 6. Apply display options
         self.apply_display_options(G, pos)
-        
-        # 6. Add node format legend
+
+        # 7. Clean up virtual nodes from graph
+        cleanup_virtual_nodes(G, self._virtual_nodes)
+
+        # 8. Add node format legend
         self.figure.text(0.01, 0.01, "Node Format:", fontsize=9)
         self.figure.text(0.07, 0.01, "ID   | ES | EF\nDur | LS | LF", fontsize=9)
-        
+
         self.ax.set_title("PERT Network Diagram")
-        self.ax.axis('equal')
+        self.ax.set_xlim(x_min, x_max)
+        self.ax.set_ylim(y_min, y_max)
         self.ax.axis('off')
+        self.figure.subplots_adjust(left=0.01, right=0.99, top=0.95, bottom=0.02)
         self.canvas.draw()
     
     def create_hierarchical_layout(self, G):
-        """Create hierarchical layout with increased spacing for larger nodes"""
-        pos = {}
-        generations = list(nx.topological_generations(G))
-        
-        for i, gen in enumerate(generations):
-            sorted_gen = sorted(gen)
-            for j, node in enumerate(sorted_gen):
-                # INCREASED spacing for larger nodes
-                y_pos = (j - len(sorted_gen) / 2 + 0.5) * 4  # Increased from 3 to 4
-                pos[node] = (i * 5, y_pos)  # Increased from 4 to 5
-        
-        return pos
+        """Sugiyama-style layered layout — delegates to shared engine.
+
+        Adapts spacing for large projects.
+        """
+        n = len([nd for nd in G.nodes() if not str(nd).startswith('_virt_')])
+        if n <= 50:
+            x_sp, y_sp = 5.0, 4.0
+        elif n <= 200:
+            x_sp, y_sp = 3.0, 2.5
+        else:
+            x_sp, y_sp = 1.5, 1.5
+        result = sugiyama_layout(G, x_spacing=x_sp, y_spacing=y_sp)
+        self._virtual_nodes = result['virtual_nodes']
+        self._edge_paths = result['edge_paths']
+        self._all_pos = result['all_pos']
+        return result['pos']
     
     def draw_network_edges(self, G, pos):
-        """Draw edges with proper arrows - UPDATED for larger nodes"""
-        # UPDATED node size parameters for larger nodes
-        width = 1.8  # Increased from 1.2
+        """Draw edges as polylines routed through virtual-node waypoints.
+        
+        Handles PERT-specific node shapes: rectangle-semicircle for regular
+        nodes, circles for START/END.
+        """
+        scale = getattr(self, '_scale', 1.0)
+        width = 1.8 * scale
+        height = width * 2 / 3
+        semicircle_width = width / 3
+        square_width = width * 2 / 3
+        node_radius = 0.4 * scale  # for START/END circles
+
+        all_pos = getattr(self, '_all_pos', pos)
+        edge_paths = getattr(self, '_edge_paths', {})
+        virtual_nodes = getattr(self, '_virtual_nodes', set())
+        drawn_edges = set()
+
+        def _edge_start(node, target_pos):
+            """Compute arrow start point leaving *node* toward *target_pos*."""
+            x, y = pos.get(node, all_pos.get(node, (0, 0)))
+            if node in virtual_nodes:
+                return x, y
+            if node in ['START', 'END']:
+                tx, ty = target_pos
+                dx, dy = tx - x, ty - y
+                d = (dx**2 + dy**2) ** 0.5
+                if d > 0:
+                    return x + node_radius * dx / d, y + node_radius * dy / d
+                return x, y
+            # Regular PERT node: exit from right edge of square
+            return x + square_width / 2, y
+
+        def _edge_end(node, source_pos):
+            """Compute arrow end point arriving at *node* from *source_pos*."""
+            x, y = pos.get(node, all_pos.get(node, (0, 0)))
+            if node in virtual_nodes:
+                return x, y
+            if node in ['START', 'END']:
+                sx, sy = source_pos
+                dx, dy = x - sx, y - sy
+                d = (dx**2 + dy**2) ** 0.5
+                if d > 0:
+                    return x - node_radius * dx / d, y - node_radius * dy / d
+                return x, y
+            # Regular PERT node: enter at left edge of semicircle
+            return x - square_width / 2 - semicircle_width, y
+
+        # --- polyline paths from edge_paths --------------------------
+        for (u_orig, v_orig), path in edge_paths.items():
+            if len(path) < 2:
+                continue
+            waypoints_raw = [(n, all_pos[n]) for n in path if n in all_pos]
+            if len(waypoints_raw) < 2:
+                continue
+
+            # Build adjusted waypoints
+            adjusted = []
+            for idx, (n, (wx, wy)) in enumerate(waypoints_raw):
+                if idx == 0:
+                    nxt = waypoints_raw[1][1]
+                    adjusted.append(_edge_start(n, nxt))
+                elif idx == len(waypoints_raw) - 1:
+                    prev = adjusted[-1]
+                    adjusted.append(_edge_end(n, prev))
+                else:
+                    adjusted.append((wx, wy))  # virtual: use raw position
+
+            for seg_idx in range(len(adjusted) - 1):
+                x1, y1 = adjusted[seg_idx]
+                x2, y2 = adjusted[seg_idx + 1]
+                if seg_idx == len(adjusted) - 2:
+                    self.ax.annotate(
+                        "", xy=(x2, y2), xytext=(x1, y1),
+                        arrowprops=dict(arrowstyle="->", color="black", lw=1.5),
+                        zorder=1,
+                    )
+                else:
+                    self.ax.plot([x1, x2], [y1, y2],
+                                color='black', lw=1.5, zorder=1)
+
+            for i in range(len(path) - 1):
+                drawn_edges.add((path[i], path[i + 1]))
+
+        # --- remaining direct edges ---------------------------------
+        for u, v in G.edges():
+            if (u, v) in drawn_edges:
+                continue
+            if u in virtual_nodes or v in virtual_nodes:
+                continue
+            if u not in pos or v not in pos:
+                continue
+            end_pt = _edge_end(v, pos[u])
+            start_pt = _edge_start(u, pos[v])
+            self.ax.annotate(
+                "", xy=end_pt, xytext=start_pt,
+                arrowprops=dict(arrowstyle="->", color="black", lw=1.5),
+            )
+    
+    def draw_pert_nodes(self, G, pos, critical_activities):
+        """Draw nodes with adaptive size based on project scale"""
+        scale = getattr(self, '_scale', 1.0)
+        # ENLARGED node size parameters, scaled for large projects
+        width = 2 * scale
         height = width * 2/3
         semicircle_width = width/3
         square_width = width * 2/3
-        node_radius = 0.4  # Increased from 0.3
-        
-        for u, v in G.edges():
-            x1, y1 = pos[u]
-            x2, y2 = pos[v]
-            
-            # Calculate starting and ending points based on node type
-            if u in ['START', 'END']:
-                # For START/END nodes (circles), start from edge
-                dx = x2 - x1
-                dy = y2 - y1
-                distance = (dx ** 2 + dy ** 2) ** 0.5
-                if distance > 0:
-                    dx_norm = dx / distance
-                    dy_norm = dy / distance
-                    start_x = x1 + node_radius * dx_norm
-                    start_y = y1 + node_radius * dy_norm
-                else:
-                    start_x = x1
-                    start_y = y1
-            else:
-                # For regular nodes, start from far right
-                start_x = x1 + square_width / 2
-                start_y = y1
-            
-            if v in ['START', 'END']:
-                # For START/END nodes (circles), end at edge
-                dx = x2 - x1
-                dy = y2 - y1
-                distance = (dx ** 2 + dy ** 2) ** 0.5
-                if distance > 0:
-                    dx_norm = dx / distance
-                    dy_norm = dy / distance
-                    end_x = x2 - node_radius * dx_norm
-                    end_y = y2 - node_radius * dy_norm
-                else:
-                    end_x = x2
-                    end_y = y2
-            else:
-                # For regular nodes, end at far left
-                end_x = x2 - square_width/2 - semicircle_width
-                end_y = y2
-
-            # Draw arrow
-            self.ax.annotate("", xy=(end_x, end_y), xytext=(start_x, start_y),
-                            arrowprops=dict(arrowstyle="->", color="black", lw=1.5))
-    
-    def draw_pert_nodes(self, G, pos, critical_activities):
-        """Draw nodes with enlarged size and improved text positioning"""
-        # ENLARGED node size parameters
-        width = 2  # Increased from 1.2
-        height = width * 2/3  # 1.2
-        semicircle_width = width/3  # 0.6
-        square_width = width * 2/3  # 1.2
-        node_radius = 0.6  # Increased from 0.3
+        node_radius = 0.6 * scale
+        label_fs = max(5, int(9 * scale))
+        virtual_nodes = getattr(self, '_virtual_nodes', set())
         
         for node in G.nodes():
+            if node in virtual_nodes:
+                continue  # Skip virtual/dummy nodes
+            if node not in pos:
+                continue
             x, y = pos[node]
             
             # Determine node color based on critical path highlighting
@@ -490,7 +579,7 @@ class PertDiagramTab:
                 display_text = 'Start' if node == 'START' else 'End'
                 self.ax.text(x, y, display_text,
                             horizontalalignment='center', verticalalignment='center',
-                            fontsize=10, fontweight='bold', zorder=5)
+                            fontsize=label_fs, fontweight='bold', zorder=5)
             else:
                 # Draw semicircle on left side
                 semicircle = mpatches.Wedge(
@@ -528,25 +617,25 @@ class PertDiagramTab:
                 # Top row: ID | ES | EF
                 self.ax.text(x - square_width / 2 - semicircle_width / 2, y + height / 4, node,
                             horizontalalignment='center', verticalalignment='center', 
-                            fontsize=9, fontweight='bold', zorder=5)
+                            fontsize=label_fs, fontweight='bold', zorder=5)
                 self.ax.text(x - square_width / 4, y + height / 4, str(G.nodes[node]['ES']),
                             horizontalalignment='center', verticalalignment='center', 
-                            fontsize=9, zorder=5)
+                            fontsize=label_fs, zorder=5)
                 self.ax.text(x + square_width / 4, y + height / 4, str(G.nodes[node]['EF']),
                             horizontalalignment='center', verticalalignment='center', 
-                            fontsize=9, zorder=5)
+                            fontsize=label_fs, zorder=5)
 
                 # IMPROVED text positioning for "Dur | LS | LF" format
                 # Bottom row: Duration | LS | LF
                 self.ax.text(x - square_width / 2 - semicircle_width / 2, y - height / 4, str(G.nodes[node]['duration']),
                             horizontalalignment='center', verticalalignment='center', 
-                            fontsize=9, zorder=5)
+                            fontsize=label_fs, zorder=5)
                 self.ax.text(x - square_width / 4, y - height / 4, str(G.nodes[node]['LS']),
                             horizontalalignment='center', verticalalignment='center', 
-                            fontsize=9, zorder=5)
+                            fontsize=label_fs, zorder=5)
                 self.ax.text(x + square_width / 4, y - height / 4, str(G.nodes[node]['LF']),
                             horizontalalignment='center', verticalalignment='center', 
-                            fontsize=9, zorder=5)
+                            fontsize=label_fs, zorder=5)
 
                 # IMPROVED activity name above node with space-based wrapping
                 activity_name = G.nodes[node].get('activity', '')
@@ -554,13 +643,13 @@ class PertDiagramTab:
                     wrapped_lines = self.wrap_activity_name(activity_name)
                     
                     # Display each line separately, stacked vertically
-                    line_height = 0.3
-                    start_y = y + height / 2 + 0.2
+                    line_height = 0.3 * scale
+                    start_y = y + height / 2 + 0.2 * scale
                     
                     for i, line in enumerate(wrapped_lines):
                         self.ax.text(x - 0.2, start_y + (i * line_height), line,
                                     horizontalalignment='center', verticalalignment='bottom',
-                                    fontsize=8, color='purple', fontweight='bold', zorder=5)
+                                    fontsize=max(5, int(8 * scale)), color='purple', fontweight='bold', zorder=5)
     
     def wrap_activity_name(self, text, max_chars_per_line=12):
         """Wrap activity name by character count, returns lines split for display"""
@@ -596,9 +685,15 @@ class PertDiagramTab:
         if not self.show_float.get():
             return
         
+        virtual_nodes = getattr(self, '_virtual_nodes', set())
+        
         for node in G.nodes():
             if node in ['START', 'END']:
                 continue  # Skip START/END nodes
+            if node in virtual_nodes:
+                continue  # Skip virtual/dummy nodes
+            if node not in pos:
+                continue
             
             x, y = pos[node]
             
@@ -646,6 +741,19 @@ class PertDiagramTab:
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to save diagram: {str(e)}")
     
+    def _open_interactive_view(self):
+        """Open the interactive vis.js PERT network viewer in the default browser."""
+        if not self.results_data:
+            messagebox.showwarning("Warning",
+                                   "No diagram to display. Please run analysis first.")
+            return
+        html_path = open_interactive_network(
+            self.results_data, analysis_mode=self.analysis_mode, mode='pert')
+        if not html_path:
+            messagebox.showerror("Error",
+                                 "Could not generate interactive view. "
+                                 "Please ensure pyvis is installed.")
+
     def reset_view(self):
         """Reset the plot view - COPIED FROM NetworkTab"""
         if not MATPLOTLIB_AVAILABLE:

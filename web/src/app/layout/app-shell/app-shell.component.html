@@ -1,0 +1,14 @@
+<app-top-bar
+  [sidebarCollapsed]="sidebarCollapsed()"
+  (toggleSidebar)="toggleSidebar()"
+></app-top-bar>
+
+<div class="pm-shell" [class.pm-shell--collapsed]="sidebarCollapsed()">
+  <app-sidebar class="pm-shell__sidebar" [collapsed]="sidebarCollapsed()"></app-sidebar>
+  <main
+    class="pm-shell__content"
+    (click)="isMobile() && !sidebarCollapsed() ? toggleSidebar() : null"
+  >
+    <router-outlet></router-outlet>
+  </main>
+</div>

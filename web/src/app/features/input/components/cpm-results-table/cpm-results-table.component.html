@@ -1,0 +1,181 @@
+<div class="results-wrapper">
+  @if (!results) {
+    <div class="empty-state">
+      <mat-icon>analytics</mat-icon>
+      <p>Run analysis to see scheduling results.</p>
+    </div>
+  } @else {
+    <div class="results-header">
+      <div class="summary-chips">
+        <mat-chip highlighted color="primary">
+          <mat-icon matChipAvatar>timer</mat-icon>
+          Duration: {{ results.project_duration }} periods
+        </mat-chip>
+        <mat-chip highlighted color="warn">
+          <mat-icon matChipAvatar>warning</mat-icon>
+          Critical: {{ results.critical_activities.length }} activities
+        </mat-chip>
+        <mat-chip> Total: {{ results.nodes.length }} activities </mat-chip>
+      </div>
+
+      @if (results.critical_paths.length > 0) {
+        <div class="critical-path-display">
+          <mat-icon class="cp-icon">route</mat-icon>
+          <span class="cp-label">Critical Path:</span>
+          <span class="cp-nodes">{{ results.critical_paths[0].join(' → ') }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="table-scroll-container">
+      <table
+        mat-table
+        [dataSource]="sortedNodes()"
+        matSort
+        (matSortChange)="onSort($event)"
+        class="results-table"
+      >
+        <!-- Critical -->
+        <ng-container matColumnDef="is_critical">
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            mat-sort-header
+            class="col-crit"
+            matTooltip="Activities on the critical path have zero float"
+          >
+            Critical
+          </th>
+          <td mat-cell *matCellDef="let node" class="col-crit">
+            @if (node.is_critical) {
+              <mat-icon class="icon-critical" matTooltip="On the critical path — zero float"
+                >fiber_manual_record</mat-icon
+              >
+            }
+          </td>
+        </ng-container>
+
+        <!-- ID -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+          <td mat-cell *matCellDef="let node" [class.critical-row-text]="node.is_critical">
+            <strong>{{ node.id }}</strong>
+          </td>
+        </ng-container>
+
+        <!-- Activity Name -->
+        <ng-container matColumnDef="activity">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Activity</th>
+          <td mat-cell *matCellDef="let node" [class.critical-row-text]="node.is_critical">
+            {{ node.activity }}
+          </td>
+        </ng-container>
+
+        <!-- Duration -->
+        <ng-container matColumnDef="duration">
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            mat-sort-header
+            matTooltip="Estimated duration in work periods"
+          >
+            Dur
+          </th>
+          <td mat-cell *matCellDef="let node">{{ node.duration }}</td>
+        </ng-container>
+
+        <!-- ES -->
+        <ng-container matColumnDef="ES">
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            mat-sort-header
+            matTooltip="Early Start — earliest the activity can begin"
+          >
+            ES
+          </th>
+          <td mat-cell *matCellDef="let node">{{ node.ES }}</td>
+        </ng-container>
+
+        <!-- EF -->
+        <ng-container matColumnDef="EF">
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            mat-sort-header
+            matTooltip="Early Finish — earliest the activity can finish"
+          >
+            EF
+          </th>
+          <td mat-cell *matCellDef="let node">{{ node.EF }}</td>
+        </ng-container>
+
+        <!-- LS -->
+        <ng-container matColumnDef="LS">
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            mat-sort-header
+            matTooltip="Late Start — latest the activity can start without delaying the project"
+          >
+            LS
+          </th>
+          <td mat-cell *matCellDef="let node">{{ node.LS }}</td>
+        </ng-container>
+
+        <!-- LF -->
+        <ng-container matColumnDef="LF">
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            mat-sort-header
+            matTooltip="Late Finish — latest the activity can finish without delaying the project"
+          >
+            LF
+          </th>
+          <td mat-cell *matCellDef="let node">{{ node.LF }}</td>
+        </ng-container>
+
+        <!-- Total Float -->
+        <ng-container matColumnDef="total_float">
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            mat-sort-header
+            matTooltip="Total Float — how long the activity can be delayed without delaying the project"
+          >
+            Total Float
+          </th>
+          <td
+            mat-cell
+            *matCellDef="let node"
+            [class.float-zero]="node.total_float === 0"
+            [class.float-low]="node.total_float > 0 && node.total_float <= 2"
+          >
+            {{ node.total_float }}
+          </td>
+        </ng-container>
+
+        <!-- Free Float -->
+        <ng-container matColumnDef="free_float">
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            mat-sort-header
+            matTooltip="Free Float — how long the activity can be delayed without delaying any successor's Early Start"
+          >
+            Free Float
+          </th>
+          <td mat-cell *matCellDef="let node">{{ node.free_float }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr
+          mat-row
+          *matRowDef="let node; columns: displayedColumns"
+          [class.critical-row]="node.is_critical"
+        ></tr>
+      </table>
+    </div>
+  }
+</div>

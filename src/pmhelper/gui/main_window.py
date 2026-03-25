@@ -2,15 +2,7 @@
 """
 Main Window Module
 
-Contains the main application w        # Analysis menu
-        analysis_menu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Analysis", menu=analysis_menu)
-        analysis_menu.add_command(label="Run CPM Analysis", command=self.run_cpm_analysis)
-        analysis_menu.add_command(label="Run PERT Analysis", command=self.run_pert_analysis)
-        analysis_menu.add_separator()
-        analysis_menu.add_command(label="Project Crashing", command=self.show_crashing_tab)
-        analysis_menu.add_command(label="Resource Scheduling", command=self.show_rcps_tab)
-        analysis_menu.add_command(label="RCPS Crashing", command=self.show_rcps_crashing_tab)d overall GUI structure for PMHelper.
+Contains the main application window and overall GUI structure for PMHelper.
 Manages the main interface, tab navigation, and overall application state.
 """
 
@@ -23,6 +15,21 @@ from .tabs.pert_diagram_tab import PertDiagramTab
 from .tabs.network_tab import NetworkTab
 from .tabs.results_tab import ResultsTab
 from .tabs.input_tab import InputTab
+from .tabs.dpci_tab import DPCITab
+from .tabs.charter_tab import CharterTab
+from .tabs.charter_manager import CharterManager
+from .tabs.selection_tab import SelectionTab
+from .tabs.risk_tab import RiskAnalysisTab
+from .tabs.optimization_tab import OptimizationTab
+
+# Server mode components (import with try/except for compatibility)
+try:
+    from .tabs.server_tab import ServerTab
+    SERVER_MODE_AVAILABLE = True
+except ImportError as e:
+    ServerTab = None
+    SERVER_MODE_AVAILABLE = False
+    print(f"Server mode not available: {e}")
 from pmhelper.utils.file_handlers import FileHandler
 from pmhelper.core.cpm_analyzer import CPMAnalyzer
 import tkinter as tk
@@ -71,6 +78,9 @@ class MainWindow:
 
         # Load sample data
         self.load_sample_data()
+
+        # Setup cleanup handler for server resources
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         # INTEGRATION TEST: Verify all fixes are implemented
         self.test_gantt_integration()
@@ -122,6 +132,10 @@ class MainWindow:
         analysis_menu.add_command(
             label="RCPS Crashing",
             command=self.show_rcps_crashing_tab)
+        analysis_menu.add_separator()
+        analysis_menu.add_command(
+            label="Cost Optimization",
+            command=self.show_optimization_tab)
 
         # Tools menu
         tools_menu = tk.Menu(menubar, tearoff=0)
@@ -132,6 +146,25 @@ class MainWindow:
         tools_menu.add_command(
             label="Generate Sample PERT Data",
             command=self.generate_sample_pert)
+
+        # Server menu (if available)
+        if SERVER_MODE_AVAILABLE:
+            server_menu = tk.Menu(menubar, tearoff=0)
+            menubar.add_cascade(label="Server", menu=server_menu)
+            server_menu.add_command(
+                label="Go to Server Tab",
+                command=self.show_server_tab)
+            server_menu.add_separator()
+            server_menu.add_command(
+                label="Start Server",
+                command=self.start_server)
+            server_menu.add_command(
+                label="Stop Server", 
+                command=self.stop_server)
+            server_menu.add_separator()
+            server_menu.add_command(
+                label="Open API Documentation",
+                command=self.open_api_docs)
 
         # Help menu
         help_menu = tk.Menu(menubar, tearoff=0)
@@ -202,6 +235,43 @@ class MainWindow:
         # Add RCPS Crashing tab
         self.rcps_crashing_tab = RCPSCrashingTab(self.notebook, self)
         self.notebook.add(self.rcps_crashing_tab, text="RCPS Crashing")
+
+        # Add Project Charter tab
+        self.charter_tab = CharterTab(self.notebook, self)
+        self.notebook.add(self.charter_tab, text="Project Charter")
+        
+
+        # Add Charter Manager tab
+        self.charter_manager = CharterManager(
+            self.notebook,
+            on_open_callback=self._open_charter_from_manager,
+            on_duplicate_callback=self._open_charter_from_manager
+        )
+        self.notebook.add(self.charter_manager, text="Charter Manager")
+
+        # Add DPCI Assessment tab
+        self.dpci_tab = DPCITab(self.notebook)
+        self.notebook.add(self.dpci_tab, text="DPCI Assessment")
+
+        # Add Project Selection tab
+        self.selection_tab = SelectionTab(self.notebook, self)
+
+        # Add Risk Analysis tab
+        self.risk_tab = RiskAnalysisTab(self.notebook, self)
+
+        # Add Cost Optimization tab
+        self.optimization_tab = OptimizationTab(self.notebook, self.cpm_analyzer)
+        self.notebook.add(self.optimization_tab, text="Cost Optimization")
+
+        # Add Server tab (if available)
+        if SERVER_MODE_AVAILABLE:
+            try:
+                self.server_tab = ServerTab(self.notebook, self)
+            except Exception as e:
+                print(f"Warning: Failed to create Server tab: {e}")
+                self.server_tab = None
+        else:
+            self.server_tab = None
 
         # Setup tab references for data sharing
         self.setup_tab_references()
@@ -842,6 +912,71 @@ class MainWindow:
         # If not found, show info
         messagebox.showinfo(
             "Info", "RCPS Crashing tab not found. Please check integration.")
+    
+    def show_optimization_tab(self):
+        """Show the Cost Optimization tab"""
+        # Switch to the Cost Optimization tab
+        for i in range(self.notebook.index('end')):
+            if self.notebook.tab(i, 'text') == 'Cost Optimization':
+                self.notebook.select(i)
+                # Update analyzer if CPM has been run
+                if hasattr(self, 'optimization_tab') and self.current_analyzer:
+                    self.optimization_tab.set_analyzer(self.current_analyzer)
+                return
+        
+        # If not found, show info
+        messagebox.showinfo(
+            "Info", "Cost Optimization tab not found. Please check integration.")
+
+    def show_server_tab(self):
+        """Show the Server tab"""
+        if not SERVER_MODE_AVAILABLE or not hasattr(self, 'server_tab') or not self.server_tab:
+            messagebox.showwarning("Server Mode", "Server mode is not available in this installation.")
+            return
+        
+        # Switch to the Server tab
+        for i in range(self.notebook.index('end')):
+            if self.notebook.tab(i, 'text') == 'Server':
+                self.notebook.select(i)
+                return
+    
+    def start_server(self):
+        """Start the PMHelper server"""
+        if not SERVER_MODE_AVAILABLE or not hasattr(self, 'server_tab') or not self.server_tab:
+            messagebox.showwarning("Server Mode", "Server mode is not available in this installation.")
+            return
+        
+        try:
+            self.server_tab.control_panel.start_server()
+        except Exception as e:
+            messagebox.showerror("Server Error", f"Failed to start server: {str(e)}")
+    
+    def stop_server(self):
+        """Stop the PMHelper server"""
+        if not SERVER_MODE_AVAILABLE or not hasattr(self, 'server_tab') or not self.server_tab:
+            messagebox.showwarning("Server Mode", "Server mode is not available in this installation.")
+            return
+        
+        try:
+            self.server_tab.control_panel.stop_server()
+        except Exception as e:
+            messagebox.showerror("Server Error", f"Failed to stop server: {str(e)}")
+    
+    def open_api_docs(self):
+        """Open API documentation in browser"""
+        if not SERVER_MODE_AVAILABLE or not hasattr(self, 'server_tab') or not self.server_tab:
+            messagebox.showwarning("Server Mode", "Server mode is not available in this installation.")
+            return
+        
+        if not self.server_tab.is_server_running():
+            messagebox.showinfo("Server Not Running", "Please start the server first to access the API documentation.")
+            return
+        
+        try:
+            import webbrowser
+            webbrowser.open(f"{self.server_tab.get_server_url()}/docs")
+        except Exception as e:
+            messagebox.showerror("Browser Error", f"Failed to open API documentation: {str(e)}")
 
     def generate_sample_cpm(self):
         """Generate and save sample CPM data"""
@@ -2259,9 +2394,46 @@ PMHelper is designed to meet professional project management analysis needs whil
             # CRITICAL FIX 3: Additional handling for Gantt tab visibility
             if "Gantt" in tab_text or "gantt" in tab_text.lower():
                 self.handle_gantt_tab_selection()
+            
+            # Refresh charter manager when tab is selected
+            elif "Charter Manager" in tab_text:
+                self.charter_manager.refresh()
         except Exception as e:
             print(f"ERROR: Tab change handler failed: {e}")
             self.set_status("Ready")
+    
+    def _open_charter_from_manager(self, filepath: str):
+        """Open a charter from the manager in the charter tab.
+        
+        Args:
+            filepath: Path to the charter file to open
+        """
+        try:
+            # Switch to charter tab
+            for i in range(self.notebook.index("end")):
+                if self.notebook.tab(i, "text") == "Project Charter":
+                    self.notebook.select(i)
+                    break
+            
+            # Load the charter in the charter tab
+            self.charter_tab.load_charter_from_file(filepath)
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to open charter: {str(e)}")
+    
+    def on_closing(self):
+        """Handle application closing with proper cleanup."""
+        try:
+            # Cleanup server resources if available
+            if SERVER_MODE_AVAILABLE and hasattr(self, 'server_tab') and self.server_tab:
+                self.server_tab.cleanup()
+                
+            # Close the application
+            self.root.destroy()
+            
+        except Exception as e:
+            print(f"Warning: Error during cleanup: {e}")
+            self.root.destroy()
 
 
 def main():
