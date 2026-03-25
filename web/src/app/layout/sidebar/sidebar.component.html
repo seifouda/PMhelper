@@ -1,0 +1,23 @@
+<nav class="pm-sidebar" [class.pm-sidebar--collapsed]="collapsed()" aria-label="Main navigation">
+  <mat-nav-list>
+    @for (item of visibleItems(); track item.route) {
+      <a
+        mat-list-item
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
+        class="pm-sidebar__item"
+        [matTooltip]="collapsed() ? item.label : item.pgOnly ? item.label + ' (PG)' : ''"
+        matTooltipPosition="right"
+      >
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        @if (!collapsed()) {
+          <ng-container matListItemTitle>{{ item.label }}</ng-container>
+        }
+        @if (!collapsed() && item.pgOnly) {
+          <span class="pm-sidebar__pg-badge">PG</span>
+        }
+      </a>
+    }
+  </mat-nav-list>
+</nav>

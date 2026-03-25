@@ -12,28 +12,28 @@
 
 ### ✅ COMPLETED (Phases 0–7)
 
-| Phase   | Description                                                                                                                                                                        | Status  |
-| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| Phase 0 | Scaffolding — `EduProjectState`, `AppConfig`, entry point (`edu_main.py`), test stubs                                                                                              | ✅ Done |
-| Phase 1 | EVM Data Model + Input Layer — `EVMTask`, `EVMPeriod`, `EVMProject`, `InputTabEdu`, `evm_io_edu.py`, PV spreading                                                                  | ✅ Done |
-| Phase 2 | EVM Calculation Engine — `evm_calculations_edu.py`, `EVMTabEdu` (KPI cards, RAG, step-by-step, S-Curve), `test_evm_calculations_edu.py`                                            | ✅ Done |
-| Phase 3 | Risk Register & Heat Map — `risk_register_edu.py`, `RiskTabEdu` (register CRUD, 5×5 heat map, contingency integration), `risk_io_edu.py`                                           | ✅ Done |
-| Phase 4 | Monte Carlo Engine — `monte_carlo_edu.py` (threaded, progress bar), `ProbabilityTabEdu` (Monte Carlo + PERT Analysis sub-tabs), Tracking Gantt (baseline bars, % complete shading) | ✅ Done |
-| Phase 5 | Mode Toggle (UG/PG), Chart Export, Demo Data (.pmproj), Dashboard Tab, Save/Load, Unsaved-Changes Warning, PyInstaller spec                                                        | ✅ Done |
-| Phase 6 | Testing & Stabilisation — all test files pass (381 tests)                                                                                                                          | ✅ Done |
-| Phase 7   | CPM/PERT Integration — Analyze button, real Results/Network/PERT/Crashing tabs reused, CPM→EVM sync, `.pmproj` CPM activity persistence                                       | ✅ Done |
-| Phase 8   | Production Hardening — Gantt arrows + today line, RCPS leveling sub-tab, PERT analysis sub-tab, Charter + Charter Mgr wiring, DPCI wiring, full tab refresh                      | ✅ Done |
-| Phase 9   | SWOT & PESTEL Strategic Analysis — `SWOTTabEdu`, `PESTELTabEdu`, auto-extraction engine, models, save/load in `.pmproj`                                                           | ✅ Done |
-| Phase 9C  | WBS Diagram — data model, validator, builder, aggregator, Walker's layout engine, interactive Canvas tab, file export                                                             | ✅ Done |
-| Phase 10  | Polish & Packaging — recent files list, Excel KPI export, PyInstaller `--onedir` spec                                                                                            | ✅ Partial |
-| Phase 11  | UG Worked Solutions — `step_generators_edu.py`, `WorkedSolutionWindow` widget, "Show Worked Solution" buttons on EVM/PERT/CPM tabs (UG-only)                                     | ✅ Done |
-| Phase 12  | Schedule Process Stepper — `ScheduleStepperWidget` (5 PMBOK steps, event-driven), embedded in Input Activities tab, both UG + PG modes                                           | ✅ Done |
-| Phase 13  | UG Demo Expansion + Gantt Restyle — 15-task renovation demo with crash data, professional Gantt styling (14×8, bar 0.6h, CSV/Excel export)                                        | ✅ Done |
-| Phase 14  | Network Diagram Smart Layout — Sugiyama layered layout, barycenter Y-ordering, virtual node insertion, polyline edge routing                                                       | ✅ Done |
-| Phase 14A | Shared Sugiyama Layout Engine — `utils/network_layout.py` extracted, applied to NetworkTab + PERT diagram + both Crashing visualization modules                                   | ✅ Done |
-| Phase 15  | Large Project Support — O(V+E) critical-path fix, `ScrollableMatplotlibFrame` widget, batch polyline rendering, adaptive layout sizing for 600-task demos                         | ✅ Done |
-| Phase 16  | Large Demo Predecessor Quality — 19 DAG constraints implemented via `_build_predecessors_map()`, both 600-task demos regenerated and validated                                    | ✅ Done |
-| Phase 17  | Interactive Network Viewer — `pyvis` (vis.js) HTML generation for NetworkTab + PERT tab, browser-based exploration with hover tooltips, zoom/pan, critical path highlighting      | ✅ Done |
+| Phase     | Description                                                                                                                                                                        | Status     |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| Phase 0   | Scaffolding — `EduProjectState`, `AppConfig`, entry point (`edu_main.py`), test stubs                                                                                              | ✅ Done    |
+| Phase 1   | EVM Data Model + Input Layer — `EVMTask`, `EVMPeriod`, `EVMProject`, `InputTabEdu`, `evm_io_edu.py`, PV spreading                                                                  | ✅ Done    |
+| Phase 2   | EVM Calculation Engine — `evm_calculations_edu.py`, `EVMTabEdu` (KPI cards, RAG, step-by-step, S-Curve), `test_evm_calculations_edu.py`                                            | ✅ Done    |
+| Phase 3   | Risk Register & Heat Map — `risk_register_edu.py`, `RiskTabEdu` (register CRUD, 5×5 heat map, contingency integration), `risk_io_edu.py`                                           | ✅ Done    |
+| Phase 4   | Monte Carlo Engine — `monte_carlo_edu.py` (threaded, progress bar), `ProbabilityTabEdu` (Monte Carlo + PERT Analysis sub-tabs), Tracking Gantt (baseline bars, % complete shading) | ✅ Done    |
+| Phase 5   | Mode Toggle (UG/PG), Chart Export, Demo Data (.pmproj), Dashboard Tab, Save/Load, Unsaved-Changes Warning, PyInstaller spec                                                        | ✅ Done    |
+| Phase 6   | Testing & Stabilisation — all test files pass (381 tests)                                                                                                                          | ✅ Done    |
+| Phase 7   | CPM/PERT Integration — Analyze button, real Results/Network/PERT/Crashing tabs reused, CPM→EVM sync, `.pmproj` CPM activity persistence                                            | ✅ Done    |
+| Phase 8   | Production Hardening — Gantt arrows + today line, RCPS leveling sub-tab, PERT analysis sub-tab, Charter + Charter Mgr wiring, DPCI wiring, full tab refresh                        | ✅ Done    |
+| Phase 9   | SWOT & PESTEL Strategic Analysis — `SWOTTabEdu`, `PESTELTabEdu`, auto-extraction engine, models, save/load in `.pmproj`                                                            | ✅ Done    |
+| Phase 9C  | WBS Diagram — data model, validator, builder, aggregator, Walker's layout engine, interactive Canvas tab, file export                                                              | ✅ Done    |
+| Phase 10  | Polish & Packaging — recent files list, Excel KPI export, PyInstaller `--onedir` spec                                                                                              | ✅ Partial |
+| Phase 11  | UG Worked Solutions — `step_generators_edu.py`, `WorkedSolutionWindow` widget, "Show Worked Solution" buttons on EVM/PERT/CPM tabs (UG-only)                                       | ✅ Done    |
+| Phase 12  | Schedule Process Stepper — `ScheduleStepperWidget` (5 PMBOK steps, event-driven), embedded in Input Activities tab, both UG + PG modes                                             | ✅ Done    |
+| Phase 13  | UG Demo Expansion + Gantt Restyle — 15-task renovation demo with crash data, professional Gantt styling (14×8, bar 0.6h, CSV/Excel export)                                         | ✅ Done    |
+| Phase 14  | Network Diagram Smart Layout — Sugiyama layered layout, barycenter Y-ordering, virtual node insertion, polyline edge routing                                                       | ✅ Done    |
+| Phase 14A | Shared Sugiyama Layout Engine — `utils/network_layout.py` extracted, applied to NetworkTab + PERT diagram + both Crashing visualization modules                                    | ✅ Done    |
+| Phase 15  | Large Project Support — O(V+E) critical-path fix, `ScrollableMatplotlibFrame` widget, batch polyline rendering, adaptive layout sizing for 600-task demos                          | ✅ Done    |
+| Phase 16  | Large Demo Predecessor Quality — 19 DAG constraints implemented via `_build_predecessors_map()`, both 600-task demos regenerated and validated                                     | ✅ Done    |
+| Phase 17  | Interactive Network Viewer — `pyvis` (vis.js) HTML generation for NetworkTab + PERT tab, browser-based exploration with hover tooltips, zoom/pan, critical path highlighting       | ✅ Done    |
 
 ### ✅ COMPLETED — Phase 17: Interactive Network Viewer
 
@@ -2435,13 +2435,13 @@ Print `time.time()` timestamps at each major step of `analyze_project()` to term
 
 The original `scripts/generate_large_demos.py` produced predecessor networks that violated five key constraints:
 
-| Violation | Constraint # | Impact |
-| --------- | ------------ | ------ |
-| Transitive redundancy (A→B, B→C, A→C all present) | #12 | Thousands of extra virtual nodes; inflated Sugiyama rendering time |
-| Up to 7 predecessors per task | #10 | Unrealistic convergence; distorted critical path weights |
-| Fan-out explosion at phase boundaries (all 5 early tasks independently link back to final 2–8 tasks of prior phase) | #13, #15 | Layout explosion at every phase transition |
-| No chain guarantee — critical path potentially 2–3 tasks only | #18, #19 | Meaningless CPM/PERT results for a 600-task project |
-| 5% per-task random cross-phase rule fired multiple times per task | #17 | Uncontrolled connectivity; violated phase structure |
+| Violation                                                                                                           | Constraint # | Impact                                                             |
+| ------------------------------------------------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------ |
+| Transitive redundancy (A→B, B→C, A→C all present)                                                                   | #12          | Thousands of extra virtual nodes; inflated Sugiyama rendering time |
+| Up to 7 predecessors per task                                                                                       | #10          | Unrealistic convergence; distorted critical path weights           |
+| Fan-out explosion at phase boundaries (all 5 early tasks independently link back to final 2–8 tasks of prior phase) | #13, #15     | Layout explosion at every phase transition                         |
+| No chain guarantee — critical path potentially 2–3 tasks only                                                       | #18, #19     | Meaningless CPM/PERT results for a 600-task project                |
+| 5% per-task random cross-phase rule fired multiple times per task                                                   | #17          | Uncontrolled connectivity; violated phase structure                |
 
 #### The 19 DAG Quality Constraints
 
@@ -2449,57 +2449,57 @@ These constraints define what a structurally valid, pedagogically useful project
 
 **Category 1 — Graph Structure**
 
-| # | Constraint | Verification |
-| - | ---------- | ------------ |
-| 1 | **Valid DAG** — no directed cycles anywhere in the network | `nx.is_directed_acyclic_graph(G) == True` |
-| 2 | **No self-loops** — a task cannot list itself as a predecessor | All edges `(u, v)` have `u ≠ v` |
-| 3 | **No dangling references** — every predecessor ID must exist as a valid task in the project | Set membership check against all task IDs |
-| 4 | **Full reachability** — all tasks reachable from at least one start task via forward traversal | `nx.is_weakly_connected(G) == True` |
-| 5 | **Forward connectivity** — all tasks lie on at least one path to an end task (no dead-end sub-graphs) | BFS from all end tasks in reverse direction |
+| #   | Constraint                                                                                            | Verification                                |
+| --- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| 1   | **Valid DAG** — no directed cycles anywhere in the network                                            | `nx.is_directed_acyclic_graph(G) == True`   |
+| 2   | **No self-loops** — a task cannot list itself as a predecessor                                        | All edges `(u, v)` have `u ≠ v`             |
+| 3   | **No dangling references** — every predecessor ID must exist as a valid task in the project           | Set membership check against all task IDs   |
+| 4   | **Full reachability** — all tasks reachable from at least one start task via forward traversal        | `nx.is_weakly_connected(G) == True`         |
+| 5   | **Forward connectivity** — all tasks lie on at least one path to an end task (no dead-end sub-graphs) | BFS from all end tasks in reverse direction |
 
 **Category 2 — Start / End Structure**
 
-| # | Constraint | Verification |
-| - | ---------- | ------------ |
-| 6 | **Minimum start tasks** — at least 1 task with `in_degree = 0` | `start_count >= 1` |
-| 7 | **Maximum start tasks** — no more than 5 start tasks (prevents fully flat networks) | `start_count <= 5` |
-| 8 | **No isolated tasks** — no task with both `in_degree = 0` AND `out_degree = 0` simultaneously | `isolated_node_count == 0` |
+| #   | Constraint                                                                                    | Verification               |
+| --- | --------------------------------------------------------------------------------------------- | -------------------------- |
+| 6   | **Minimum start tasks** — at least 1 task with `in_degree = 0`                                | `start_count >= 1`         |
+| 7   | **Maximum start tasks** — no more than 5 start tasks (prevents fully flat networks)           | `start_count <= 5`         |
+| 8   | **No isolated tasks** — no task with both `in_degree = 0` AND `out_degree = 0` simultaneously | `isolated_node_count == 0` |
 
 **Category 3 — Predecessor Count**
 
-| # | Constraint | Verification |
-| - | ---------- | ------------ |
-| 9 | **Minimum predecessors** — every non-start task has at least 1 predecessor (no mid-network orphans) | All non-start `in_degree >= 1` |
-| 10 | **Maximum predecessors** — hard cap of 3 predecessors per task | `max(G.in_degree(n) for n in G) <= 3` |
-| 11 | **Typical predecessors** — median in-degree = 1 (most tasks have simple, single dependencies) | `median(in_degrees) == 1` |
+| #   | Constraint                                                                                          | Verification                          |
+| --- | --------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| 9   | **Minimum predecessors** — every non-start task has at least 1 predecessor (no mid-network orphans) | All non-start `in_degree >= 1`        |
+| 10  | **Maximum predecessors** — hard cap of 3 predecessors per task                                      | `max(G.in_degree(n) for n in G) <= 3` |
+| 11  | **Typical predecessors** — median in-degree = 1 (most tasks have simple, single dependencies)       | `median(in_degrees) == 1`             |
 
 **Category 4 — Transitive Redundancy**
 
-| # | Constraint | Verification |
-| - | ---------- | ------------ |
-| 12 | **No transitive redundancy** — if a path A→…→C exists via intermediate nodes, no direct A→C edge is permitted | Ancestor-set traversal: `redundant_edges == 0` |
+| #   | Constraint                                                                                                    | Verification                                   |
+| --- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| 12  | **No transitive redundancy** — if a path A→…→C exists via intermediate nodes, no direct A→C edge is permitted | Ancestor-set traversal: `redundant_edges == 0` |
 
 **Category 5 — Fan-out and Convergence**
 
-| # | Constraint | Verification |
-| - | ---------- | ------------ |
-| 13 | **Fan-out cap** — no single task directly precedes more than 8 successors | `max(G.out_degree(n) for n in G) <= 8` |
-| 14 | **Convergence cap** — same as constraint #10; no task has more than 3 direct predecessors | `max(G.in_degree(n) for n in G) <= 3` |
+| #   | Constraint                                                                                | Verification                           |
+| --- | ----------------------------------------------------------------------------------------- | -------------------------------------- |
+| 13  | **Fan-out cap** — no single task directly precedes more than 8 successors                 | `max(G.out_degree(n) for n in G) <= 8` |
+| 14  | **Convergence cap** — same as constraint #10; no task has more than 3 direct predecessors | `max(G.in_degree(n) for n in G) <= 3`  |
 
 **Category 6 — Phase Topology**
 
-| # | Constraint | Verification |
-| - | ---------- | ------------ |
-| 15 | **Phase boundary single gateway** — exactly ONE task per phase boundary serves as the connection gateway from the previous phase | Gateway count per transition = 1 |
-| 16 | **Within-phase locality** — intra-phase connections are limited to a sliding window of the preceding 8 tasks; no long-range within-phase jumps | No within-phase edge skips more than 8 positions |
-| 17 | **No random cross-phase edges** — cross-phase connections only via the designated gateway mechanism; no opportunistic 5%-rule jumps | Cross-phase edges from non-gateway tasks = 0 |
+| #   | Constraint                                                                                                                                     | Verification                                     |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| 15  | **Phase boundary single gateway** — exactly ONE task per phase boundary serves as the connection gateway from the previous phase               | Gateway count per transition = 1                 |
+| 16  | **Within-phase locality** — intra-phase connections are limited to a sliding window of the preceding 8 tasks; no long-range within-phase jumps | No within-phase edge skips more than 8 positions |
+| 17  | **No random cross-phase edges** — cross-phase connections only via the designated gateway mechanism; no opportunistic 5%-rule jumps            | Cross-phase edges from non-gateway tasks = 0     |
 
 **Category 7 — Critical Chain**
 
-| # | Constraint | Verification |
-| - | ---------- | ------------ |
-| 18 | **Minimum critical path** — the longest path must span at least 30% of all tasks | `len(critical_path) / total_tasks >= 0.30` |
-| 19 | **Spine requirement** — a sequential chain of every 3rd task (≥ N/3 tasks) forms the backbone, guaranteeing a well-defined project progression | Critical spine coverage ≥ 33% of total |
+| #   | Constraint                                                                                                                                     | Verification                               |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| 18  | **Minimum critical path** — the longest path must span at least 30% of all tasks                                                               | `len(critical_path) / total_tasks >= 0.30` |
+| 19  | **Spine requirement** — a sequential chain of every 3rd task (≥ N/3 tasks) forms the backbone, guaranteeing a well-defined project progression | Critical spine coverage ≥ 33% of total     |
 
 #### Implementation — 6-Step Algorithm
 
@@ -2544,27 +2544,27 @@ Three helper functions added to `scripts/generate_large_demos.py`:
 
 Both regenerated demo files passed all constraint checks:
 
-| Metric                    | UG Large (campus_construction) | PG Large (erp_implementation) | Constraint |
-| ------------------------- | ------------------------------ | ----------------------------- | ---------- |
-| Valid DAG                 | ✅ True                        | ✅ True                        | #1         |
-| Start tasks               | ✅ 3                           | ✅ 3                           | #6, #7     |
-| Isolated nodes            | ✅ 0                           | ✅ 0                           | #8         |
-| Max predecessors          | ✅ 3                           | ✅ 3                           | #10        |
-| Transitive-redundant edges| ✅ 0                           | ✅ 0                           | #12        |
-| Topological layers        | ✅ 335                         | ✅ 331                         | #4, #18    |
-| Critical path length      | ✅ 335 tasks (55%)             | ✅ 331 tasks (55%)             | #18, #19   |
-| All 797 tests pass        | ✅                             | ✅                             | —          |
+| Metric                     | UG Large (campus_construction) | PG Large (erp_implementation) | Constraint |
+| -------------------------- | ------------------------------ | ----------------------------- | ---------- |
+| Valid DAG                  | ✅ True                        | ✅ True                       | #1         |
+| Start tasks                | ✅ 3                           | ✅ 3                          | #6, #7     |
+| Isolated nodes             | ✅ 0                           | ✅ 0                          | #8         |
+| Max predecessors           | ✅ 3                           | ✅ 3                          | #10        |
+| Transitive-redundant edges | ✅ 0                           | ✅ 0                          | #12        |
+| Topological layers         | ✅ 335                         | ✅ 331                        | #4, #18    |
+| Critical path length       | ✅ 335 tasks (55%)             | ✅ 331 tasks (55%)            | #18, #19   |
+| All 797 tests pass         | ✅                             | ✅                            | —          |
 
 #### Phase 16 — Tasks
 
-| #    | Task                                                     | Files Changed                                                                                                   | Status  |
-| ---- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------- |
-| 16.1 | Implement `_build_ancestor_sets()` helper                | `scripts/generate_large_demos.py`                                                                               | ✅ Done |
-| 16.2 | Implement `_transitive_reduce()` helper                  | `scripts/generate_large_demos.py`                                                                               | ✅ Done |
-| 16.3 | Implement `_build_predecessors_map()` 6-step algorithm   | `scripts/generate_large_demos.py`                                                                               | ✅ Done |
-| 16.4 | Replace UG generator predecessor-building block          | `scripts/generate_large_demos.py`                                                                               | ✅ Done |
-| 16.5 | Replace PG generator predecessor-building block          | `scripts/generate_large_demos.py`                                                                               | ✅ Done |
-| 16.6 | Regenerate both 600-task demo files and validate         | `demos_edu/campus_construction_ug_large.pmproj`, `demos_edu/erp_implementation_pg_large.pmproj`                 | ✅ Done |
+| #    | Task                                                   | Files Changed                                                                                   | Status  |
+| ---- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------- | ------- |
+| 16.1 | Implement `_build_ancestor_sets()` helper              | `scripts/generate_large_demos.py`                                                               | ✅ Done |
+| 16.2 | Implement `_transitive_reduce()` helper                | `scripts/generate_large_demos.py`                                                               | ✅ Done |
+| 16.3 | Implement `_build_predecessors_map()` 6-step algorithm | `scripts/generate_large_demos.py`                                                               | ✅ Done |
+| 16.4 | Replace UG generator predecessor-building block        | `scripts/generate_large_demos.py`                                                               | ✅ Done |
+| 16.5 | Replace PG generator predecessor-building block        | `scripts/generate_large_demos.py`                                                               | ✅ Done |
+| 16.6 | Regenerate both 600-task demo files and validate       | `demos_edu/campus_construction_ug_large.pmproj`, `demos_edu/erp_implementation_pg_large.pmproj` | ✅ Done |
 
 ---
 
@@ -2576,6 +2576,7 @@ Both regenerated demo files passed all constraint checks:
 #### Problem Statement
 
 The Sugiyama + Matplotlib approach works well for ≤50-task projects but produces illegible diagrams for 600-task demos:
+
 - 335 topological layers crammed into viewport width
 - ~250 virtual nodes clutter the layout
 - No interactive exploration (zoom is toolbar-only, no hover/search)
@@ -2583,15 +2584,15 @@ The Sugiyama + Matplotlib approach works well for ≤50-task projects but produc
 
 #### Strategy: Dual Rendering (Matplotlib + vis.js)
 
-| Aspect                | Matplotlib (existing)                   | vis.js / pyvis (new)                        |
-| --------------------- | --------------------------------------- | ------------------------------------------- |
-| Rendering target      | In-app Tk canvas                        | Self-contained HTML → browser               |
-| Best for              | ≤50 tasks, static export (PNG/PDF/SVG)  | Any size, especially >50 tasks              |
-| Interactivity         | Toolbar zoom/pan only                   | Hover tooltips, drag, search, cluster       |
-| Critical path         | Red node fill + bold edges              | Red nodes + red edges + tooltip details     |
-| Dependencies          | matplotlib, networkx (already present)  | pyvis (~50 KB, pure Python, no binaries)    |
-| PyInstaller impact    | None (already bundled)                  | None (generates HTML, browser renders)      |
-| Export                | PNG, PDF, SVG, JPG                      | HTML file (self-contained, shareable)       |
+| Aspect             | Matplotlib (existing)                  | vis.js / pyvis (new)                     |
+| ------------------ | -------------------------------------- | ---------------------------------------- |
+| Rendering target   | In-app Tk canvas                       | Self-contained HTML → browser            |
+| Best for           | ≤50 tasks, static export (PNG/PDF/SVG) | Any size, especially >50 tasks           |
+| Interactivity      | Toolbar zoom/pan only                  | Hover tooltips, drag, search, cluster    |
+| Critical path      | Red node fill + bold edges             | Red nodes + red edges + tooltip details  |
+| Dependencies       | matplotlib, networkx (already present) | pyvis (~50 KB, pure Python, no binaries) |
+| PyInstaller impact | None (already bundled)                 | None (generates HTML, browser renders)   |
+| Export             | PNG, PDF, SVG, JPG                     | HTML file (self-contained, shareable)    |
 
 #### Architecture
 
@@ -2610,6 +2611,7 @@ src/pmhelper/utils/interactive_network.py   ← NEW: HTML generator
 #### Node Design (vis.js)
 
 Each activity node displays:
+
 - **Label:** Activity ID (e.g., "A101")
 - **Title (hover tooltip):** ID, Duration, ES, EF, LS, LF, Float, Critical status
 - **Color:** Red (#FF6B6B) for critical, Light Blue (#97C2FC) for non-critical, Green (#7BE141) for START, Orange (#FFA807) for END
@@ -2618,26 +2620,26 @@ Each activity node displays:
 
 #### Key Design Decisions
 
-| #   | Decision                              | Choice                                                    | Rationale                                                                |
-| --- | ------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------ |
-| 1   | vis.js or Graphviz?                   | **vis.js (via `pyvis`)**                                   | No system binary needed; interactive; zero PyInstaller breakage          |
-| 2   | Replace or coexist with Matplotlib?   | **Coexist** — both available simultaneously                | User chooses preferred view; Matplotlib kept for static export           |
-| 3   | Threshold gating?                     | **No threshold** — button always available                 | Interactive view is useful even for small projects                        |
-| 4   | vis.js layout algorithm?              | **Hierarchical (direction: LR)** with physics disabled     | Matches Sugiyama left-to-right flow; physics off = instant stable layout |
-| 5   | HTML output location?                 | `tempfile.NamedTemporaryFile(suffix='.html', delete=False)` | OS temp dir; auto-cleaned eventually; no user-visible file management    |
-| 6   | Include activity names in labels?     | **ID only in label; full details in hover tooltip**        | Keeps nodes compact; hover reveals everything                            |
+| #   | Decision                            | Choice                                                      | Rationale                                                                |
+| --- | ----------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------ |
+| 1   | vis.js or Graphviz?                 | **vis.js (via `pyvis`)**                                    | No system binary needed; interactive; zero PyInstaller breakage          |
+| 2   | Replace or coexist with Matplotlib? | **Coexist** — both available simultaneously                 | User chooses preferred view; Matplotlib kept for static export           |
+| 3   | Threshold gating?                   | **No threshold** — button always available                  | Interactive view is useful even for small projects                       |
+| 4   | vis.js layout algorithm?            | **Hierarchical (direction: LR)** with physics disabled      | Matches Sugiyama left-to-right flow; physics off = instant stable layout |
+| 5   | HTML output location?               | `tempfile.NamedTemporaryFile(suffix='.html', delete=False)` | OS temp dir; auto-cleaned eventually; no user-visible file management    |
+| 6   | Include activity names in labels?   | **ID only in label; full details in hover tooltip**         | Keeps nodes compact; hover reveals everything                            |
 
 #### Phase 17 — Tasks
 
-| #    | Task                                                      | Files Changed                                               | Status      |
-| ---- | --------------------------------------------------------- | ----------------------------------------------------------- | ----------- |
-| 17.1 | Add `pyvis` to `requirements.txt`                         | `requirements.txt`                                          | ✅ Done |
-| 17.2 | Create `interactive_network.py` module                    | `src/pmhelper/utils/interactive_network.py`                  | ✅ Done |
-| 17.3 | Add "Interactive View" button to `NetworkTab`              | `src/pmhelper/gui/tabs/network_tab.py`                      | ✅ Done |
-| 17.4 | Add "Interactive View" button to `PertDiagramTab`          | `src/pmhelper/gui/tabs/pert_diagram_tab.py`                 | ✅ Done |
-| 17.5 | Test with small project (≤15 tasks) — verify layout       | Manual test                                                 | ✅ Done |
-| 17.6 | Test with large project (600 tasks) — verify performance  | Manual test                                                 | ⬜ Not Done |
-| 17.7 | Run full test suite — verify zero regressions             | All test files                                              | ✅ Done |
+| #    | Task                                                     | Files Changed                               | Status      |
+| ---- | -------------------------------------------------------- | ------------------------------------------- | ----------- |
+| 17.1 | Add `pyvis` to `requirements.txt`                        | `requirements.txt`                          | ✅ Done     |
+| 17.2 | Create `interactive_network.py` module                   | `src/pmhelper/utils/interactive_network.py` | ✅ Done     |
+| 17.3 | Add "Interactive View" button to `NetworkTab`            | `src/pmhelper/gui/tabs/network_tab.py`      | ✅ Done     |
+| 17.4 | Add "Interactive View" button to `PertDiagramTab`        | `src/pmhelper/gui/tabs/pert_diagram_tab.py` | ✅ Done     |
+| 17.5 | Test with small project (≤15 tasks) — verify layout      | Manual test                                 | ✅ Done     |
+| 17.6 | Test with large project (600 tasks) — verify performance | Manual test                                 | ⬜ Not Done |
+| 17.7 | Run full test suite — verify zero regressions            | All test files                              | ✅ Done     |
 
 ---
 
@@ -2669,3 +2671,945 @@ Each activity node displays:
 - [ ] Both 600-task demos pass all 19 DAG predecessor constraints (valid DAG, 0 redundant edges, max 3 predecessors, critical path ≥ 30%)
 - [ ] `ScrollableMatplotlibFrame` renders network/PERT/Gantt for 600-task project with scrollbars active
 - [ ] All scrollable diagrams also render correctly for small (<50 task) projects in auto-fit mode
+
+---
+
+## Phase 18 — Web Application (Angular + FastAPI)
+
+> **Goal:** Re-platform PMHelper Edu as a production-ready Angular web application, wrapping all existing Python computation engines via REST API. The desktop app (Tkinter) remains the current delivery vehicle; this phase builds the web front-end alongside it.
+> **Type:** Full-stack web — Angular 17+ frontend + FastAPI backend (existing engines, no rewrite)
+> **Product Direction:** Educational only ("PM Scholar")
+> **Target Users:** PM students (UG + PG) and instructors
+> **Estimated Effort:** ~21 weeks (1 developer + AI assistance)
+> **Date Drafted:** March 22, 2026
+> **Last Status Update:** March 24, 2026
+> **Branch:** `feat/web-v1` (current)
+> **Dependencies:** All Python engines from Phases 0–17 are complete and production-ready — this phase exposes them via API only.
+
+---
+
+### 18.0 Product Vision
+
+**PMHelper Edu Web** is an interactive educational platform for learning project management through computation. Students don't just get answers — they understand _why_.
+
+**Core differentiator:** No existing PM educational tool lets students input their own data, run real CPM/PERT/EVM/Risk engines, AND see every intermediate step explained with live formula derivations.
+
+**What it is:**
+
+- A learning tool that wraps a real PM computation engine with step-by-step educational UI
+- Learn Mode is the default — walkthroughs, formula explanations, and tooltips are the product
+- A secondary "Clean View" hides educational scaffolding for users who already understand the concepts
+
+**What it is NOT:**
+
+- Not a project management tool for managing real projects
+- Not a collaboration platform
+- Not a Jira / MS Project replacement
+
+---
+
+### 18.1 Why Angular (Not React)
+
+| Reason                                | Detail                                                                                                                                                                                                                                                                                         |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Form-heavy application**            | PMHelper Edu is data-entry + computation + display. Angular Reactive Forms with built-in validation, error states, and dynamic form arrays are purpose-built for the task/period/risk data grids. React requires assembling react-hook-form + zod + custom components to reach the same level. |
+| **Structured module architecture**    | Every tab (CPM, PERT, EVM, Risk, Crashing, RCPS, Monte Carlo, WBS, SWOT, PESTEL) is a self-contained feature module with its own components, services, and routes. Angular enforces this separation. In React it relies on convention.                                                         |
+| **RxJS for simulation streaming**     | Monte Carlo (5000 trials) and step-by-step animations benefit from observable streams. Angular's native RxJS makes progressive result rendering elegant.                                                                                                                                       |
+| **Dependency injection for services** | Each analysis engine maps to an injectable Angular service. Clean, testable, swappable.                                                                                                                                                                                                        |
+| **Angular Material + CDK**            | Data tables, dialogs, tabs, steppers out of the box. CDK provides drag-drop (heat map), virtual scrolling (large task lists), and overlay positioning (tooltips).                                                                                                                              |
+| **TypeScript-first**                  | Not bolted on — native language from day one.                                                                                                                                                                                                                                                  |
+
+---
+
+### 18.2 Technical Stack
+
+#### Frontend
+
+| Decision     | Choice                                                                                      |
+| ------------ | ------------------------------------------------------------------------------------------- |
+| Framework    | Angular 17+ (standalone components, signals, new control flow `@if`/`@for`)                 |
+| Build        | Angular CLI with esbuild (fast builds, zero config)                                         |
+| State        | Angular Signals (local/global) + NgRx ComponentStore (complex view state: EVM, Monte Carlo) |
+| Styling      | Angular Material 3 + Tailwind CSS                                                           |
+| Charts       | ngx-charts (line/bar/area) + D3.js (network DAG, Gantt, WBS tree, risk heat map)            |
+| Data Grid    | Angular Material Table + CDK virtual scroll + inline reactive-form editing                  |
+| Math Display | KaTeX via `ngx-katex` (formula rendering in Learn Mode)                                     |
+| HTTP         | Built-in `HttpClient` + loading + error interceptors                                        |
+| Forms        | Reactive Forms throughout all data entry                                                    |
+| Routing      | Angular Router — lazy-loaded feature modules (1 per tab/view)                               |
+
+#### Backend
+
+| Decision       | Choice                                                                    |
+| -------------- | ------------------------------------------------------------------------- |
+| Framework      | FastAPI (already at `src/pmhelper/server/`) — extend, not replace         |
+| Computation    | All existing Python engines — NetworkX, NumPy, Pandas, SciPy — no rewrite |
+| Database       | SQLite (dev) / PostgreSQL (prod) — existing SQLAlchemy async models       |
+| New API routes | EVM, Risk, Monte Carlo, WBS, SWOT, Steps endpoints (see Section 18.8)     |
+| Auth           | None for V1 (single-user educational tool)                                |
+
+---
+
+### 18.3 Application Structure
+
+#### Shell Layout
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  [🎓 PMHelper Edu]            [Learn Mode 🎓 / Clean View ⚡]      │
+│                               [Import] [Export] [Save] [UG ↔ PG]   │
+├──────────────────────────────────────────────────────────────────────┤
+│  Sidebar Navigation           Main Content Area                      │
+│  ┌────────────────┐  ┌──────────────────────────────────────────┐   │
+│  │ 📊 Dashboard   │  │                                          │   │
+│  │ 📝 Input       │  │  Active view renders here.               │   │
+│  │ 🔗 Network     │  │                                          │   │
+│  │ 📅 Gantt       │  │  Learn Mode: formula + step panels       │   │
+│  │ 📈 EVM         │  │  appear beside charts.                   │   │
+│  │ ⚡ Crashing    │  │                                          │   │
+│  │ 🎲 PERT        │  │  Clean View: charts at full width,       │   │
+│  │ ⚠️  Risk        │  │  no educational overlay.                │   │
+│  │ 🔄 RCPS   [PG] │  │                                          │   │
+│  │ 🎯 Monte  [PG] │  │                                          │   │
+│  │ 📋 WBS    [PG] │  │                                          │   │
+│  │ 🔍 SWOT   [PG] │  │                                          │   │
+│  │ 🌍 PESTEL [PG] │  │                                          │   │
+│  └────────────────┘  └──────────────────────────────────────────┘   │
+├──────────────────────────────────────────────────────────────────────┤
+│  Status: [Project: sample.csv]  [Mode: UG]  [Tasks: 9]  [✓ Ready]  │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+#### Angular Module Tree
+
+```
+src/app/
+├── core/
+│   ├── services/
+│   │   ├── api.service.ts              # HttpClient wrapper, base URL, error handling
+│   │   ├── cpm.service.ts              # POST /api/v1/analysis/cpm
+│   │   ├── pert.service.ts             # POST /api/v1/analysis/pert
+│   │   ├── evm.service.ts              # POST /api/v1/analysis/evm
+│   │   ├── risk.service.ts             # POST /api/v1/analysis/risk
+│   │   ├── crashing.service.ts         # POST /api/v1/analysis/crashing
+│   │   ├── rcps.service.ts             # POST /api/v1/analysis/rcps
+│   │   ├── monte-carlo.service.ts      # POST /api/v1/analysis/monte-carlo
+│   │   ├── wbs.service.ts              # WBS CRUD + aggregation
+│   │   ├── project.service.ts          # Save / load / import / export
+│   │   └── sample.service.ts           # GET /api/v1/samples
+│   ├── models/
+│   │   ├── activity.model.ts
+│   │   ├── cpm-result.model.ts
+│   │   ├── evm.model.ts
+│   │   ├── risk.model.ts
+│   │   ├── pert.model.ts
+│   │   ├── monte-carlo.model.ts
+│   │   ├── wbs.model.ts
+│   │   ├── swot.model.ts
+│   │   ├── pestel.model.ts
+│   │   └── step.model.ts               # CalculationStep for walkthroughs
+│   ├── state/
+│   │   └── project.store.ts            # Signals-based global state
+│   └── interceptors/
+│       ├── loading.interceptor.ts
+│       └── error.interceptor.ts
+│
+├── shared/
+│   ├── components/
+│   │   ├── kpi-card/                   # Value + label + RAG badge + trend + tooltip
+│   │   ├── formula-display/            # KaTeX rendering with variable substitution
+│   │   ├── explainer-tooltip/          # "?" popover — Learn Mode only
+│   │   ├── step-walkthrough/           # Step player (prev / next / play)
+│   │   ├── worked-solution/            # Scrollable full worked-solution panel
+│   │   ├── file-dropzone/              # Drag-drop CSV / Excel upload
+│   │   ├── column-mapper/              # Auto-detect + manual column mapping dialog
+│   │   ├── validation-panel/           # Error list with click-to-fix
+│   │   ├── mode-toggle/                # Learn 🎓 / Clean ⚡ switch
+│   │   ├── level-toggle/               # UG / PG switch
+│   │   ├── sample-selector/            # Sample dataset picker dialog
+│   │   ├── export-menu/                # PNG / PDF / CSV / Excel dropdown
+│   │   └── schedule-stepper/           # 5-badge PMBOK process indicator
+│   ├── pipes/
+│   │   ├── rag-status.pipe.ts          # KPI value → 'red' | 'amber' | 'green'
+│   │   ├── currency.pipe.ts
+│   │   └── duration-format.pipe.ts
+│   └── directives/
+│       └── learn-mode-only.directive.ts  # *appLearnMode structural directive
+│
+├── features/                           # One lazy-loaded module per tab
+│   ├── dashboard/
+│   ├── input/
+│   │   └── components/
+│   │       ├── task-grid/
+│   │       ├── evm-period-grid/
+│   │       ├── risk-entry/
+│   │       └── import-wizard/
+│   ├── network/
+│   │   └── components/
+│   │       ├── cpm-node/
+│   │       ├── dependency-edge/
+│   │       ├── network-canvas/         # D3 Sugiyama layout + zoom + animation
+│   │       ├── forward-pass-stepper/   # Learn Mode animated forward pass
+│   │       └── backward-pass-stepper/
+│   ├── gantt/
+│   │   └── components/
+│   │       ├── gantt-bar/
+│   │       ├── timeline-axis/
+│   │       ├── dependency-arrow/
+│   │       ├── float-indicator/        # EF → LF lighter bar extension
+│   │       └── gantt-canvas/
+│   ├── evm/
+│   │   └── components/
+│   │       ├── s-curve-chart/
+│   │       ├── kpi-panel/
+│   │       ├── eac-formula-toggle/
+│   │       └── evm-explainer/
+│   ├── crashing/
+│   │   └── components/
+│   │       ├── cost-curve-chart/
+│   │       ├── crashing-step-table/
+│   │       └── crashing-stepper/
+│   ├── pert/
+│   │   └── components/
+│   │       ├── three-point-table/
+│   │       ├── probability-calc/
+│   │       ├── distribution-chart/
+│   │       └── pert-explainer/
+│   ├── risk/
+│   │   └── components/
+│   │       ├── risk-register/
+│   │       ├── heat-map/               # 5×5 D3 matrix
+│   │       ├── exposure-chart/
+│   │       └── contingency-calc/
+│   ├── rcps/                           # PG only
+│   │   └── components/
+│   │       ├── resource-histogram/
+│   │       ├── schedule-comparison/
+│   │       └── rcps-stepper/
+│   ├── monte-carlo/                    # PG only
+│   │   └── components/
+│   │       ├── mc-config/
+│   │       ├── duration-histogram/
+│   │       ├── cost-histogram/
+│   │       ├── cp-frequency-table/
+│   │       └── convergence-chart/
+│   ├── wbs/                            # PG only
+│   │   └── components/
+│   │       ├── wbs-canvas/             # D3 Walker layout
+│   │       ├── wbs-node/
+│   │       ├── wbs-editor-dialog/
+│   │       └── wbs-rollup-panel/
+│   ├── swot/                           # PG only
+│   │   └── components/
+│   │       ├── swot-matrix/
+│   │       └── auto-extract-panel/
+│   └── pestel/                         # PG only
+│       └── components/
+│           ├── pestel-heatmap/
+│           └── pestel-factor-table/
+│
+├── layout/
+│   ├── app-shell/
+│   ├── sidebar/
+│   └── top-bar/
+│
+└── app.routes.ts                       # Lazy routes for all 13 features
+```
+
+---
+
+### 18.4 Global State (Signals)
+
+```typescript
+// core/state/project.store.ts
+
+// UI
+export const mode = signal<"learn" | "clean">("learn");
+export const academicLevel = signal<"ug" | "pg">("ug");
+export const isLoading = signal(false);
+
+// Project data
+export const activities = signal<Activity[]>([]);
+export const cpmResults = signal<CPMResults | null>(null);
+export const pertResults = signal<PERTResults | null>(null);
+export const evmProject = signal<EVMProject | null>(null);
+export const riskRegister = signal<Risk[]>([]);
+export const monteCarloResults = signal<MCResults | null>(null);
+export const wbsNodes = signal<WBSNode[]>([]);
+export const swotAnalysis = signal<SWOTAnalysis | null>(null);
+export const pestelAnalysis = signal<PESTELAnalysis | null>(null);
+
+// Derived (computed)
+export const criticalPath = computed(
+  () => cpmResults()?.critical_paths?.[0] ?? [],
+);
+export const projectDuration = computed(
+  () => cpmResults()?.project_duration ?? 0,
+);
+export const isAnalyzed = computed(() => cpmResults() !== null);
+export const pgVisible = computed(() => academicLevel() === "pg");
+```
+
+---
+
+### 18.5 View Specifications
+
+#### 18.5.1 Dashboard
+
+- **Purpose:** At-a-glance project health after analysis
+- **Components:** KPI card grid (6 cards: Duration, CP Length, Avg Float, # Tasks, # Critical, Total Cost), mini network diagram, mini Gantt, alerts panel
+- **Learn Mode:** Each KPI card has "?" tooltip explaining the metric
+- **Interactions:** Click card → navigate to detail view; click mini-chart → expand to full view
+
+#### 18.5.2 Input View
+
+- **Purpose:** Data entry and import
+- **Sub-tabs:** Tasks · EVM Periods · Risk Register
+- **Task Columns:** ID, Name, Duration, Predecessors, O/M/P, Resource Demand, Cost, Min Duration, Crash Cost
+- **Validation:** Real-time red borders, error panel, DAG acyclicity check, non-negative durations, predecessor existence
+- **Schedule Stepper:** 5-badge PMBOK indicator (Define → Sequence → Resources → Durations → Analyze)
+- **Learn Mode:** Column header tooltips; "What should I enter?" wizard for first-time users
+
+#### 18.5.3 Network Diagram
+
+- **Purpose:** Interactive dependency DAG with CPM scheduling data
+- **Node Format (CPM box):**
+  ```
+  ┌────┬────┐
+  │ ES │ EF │
+  ├────┴────┤
+  │ ID/Name │
+  │  Dur    │
+  ├────┬────┤
+  │ LS │ LF │
+  ├────┴────┤
+  │  Float  │
+  └─────────┘
+  ```
+- **Layout:** Hierarchical Sugiyama (port from `utils/network_layout.py`)
+- **Critical path:** Red nodes + edges where Float = 0
+- **Interactions:** Hover → fade non-connected nodes; click → detail panel; "Critical Path Only" filter; zoom/fit
+- **Learn Mode:** "Step Through" button animates forward pass (ES/EF fills node-by-node), then backward pass (LS/LF), then float, then critical path reveal. Each step shows formula: `ES(C) = max(EF(A), EF(B)) = max(5, 3) = 5`
+
+#### 18.5.4 Gantt Chart
+
+- **Purpose:** Timeline view with dependencies
+- **Standard variant:** Bars with dependency arrows, float extension (lighter EF→LF), today line
+- **Tracking variant (PG):** Baseline bars + actual overlay + % complete shading
+- **Interactions:** Hover → tooltip (ES/EF/LS/LF/Float); click bar → highlight in Network (cross-view); zoom time axis
+- **Learn Mode:** Float bar tooltip: "This task can slip X days without delaying the project"
+
+#### 18.5.5 EVM Dashboard
+
+- **Purpose:** Earned Value performance tracking
+- **KPI Cards (11):** CV, SV, CPI, SPI, PC, PS, CR, EAC₁, EAC₂, EAC₃, VAC, TCPI — each with RAG badge
+- **RAG thresholds:** CPI/SPI > 1.0 = Green; 0.9–1.0 = Amber; < 0.9 = Red
+- **Charts:** S-Curve (PV/EV/AC multi-line with area fills)
+- **EAC toggle:** Switch between formulas — see how forecast changes
+- **Learn Mode:** "Explain" button per KPI: `CPI = EV / AC = $8,500 / $10,000 = 0.85 → spending $1.18 per $1.00 of value — over budget`. Full worked solution panel for all 11 KPIs.
+
+#### 18.5.6 Crashing / Cost Optimization
+
+- **Purpose:** Time-cost tradeoff analysis
+- **Chart:** Direct + indirect + total cost vs. duration curves; optimum duration marker
+- **Table:** Step-by-step crashing decisions (activity crashed, cost per step, new duration)
+- **Learn Mode:** Animated step narration: "Step 1: Activity F is cheapest on critical path at $200/day. Crash F by 1 day. Project: 28 → 27 days."
+
+#### 18.5.7 PERT / Probability
+
+- **Purpose:** Probabilistic scheduling with 3-point estimates
+- **Components:** O/M/P table; expected time + variance display; P(T ≤ X) calculator; normal distribution chart with Z-score marker
+- **Learn Mode:** Full formula walkthrough: $t_e = (O + 4M + P) / 6$, $\sigma^2 = ((P - O) / 6)^2$, $Z = (T_{target} - \mu) / \sigma$, $P = \Phi(Z)$
+
+#### 18.5.8 Risk View
+
+- **Purpose:** Risk identification and quantification
+- **Risk Register:** CRUD table (ID, Name, Probability, Impact, Category, Exposure)
+- **Heat Map:** 5×5 D3 grid (probability Y-axis, impact X-axis); red/amber/green zones; risk dots
+- **Exposure chart:** Horizontal bars by exposure (largest first)
+- **Contingency:** Total exposure = sum(p × I); displayed as Contingency Reserve
+- **Learn Mode:** "Risk Exposure = Probability × Impact. R1: 0.3 × $50,000 = $15,000. Total: $42,500."
+
+#### 18.5.9 RCPS / Resource View (PG only)
+
+- **Purpose:** Resource-constrained scheduling
+- **Components:** Resource limit input; algorithm selector (Burgess / Min Moment); stacked histogram (before/after); CPM vs. RCPS schedule comparison
+- **Learn Mode:** Heuristic walkthrough: "Period 3: Tasks B and D both need resources. B has less slack → schedule B. D delayed to Period 4."
+
+#### 18.5.10 Monte Carlo (PG only)
+
+- **Purpose:** Statistical project outcome analysis
+- **Config:** # trials (default 5000), seed, cost min/max factors
+- **Charts:** Duration histogram with P50/P80/P90 markers; cost histogram; CP frequency table; convergence chart
+- **Learn Mode:** Progressive histogram build — students watch distribution form. "After 5000 trials: 90% confidence the project finishes by Day 34."
+
+#### 18.5.11 WBS (PG only)
+
+- **Purpose:** Work Breakdown Structure — scope decomposition
+- **Canvas:** D3 Walker layout (port from `wbs_layout_edu.py`); rectangle nodes with WBS code, name, cost, duration; color by level
+- **Interactions:** Click to select; right-click context menu (Add Child / Edit / Delete / Expand-Collapse); double-click to edit; undo (20-step stack)
+- **Rollup panel:** Aggregated cost (sum), duration (max), progress (weighted avg by cost)
+- **Learn Mode:** "WBS decomposes scope into work packages. Cost rolls up as sum. Duration = max of children (parallel scheduling assumption)."
+
+#### 18.5.12 SWOT Analysis (PG only)
+
+- **Purpose:** Strategic analysis of project context
+- **Components:** 2×2 matrix grid; factor list per quadrant; auto-extract from Charter / Risk Register / EVM KPIs; manual add/edit; export
+- **Auto-extract triggers:** CPI < 0.95 → adds "Cost overrun (Weakness)"; high-exposure risks → "Threats"; strategic alignment from Charter → "Opportunities"
+
+#### 18.5.13 PESTEL Analysis (PG only)
+
+- **Purpose:** External factor analysis
+- **Components:** 6-cell heatmap (P/E/S/T/En/L); factor detail table with impact × probability scoring; "Create Risk" button → push factor to Risk Register
+- **Interactions:** Click category → filter factors; add/edit factors; export
+
+---
+
+### 18.6 Data Visualization Decisions
+
+| Visualization              | Library                                  | Justification                                                                                                                                                                     |
+| -------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Network DAG (CPM/PERT)     | D3.js — custom Sugiyama layout           | Port existing Python layout logic. Full control over CPM-box rendering, animation, critical path overlay, step-through. No ready-made library handles educational step animation. |
+| Gantt chart                | Custom SVG components                    | Full control over float extensions, dependency arrows, tracking overlay, educational annotations. No Gantt library supports Learn Mode.                                           |
+| S-Curve (EVM)              | ngx-charts (AreaChart)                   | Standard multi-line chart, Angular-native, declarative API.                                                                                                                       |
+| Resource histogram         | ngx-charts (BarVerticalStackedComponent) | Stacked bars by task per period, built-in legend and color mapping.                                                                                                               |
+| Risk heat map              | D3.js — custom grid                      | 5×5 colored grid with draggable risk dots. No ngx-charts equivalent.                                                                                                              |
+| Monte Carlo histogram      | D3.js — histogram layout                 | Precise control over percentile marker lines, CDF overlay, progressive animation via RxJS.                                                                                        |
+| Cost curves (Crashing)     | ngx-charts (LineChartComponent)          | Three-line chart (direct/indirect/total). Standard line chart suffices.                                                                                                           |
+| Normal distribution (PERT) | D3.js — area path                        | Bell curve with shaded region and Z-score marker. Custom SVG required.                                                                                                            |
+| WBS tree                   | D3.js — tree layout (Walker port)        | Variable-width rectangles, level coloring, expand/collapse. No off-the-shelf component.                                                                                           |
+| SWOT matrix                | Angular Material grid — custom CSS       | 2×2 CSS grid with Material list items per quadrant. Simple enough for CSS; no chart library needed.                                                                               |
+| PESTEL heatmap             | D3.js — color-scaled cells               | 6-cell grid with intensity coloring based on exposure score.                                                                                                                      |
+
+**Critical path highlight strategy:** Red applied simultaneously on both Network and Gantt. When user activates "Critical Path Only" filter, non-critical nodes/bars fade to 20% opacity. This dual highlight across views is the single most educationally impactful visual choice — it shows the same information in temporal (Gantt) and structural (Network) contexts simultaneously.
+
+---
+
+### 18.7 Component Breakdown
+
+#### Visualization Components
+
+| Component                      | Responsibility                                               | Key Inputs                                             | Key Outputs                          |
+| ------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------ | ------------------------------------ | ---------------- | ------- | ----------- | ---------------------------- |
+| `CpmNodeComponent`             | SVG CPM box (ES/EF/ID/Dur/LS/LF/Float) with animation state  | `node`, `isCritical`, `animationState: 'hidden'        | 'es-ef'                              | 'ls-lf'          | 'float' | 'complete'` | `(nodeClick)`, `(nodeHover)` |
+| `DependencyEdgeComponent`      | SVG directed edge between nodes                              | `from: Point`, `to: Point`, `isCritical`               | —                                    |
+| `NetworkCanvasComponent`       | D3 Sugiyama layout, zoom/pan, step animation orchestration   | `graph: GraphData`, `criticalPath`, `animationEnabled` | `(nodeSelected)`                     |
+| `ForwardPassStepperComponent`  | Animates ES/EF propagation node by node with formula display | `nodes: CPMNode[]`, `edges`, `speed`                   | `(stepChange)`                       |
+| `GanttBarComponent`            | Single task bar SVG + optional float extension               | `task`, `timeScale`, `showFloat`, `variant`            | `(barClick)`, `(barHover)`           |
+| `GanttCanvasComponent`         | Full Gantt: task list + bars + arrows + axis + scroll        | `activities`, `variant: 'standard'                     | 'tracking'`                          | `(taskSelected)` |
+| `SCurveChartComponent`         | PV/EV/AC multi-line chart                                    | `periods: EVMPeriod[]`, `showForecast`                 | `(periodHover)`                      |
+| `ResourceHistogramComponent`   | Stacked bar chart of resource usage per period               | `profile: ResourceProfile`, `limit`                    | `(periodHover)`                      |
+| `RiskHeatMapComponent`         | D3 5×5 grid with risk dots and color zones                   | `risks: Risk[]`, `gridSize`                            | `(cellClick)`, `(riskClick)`         |
+| `MonteCarloHistogramComponent` | D3 histogram with P50/P80/P90 markers + optional CDF         | `results: MCResults`, `percentiles`                    | `(barHover)`                         |
+| `WbsCanvasComponent`           | D3 tree (Walker layout): rectangles, connectors, scroll/zoom | `nodes: WBSNode[]`, `layout: LayoutResult`             | `(nodeSelected)`, `(nodeRightClick)` |
+| `CostCurveChartComponent`      | Direct + indirect + total cost vs. duration                  | `costData: CostPoint[]`, `optimumDuration`             | `(pointHover)`                       |
+| `DistributionChartComponent`   | Normal bell curve with Z-score / shaded region               | `mean`, `stddev`, `target`                             | —                                    |
+| `SwotMatrixComponent`          | 2×2 quadrant grid with editable factor lists                 | `analysis: SWOTAnalysis`                               | `(factorAdd)`, `(factorEdit)`        |
+| `PestelHeatmapComponent`       | 6-cell grid with intensity coloring by exposure              | `analysis: PESTELAnalysis`                             | `(categoryClick)`                    |
+
+#### Educational Components (Learn Mode only)
+
+| Component                   | Responsibility                                                                | Key Inputs                                                       | Key Outputs        |
+| --------------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------ |
+| `StepWalkthroughComponent`  | Animated step-by-step player (prev/next/play/pause)                           | `steps: CalculationStep[]`, `autoPlaySpeed`                      | `(stepChange)`     |
+| `FormulaDisplayComponent`   | KaTeX rendering with variable substitution + result highlight                 | `formula: string`, `variables: Record<string, number>`, `result` | —                  |
+| `ExplainerTooltipComponent` | "?" icon → popover with plain-English explanation                             | `content: string`, `title`                                       | —                  |
+| `WorkedSolutionComponent`   | Scrollable full worked-solution panel (all steps with formulas)               | `steps: CalculationStep[]`, `title`                              | `(export)`         |
+| `SampleSelectorComponent`   | Dialog grid of sample datasets with UG/PG badges and preview                  | `samples: SampleProject[]`, `level`                              | `(sampleSelected)` |
+| `ScheduleStepperComponent`  | 5-badge PMBOK process indicator (Define→Sequence→Resources→Durations→Analyze) | `currentStep`                                                    | `(stepClick)`      |
+
+#### Data Entry Components
+
+| Component                  | Responsibility                                                                             | Key Inputs                  | Key Outputs                           |
+| -------------------------- | ------------------------------------------------------------------------------------------ | --------------------------- | ------------------------------------- |
+| `TaskGridComponent`        | Editable Angular Material table with inline reactive-form editing and real-time validation | `tasks: Activity[]`         | `(tasksChange)`, `(validationErrors)` |
+| `EvmPeriodGridComponent`   | PV/EV/AC period table with cumulative auto-calc                                            | `periods: EVMPeriod[]`      | `(periodsChange)`                     |
+| `RiskEntryComponent`       | Risk register CRUD table                                                                   | `risks: Risk[]`             | `(risksChange)`                       |
+| `FileDropzoneComponent`    | Drag-drop CSV/Excel upload with format detection                                           | `accept: string[]`          | `(fileLoaded)`                        |
+| `ColumnMapperComponent`    | Auto-detect + manual mapping of imported columns to schema                                 | `headers`, `expectedFields` | `(mappingConfirmed)`                  |
+| `ValidationPanelComponent` | Error/warning list with click-to-focus-cell navigation                                     | `errors: ValidationError[]` | `(errorClick)`                        |
+
+#### Layout Components
+
+| Component           | Responsibility                                                                          |
+| ------------------- | --------------------------------------------------------------------------------------- |
+| `AppShellComponent` | Top bar + sidebar + routed content area                                                 |
+| `SidebarComponent`  | Nav links with icons; PG-only items show `[PG]` badge and are disabled in UG mode       |
+| `TopBarComponent`   | Logo, Learn/Clean mode toggle, UG/PG level toggle, global action buttons                |
+| `KpiCardComponent`  | Single metric: value + label + RAG badge + trend arrow + optional "?" explainer tooltip |
+
+---
+
+### 18.8 API Specification
+
+#### Existing Endpoints (Verify + Extend)
+
+```
+POST /api/v1/analysis/cpm
+  Body:     { activities: Activity[] }
+  Response: { project_duration, critical_paths, critical_activities,
+              nodes: CPMNode[], edges: Edge[] }
+
+POST /api/v1/analysis/pert
+  Body:     { activities: PERTActivity[], target_duration? }
+  Response: { expected_duration, variance, std_dev, probability,
+              z_score, activities: PERTResult[] }
+
+POST /api/v1/analysis/crashing
+  Body:     { activities: Activity[], indirect_cost_rate: number }
+  Response: { cost_curve: CostPoint[], optimal_duration,
+              crashing_steps: CrashStep[] }
+
+POST /api/v1/analysis/rcps
+  Body:     { activities: Activity[], resource_limit: number,
+              algorithm: 'burgess' | 'min_moment' }
+  Response: { schedule: RCPSSchedule, histogram_before: Profile,
+              histogram_after: Profile }
+```
+
+#### New Endpoints (Build in Phase 18)
+
+```
+POST /api/v1/analysis/evm
+  Body:     { project: EVMProject }
+  Response: { kpis: AllKPIs, s_curve_data: SCurvePoint[] }
+
+POST /api/v1/analysis/risk
+  Body:     { risks: Risk[], bac: number }
+  Response: { risks_with_exposure: Risk[], total_exposure,
+              contingency_reserve, heat_map_data }
+
+POST /api/v1/analysis/monte-carlo
+  Body:     { activities: Activity[], evm_tasks: EVMTask[],
+              bac: number, n_trials: number, seed? }
+  Response: { durations: number[], costs: number[],
+              p50_duration, p80_duration, p90_duration,
+              p_cost_within_bac, cp_frequencies: Record<string, number> }
+
+POST /api/v1/analysis/wbs
+  Body:     { nodes: WBSNode[] }
+  Response: { validated_nodes, layout: LayoutResult, rollup: RollupResult }
+
+POST /api/v1/analysis/swot-extract
+  Body:     { charter_data?, risk_register?, evm_kpis? }
+  Response: { analysis: SWOTAnalysis }
+
+POST /api/v1/analysis/steps/cpm
+  Body:     { activities: Activity[] }
+  Response: { forward_steps: Step[], backward_steps: Step[], float_steps: Step[] }
+
+POST /api/v1/analysis/steps/evm
+  Body:     { project: EVMProject }
+  Response: { steps: Step[] }
+
+POST /api/v1/analysis/steps/pert
+  Body:     { activities: PERTActivity[], target: number }
+  Response: { steps: Step[] }
+
+GET  /api/v1/samples
+  Response: [{ id, name, level: 'ug'|'pg', task_count, description }]
+
+GET  /api/v1/samples/:id
+  Response: { activities, evm_project?, risks?, wbs_nodes? }
+
+POST /api/v1/import/csv
+  Body:     FormData (file)
+  Response: { headers: string[], detected_mapping: ColumnMapping,
+              preview_rows: Row[] }
+
+POST /api/v1/import/validate
+  Body:     { rows: Row[], mapping: ColumnMapping }
+  Response: { activities: Activity[], errors: ValidationError[],
+              warnings: Warning[] }
+
+POST /api/v1/export/pdf
+  Body:     { project_state: FullProjectState }
+  Response: PDF binary
+
+POST /api/v1/export/excel
+  Body:     { project_state: FullProjectState }
+  Response: XLSX binary
+```
+
+---
+
+### 18.9 Data Models (TypeScript)
+
+```typescript
+// core/models/activity.model.ts
+export interface Activity {
+  id: string;
+  activity: string;
+  duration: number;
+  predecessors: string[];
+  min_duration?: number;
+  crash_cost?: number;
+  resource_demand?: number;
+  normal_cost?: number;
+  optimistic?: number;
+  most_likely?: number;
+  pessimistic?: number;
+}
+
+// core/models/cpm-result.model.ts
+export interface CPMNode {
+  id: string;
+  activity: string;
+  duration: number;
+  ES: number;
+  EF: number;
+  LS: number;
+  LF: number;
+  total_float: number;
+  free_float: number;
+  is_critical: boolean;
+}
+export interface CPMResults {
+  project_duration: number;
+  critical_paths: string[][];
+  critical_activities: string[];
+  nodes: CPMNode[];
+  edges: { from: string; to: string }[];
+}
+
+// core/models/evm.model.ts
+export interface EVMTask {
+  task_id: string;
+  name: string;
+  budget: number;
+  pct_complete: number;
+  planned_start: number;
+  planned_finish: number;
+}
+export interface EVMPeriod {
+  index: number;
+  label: string;
+  pv_cumulative: number;
+  ev_cumulative: number;
+  ac_cumulative: number;
+}
+export interface EVMProject {
+  project_name: string;
+  bac: number;
+  currency_symbol: string;
+  periods: EVMPeriod[];
+  tasks: EVMTask[];
+}
+export interface EVMKPIs {
+  ev: number;
+  cv: number;
+  sv: number;
+  cpi: number;
+  spi: number;
+  pc: number;
+  ps: number;
+  cr: number;
+  eac1: number;
+  eac2: number;
+  eac3: number;
+  vac: number;
+  tcpi_bac: number;
+}
+export type RAGStatus = "red" | "amber" | "green";
+
+// core/models/risk.model.ts
+export interface Risk {
+  id: string;
+  name: string;
+  description: string;
+  probability: number;
+  impact: number;
+  category: "Schedule" | "Cost" | "Quality" | "Scope" | "Other";
+  exposure: number; // computed: p × I
+}
+
+// core/models/monte-carlo.model.ts
+export interface MCResults {
+  durations: number[];
+  costs: number[];
+  cp_frequencies: Record<string, number>;
+  p50_duration: number;
+  p80_duration: number;
+  p90_duration: number;
+  p_cost_within_bac: number;
+  n_trials: number;
+}
+
+// core/models/step.model.ts
+export interface CalculationStep {
+  title: string;
+  formula: string; // KaTeX source
+  substitution: string; // KaTeX with actual values
+  result: string; // KaTeX result expression
+  explanation: string; // Plain English
+  highlight_nodes?: string[];
+}
+```
+
+---
+
+### 18.10 Execution Plan
+
+> **Status (March 24, 2026):** Phases 18.1–18.3 are complete. The execution plan below has been re-ordered based on a production-readiness audit. Sprints 0–2 address non-feature gaps that must be fixed before continuing to build new views.
+
+---
+
+#### 18.10.0 — Current Implementation Status
+
+| Phase                         | Description                                                                             | Status         | Notes                                     |
+| ----------------------------- | --------------------------------------------------------------------------------------- | -------------- | ----------------------------------------- |
+| 18.1 Foundation               | Angular scaffold, AppShell, routes, store, data models, all shared components           | ✅ Done        |                                           |
+| 18.2 Data Entry & CPM         | TaskGrid, EvmPeriodGrid, RiskEntry, FileDropzone, SampleSelector, CPM + PERT services   | ✅ Done        |                                           |
+| 18.3.1 Network diagram        | D3 Sugiyama layout, CpmNodeComponent, DependencyEdge, zoom/pan                          | ✅ Done        |                                           |
+| 18.3.2 Step-through animation | ForwardPassStepper, BackwardPassStepper (animated Learn Mode passes)                    | ✅ Done        |                                           |
+| 18.3.3–4 Gantt chart          | GanttCanvasComponent (pure SVG), float bars, dependency arrows, cross-view selection    | ✅ Done        |                                           |
+| 18.3.5 Dashboard              | 6 KPI cards, float distribution chart, alerts panel, critical paths display             | ✅ Done        |                                           |
+| 18.3.6 PERT view              | 3-point table, bell curve SVG, probability calculator, Z-score, Learn Mode walkthroughs | ✅ Done        |                                           |
+| 18.3.7 Cross-view linking     | `selectedTaskId` signal wired across Gantt ↔ Network                                    | ✅ Done        |                                           |
+| 18.4 Advanced Analysis        | EVM, Crashing, Risk, RCPS, Monte Carlo                                                  | ⬜ Stubs       | All backend endpoints exist               |
+| 18.5 PG-Only Modules          | WBS, SWOT, PESTEL                                                                       | ⬜ Stubs       | All backend endpoints exist               |
+| 18.6 Educational Layer        | `*appLearnMode` directive + KaTeX + worked solutions                                    | 🔶 Partial     | Directive done; KaTeX + step data missing |
+| 18.7 Polish & Production      | Responsive, a11y, CI/CD, save/export                                                    | ⬜ Not started |                                           |
+
+**Backend:** All 12 `/api/web/` endpoints implemented: CPM, PERT, EVM, Crashing, Risk, Monte Carlo, RCPS, Steps (CPM/PERT/EVM), Samples, CSV Import.
+
+**Known issues to fix in Sprint 0:**
+
+- `_DEMOS_DIR` path bug in `web.py` — one `.parent` too many
+- No Angular static file serving from FastAPI (app not publicly deployable)
+- `render.yaml` `CORS_ORIGINS` points to nonexistent `pmhelper-frontend.onrender.com`
+- No `localStorage` persistence — data lost on browser refresh
+- No HTTP interceptors or global `ErrorHandler`
+- `effect()` calls in NetworkCanvas, GanttCanvas, steppers lack `DestroyRef` cleanup
+
+---
+
+#### Sprint 0 — Foundation Hardening _(before features, before deploy)_
+
+**Goal:** Make the existing 5 working views production-survivable. No new features — fix infrastructure gaps that compound as more views are added.
+
+| #   | Task                         | File(s)                                                              | What to do                                                                                                                                                                                                                                                                                                                                       |
+| --- | ---------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 0.1 | **State persistence**        | `core/store/project.store.ts`                                        | Create `persistence.service.ts`. On every store signal change (via `effect()`), debounce 1s and write `activities`, `projectName`, `evmProject`, `riskRegister`, `academicLevel`, `viewMode` to `localStorage`. On app boot (`APP_INITIALIZER`), read from `localStorage` and restore signals. "New Project" clears both store + `localStorage`. |
+| 0.2 | **HTTP loading interceptor** | `core/interceptors/loading.interceptor.ts`, `app.config.ts`          | Functional interceptor: `isLoading.set(true)` on request, `isLoading.set(false)` on finalize. Register via `withInterceptors([loadingInterceptor, errorInterceptor])`. Remove manual `isLoading` toggles from individual components.                                                                                                             |
+| 0.3 | **HTTP error interceptor**   | `core/interceptors/error.interceptor.ts`                             | Catch all `HttpErrorResponse`, show `MatSnackBar` toast with `error.error?.detail ?? error.error?.message ?? 'HTTP {status}'`. Re-throw so calling code still sees the error if needed.                                                                                                                                                          |
+| 0.4 | **Global ErrorHandler**      | `core/global-error-handler.ts`, `app.config.ts`                      | Extend `ErrorHandler`. Override `handleError()`: log to console, show snackbar "Unexpected error — please refresh." Register with `{ provide: ErrorHandler, useClass: GlobalErrorHandler }` in `app.config.ts`.                                                                                                                                  |
+| 0.5 | **Effect cleanup**           | `network-canvas.component.ts`, `gantt-canvas.component.ts`, steppers | Inject `DestroyRef` in constructor. Pass `{ injector: this.injector }` to `effect()` calls, or use `takeUntilDestroyed(destroyRef)`. Fill the empty `ngOnDestroy()` in `gantt-canvas`.                                                                                                                                                           |
+| 0.6 | **Fix `_DEMOS_DIR`**         | `src/pmhelper/server/api/routes/web.py`                              | Change `Path(__file__).parent.parent.parent.parent.parent` → `Path(__file__).parent.parent.parent.parent` (remove one `.parent`). Fixes `/api/web/samples` and `/api/web/samples/{id}`.                                                                                                                                                          |
+
+**Deliverable:** Data survives browser refresh. Errors surface as toasts. No memory leaks. Demo samples load correctly.
+
+---
+
+#### Sprint 1 — Deploy MVP
+
+**Goal:** App is live at a public URL serving all 5 working views.
+
+| #   | Task                                | File(s)                       | What to do                                                                                                                                                                                                                                                                                |
+| --- | ----------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.1 | **Multi-stage Dockerfile**          | `Dockerfile`                  | **Stage 1** (node:20-alpine): copy `web/`, run `npm ci`, run `npx ng build --configuration=production`. **Stage 2** (python:3.12-slim): copy built `web/dist/pmhelper-edu-web/browser` → `/app/static/`. Install Python deps. Copy `src/`. Keep existing `CMD`.                           |
+| 1.2 | **Serve Angular from FastAPI**      | `src/pmhelper/server/main.py` | After all `include_router()` calls, add: `app.mount("/", StaticFiles(directory="static", html=True), name="static")`. Add SPA fallback: `@app.get("/{full_path:path}")` returning `FileResponse("static/index.html")` for any non-`/api/` path. Remove CORS middleware (same-origin now). |
+| 1.3 | **Update `render.yaml`**            | `render.yaml`                 | Single service. Remove `databases` block. Set `dockerfilePath: ./Dockerfile`. Remove `CORS_ORIGINS` env var. Update `branch: feat/web-v1`.                                                                                                                                                |
+| 1.4 | **Fix Material Icons font-display** | `web/src/index.html`          | Add `&display=swap` to the Material Icons Google Fonts URL. Prevents FOIT on slow connections.                                                                                                                                                                                            |
+| 1.5 | **Smoke test**                      | Render deployment             | Load app → load sample → run CPM → Dashboard, Network, Gantt render → PERT runs → refresh browser → data still present.                                                                                                                                                                   |
+
+**Deliverable:** Public URL. Users can share a link to the working MVP.
+
+---
+
+#### Sprint 2 — CI/CD + Test Scaffolding
+
+**Goal:** Catch regressions before building 8 more views on top of the existing foundation.
+
+| #   | Task                      | File(s)                                 | What to do                                                                                                                                                                                                                                               |
+| --- | ------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2.1 | **Angular lint job**      | `.github/workflows/ci-cd.yml`           | Add job `angular-lint`: `cd web && npm ci && npm run lint`. Trigger: all PRs + pushes to `feat/web-v1`, `production`.                                                                                                                                    |
+| 2.2 | **Angular build job**     | `.github/workflows/ci-cd.yml`           | Add job `angular-build`: `cd web && npm ci && npx ng build --configuration=production`. Fail pipeline on any TypeScript/build error.                                                                                                                     |
+| 2.3 | **Angular unit test job** | `.github/workflows/ci-cd.yml`           | Add job `angular-test`: `cd web && npm ci && npx ng test --watch=false --browsers=ChromeHeadless`. Gate feature deployment on this.                                                                                                                      |
+| 2.4 | **Core unit tests**       | `web/src/app/core/**/*.spec.ts`         | `project.store.spec.ts` (resetProject, computed signals). `api.service.spec.ts` (handleError formatting). `cpm.service.spec.ts` (request body mapping). `pg-only.guard.spec.ts` (UG blocked, PG allowed). Use `HttpTestingController`.                   |
+| 2.5 | **Rate limiting**         | `src/pmhelper/server/main.py`, `web.py` | Install `slowapi`. `@limiter.limit("30/minute")` on all `/api/web/analysis/*` endpoints. `@limiter.limit("5/minute")` on `/api/web/analysis/monte-carlo`. Cap `num_simulations` server-side: `body.num_simulations = min(body.num_simulations, 50_000)`. |
+
+**Deliverable:** PRs blocked if Angular build/lint/test fails. Core logic has unit tests. Monte Carlo endpoint rate-limited.
+
+---
+
+#### Sprint 3 — Advanced Analysis Views
+
+**Goal:** Implement the 5 remaining analysis views. All backend endpoints already exist — this is frontend work only.
+
+Each view pattern: read store signals → call API → update result signal → render → Learn Mode section.
+
+| #   | Task                             | Backend endpoint                     | Key components / notes                                                                                                                                                                                  |
+| --- | -------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 3.1 | **EVM view**                     | `POST /api/web/analysis/evm`         | S-curve (PV/EV/AC) as D3 line chart. 11 KPI cards with RAG badges. EAC formula toggle (EAC₁/₂/₃). Full worked solution via `/api/web/analysis/steps/evm`.                                               |
+| 3.2 | **Crashing view**                | `POST /api/web/analysis/crashing`    | D3 cost-time tradeoff (direct + indirect + total lines). Step table (activity, ∆cost, new duration). Optimum duration marker. Learn Mode narration per step.                                            |
+| 3.3 | **Risk view**                    | `POST /api/web/analysis/risk`        | Reads `riskRegister` signal. D3 5×5 heat map. Horizontal exposure bar chart (sorted descending). Contingency reserve total. EMV formula per risk in Learn Mode.                                         |
+| 3.4 | **RCPS view** _(PG only)_        | `POST /api/web/analysis/rcps`        | Resource limit input. Algorithm selector (Burgess / Min Moment). D3 stacked before/after histogram. CPM vs. RCPS Gantt comparison. Heuristic walkthrough in Learn Mode.                                 |
+| 3.5 | **Monte Carlo view** _(PG only)_ | `POST /api/web/analysis/monte-carlo` | Config (trials default 5000, seed). D3 duration histogram with P50/P80/P90 markers. Cost histogram. CP frequency table. P(T ≤ X) lookup. Learn Mode: progressive histogram animation via RxJS interval. |
+
+**Deliverable:** All 8 UG+PG analysis tabs functional. Feature parity with desktop app analysis views.
+
+---
+
+#### Sprint 4 — PG-Only Modules + Educational Layer
+
+**Goal:** Complete the 3 remaining PG structural views and enrich Learn Mode with typeset formulas and live walkthroughs.
+
+| #   | Task                            | What to do                                                                                                                                                                                                                                                                                          |
+| --- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 4.1 | **WBS view**                    | D3 Walker tree layout (TypeScript port of `wbs_layout_edu.py`). Right-click context menu (Add Child / Edit / Delete / Expand-Collapse). Cost rollup panel (sum cost, max duration, weighted-avg progress). Undo stack (20 steps). Export PNG/JSON. Learn Mode: 100% rule, decomposition principles. |
+| 4.2 | **SWOT view**                   | 2×2 Angular Material grid. Auto-extract entries from `riskRegister` signal (high-exposure risks → Threats) and `evmKpis` signal (CPI < 0.95 → Weakness). Manual add/edit via dialog. Export matrix PNG.                                                                                             |
+| 4.3 | **PESTEL view**                 | 6-category editor. Factor table with impact × probability scoring. "Create Risk" button pushes factor to `riskRegister` signal. Export CSV.                                                                                                                                                         |
+| 4.4 | **KaTeX formulas**              | Install `katex` (npm). Update `FormulaDisplayComponent` to render KaTeX. Apply to: Dashboard KPI tooltips, PERT walkthrough, CPM step formulas, EVM worked solution. Replace all inline HTML formula strings.                                                                                       |
+| 4.5 | **Worked solution integration** | Wire `StepWalkthroughComponent` to live data: `/api/web/analysis/steps/cpm`, `/api/web/analysis/steps/pert`, `/api/web/analysis/steps/evm`. Each step maps to `CalculationStep`: `{ title, formula, substitution, result, explanation }`.                                                           |
+| 4.6 | **Glossary tooltips**           | `ExplainerTooltipComponent` on all KPI card labels, chart axes, and input column headers. Content from centralized `explanations.const.ts`. Shown only in Learn Mode (`*appLearnMode` wraps them).                                                                                                  |
+
+**Deliverable:** All 13 views functional. Learn Mode has typeset formulas and live walkthroughs for CPM, PERT, and EVM.
+
+---
+
+#### Sprint 5 — Production Hardening
+
+**Goal:** Responsive, accessible, exportable, and robust for classroom use.
+
+| #   | Task                     | What to do                                                                                                                                                                                                                    |
+| --- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 5.1 | **Responsive design**    | `ResizeObserver` in all SVG chart components (network, gantt, S-curve, histograms, bell curve). Breakpoints: `≤768px` sidebar collapses to icon strip; `≤480px` bottom tab bar (mobile). All data tables scroll horizontally. |
+| 5.2 | **Accessibility**        | `role="img"` + `aria-label` on all SVG charts. `aria-live="polite"` on all result regions. Keyboard navigation (Tab/Enter on chart elements). WCAG AA contrast on all text. `aria-valuenow` on KPI cards for screen readers.  |
+| 5.3 | **Save / Load / Export** | "Save" → download `.pmproj` JSON (all store state). "Load" → upload `.pmproj` → populate all signals. Chart PNG (html2canvas). PDF report (jsPDF). CSV/Excel table export.                                                    |
+| 5.4 | **Error boundaries**     | Wrap each lazy-loaded route: on crash show "Something went wrong" + retry button instead of blank screen. Log to `POST /api/web/telemetry/error` (append-to-file).                                                            |
+| 5.5 | **Performance**          | `@defer` blocks for heavy chart components. `trackBy` on all `@for` loops. Self-host Roboto + Material Icons (remove CDN dependency). Lazy-load D3 only in views that use it.                                                 |
+| 5.6 | **Cypress E2E**          | Flow 1: Load sample → CPM → Network step-through → Gantt cross-highlight. Flow 2: EVM → verify CPI/SPI values. Flow 3: Monte Carlo → P50/P80/P90 visible. Flow 4: UG → navigate `/rcps` → redirect + toast.                   |
+| 5.7 | **CI/CD finalization**   | Auto-deploy to Render on `production` branch push. Add Cypress job to GitHub Actions. README deployment badge.                                                                                                                |
+
+**Deliverable:** Production-ready, accessible, responsive, exportable. Classroom-ready.
+
+---
+
+### 18.11 Sprint Summary
+
+| Sprint   | Focus                                                                                      | Dependencies | Parallelizable within sprint                     |
+| -------- | ------------------------------------------------------------------------------------------ | ------------ | ------------------------------------------------ |
+| Sprint 0 | Foundation hardening (persistence, interceptors, error handler, effect cleanup, demos fix) | —            | All 6 tasks are independent                      |
+| Sprint 1 | Deploy MVP (multi-stage Dockerfile, FastAPI static serving, render.yaml update)            | Sprint 0     | None (sequential deploy steps)                   |
+| Sprint 2 | CI/CD + unit tests + rate limiting                                                         | Sprint 1     | All 5 tasks are independent                      |
+| Sprint 3 | Advanced analysis views (EVM, Crashing, Risk, RCPS, Monte Carlo)                           | Sprint 2     | All 5 views are mutually independent             |
+| Sprint 4 | PG modules + Educational Layer (WBS, SWOT, PESTEL, KaTeX, walkthroughs)                    | Sprint 3     | 4.1/4.2/4.3 independent; 4.4/4.5/4.6 independent |
+| Sprint 5 | Production hardening (responsive, a11y, save/export, error bounds, Cypress)                | Sprint 4     | All 7 tasks are independent                      |
+
+**Sprint dependency chain:**
+
+```
+Sprint 0 ──→ Sprint 1 ──→ Sprint 2 ──→ Sprint 3 ──→ Sprint 4 ──→ Sprint 5
+(harden)     (deploy)     (CI/test)    (features)   (features)   (polish)
+```
+
+**Why this order vs. the original 18.1–18.7 phases:**
+
+- **Sprint 0 before Sprint 1:** Without `localStorage`, data is lost on every Render restart. Without the `_DEMOS_DIR` fix, sample loading breaks immediately after deploy.
+- **Sprint 1 before Sprint 2:** CI must have a passing build to validate.
+- **Sprint 2 before Sprint 3:** Adding 8 views without tests creates regression debt that compounds with every new view.
+- **Sprint 3 before Sprint 4:** WBS / SWOT / PESTEL reference analysis results (risks, EVM KPIs) that must exist before they can auto-populate.
+- **Sprint 5 last:** Responsive + a11y work touches every chart — more efficient once all views are complete.
+
+**Original phases 18.1–18.3 are complete.** The original 18.4–18.7 have been re-ordered into Sprints 3–5, with new Sprints 0–2 inserted to address gaps found in the production-readiness audit.
+
+---
+
+### 18.12 Key Decisions
+
+| #   | Decision                 | Answer                                        | Reasoning                                                                                                                                                                                                                                                                     |
+| --- | ------------------------ | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Framework                | Angular 17+                                   | Form-heavy app, structured modules, RxJS streaming, DI services, Angular Material CDK. See Section 18.1.                                                                                                                                                                      |
+| 2   | Product direction        | Educational only                              | All `_edu` modules already built. Market gap. Focus wins over hybrid.                                                                                                                                                                                                         |
+| 3   | Default mode             | Learn Mode ON                                 | Education is the product. Clean View is secondary for users who already understand the concepts.                                                                                                                                                                              |
+| 4   | State management         | Angular Signals only                          | NgRx ComponentStore was originally planned but actual implementation uses pure signals. All state in `project.store.ts` fits cleanly as flat `signal()` + `computed()`. Simpler, no extra dependency.                                                                         |
+| 5   | Chart libraries          | D3.js + pure SVG                              | ngx-charts was originally planned for standard charts, but actual implementation uses pure SVG (Gantt) and D3 (Network). Remaining charts (EVM S-curve, Monte Carlo histograms, cost curves) will also use D3/SVG for consistency and full control. No ngx-charts dependency. |
+| 6   | Network layout           | Sugiyama hierarchical                         | TypeScript port of existing `utils/network_layout.py`. Deterministic, readable, consistent with desktop app.                                                                                                                                                                  |
+| 7   | Gantt implementation     | Custom SVG                                    | Full control over float extensions, dependency arrows, tracking overlay, educational annotations. No library supports Learn Mode overlays.                                                                                                                                    |
+| 8   | Backend                  | Reuse existing FastAPI + Python engines       | All 15 engines are production-ready. No rewrite. API layer is thin wrappers around existing engine calls.                                                                                                                                                                     |
+| 9   | Auth                     | None for V1                                   | Single-user educational tool. No login required.                                                                                                                                                                                                                              |
+| 10  | Deployment               | Docker Compose (Nginx + FastAPI + PostgreSQL) | Matches existing `docker-compose.yml` and `render.yaml`.                                                                                                                                                                                                                      |
+| 11  | UG/PG gating             | Route guard + sidebar badge                   | PG features hidden from UG at nav level. Route guard prevents direct URL access. Toast guides user to toggle level.                                                                                                                                                           |
+| 12  | Step-through data source | Backend computes steps, frontend renders      | `step_generators_edu.py` already has logic. Extend to return structured `CalculationStep[]` via new `/analysis/steps/*` endpoints. Single source of truth for calculation logic — no duplication in TypeScript.                                                               |
+| 13  | WBS layout               | Walker's algorithm (D3 port)                  | Existing Python implementation in `wbs_layout_edu.py`. Port to D3/TypeScript for consistent rendering. Walker's handles variable-width rectangles correctly.                                                                                                                  |
+| 14  | Accessibility standard   | WCAG 2.1 AA                                   | Educational tool used by diverse student populations. Color-blind safe + keyboard nav + screen reader.                                                                                                                                                                        |
+| 15  | Save format              | `.pmproj` JSON                                | Consistent with desktop app. All state (activities, EVM, risks, WBS, SWOT, PESTEL) in one file. Desktop app can open web-saved files and vice versa.                                                                                                                          |
+| 16  | State persistence        | `localStorage` (auto-save, Sprint 0)          | Auto-save all store signals to `localStorage` on change (debounce 1s), restore on boot. Sprint 5 adds file-based save/load. `localStorage` is the safety net — without it, a browser refresh loses all entered data before file save/load is built.                           |
+
+---
+
+## Phase 19 — Pre-Merge Fixes & Shipping (Post Sprint 5)
+
+> **Goal:** Fix all bugs and gaps discovered during Sprint 5 review, then ship web v1.0.0.
+> **Date started:** March 24, 2026
+> **Branch:** `feat/web-v1` (current)
+> **Dependencies:** All Sprints 0–5 complete (28/28 tests, clean production build)
+
+### 19.0 Critique of Sprint 5 Deliverables
+
+Sprint 5 claimed "production hardening" but review uncovered several real gaps:
+
+1. **Telemetry 404 loop:** `GlobalErrorHandler` POSTs to `/api/web/telemetry/error`, but the backend has no such route. In production, every unhandled error fires a 404, which the `errorInterceptor` catches and shows a _second_ "HTTP 404" snackbar to the user.
+2. **No input validation on `.pmproj` load:** `ProjectIOService.load()` does `JSON.parse() as PMProject` — a compile-time cast with zero runtime validation. Any JSON file with a `.pmproj` extension is blindly spread into all 16 global signals. No `version` field check, no type guards.
+3. **Persistence asymmetry:** `PersistenceService` (localStorage) saves 9 signals. `ProjectIOService` (file save/load) saves 16 signals (adds all analysis results). A browser refresh after loading a `.pmproj` silently loses all computed analysis results — confusing for users.
+4. **CI E2E dependencies missing:** `angular-e2e` job uses `npx http-server` and `npx wait-on` but neither is in `devDependencies`. `npx` downloads them at runtime — nondeterministic, adds latency, may fail behind CI network constraints.
+5. **Deploy job swallows failures:** `deploy-render` curl uses `|| true`, making the job always green even if the secret is empty, Render is down, or the hook URL is wrong. No feedback to developer.
+6. **Cypress specs are routing-only:** All 4 E2E specs only test navigation and component existence — no actual user flows (add activities, run analysis, verify results). Honestly scoped as "smoke + routing tests", not true E2E.
+7. **No security headers:** FastAPI serves the SPA with no `Content-Security-Policy`, `X-Frame-Options`, or `Strict-Transport-Security` headers.
+8. **No bundle-size tracking:** No Angular budgets in `angular.json`, no Lighthouse CI gate.
+9. **`render.yaml` branch mismatch:** Still points to `feat/web-v1` instead of `production`.
+10. **`package.json` version at 0.0.0:** Never bumped for release.
+
+### 19.1 Pre-Merge Fix Tasks
+
+| #    | Task                                          | Files Changed                                     | What to Do                                                                                                                                                                                 | Status  |
+| ---- | --------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
+| 19.1 | **Add telemetry sink endpoint**               | `src/pmhelper/server/api/routes/web.py`           | Add `@router.post("/telemetry/error", status_code=204)` that logs the payload and returns no content. Prevents the 404 → snackbar loop.                                                    | ✅ Done |
+| 19.2 | **Runtime validation on `.pmproj` load**      | `web/src/app/core/services/project-io.service.ts` | Add `isValidProject()` guard: check `version === 1`, `activities` is array, `viewMode`/`academicLevel` are valid literals. Reject with user-facing "Incompatible file" message on failure. | ✅ Done |
+| 19.3 | **Add `http-server` + `wait-on` to devDeps**  | `web/package.json`                                | Add `"http-server": "^14.1.1"` and `"wait-on": "^8.0.0"` to `devDependencies`. Ensures `npm ci` installs them deterministically for CI E2E job.                                            | ✅ Done |
+| 19.4 | **Fix `deploy-render` curl failure handling** | `.github/workflows/ci-cd.yml`                     | Remove `\|\| true`. Add `--fail` to curl. Deploy failures now surface as red CI jobs.                                                                                                      | ✅ Done |
+| 19.5 | **Bump `web/package.json` to `1.0.0`**        | `web/package.json`                                | Change `"version": "0.0.0"` to `"1.0.0"`.                                                                                                                                                  | ✅ Done |
+
+### 19.2 Ship Tasks (After Fixes)
+
+| #    | Task                                   | What to Do                                                                                                   | Status     |
+| ---- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ---------- |
+| 19.6 | `npm install` in `web/`                | Updates `package-lock.json` with Cypress + http-server + wait-on.                                            | ⬜ Pending |
+| 19.7 | Create PR `feat/web-v1` → `production` | 156+ files. Title: "feat: PMHelper Edu Web v1.0.0". Include summary of Sprints 0–5.                          | ⬜ Pending |
+| 19.8 | Set `RENDER_DEPLOY_HOOK_URL` secret    | GitHub → Settings → Secrets → Actions. Get value from Render dashboard → service → Settings → Deploy Hook.   | ⬜ Pending |
+| 19.9 | Wait for CI green, merge PR            | All 7 CI jobs must pass (test, lint, angular-lint, angular-build, angular-test, angular-e2e, build-package). | ⬜ Pending |
+
+### 19.3 Post-Merge Tasks
+
+| #     | Task                              | What to Do                                                                                                                   | Status     |
+| ----- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| 19.10 | Update `render.yaml` branch       | Commit directly to `production`: change `branch: feat/web-v1` → `branch: production`. OR set the branch in Render dashboard. | ⬜ Pending |
+| 19.11 | Verify live deploy                | Hit `/health`, navigate core routes, test PG guard redirect, verify sample data loads.                                       | ⬜ Pending |
+| 19.12 | Document rollback plan            | Add to README: "To roll back, revert the last merge on `production` and push."                                               | ⬜ Pending |
+| 19.13 | Run 30-item UI smoke test         | Execute checklist from `UI_SMOKE_TEST_CHECKLIST_EDU.md` against live URL.                                                    | ⬜ Pending |
+| 19.14 | Update CHANGELOG.md               | Add `[1.0.0-web]` entry covering all web app features (Sprints 0–5).                                                         | ⬜ Pending |
+| 19.15 | Tag `v1.0.0-web` + GitHub Release | Create annotated tag, write release notes, attach any build artifacts.                                                       | ⬜ Pending |
+
+### 19.4 Post-Ship Hardening (Track D — Can Be Deferred)
+
+| #     | Task                                       | What to Do                                                                                                                                                                   | Priority |
+| ----- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| 19.16 | Add CSP `Report-Only` header               | Add middleware to `main.py` that sets `Content-Security-Policy-Report-Only`. Will surface violations without breaking the inline font `onload`. Tighten to enforced in v1.1. | P2       |
+| 19.17 | Align `PersistenceService` signal coverage | Either persist all 16 signals (so browser refresh keeps analysis results) or document that refresh only keeps input data.                                                    | P2       |
+| 19.18 | Add Angular budgets to `angular.json`      | Set `maximumWarning: 500kb`, `maximumError: 1mb` for initial bundle. Prevents accidental bundle bloat on future PRs.                                                         | P3       |
+| 19.19 | True E2E user-flow Cypress spec            | Add spec: type 3 activities → click Analyze → verify Network canvas renders nodes → verify Gantt has bars.                                                                   | P3       |
+| 19.20 | Lighthouse CI gate in GitHub Actions       | Add Lighthouse CI job with performance budget assertions.                                                                                                                    | P3       |
+
+### 19.5 Dependency Graph
+
+```
+19.1–19.5 (parallel pre-merge fixes on feat/web-v1)
+  └──→ 19.6 (npm install)
+        └──→ 19.7 (create PR)  +  19.8 (set secret — parallel)
+              └──→ 19.9 (CI green + merge)
+                    └──→ 19.10 (update render.yaml branch)
+                          └──→ 19.11 (verify live) → 19.12 (doc rollback)
+                                └──→ 19.13–19.15 (parallel post-ship)
+                                      └──→ 19.16–19.20 (deferred hardening)
+```

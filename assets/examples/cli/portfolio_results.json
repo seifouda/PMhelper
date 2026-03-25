@@ -1,0 +1,14 @@
+{
+  "status": "Optimal",
+  "selected_projects": [
+    "AI Research",
+    "Cloud Migration",
+    "Data Analytics"
+  ],
+  "total_cost": "2900000",
+  "total_benefit": "1120000",
+  "budget_utilization": 96.66666666666667,
+  "objective_value": 1120000.0,
+  "shadow_price_budget": -0.0,
+  "selected_data": "              name     cost  benefit\n0      AI Research  1200000   450000\n1  Cloud Migration   800000   320000\n3   Data Analytics   900000   350000"
+}

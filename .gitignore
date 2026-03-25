@@ -1,5 +1,8 @@
 # PMHelper .gitignore
 
+# Angular build output served by FastAPI (Docker only)
+/static/
+
 # Python
 __pycache__/
 *.py[cod]

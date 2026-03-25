@@ -1,0 +1,105 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.gantt-wrapper {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #cfd8dc;
+  border-radius: 6px;
+}
+
+/* ── Empty state ─────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 12px;
+  color: #90a4ae;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
+}
+
+/* ── Label column ────────────────────── */
+.gantt-labels {
+  flex-shrink: 0;
+  border-right: 2px solid #cfd8dc;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.gantt-lbl-header {
+  height: 36px;
+  line-height: 36px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #546e7a;
+  background: #f5f7fa;
+  border-bottom: 1px solid #cfd8dc;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.gantt-lbl-row {
+  padding: 0 8px;
+  line-height: 32px;
+  font-size: 12px;
+  font-family: 'Roboto Mono', monospace;
+  color: #37474f;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:nth-child(even) {
+    background: #ffffff;
+  }
+  &:nth-child(odd) {
+    background: #fafbfc;
+  }
+
+  &:hover {
+    background: #e8f5e9;
+  }
+
+  &.selected {
+    background: #fff8e1;
+    font-weight: 600;
+    color: #e65100;
+  }
+
+  &.critical {
+    color: #c62828;
+  }
+}
+
+/* ── Scrollable chart area ───────────── */
+.gantt-chart-area {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: auto;
+
+  svg {
+    display: block;
+  }
+}

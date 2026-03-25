@@ -1,0 +1,111 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.input-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.stepper-bar {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 16px;
+  overflow-x: auto;
+}
+
+.progress-bar {
+  border-radius: 4px;
+}
+
+.validation-area {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.analyze-btn {
+  min-width: 120px;
+
+  mat-icon {
+    margin-right: 4px;
+  }
+}
+
+mat-divider {
+  margin: 4px 0;
+}
+
+.input-tabs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
+  ::ng-deep .mat-mdc-tab-body-wrapper {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  ::ng-deep .mat-mdc-tab-body {
+    height: 100%;
+  }
+
+  ::ng-deep .mat-mdc-tab-body-content {
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
+.tab-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.tab-badge {
+  background: #e2e8f0;
+  color: #475569;
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-left: 6px;
+
+  &--success {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+}
+
+.tab-content {
+  height: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  &--scroll {
+    overflow-y: auto;
+  }
+}

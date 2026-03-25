@@ -1,0 +1,102 @@
+<div class="input-view">
+  <!-- Schedule Stepper -->
+  <div class="stepper-bar">
+    <app-schedule-stepper [steps]="stepperSteps()" (stepClick)="onStepperStepClick($event)" />
+  </div>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" class="progress-bar"></mat-progress-bar>
+  }
+
+  <!-- Validation Panel -->
+  @if (validationErrors().length > 0) {
+    <div class="validation-area">
+      <app-validation-panel [errors]="validationErrors()" />
+    </div>
+  }
+
+  <!-- Action Bar -->
+  <div class="action-bar">
+    <div class="action-bar__left">
+      <app-file-dropzone (fileLoaded)="onFileLoaded($event)" />
+      <app-sample-selector (sampleLoaded)="onSampleLoaded($event)" />
+    </div>
+
+    <button
+      mat-raised-button
+      color="primary"
+      class="analyze-btn"
+      (click)="analyze()"
+      [disabled]="loading() || tasks().length === 0"
+    >
+      <mat-icon>play_arrow</mat-icon>
+      Analyze
+    </button>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Sub-tabs -->
+  <mat-tab-group animationDuration="150ms" class="input-tabs">
+    <!-- Tasks Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">table_chart</mat-icon>
+        Activities
+        <span class="tab-badge">{{ tasks().length }}</span>
+      </ng-template>
+
+      <div class="tab-content">
+        <app-task-grid
+          [tasks]="tasks()"
+          (tasksChange)="onTasksChange($event)"
+          (validationErrors)="onValidationErrors($event)"
+        />
+      </div>
+    </mat-tab>
+
+    <!-- EVM Periods Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">trending_up</mat-icon>
+        EVM Periods
+        <span class="tab-badge">{{ evm()?.periods?.length ?? 0 }}</span>
+      </ng-template>
+
+      <div class="tab-content">
+        <app-evm-period-grid
+          [periods]="evm()?.periods ?? []"
+          (periodsChange)="onPeriodsChange($event)"
+        />
+      </div>
+    </mat-tab>
+
+    <!-- Risk Register Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">warning</mat-icon>
+        Risk Register
+        <span class="tab-badge">{{ risks().length }}</span>
+      </ng-template>
+
+      <div class="tab-content">
+        <app-risk-entry [risks]="risks()" (risksChange)="onRisksChange($event)" />
+      </div>
+    </mat-tab>
+
+    <!-- CPM Results Tab -->
+    <mat-tab [disabled]="!cpmResults()">
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">analytics</mat-icon>
+        Schedule Results
+        @if (cpmResults()) {
+          <span class="tab-badge tab-badge--success">✓</span>
+        }
+      </ng-template>
+
+      <div class="tab-content tab-content--scroll">
+        <app-cpm-results-table [results]="cpmResults()" />
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

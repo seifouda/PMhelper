@@ -1,6 +1,8 @@
 # Production dependencies for Render.com
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+slowapi>=0.1.9
 sqlalchemy>=2.0.0
 asyncpg>=0.29.0
 aiosqlite>=0.19.0

@@ -1,0 +1,8 @@
+activity,predecessor,optimistic,most_likely,pessimistic,normal_cost,resource_demand
+A,,8,10,14,10000,2
+B,A,6,8,10,15000,3
+C,A,5,7,11,12000,2
+D,B,4,6,8,8000,2
+E,"B,C",5,7,9,18000,4
+F,"D,E",3,5,7,10000,2
+G,F,2,4,6,7000,1

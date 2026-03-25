@@ -1,0 +1,14 @@
+# Render.com Infrastructure as Code
+services:
+  - type: web
+    name: pmhelper-edu
+    runtime: docker
+    plan: free
+    branch: feat/web-v1
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DEBUG
+        value: "false"
+      - key: ENVIRONMENT
+        value: production
+    healthCheckPath: /health

@@ -528,3 +528,48 @@ def cpm_backward_steps(results_data: Dict[str, Any]) -> List[Step]:
         interpretation=f"Process activities in reverse topological order (right → left). Project duration = {proj_dur}.",
         children=steps,
     )]
+
+
+# ════════════════════════════════════════════════════════════════════
+#  Serialisation + Public Wrappers (called by API endpoints)
+# ════════════════════════════════════════════════════════════════════
+
+def _step_to_dict(step: Step) -> Dict[str, Any]:
+    """Convert a Step dataclass tree to a JSON-serialisable dict."""
+    d: Dict[str, Any] = {
+        "title": step.title,
+        "formula": step.formula,
+        "substitution": step.substitution,
+        "result": step.result,
+        "explanation": step.interpretation,
+        "rag": step.rag,
+    }
+    if step.children:
+        d["children"] = [_step_to_dict(c) for c in step.children]
+    return d
+
+
+def generate_cpm_steps(graph: Any, critical_paths: Any) -> List[Dict[str, Any]]:
+    """Wrapper for the web API — returns serialised CPM forward + backward steps."""
+    results_data = {"graph": graph, "critical_paths": critical_paths}
+    forward = cpm_forward_steps(results_data)
+    backward = cpm_backward_steps(results_data)
+    return [_step_to_dict(s) for s in forward + backward]
+
+
+def generate_pert_steps(results: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Wrapper for the web API — returns serialised PERT steps."""
+    raw = pert_steps(results)
+    return [_step_to_dict(s) for s in raw]
+
+
+def generate_evm_steps(bac: float, pv: float, ev: float, ac: float) -> List[Dict[str, Any]]:
+    """Wrapper for the web API — returns serialised EVM steps."""
+    kpis: Dict[str, Any] = {"bac": bac, "pv": pv, "ev": ev, "ac": ac}
+    # Compute derived KPIs so evm_steps can use them
+    if ac:
+        kpis["cpi"] = ev / ac
+    if pv:
+        kpis["spi"] = ev / pv
+    raw = evm_steps(kpis)
+    return [_step_to_dict(s) for s in raw]

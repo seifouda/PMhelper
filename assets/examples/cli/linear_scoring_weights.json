@@ -1,0 +1,20 @@
+{
+  "criteria": {
+    "Performance": {
+      "weight": 0.35,
+      "direction": "maximize"
+    },
+    "Cost": {
+      "weight": 0.25,
+      "direction": "minimize"
+    },
+    "Reliability": {
+      "weight": 0.25,
+      "direction": "maximize"
+    },
+    "Ease_of_Use": {
+      "weight": 0.15,
+      "direction": "maximize"
+    }
+  }
+}

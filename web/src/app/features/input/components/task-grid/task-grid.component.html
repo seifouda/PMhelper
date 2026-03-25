@@ -1,0 +1,257 @@
+<div class="task-grid-wrapper">
+  <div class="grid-toolbar">
+    <button mat-stroked-button color="primary" (click)="addRow()" type="button">
+      <mat-icon>add</mat-icon> Add Row
+    </button>
+    <span class="row-count"
+      >{{ rowsArray.length }} activit{{ rowsArray.length === 1 ? 'y' : 'ies' }}</span
+    >
+  </div>
+
+  <div class="table-scroll-container">
+    <form [formGroup]="form">
+      <table mat-table [dataSource]="rowsArray.controls" formArrayName="rows" class="task-table">
+        <!-- Index Column -->
+        <ng-container matColumnDef="index">
+          <th mat-header-cell *matHeaderCellDef class="col-index">#</th>
+          <td mat-cell *matCellDef="let row; let i = index" class="col-index">{{ i + 1 }}</td>
+        </ng-container>
+
+        <!-- ID Column -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef class="col-id">
+            ID
+            <mat-icon
+              class="help-icon"
+              matTooltip="Unique identifier for the activity (e.g., A, B, C1)"
+              >help_outline</mat-icon
+            >
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="cell-field">
+              <input matInput formControlName="id" placeholder="A" />
+              @if (rowsArray.at(i).get('id')?.hasError('required')) {
+                <mat-error>Required</mat-error>
+              }
+              @if (rowsArray.at(i).get('id')?.hasError('pattern')) {
+                <mat-error>No spaces</mat-error>
+              }
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Activity Name Column -->
+        <ng-container matColumnDef="activity">
+          <th mat-header-cell *matHeaderCellDef>
+            Activity Name
+            <mat-icon class="help-icon" matTooltip="Descriptive name for the activity"
+              >help_outline</mat-icon
+            >
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="cell-field cell-field--wide">
+              <input matInput formControlName="activity" placeholder="e.g. Design Phase" />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Duration -->
+        <ng-container matColumnDef="duration">
+          <th mat-header-cell *matHeaderCellDef>
+            Duration
+            <mat-icon class="help-icon" matTooltip="Estimated duration in work periods (CPM mode)"
+              >help_outline</mat-icon
+            >
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="cell-field cell-field--num">
+              <input matInput type="number" min="0" formControlName="duration" placeholder="0" />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Predecessors -->
+        <ng-container matColumnDef="predecessors">
+          <th mat-header-cell *matHeaderCellDef>
+            Predecessors
+            <mat-icon
+              class="help-icon"
+              matTooltip="Comma-separated IDs of activities that must finish before this one starts (e.g., A, B)"
+              >help_outline</mat-icon
+            >
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="cell-field cell-field--preds">
+              <input matInput formControlName="predecessors" placeholder="e.g. A, B" />
+              @if (rowsArray.at(i).get('predecessors')?.hasError('unknownPredecessors')) {
+                <mat-error
+                  >Unknown:
+                  {{
+                    rowsArray.at(i).get('predecessors')?.getError('unknownPredecessors')
+                  }}</mat-error
+                >
+              }
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Optimistic (O) -->
+        <ng-container matColumnDef="optimistic">
+          <th mat-header-cell *matHeaderCellDef>
+            O
+            <mat-icon class="help-icon" [matTooltip]="'Optimistic duration (PERT mode)'"
+              >help_outline</mat-icon
+            >
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="cell-field cell-field--num">
+              <input matInput type="number" min="0" formControlName="optimistic" placeholder="–" />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Most Likely (M) -->
+        <ng-container matColumnDef="most_likely">
+          <th mat-header-cell *matHeaderCellDef>
+            M
+            <mat-icon class="help-icon" matTooltip="Most likely duration (PERT mode)"
+              >help_outline</mat-icon
+            >
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="cell-field cell-field--num">
+              <input matInput type="number" min="0" formControlName="most_likely" placeholder="–" />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Pessimistic (P) -->
+        <ng-container matColumnDef="pessimistic">
+          <th mat-header-cell *matHeaderCellDef>
+            P
+            <mat-icon class="help-icon" matTooltip="Pessimistic duration (PERT mode)"
+              >help_outline</mat-icon
+            >
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="cell-field cell-field--num">
+              <input matInput type="number" min="0" formControlName="pessimistic" placeholder="–" />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Resource Demand -->
+        <ng-container matColumnDef="resource_demand">
+          <th mat-header-cell *matHeaderCellDef>
+            Resource
+            <mat-icon
+              class="help-icon"
+              matTooltip="Resource units needed per period (optional — for RCPS)"
+              >help_outline</mat-icon
+            >
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="cell-field cell-field--num">
+              <input
+                matInput
+                type="number"
+                min="0"
+                formControlName="resource_demand"
+                placeholder="–"
+              />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Normal Cost -->
+        <ng-container matColumnDef="normal_cost">
+          <th mat-header-cell *matHeaderCellDef>
+            Normal Cost
+            <mat-icon
+              class="help-icon"
+              matTooltip="Cost at normal (un-crashed) duration (optional — for Crashing)"
+              >help_outline</mat-icon
+            >
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="cell-field cell-field--num">
+              <input matInput type="number" min="0" formControlName="normal_cost" placeholder="–" />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Min Duration -->
+        <ng-container matColumnDef="min_duration">
+          <th mat-header-cell *matHeaderCellDef>
+            Min Dur
+            <mat-icon
+              class="help-icon"
+              matTooltip="Minimum achievable duration after crashing (optional — for Crashing)"
+              >help_outline</mat-icon
+            >
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="cell-field cell-field--num">
+              <input
+                matInput
+                type="number"
+                min="0"
+                formControlName="min_duration"
+                placeholder="–"
+              />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Crash Cost -->
+        <ng-container matColumnDef="crash_cost">
+          <th mat-header-cell *matHeaderCellDef>
+            Crash Cost
+            <mat-icon
+              class="help-icon"
+              matTooltip="Cost at fully crashed duration (optional — for Crashing)"
+              >help_outline</mat-icon
+            >
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="cell-field cell-field--num">
+              <input matInput type="number" min="0" formControlName="crash_cost" placeholder="–" />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="deleteRow(i)"
+              type="button"
+              matTooltip="Delete row"
+              [attr.aria-label]="'Delete row ' + (i + 1)"
+            >
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns; let i = index"
+          [class.row-invalid]="rowsArray.at(i).invalid && rowsArray.at(i).dirty"
+        ></tr>
+
+        <!-- Empty row -->
+        <tr class="mat-row empty-row" *matNoDataRow>
+          <td [attr.colspan]="displayedColumns.length" class="empty-message">
+            <mat-icon>playlist_add</mat-icon>
+            No activities yet — click <strong>Add Row</strong> or import a file.
+          </td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</div>

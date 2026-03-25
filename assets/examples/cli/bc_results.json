@@ -1,0 +1,28 @@
+{
+  "optimal_project": {
+    "name": "Project C",
+    "initial_cost": 200000,
+    "life": 10,
+    "annual_benefits": 48000,
+    "annual_om": 8000,
+    "salvage": 20000,
+    "CR": 34257.149548771915,
+    "BC_Ratio": 1.1359024570410237
+  },
+  "comparisons": [
+    {
+      "current": "Project A",
+      "challenger": "Project B",
+      "incremental_bc": 0.9465853808675192,
+      "decision": "Keep current"
+    },
+    {
+      "current": "Project A",
+      "challenger": "Project C",
+      "incremental_bc": 1.039380088166488,
+      "decision": "Accept challenger"
+    }
+  ],
+  "all_projects": "        name  initial_cost  life  annual_benefits  annual_om  salvage            CR  BC_Ratio\n0  Project A        100000    10            25000       3000    10000  17128.574774  1.242015\n1  Project B        150000    10            35000       5000    15000  25692.862162  1.140330\n2  Project C        200000    10            48000       8000    20000  34257.149549  1.135902",
+  "viable_projects": "        name  initial_cost  life  annual_benefits  annual_om  salvage            CR  BC_Ratio\n0  Project A        100000    10            25000       3000    10000  17128.574774  1.242015\n1  Project B        150000    10            35000       5000    15000  25692.862162  1.140330\n2  Project C        200000    10            48000       8000    20000  34257.149549  1.135902"
+}

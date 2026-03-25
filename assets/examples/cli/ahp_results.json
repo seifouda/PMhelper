@@ -1,0 +1,39 @@
+{
+  "method": "AHP",
+  "consistency_ratio": 0.01148653839358031,
+  "weights": {
+    "Cost": 0.09593846416113619,
+    "Quality": 0.27717275602424146,
+    "Speed": 0.1610066929719109,
+    "Support": 0.4658820868427115
+  },
+  "ranked_alternatives": [
+    {
+      "Rank": 1,
+      "Alternative": "Software B",
+      "Total Score": 7.720634527907163,
+      "Cost Weight": 0.09593846416113619,
+      "Quality Weight": 0.27717275602424146,
+      "Speed Weight": 0.1610066929719109,
+      "Support Weight": 0.4658820868427115
+    },
+    {
+      "Rank": 2,
+      "Alternative": "Software A",
+      "Total Score": 7.127407896997108,
+      "Cost Weight": 0.09593846416113619,
+      "Quality Weight": 0.27717275602424146,
+      "Speed Weight": 0.1610066929719109,
+      "Support Weight": 0.4658820868427115
+    },
+    {
+      "Rank": 3,
+      "Alternative": "Software C",
+      "Total Score": 6.996871397839013,
+      "Cost Weight": 0.09593846416113619,
+      "Quality Weight": 0.27717275602424146,
+      "Speed Weight": 0.1610066929719109,
+      "Support Weight": 0.4658820868427115
+    }
+  ]
+}

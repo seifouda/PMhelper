@@ -1,0 +1,138 @@
+:host {
+  display: block;
+}
+
+.results-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 60px;
+  color: #94a3b8;
+  text-align: center;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    opacity: 0.4;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+.results-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.critical-path-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  overflow-x: auto;
+}
+
+.cp-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #d97706;
+}
+.cp-label {
+  font-weight: 600;
+  color: #92400e;
+  white-space: nowrap;
+}
+.cp-nodes {
+  color: #78350f;
+  font-family: monospace;
+}
+
+.table-scroll-container {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  overflow: auto;
+}
+
+.results-table {
+  width: 100%;
+
+  th.mat-mdc-header-cell {
+    background: #f8fafc;
+    font-weight: 600;
+    font-size: 0.78rem;
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
+
+  td.mat-mdc-cell {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  tr.mat-mdc-row {
+    height: 44px;
+    transition: background 0.12s;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.02);
+    }
+
+    &.critical-row {
+      background: rgba(239, 68, 68, 0.06);
+
+      &:hover {
+        background: rgba(239, 68, 68, 0.1);
+      }
+    }
+  }
+}
+
+.col-crit {
+  width: 60px;
+  text-align: center;
+}
+
+.icon-critical {
+  color: #ef4444;
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.critical-row-text {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.float-zero {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.float-low {
+  color: #d97706;
+  font-weight: 600;
+}
