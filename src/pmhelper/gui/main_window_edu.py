@@ -225,6 +225,7 @@ class MainWindowEdu:
         from pmhelper.gui.tabs.pestel_tab_edu import PESTELTabEdu
         from pmhelper.gui.tabs.wbs_tab_edu import WBSTabEdu
         from pmhelper.gui.tabs.raci_tab_edu import RACITabEdu
+        from pmhelper.gui.tabs.cost_estimation_tab_edu import CostEstimationTabEdu
 
         # ══════════════════════════════════════════════════════════
         #  Schedule group
@@ -272,7 +273,11 @@ class MainWindowEdu:
         self._financial_tab = FinancialTabEdu(cost_nb, self.state, main_window=self)
         cost_nb.add(self._financial_tab.frame, text="Financial Analysis")
 
-        # 9. Resources / Cost Histograms (edu, PG-only) — manually add
+        # 9. Cost Estimation (edu, V2 Phase 5) — manually add
+        self._cost_est_tab = CostEstimationTabEdu(cost_nb, self.state, main_window=self)
+        cost_nb.add(self._cost_est_tab.frame, text="Cost Estimation")
+
+        # 10. Resources / Cost Histograms (edu, PG-only) — manually add
         self._rcps_tab = RCPSTabEdu(cost_nb, self.state, main_window=self)
         cost_nb.add(self._rcps_tab.frame, text="Resources")
 
@@ -351,6 +356,7 @@ class MainWindowEdu:
             id(self.crashing_tab): self.crashing_tab,
             id(self._evm_tab.frame): self._evm_tab,
             id(self._financial_tab.frame): self._financial_tab,
+            id(self._cost_est_tab.frame): self._cost_est_tab,
             id(self._rcps_tab.frame): self._rcps_tab,
             id(self._risk_tab.frame): self._risk_tab,
             id(self._probability_tab.frame): self._probability_tab,
@@ -372,6 +378,7 @@ class MainWindowEdu:
             "three_point":    self._three_point_tab,
             "evm":            self._evm_tab,
             "financial":      self._financial_tab,
+            "cost_estimation": self._cost_est_tab,
             "risk":           self._risk_tab,
             "probability":    self._probability_tab,
             "rcps":           self._rcps_tab,
