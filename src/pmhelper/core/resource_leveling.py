@@ -19,6 +19,26 @@ import copy
 logger = logging.getLogger(__name__)
 
 
+# ---------------------------------------------------------------------------
+# Step recording data class
+# ---------------------------------------------------------------------------
+
+@dataclass
+class LevelingStep:
+    """One recorded step from the resource-leveling algorithm.
+
+    Emitted each time an activity is actually moved during iterative leveling.
+    """
+    step_number: int
+    activity_id: str
+    from_start: int       # start time before this move
+    to_start: int         # start time after this move
+    metric_before: float  # moment / Burgess cost before the move
+    metric_after: float   # metric after the move
+    reason: str           # human-readable explanation
+    profile: "Dict[int, float]"  # resource profile snapshot after the move
+
+
 @dataclass
 class Activity:
     """Represents an activity with scheduling and resource information"""
@@ -104,6 +124,12 @@ class ResourceProfile:
         moment = sum((u - mean_usage) ** 2 for u in usage_values)
         
         return moment
+
+    def get_mean_usage(self) -> float:
+        """Return mean (average) resource usage across all periods."""
+        if not self.profile:
+            return 0.0
+        return sum(self.profile.values()) / len(self.profile)
 
     def get_peak_usage(self) -> float:
         """
@@ -197,7 +223,8 @@ class MinimumMomentLeveling:
         self.original_schedule = {act.id: act.es for act in activities}
         logger.info(f"Initialized MinimumMomentLeveling with {len(activities)} activities")
 
-    def level(self, max_iterations: int = 1000) -> dict:
+    def level(self, max_iterations: int = 1000,
+              record_steps: bool = False) -> dict:
         """
         Perform resource leveling using minimum moment method.
         
@@ -209,6 +236,7 @@ class MinimumMomentLeveling:
         
         Args:
             max_iterations: Maximum number of iterations
+            record_steps: If True, record each move as a LevelingStep
             
         Returns:
             Dictionary with leveling results including:
@@ -219,6 +247,7 @@ class MinimumMomentLeveling:
             - iterations: Number of iterations performed
             - peak_usage_original: Peak resource usage before
             - peak_usage_leveled: Peak resource usage after
+            - steps: List[LevelingStep] if record_steps=True else []
         """
         # Start with early start schedule
         current_schedule = self.original_schedule.copy()
@@ -237,10 +266,12 @@ class MinimumMomentLeveling:
         if not non_critical:
             logger.info("No non-critical activities to level")
             return self._create_result(current_schedule, activities_list, 
-                                      original_moment, original_moment, 0)
+                                      original_moment, original_moment, 0, [])
         
         improved = True
         iteration = 0
+        steps: List[LevelingStep] = []
+        step_num = 0
         
         while improved and iteration < max_iterations:
             improved = False
@@ -277,20 +308,43 @@ class MinimumMomentLeveling:
                 
                 # Apply best position if found
                 if best_position != current_schedule[activity.id]:
+                    old_pos = current_schedule[activity.id]
                     current_schedule[activity.id] = best_position
                     logger.debug(f"Iteration {iteration}: Moved {activity.id} to time {best_position}")
+                    if record_steps:
+                        step_num += 1
+                        prof = ResourceProfile(current_schedule, activities_list)
+                        new_moment = prof.calculate_moment()
+                        steps.append(LevelingStep(
+                            step_number=step_num,
+                            activity_id=activity.id,
+                            from_start=old_pos,
+                            to_start=best_position,
+                            metric_before=best_moment
+                            if len(steps) == 0 else steps[-1].metric_after
+                            if steps else original_moment,
+                            metric_after=new_moment,
+                            reason=(
+                                f"Activity {activity.id} shifted from day {old_pos} "
+                                f"to day {best_position} "
+                                f"(float={activity.float}, resource={activity.resource_demand}) "
+                                f"— moment reduced from {original_moment:.1f}"
+                            ),
+                            profile=dict(prof.profile),
+                        ))
         
         logger.info(f"Leveling complete after {iteration} iterations")
         logger.info(f"Final moment: {best_moment:.2f}")
         
         return self._create_result(current_schedule, activities_list,
-                                   original_moment, best_moment, iteration)
+                                   original_moment, best_moment, iteration, steps)
 
     def _create_result(self, schedule: Dict[str, int], 
                        activities: List[Activity],
                        original_moment: float, 
                        leveled_moment: float,
-                       iterations: int) -> dict:
+                       iterations: int,
+                       steps: "List[LevelingStep]" = None) -> dict:
         """Create result dictionary with all metrics"""
         original_profile = ResourceProfile(self.original_schedule, activities)
         leveled_profile = ResourceProfile(schedule, activities)
@@ -311,7 +365,8 @@ class MinimumMomentLeveling:
             'original_profile': original_profile,
             'leveled_profile': leveled_profile,
             'feasible': (leveled_profile.is_feasible(self.resource_limit) 
-                        if self.resource_limit else True)
+                        if self.resource_limit else True),
+            'steps': steps or [],
         }
 
 
@@ -334,7 +389,8 @@ class BurgessLeveling:
         self.original_schedule = {act.id: act.es for act in activities}
         logger.info(f"Initialized BurgessLeveling with {len(activities)} activities")
 
-    def level(self, max_iterations: int = 1000) -> dict:
+    def level(self, max_iterations: int = 1000,
+              record_steps: bool = False) -> dict:
         """
         Perform resource leveling using Burgess method.
         
@@ -343,6 +399,7 @@ class BurgessLeveling:
         
         Args:
             max_iterations: Maximum number of iterations
+            record_steps: If True, record each move as a LevelingStep
             
         Returns:
             Dictionary with leveling results
@@ -362,10 +419,12 @@ class BurgessLeveling:
         if not non_critical:
             logger.info("No non-critical activities to level")
             return self._create_result(current_schedule, activities_list,
-                                      original_cost, original_cost, 0)
+                                      original_cost, original_cost, 0, [])
         
         improved = True
         iteration = 0
+        steps: List[LevelingStep] = []
+        step_num = 0
         
         while improved and iteration < max_iterations:
             improved = False
@@ -392,13 +451,34 @@ class BurgessLeveling:
                         improved = True
                 
                 if best_position != current_schedule[activity.id]:
+                    old_pos = current_schedule[activity.id]
                     current_schedule[activity.id] = best_position
+                    if record_steps:
+                        step_num += 1
+                        prof = ResourceProfile(current_schedule, activities_list)
+                        new_cost = self._calculate_burgess_cost(prof)
+                        prev_metric = (steps[-1].metric_after if steps else original_cost)
+                        steps.append(LevelingStep(
+                            step_number=step_num,
+                            activity_id=activity.id,
+                            from_start=old_pos,
+                            to_start=best_position,
+                            metric_before=prev_metric,
+                            metric_after=new_cost,
+                            reason=(
+                                f"Activity {activity.id} shifted from day {old_pos} "
+                                f"to day {best_position} "
+                                f"(float={activity.float}, resource={activity.resource_demand}) "
+                                f"— Burgess cost reduced from {original_cost:.1f}"
+                            ),
+                            profile=dict(prof.profile),
+                        ))
         
         logger.info(f"Burgess leveling complete after {iteration} iterations")
         logger.info(f"Final cost: {best_cost:.2f}")
         
         return self._create_result(current_schedule, activities_list,
-                                   original_cost, best_cost, iteration)
+                                   original_cost, best_cost, iteration, steps)
 
     def _calculate_burgess_cost(self, profile: ResourceProfile) -> float:
         """
@@ -416,7 +496,8 @@ class BurgessLeveling:
                        activities: List[Activity],
                        original_cost: float,
                        leveled_cost: float,
-                       iterations: int) -> dict:
+                       iterations: int,
+                       steps: "List[LevelingStep]" = None) -> dict:
         """Create result dictionary with all metrics"""
         original_profile = ResourceProfile(self.original_schedule, activities)
         leveled_profile = ResourceProfile(schedule, activities)
@@ -439,7 +520,8 @@ class BurgessLeveling:
             'original_moment': original_profile.calculate_moment(),
             'leveled_moment': leveled_profile.calculate_moment(),
             'feasible': (leveled_profile.is_feasible(self.resource_limit)
-                        if self.resource_limit else True)
+                        if self.resource_limit else True),
+            'steps': steps or [],
         }
 
 

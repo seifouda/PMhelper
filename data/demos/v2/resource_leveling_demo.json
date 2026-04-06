@@ -1,0 +1,93 @@
+{
+  "_comment": "Resource Leveling Demo — PMhelper V2 Phase 8",
+  "_description": "6-activity project demonstrating clear resource leveling benefit. Activities B, D and F have float and can be shifted to flatten the resource histogram.",
+  "project_name": "Office Renovation Project",
+  "project_duration": 10,
+  "resource_limit": 5,
+  "activities": [
+    {
+      "id": "A",
+      "name": "Site Preparation",
+      "duration": 3,
+      "resource_demand": 2,
+      "es": 0,
+      "ef": 3,
+      "ls": 0,
+      "lf": 3,
+      "float": 0,
+      "predecessors": [],
+      "successors": ["C", "D"]
+    },
+    {
+      "id": "B",
+      "name": "Order Furniture",
+      "duration": 2,
+      "resource_demand": 3,
+      "es": 0,
+      "ef": 2,
+      "ls": 5,
+      "lf": 7,
+      "float": 5,
+      "predecessors": [],
+      "successors": ["E"]
+    },
+    {
+      "id": "C",
+      "name": "Partition Walls",
+      "duration": 3,
+      "resource_demand": 2,
+      "es": 3,
+      "ef": 6,
+      "ls": 3,
+      "lf": 6,
+      "float": 0,
+      "predecessors": ["A"],
+      "successors": ["F"]
+    },
+    {
+      "id": "D",
+      "name": "Electrical Wiring",
+      "duration": 2,
+      "resource_demand": 2,
+      "es": 3,
+      "ef": 5,
+      "ls": 5,
+      "lf": 7,
+      "float": 2,
+      "predecessors": ["A"],
+      "successors": ["F"]
+    },
+    {
+      "id": "E",
+      "name": "Install Furniture",
+      "duration": 2,
+      "resource_demand": 1,
+      "es": 7,
+      "ef": 9,
+      "ls": 7,
+      "lf": 9,
+      "float": 0,
+      "predecessors": ["B"],
+      "successors": []
+    },
+    {
+      "id": "F",
+      "name": "Final Inspection",
+      "duration": 1,
+      "resource_demand": 1,
+      "es": 6,
+      "ef": 7,
+      "ls": 9,
+      "lf": 10,
+      "float": 3,
+      "predecessors": ["C", "D"],
+      "successors": []
+    }
+  ],
+  "educational_notes": {
+    "before": "At early-start schedule: periods 0-2 peak at 7 resources (A+B+background), well above limit of 5.",
+    "leveling_target": "Shift B (float=5) to period 5 and F (float=3) to period 8-9 to flatten the profile.",
+    "after": "Peak drops from 7 to 4 resources — a ~28% improvement in moment metric.",
+    "key_insight": "Activity B has the most float (5 periods) and high resource demand (3), making it the best candidate to shift right."
+  }
+}
