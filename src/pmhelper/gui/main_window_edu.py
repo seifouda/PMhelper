@@ -187,8 +187,17 @@ class MainWindowEdu:
         self._refresh_all_edu_tabs()
 
     def _build_tabs(self):
-        self.notebook = ttk.Notebook(self.root)
+        from pmhelper.gui.widgets.tab_group_notebook import TabGroupNotebook
+
+        self.notebook = TabGroupNotebook(self.root)
         self.notebook.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        # ── Create tab groups ──────────────────────────────────
+        sched_nb = self.notebook.add_group("Schedule", icon="📅")
+        cost_nb  = self.notebook.add_group("Cost",     icon="💰")
+        risk_nb  = self.notebook.add_group("Risk",     icon="⚠")
+        strat_nb = self.notebook.add_group("Strategic", icon="📋")
+        dash_nb  = self.notebook.add_group("Dashboard", icon="📊")
 
         # Import Edu tab modules
         from pmhelper.gui.tabs.input_tab_edu import InputTabEdu
@@ -212,114 +221,128 @@ class MainWindowEdu:
         from pmhelper.gui.tabs.pestel_tab_edu import PESTELTabEdu
         from pmhelper.gui.tabs.wbs_tab_edu import WBSTabEdu
 
-        # ----------------------------------------------------------
-        # Create tabs in display order.
-        # Real tabs add themselves to the notebook during construction.
-        # Edu tabs are added manually afterwards.
-        # ----------------------------------------------------------
+        # ══════════════════════════════════════════════════════════
+        #  Schedule group
+        # ══════════════════════════════════════════════════════════
 
         # 1. Input Activities (edu) — manually add
         self._input_tab_edu = InputTabEdu(
-            self.notebook, self.state, main_window=self)
-        self.input_tab = self._input_tab_edu          # alias for real-tab compat
-        self.notebook.add(self._input_tab_edu.frame, text="Input Activities")
+            sched_nb, self.state, main_window=self)
+        self.input_tab = self._input_tab_edu
+        sched_nb.add(self._input_tab_edu.frame, text="Input Activities")
 
-        # 2. Results (real) — adds itself as "Results"
-        self.results_tab = ResultsTab(self.notebook, self)
+        # 2. Results (real) — auto-adds itself
+        self.results_tab = ResultsTab(sched_nb, self)
 
-        # 3. Network Diagram (real) — adds itself as "Network Diagram"
-        self.network_tab = NetworkTab(self.notebook, self)
+        # 3. Network Diagram (real) — auto-adds itself
+        self.network_tab = NetworkTab(sched_nb, self)
 
-        # 4. PERT Diagram (real) — adds itself as "PERT Diagram"
-        self.pert_diagram_tab = PertDiagramTab(self.notebook, self)
+        # 4. PERT Diagram (real) — auto-adds itself
+        self.pert_diagram_tab = PertDiagramTab(sched_nb, self)
 
-        # 5. Gantt Chart (edu, enhanced with CPM rendering) — manually add
-        self._gantt_tab_edu = GanttTabEdu(self.notebook, self.state,
+        # 5. Gantt Chart (edu) — manually add
+        self._gantt_tab_edu = GanttTabEdu(sched_nb, self.state,
                                           main_window=self)
         self.gantt_tab = self._gantt_tab_edu
-        self.notebook.add(self._gantt_tab_edu.frame, text="Gantt Chart")
+        sched_nb.add(self._gantt_tab_edu.frame, text="Gantt Chart")
 
-        # 6. EVM Dashboard (edu) — manually add
-        self._evm_tab = EVMTabEdu(self.notebook, self.state)
-        self.notebook.add(self._evm_tab.frame, text="EVM Dashboard")
+        # 6. Crashing (real) — ttk.Frame, add externally
+        self.crashing_tab = CrashingTab(sched_nb, self)
+        sched_nb.add(self.crashing_tab, text="Crashing")
 
-        # 7. Risk Analysis (edu) — manually add
-        self._risk_tab = RiskTabEdu(self.notebook, self.state)
-        self.notebook.add(self._risk_tab.frame, text="Risk Analysis")
+        # ══════════════════════════════════════════════════════════
+        #  Cost group
+        # ══════════════════════════════════════════════════════════
 
-        # 8. Probability / Monte Carlo (edu, PG-only) — manually add
-        self._probability_tab = ProbabilityTabEdu(self.notebook, self.state,
+        # 7. EVM Dashboard (edu) — manually add
+        self._evm_tab = EVMTabEdu(cost_nb, self.state)
+        cost_nb.add(self._evm_tab.frame, text="EVM Dashboard")
+
+        # 8. Resources / Cost Histograms (edu, PG-only) — manually add
+        self._rcps_tab = RCPSTabEdu(cost_nb, self.state, main_window=self)
+        cost_nb.add(self._rcps_tab.frame, text="Resources")
+
+        # ══════════════════════════════════════════════════════════
+        #  Risk group
+        # ══════════════════════════════════════════════════════════
+
+        # 9. Risk Analysis (edu) — manually add
+        self._risk_tab = RiskTabEdu(risk_nb, self.state)
+        risk_nb.add(self._risk_tab.frame, text="Risk Analysis")
+
+        # 10. Probability / Monte Carlo (edu, PG-only) — manually add
+        self._probability_tab = ProbabilityTabEdu(risk_nb, self.state,
                                                    main_window=self)
-        self.notebook.add(self._probability_tab.frame, text="Probability")
-
-        # 9. Crashing (real) — ttk.Frame, add externally
-        self.crashing_tab = CrashingTab(self.notebook, self)
-        self.notebook.add(self.crashing_tab, text="Crashing")
-
-        # 10. Resources / Cost Histograms (edu, PG-only) — manually add
-        self._rcps_tab = RCPSTabEdu(self.notebook, self.state, main_window=self)
-        self.notebook.add(self._rcps_tab.frame, text="Resources")
+        risk_nb.add(self._probability_tab.frame, text="Probability")
 
         # 11. RCPS Crashing (real, PG-only) — ttk.Frame, add externally
-        self._rcps_crashing_tab = RCPSCrashingTab(self.notebook, self)
-        self.notebook.add(self._rcps_crashing_tab, text="RCPS Crash")
+        self._rcps_crashing_tab = RCPSCrashingTab(risk_nb, self)
+        risk_nb.add(self._rcps_crashing_tab, text="RCPS Crash")
 
-        # 12. Dashboard (edu) — manually add
-        self._dashboard_tab = DashboardTabEdu(self.notebook, self.state)
-        self.notebook.add(self._dashboard_tab.frame, text="Dashboard")
+        # ══════════════════════════════════════════════════════════
+        #  Strategic group
+        # ══════════════════════════════════════════════════════════
 
-        # 13. Charter (real, PG-only) — ttk.Frame, add externally
-        self._charter_tab = CharterTab(self.notebook, self)
-        self.notebook.add(self._charter_tab, text="Charter")
+        # 12. Charter (real, PG-only) — ttk.Frame, add externally
+        self._charter_tab = CharterTab(strat_nb, self)
+        strat_nb.add(self._charter_tab, text="Charter")
 
-        # 14. Charter Manager (real, PG-only) — ttk.Frame, add externally
+        # 13. Charter Manager (real, PG-only) — ttk.Frame, add externally
         self.charter_manager = CharterManager(
-            self.notebook,
+            strat_nb,
             on_open_callback=self._charter_tab.load_charter_from_file,
             on_duplicate_callback=self._charter_tab.load_charter_from_file,
         )
-        self.notebook.add(self.charter_manager, text="Charter Mgr")
+        strat_nb.add(self.charter_manager, text="Charter Mgr")
 
-        # 15. DPCI Assessment (real, PG-only) — ttk.Frame, add externally
-        self._dpci_tab = DPCITab(self.notebook)
-        self.notebook.add(self._dpci_tab, text="DPCI")
+        # 14. DPCI Assessment (real, PG-only) — ttk.Frame, add externally
+        self._dpci_tab = DPCITab(strat_nb)
+        strat_nb.add(self._dpci_tab, text="DPCI")
 
-        # 16. SWOT Analysis (edu, PG-only) — manually add
-        self._swot_tab = SWOTTabEdu(self.notebook, self.state)
-        self.notebook.add(self._swot_tab.frame, text="SWOT")
+        # 15. SWOT Analysis (edu, PG-only) — manually add
+        self._swot_tab = SWOTTabEdu(strat_nb, self.state)
+        strat_nb.add(self._swot_tab.frame, text="SWOT")
 
-        # 17. PESTEL Analysis (edu, PG-only) — manually add
-        self._pestel_tab = PESTELTabEdu(self.notebook, self.state)
-        self.notebook.add(self._pestel_tab.frame, text="PESTEL")
+        # 16. PESTEL Analysis (edu, PG-only) — manually add
+        self._pestel_tab = PESTELTabEdu(strat_nb, self.state)
+        strat_nb.add(self._pestel_tab.frame, text="PESTEL")
 
-        # 18. WBS Diagram (edu, PG-only) — manually add
-        self._wbs_tab = WBSTabEdu(self.notebook, self.state)
-        self.notebook.add(self._wbs_tab.frame, text="WBS")
+        # 17. WBS Diagram (edu, PG-only) — manually add
+        self._wbs_tab = WBSTabEdu(strat_nb, self.state)
+        strat_nb.add(self._wbs_tab.frame, text="WBS")
 
-        # Wire RCPS Crashing ↔ RCPS bidirectional link
+        # ══════════════════════════════════════════════════════════
+        #  Dashboard group
+        # ══════════════════════════════════════════════════════════
+
+        # 18. Dashboard (edu) — manually add
+        self._dashboard_tab = DashboardTabEdu(dash_nb, self.state)
+        dash_nb.add(self._dashboard_tab.frame, text="Dashboard")
+
+        # ── Cross-tab wiring ──────────────────────────────────────
         self._rcps_crashing_tab.set_rcps_tab_reference(self._rcps_tab)
 
-        # Ordered list of ALL tab objects (matches notebook tab indices)
-        self._all_tabs_ordered = [
-            self._input_tab_edu,      # 0  Input Activities
-            self.results_tab,         # 1  Results
-            self.network_tab,         # 2  Network Diagram
-            self.pert_diagram_tab,    # 3  PERT Diagram
-            self._gantt_tab_edu,      # 4  Gantt Chart
-            self._evm_tab,            # 5  EVM Dashboard
-            self._risk_tab,           # 6  Risk Analysis
-            self._probability_tab,    # 7  Probability
-            self.crashing_tab,        # 8  Crashing
-            self._rcps_tab,           # 9  Resources
-            self._rcps_crashing_tab,  # 10 RCPS Crash
-            self._dashboard_tab,      # 11 Dashboard
-            self._charter_tab,        # 12 Charter
-            self.charter_manager,     # 13 Charter Mgr
-            self._dpci_tab,           # 14 DPCI
-            self._swot_tab,           # 15 SWOT
-            self._pestel_tab,         # 16 PESTEL
-            self._wbs_tab,            # 17 WBS
-        ]
+        # ── Widget → tab-object reverse map (for on_tab_changed) ──
+        self._widget_to_tab = {
+            id(self._input_tab_edu.frame): self._input_tab_edu,
+            id(self.results_tab.results_frame): self.results_tab,
+            id(self.network_tab.network_frame): self.network_tab,
+            id(self.pert_diagram_tab.main_frame): self.pert_diagram_tab,
+            id(self._gantt_tab_edu.frame): self._gantt_tab_edu,
+            id(self.crashing_tab): self.crashing_tab,
+            id(self._evm_tab.frame): self._evm_tab,
+            id(self._rcps_tab.frame): self._rcps_tab,
+            id(self._risk_tab.frame): self._risk_tab,
+            id(self._probability_tab.frame): self._probability_tab,
+            id(self._rcps_crashing_tab): self._rcps_crashing_tab,
+            id(self._charter_tab): self._charter_tab,
+            id(self.charter_manager): self.charter_manager,
+            id(self._dpci_tab): self._dpci_tab,
+            id(self._swot_tab.frame): self._swot_tab,
+            id(self._pestel_tab.frame): self._pestel_tab,
+            id(self._wbs_tab.frame): self._wbs_tab,
+            id(self._dashboard_tab.frame): self._dashboard_tab,
+        }
 
         # Edu tabs dict for set_mode / on_tab_selected / get_figures
         self.tabs = {
@@ -352,8 +375,8 @@ class MainWindowEdu:
             self._wbs_tab.frame,           # WBS
         ]
 
-        # Auto-recalculate on tab switch
-        self.notebook.bind("<<NotebookTabChanged>>", self._on_tab_changed)
+        # Auto-recalculate on tab switch (any group)
+        self.notebook.bind_tab_changed(self._on_tab_changed)
 
     def _apply_mode(self, mode: str):
         """Show/hide PG-only features across all tabs."""
@@ -387,11 +410,20 @@ class MainWindowEdu:
         self.root.title(f"PMhelper Edu {suffix} [unsaved]")
 
     def _on_tab_changed(self, event):
-        selected = self.notebook.index(self.notebook.select())
-        if selected < len(self._all_tabs_ordered):
-            tab = self._all_tabs_ordered[selected]
-            if hasattr(tab, "on_tab_selected"):
+        """Handle tab change in any group — call on_tab_selected."""
+        if self.notebook._active_group is None:
+            return
+        grp = self.notebook._groups[self.notebook._active_group]
+        try:
+            sel = grp.notebook.select()
+            if not sel:
+                return
+            widget = grp.notebook.nametowidget(sel)
+            tab = self._widget_to_tab.get(id(widget))
+            if tab is not None and hasattr(tab, "on_tab_selected"):
                 tab.on_tab_selected()
+        except Exception:
+            pass
 
     def _on_closing(self):
         if self.state.is_dirty():
@@ -593,11 +625,7 @@ class MainWindowEdu:
     def _refresh_current_tab(self):
         """Trigger on_tab_selected for the currently visible tab."""
         try:
-            selected = self.notebook.index(self.notebook.select())
-            if selected < len(self._all_tabs_ordered):
-                tab = self._all_tabs_ordered[selected]
-                if hasattr(tab, "on_tab_selected"):
-                    tab.on_tab_selected()
+            self._on_tab_changed(None)
         except Exception:
             pass
 
@@ -802,9 +830,9 @@ class MainWindowEdu:
                 pass
             print(f"[analyze_project {_time.time()-_t0:.3f}s] probability_tab updated")
 
-        # Switch to Results tab (index 1)
+        # Switch to Results tab
         try:
-            self.notebook.select(1)
+            self.notebook.select_tab(self.results_tab.results_frame)
         except Exception:
             pass
 
