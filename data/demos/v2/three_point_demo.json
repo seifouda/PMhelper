@@ -1,0 +1,112 @@
+{
+  "name": "Three-Point Estimates Demo — Office Renovation",
+  "description": "8 activities from the Office Renovation project with O/M/P values. Activities A through E form the critical path (A→C→E→G→H). Known solutions computed using both PERT-Beta and Triangular formulas.",
+  "version": 1,
+  "feature": "three_point",
+  "data": {
+    "formula": "PERT",
+    "critical_path_ids": ["A", "C", "E", "G", "H"],
+    "activities": [
+      {
+        "id": "A",
+        "name": "Site Preparation",
+        "optimistic": 2,
+        "most_likely": 4,
+        "pessimistic": 6,
+        "expected_pert": 4.0,
+        "variance_pert": 0.4444,
+        "expected_triangular": 4.0,
+        "variance_triangular": 0.4444
+      },
+      {
+        "id": "B",
+        "name": "Procurement",
+        "optimistic": 3,
+        "most_likely": 5,
+        "pessimistic": 10,
+        "expected_pert": 5.5,
+        "variance_pert": 1.3611,
+        "expected_triangular": 6.0,
+        "variance_triangular": 1.1667
+      },
+      {
+        "id": "C",
+        "name": "Demolition",
+        "optimistic": 1,
+        "most_likely": 2,
+        "pessimistic": 4,
+        "expected_pert": 2.1667,
+        "variance_pert": 0.25,
+        "expected_triangular": 2.3333,
+        "variance_triangular": 0.2222
+      },
+      {
+        "id": "D",
+        "name": "Electrical Rough-In",
+        "optimistic": 2,
+        "most_likely": 3,
+        "pessimistic": 5,
+        "expected_pert": 3.1667,
+        "variance_pert": 0.25,
+        "expected_triangular": 3.3333,
+        "variance_triangular": 0.2222
+      },
+      {
+        "id": "E",
+        "name": "Framing & Drywall",
+        "optimistic": 4,
+        "most_likely": 6,
+        "pessimistic": 10,
+        "expected_pert": 6.3333,
+        "variance_pert": 1.0,
+        "expected_triangular": 6.6667,
+        "variance_triangular": 1.1111
+      },
+      {
+        "id": "F",
+        "name": "Plumbing",
+        "optimistic": 2,
+        "most_likely": 3,
+        "pessimistic": 6,
+        "expected_pert": 3.3333,
+        "variance_pert": 0.4444,
+        "expected_triangular": 3.6667,
+        "variance_triangular": 0.4444
+      },
+      {
+        "id": "G",
+        "name": "Flooring & Tiling",
+        "optimistic": 3,
+        "most_likely": 5,
+        "pessimistic": 8,
+        "expected_pert": 5.1667,
+        "variance_pert": 0.6944,
+        "expected_triangular": 5.3333,
+        "variance_triangular": 0.6111
+      },
+      {
+        "id": "H",
+        "name": "Finishing & Inspection",
+        "optimistic": 1,
+        "most_likely": 2,
+        "pessimistic": 3,
+        "expected_pert": 2.0,
+        "variance_pert": 0.1111,
+        "expected_triangular": 2.0,
+        "variance_triangular": 0.1111
+      }
+    ],
+    "project_totals_pert": {
+      "critical_path": ["A", "C", "E", "G", "H"],
+      "project_expected": 19.6667,
+      "project_variance": 2.5,
+      "project_std_dev": 1.5811
+    },
+    "project_totals_triangular": {
+      "critical_path": ["A", "C", "E", "G", "H"],
+      "project_expected": 20.3333,
+      "project_variance": 2.5999,
+      "project_std_dev": 1.6124
+    }
+  }
+}

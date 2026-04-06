@@ -202,6 +202,7 @@ class MainWindowEdu:
         # Import Edu tab modules
         from pmhelper.gui.tabs.input_tab_edu import InputTabEdu
         from pmhelper.gui.tabs.gantt_tab_edu import GanttTabEdu
+        from pmhelper.gui.tabs.three_point_tab_edu import ThreePointTabEdu
         from pmhelper.gui.tabs.evm_tab_edu import EVMTabEdu
         from pmhelper.gui.tabs.risk_tab_edu import RiskTabEdu
         from pmhelper.gui.tabs.probability_tab_edu import ProbabilityTabEdu
@@ -245,6 +246,11 @@ class MainWindowEdu:
                                           main_window=self)
         self.gantt_tab = self._gantt_tab_edu
         sched_nb.add(self._gantt_tab_edu.frame, text="Gantt Chart")
+
+        # 5b. Three-Point Estimates (edu, V2) — manually add
+        self._three_point_tab = ThreePointTabEdu(sched_nb, self.state,
+                                                  main_window=self)
+        sched_nb.add(self._three_point_tab.frame, text="Three-Point Est.")
 
         # 6. Crashing (real) — ttk.Frame, add externally
         self.crashing_tab = CrashingTab(sched_nb, self)
@@ -329,6 +335,7 @@ class MainWindowEdu:
             id(self.network_tab.network_frame): self.network_tab,
             id(self.pert_diagram_tab.main_frame): self.pert_diagram_tab,
             id(self._gantt_tab_edu.frame): self._gantt_tab_edu,
+            id(self._three_point_tab.frame): self._three_point_tab,
             id(self.crashing_tab): self.crashing_tab,
             id(self._evm_tab.frame): self._evm_tab,
             id(self._rcps_tab.frame): self._rcps_tab,
@@ -348,6 +355,7 @@ class MainWindowEdu:
         self.tabs = {
             "input":          self._input_tab_edu,
             "gantt":          self._gantt_tab_edu,
+            "three_point":    self._three_point_tab,
             "evm":            self._evm_tab,
             "risk":           self._risk_tab,
             "probability":    self._probability_tab,
