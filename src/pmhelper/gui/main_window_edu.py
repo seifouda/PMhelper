@@ -204,6 +204,7 @@ class MainWindowEdu:
         from pmhelper.gui.tabs.gantt_tab_edu import GanttTabEdu
         from pmhelper.gui.tabs.three_point_tab_edu import ThreePointTabEdu
         from pmhelper.gui.tabs.evm_tab_edu import EVMTabEdu
+        from pmhelper.gui.tabs.financial_tab_edu import FinancialTabEdu
         from pmhelper.gui.tabs.risk_tab_edu import RiskTabEdu
         from pmhelper.gui.tabs.probability_tab_edu import ProbabilityTabEdu
         from pmhelper.gui.tabs.rcps_tab_edu import RCPSTabEdu
@@ -264,7 +265,11 @@ class MainWindowEdu:
         self._evm_tab = EVMTabEdu(cost_nb, self.state)
         cost_nb.add(self._evm_tab.frame, text="EVM Dashboard")
 
-        # 8. Resources / Cost Histograms (edu, PG-only) — manually add
+        # 8. Financial Analysis (edu) — manually add
+        self._financial_tab = FinancialTabEdu(cost_nb, self.state, main_window=self)
+        cost_nb.add(self._financial_tab.frame, text="Financial Analysis")
+
+        # 9. Resources / Cost Histograms (edu, PG-only) — manually add
         self._rcps_tab = RCPSTabEdu(cost_nb, self.state, main_window=self)
         cost_nb.add(self._rcps_tab.frame, text="Resources")
 
@@ -338,6 +343,7 @@ class MainWindowEdu:
             id(self._three_point_tab.frame): self._three_point_tab,
             id(self.crashing_tab): self.crashing_tab,
             id(self._evm_tab.frame): self._evm_tab,
+            id(self._financial_tab.frame): self._financial_tab,
             id(self._rcps_tab.frame): self._rcps_tab,
             id(self._risk_tab.frame): self._risk_tab,
             id(self._probability_tab.frame): self._probability_tab,
@@ -357,6 +363,7 @@ class MainWindowEdu:
             "gantt":          self._gantt_tab_edu,
             "three_point":    self._three_point_tab,
             "evm":            self._evm_tab,
+            "financial":      self._financial_tab,
             "risk":           self._risk_tab,
             "probability":    self._probability_tab,
             "rcps":           self._rcps_tab,

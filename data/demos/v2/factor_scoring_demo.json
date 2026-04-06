@@ -1,0 +1,45 @@
+{
+  "name": "Factor Scoring Demo",
+  "description": "Four IT project candidates evaluated against 5 strategic criteria. Demonstrates 0-1, Factor, and Weighted Factor scoring models. Under Weighted scoring, 'ERP Upgrade' wins.",
+  "version": "v2",
+  "feature": "factor_scoring",
+  "data": {
+    "model": "Weighted",
+    "criteria": [
+      {"name": "Strategic Fit",   "weight": 30},
+      {"name": "Risk Level",      "weight": 25},
+      {"name": "Cost Efficiency", "weight": 20},
+      {"name": "Time to Value",   "weight": 15},
+      {"name": "Team Capability", "weight": 10}
+    ],
+    "projects": [
+      {"name": "ERP Upgrade"},
+      {"name": "CRM Rollout"},
+      {"name": "Data Warehouse"},
+      {"name": "Mobile App"}
+    ],
+    "score_matrix": [
+      [5, 3, 4, 3, 5],
+      [4, 4, 3, 4, 4],
+      [3, 2, 5, 5, 3],
+      [2, 5, 2, 5, 4]
+    ],
+    "known_solutions": {
+      "Weighted": {
+        "ERP Upgrade":   "Rank 1",
+        "CRM Rollout":   "Rank 2",
+        "Data Warehouse":"Rank 3",
+        "Mobile App":    "Rank 4"
+      },
+      "Factor": {
+        "ERP Upgrade":   "Rank 1",
+        "CRM Rollout":   "Rank 2",
+        "Mobile App":    "Rank 3",
+        "Data Warehouse":"Rank 4"
+      },
+      "0-1": {
+        "ERP Upgrade":   "Rank 1"
+      }
+    }
+  }
+}

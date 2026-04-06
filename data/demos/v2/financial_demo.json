@@ -1,0 +1,40 @@
+{
+  "name": "Financial Analysis Demo",
+  "description": "Two project scenarios with known Payback, NPV, IRR, and PI values for classroom illustration.",
+  "version": "v2",
+  "feature": "financial_calcs",
+  "data": {
+    "scenarios": [
+      {
+        "name": "Office Automation System",
+        "description": "A $100,000 investment in office automation expected to generate $30,000 per year for 5 years at a 10% discount rate. Payback ≈ 3.33 years, NPV ≈ $13,724, IRR ≈ 15.24%, PI ≈ 1.137.",
+        "initial_investment": 100000,
+        "discount_rate_pct": 10,
+        "cash_flows": [30000, 30000, 30000, 30000, 30000],
+        "known_solutions": {
+          "payback_period":      3.33,
+          "discounted_payback":  4.18,
+          "roi_pct":             50.0,
+          "npv":                 13724.0,
+          "irr_pct":             15.24,
+          "profitability_index": 1.137
+        }
+      },
+      {
+        "name": "Warehouse Expansion",
+        "description": "A $200,000 warehouse expansion with uneven cash flows over 6 years at 8% discount rate. Growing inflows reflect ramp-up in utilisation.",
+        "initial_investment": 200000,
+        "discount_rate_pct": 8,
+        "cash_flows": [20000, 40000, 60000, 80000, 80000, 60000],
+        "known_solutions": {
+          "payback_period":      4.0,
+          "discounted_payback":  null,
+          "roi_pct":             70.0,
+          "npv":                 -12067.0,
+          "irr_pct":             5.77,
+          "profitability_index": 0.94
+        }
+      }
+    ]
+  }
+}
