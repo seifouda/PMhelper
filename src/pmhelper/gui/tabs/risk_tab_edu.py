@@ -2,6 +2,8 @@
 PMhelper Edu — Risk Analysis Tab.
 Sub-tab A: Risk Register (Treeview with CRUD, sorted by exposure).
 Sub-tab B: Risk Matrix (5×5 Matplotlib heat map).
+Sub-tab C: Assessment Matrix (5×5 discrete grid, Phase 6).
+Sub-tab D: Response Planning (per-risk response form, Phase 6).
 """
 
 import tkinter as tk
@@ -17,18 +19,23 @@ try:
 except ImportError:
     HAS_MATPLOTLIB = False
 
-from pmhelper.core.risk_register_edu import Risk, RiskCategory, RiskRegister
+from pmhelper.core.risk_register_edu import (
+    Risk, RiskCategory, RiskRegister,
+    ResponseStrategy, risk_zone, zone_color,
+)
 from pmhelper.utils.risk_io_edu import export_to_csv, import_from_csv
 
 
 class RiskTabEdu:
-    """Risk Analysis tab with Risk Register and Risk Matrix sub-tabs."""
+    """Risk Analysis tab with Risk Register, Risk Matrix, Assessment Matrix,
+    and Response Planning sub-tabs."""
 
     def __init__(self, parent, state):
         self.parent = parent
         self.state = state
         self.frame = ttk.Frame(parent)
         self._selected_risk_id = None
+        self._selected_response_risk_id = None
 
         # Ensure state has a risk_register
         if self.state.risk_register is None:
@@ -48,6 +55,16 @@ class RiskTabEdu:
         self._notebook.add(self._matrix_frame, text="Risk Matrix")
         self._build_matrix_tab()
 
+        # Sub-tab C: Assessment Matrix (Phase 6)
+        self._assessment_frame = ttk.Frame(self._notebook)
+        self._notebook.add(self._assessment_frame, text="🟥 Assessment Matrix")
+        self._build_assessment_tab()
+
+        # Sub-tab D: Response Planning (Phase 6)
+        self._response_frame = ttk.Frame(self._notebook)
+        self._notebook.add(self._response_frame, text="🛡️ Response Planning")
+        self._build_response_tab()
+
     # ------------------------------------------------------------------
     # Sub-tab A: Risk Register
     # ------------------------------------------------------------------
@@ -62,32 +79,47 @@ class RiskTabEdu:
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, padx=8, fill=tk.Y)
         ttk.Button(toolbar, text="Import CSV", command=self._import_csv).pack(side=tk.LEFT, padx=2)
         ttk.Button(toolbar, text="Export CSV", command=self._export_csv).pack(side=tk.LEFT, padx=2)
+        ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, padx=8, fill=tk.Y)
+        ttk.Button(toolbar, text="📖 Theory",
+                   command=self._show_theory).pack(side=tk.LEFT, padx=2)
 
-        # Treeview
-        cols = ("id", "name", "category", "probability", "impact", "exposure", "flag")
-        self._tree = ttk.Treeview(self._register_frame, columns=cols,
+        # Treeview with horizontal scrollbar
+        tree_frame = ttk.Frame(self._register_frame)
+        tree_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=2)
+
+        cols = ("id", "name", "category", "probability", "impact", "exposure",
+                "score", "rank", "response", "flag")
+        self._tree = ttk.Treeview(tree_frame, columns=cols,
                                   show="headings", selectmode="browse")
-        self._tree.heading("id", text="ID")
-        self._tree.heading("name", text="Name")
-        self._tree.heading("category", text="Category")
+        self._tree.heading("id",          text="ID")
+        self._tree.heading("name",        text="Name")
+        self._tree.heading("category",    text="Category")
         self._tree.heading("probability", text="Probability")
-        self._tree.heading("impact", text="Impact ($)")
-        self._tree.heading("exposure", text="Exposure ($)")
-        self._tree.heading("flag", text="\u26a0")
+        self._tree.heading("impact",      text="Impact ($)")
+        self._tree.heading("exposure",    text="Exposure ($)")
+        self._tree.heading("score",       text="Score",
+                           command=lambda: self._sort_register("score"))
+        self._tree.heading("rank",        text="Rank")
+        self._tree.heading("response",    text="Response")
+        self._tree.heading("flag",        text="\u26a0")
 
-        self._tree.column("id", width=60, anchor=tk.CENTER)
-        self._tree.column("name", width=180)
-        self._tree.column("category", width=90, anchor=tk.CENTER)
-        self._tree.column("probability", width=80, anchor=tk.CENTER)
-        self._tree.column("impact", width=100, anchor=tk.E)
-        self._tree.column("exposure", width=100, anchor=tk.E)
-        self._tree.column("flag", width=40, anchor=tk.CENTER)
+        self._tree.column("id",          width=60,  anchor=tk.CENTER)
+        self._tree.column("name",        width=160)
+        self._tree.column("category",    width=80,  anchor=tk.CENTER)
+        self._tree.column("probability", width=80,  anchor=tk.CENTER)
+        self._tree.column("impact",      width=90,  anchor=tk.E)
+        self._tree.column("exposure",    width=90,  anchor=tk.E)
+        self._tree.column("score",       width=55,  anchor=tk.CENTER)
+        self._tree.column("rank",        width=40,  anchor=tk.CENTER)
+        self._tree.column("response",    width=90,  anchor=tk.CENTER)
+        self._tree.column("flag",        width=35,  anchor=tk.CENTER)
 
-        scrollbar = ttk.Scrollbar(self._register_frame, orient=tk.VERTICAL,
-                                  command=self._tree.yview)
-        self._tree.configure(yscrollcommand=scrollbar.set)
-        self._tree.pack(fill=tk.BOTH, expand=True, padx=5, pady=2)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        vsb = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL,   command=self._tree.yview)
+        hsb = ttk.Scrollbar(tree_frame, orient=tk.HORIZONTAL, command=self._tree.xview)
+        self._tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+        vsb.pack(side=tk.RIGHT, fill=tk.Y)
+        hsb.pack(side=tk.BOTTOM, fill=tk.X)
+        self._tree.pack(fill=tk.BOTH, expand=True)
 
         # Footer
         self._footer_var = tk.StringVar(value="Total Exposure: $0  |  Contingency Reserve: $0  |  Flagged risks: 0")
@@ -100,17 +132,23 @@ class RiskTabEdu:
         if reg is None:
             return
         reg.recompute_exposures()
+        reg.recompute_scores()
+        reg.update_ranks()
         flagged_ids = {r.id for r in reg.flag_high_exposure()}
-        sorted_risks = reg.risks_by_exposure()
+        sorted_risks = reg.risks_by_score()
 
         self._tree.delete(*self._tree.get_children())
         for r in sorted_risks:
             flag_text = "\u25b2" if r.id in flagged_ids else ""
+            strat = r.response_strategy.value if r.response_strategy else ""
             self._tree.insert("", tk.END, iid=r.id, values=(
                 r.id, r.name, r.category.value,
                 f"{r.probability:.2f}",
                 f"{r.impact:,.2f}",
                 f"{r.exposure:,.2f}",
+                f"{r.risk_score:.0f}",
+                r.risk_rank,
+                strat,
                 flag_text,
             ))
 
@@ -121,6 +159,24 @@ class RiskTabEdu:
             f"Total Exposure: ${total:,.2f}  |  "
             f"Contingency Reserve: ${contingency:,.2f}  |  "
             f"Flagged risks: {n_flagged}"
+        )
+
+    def _sort_register(self, col: str):
+        """Sort register treeview by Score column."""
+        reg = self.state.risk_register
+        if reg is None:
+            return
+        reg.recompute_scores()
+        reg.update_ranks()
+        self._refresh_register_tree()
+
+    def _show_theory(self):
+        from pmhelper.core.risk_step_generator import risk_assessment_theory_steps
+        from pmhelper.gui.widgets.worked_solution_window import WorkedSolutionWindow
+        WorkedSolutionWindow(
+            self.frame,
+            "Risk Assessment — Theory & Overview",
+            risk_assessment_theory_steps(),
         )
 
     def _add_risk(self):
@@ -155,7 +211,7 @@ class RiskTabEdu:
         editing = risk is not None
         dlg = tk.Toplevel(self.frame)
         dlg.title("Edit Risk" if editing else "Add Risk")
-        dlg.geometry("400x350")
+        dlg.geometry("440x480")
         dlg.transient(self.frame)
         dlg.grab_set()
 
@@ -196,38 +252,80 @@ class RiskTabEdu:
         imp_var = tk.StringVar(value=f"{risk.impact:.2f}" if editing else "0.00")
         ttk.Entry(dlg, textvariable=imp_var, width=30).grid(row=row, column=1, padx=10, pady=4)
 
+        # Phase 6: 1-5 score fields
+        ttk.Separator(dlg, orient=tk.HORIZONTAL).grid(
+            row=row+1, column=0, columnspan=2, sticky=tk.EW, padx=10, pady=6)
+        row += 2
+        ttk.Label(dlg, text="Prob. Score (1-5):",
+                  foreground="darkblue").grid(row=row, column=0, sticky=tk.W, padx=10, pady=4)
+        ps_var = tk.StringVar(value=str(risk.prob_score if editing else 3))
+        ttk.Combobox(dlg, textvariable=ps_var, width=5,
+                     values=["1","2","3","4","5"],
+                     state="readonly").grid(row=row, column=1, sticky=tk.W, padx=10)
+
+        row += 1
+        ttk.Label(dlg, text="Impact Score (1-5):",
+                  foreground="darkblue").grid(row=row, column=0, sticky=tk.W, padx=10, pady=4)
+        is_var = tk.StringVar(value=str(risk.impact_score if editing else 3))
+        ttk.Combobox(dlg, textvariable=is_var, width=5,
+                     values=["1","2","3","4","5"],
+                     state="readonly").grid(row=row, column=1, sticky=tk.W, padx=10)
+
+        row += 1
+        score_lbl = ttk.Label(dlg, text="", foreground="darkblue",
+                               font=("TkDefaultFont", 9, "bold"))
+        score_lbl.grid(row=row, column=0, columnspan=2, padx=10)
+
+        def _update_score_preview(*_):
+            try:
+                s = int(ps_var.get()) * int(is_var.get())
+                zone = risk_zone(s)
+                score_lbl.config(text=f"Risk Score = {s}  ({zone})")
+            except Exception:
+                pass
+
+        ps_var.trace_add("write", _update_score_preview)
+        is_var.trace_add("write", _update_score_preview)
+        _update_score_preview()
+
         def _save():
             try:
-                prob = float(prob_var.get())
-                impact = float(imp_var.get())
-                cat = RiskCategory(cat_var.get())
-                name = name_var.get().strip()
-                desc = desc_text.get("1.0", tk.END).strip()
-                rid = id_var.get().strip()
+                prob  = float(prob_var.get())
+                impa  = float(imp_var.get())
+                cat   = RiskCategory(cat_var.get())
+                name  = name_var.get().strip()
+                desc  = desc_text.get("1.0", tk.END).strip()
+                rid   = id_var.get().strip()
+                psc   = int(ps_var.get())
+                isc   = int(is_var.get())
                 if not name:
-                    messagebox.showerror("Validation", "Name is required.")
+                    messagebox.showerror("Validation", "Name is required.",
+                                         parent=dlg)
                     return
                 if not rid:
-                    messagebox.showerror("Validation", "ID is required.")
+                    messagebox.showerror("Validation", "ID is required.",
+                                         parent=dlg)
                     return
                 if editing:
                     self.state.risk_register.update_risk(
                         risk.id, name=name, description=desc,
-                        probability=prob, impact=impact, category=cat)
+                        probability=prob, impact=impa, category=cat,
+                        prob_score=psc, impact_score=isc)
                 else:
                     new_risk = Risk(id=rid, name=name, description=desc,
-                                    probability=prob, impact=impact, category=cat)
+                                    probability=prob, impact=impa, category=cat,
+                                    prob_score=psc, impact_score=isc)
                     self.state.risk_register.add_risk(new_risk)
                 self.state.mark_dirty()
                 self._refresh_register_tree()
                 dlg.destroy()
             except ValueError as e:
-                messagebox.showerror("Validation Error", str(e))
+                messagebox.showerror("Validation Error", str(e), parent=dlg)
 
         row += 1
         btn_frame = ttk.Frame(dlg)
         btn_frame.grid(row=row, column=0, columnspan=2, pady=10)
-        ttk.Button(btn_frame, text="Save", command=_save).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="Save",   command=_save).pack(side=tk.LEFT, padx=5)
         ttk.Button(btn_frame, text="Cancel", command=dlg.destroy).pack(side=tk.LEFT, padx=5)
 
     def _import_csv(self):
@@ -408,14 +506,594 @@ class RiskTabEdu:
             messagebox.showinfo("Export", f"Saved to {filepath}")
 
     # ------------------------------------------------------------------
+    # Sub-tab C: Assessment Matrix (5×5 discrete grid)
+    # ------------------------------------------------------------------
+
+    # Zone colours and labels
+    _ZONE_PALETTE = {
+        "Critical": "#e74c3c",
+        "High":     "#e67e22",
+        "Medium":   "#f1c40f",
+        "Low":      "#27ae60",
+    }
+
+    def _build_assessment_tab(self):
+        """Build the 5x5 discrete assessment matrix sub-tab."""
+        # Top toolbar
+        toolbar = ttk.Frame(self._assessment_frame)
+        toolbar.pack(fill=tk.X, padx=5, pady=(5, 2))
+        ttk.Button(toolbar, text="📖 Theory",
+                   command=self._show_theory).pack(side=tk.LEFT, padx=2)
+        ttk.Button(toolbar, text="Refresh",
+                   command=self._refresh_assessment_grid).pack(side=tk.LEFT, padx=2)
+        ttk.Button(toolbar, text="Try It Yourself",
+                   command=self._toggle_try_it).pack(side=tk.LEFT, padx=2)
+
+        # Main PanedWindow: matrix canvas | cell details
+        pane = ttk.PanedWindow(self._assessment_frame, orient=tk.HORIZONTAL)
+        pane.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        # Left: canvas + labels
+        left = ttk.Frame(pane, width=440)
+        pane.add(left, weight=3)
+
+        # Zone legend strip
+        leg = ttk.Frame(left)
+        leg.pack(fill=tk.X, padx=5, pady=(2, 0))
+        for zone, color in self._ZONE_PALETTE.items():
+            f = tk.Frame(leg, bg=color, width=14, height=14)
+            f.pack(side=tk.LEFT, padx=(0, 1))
+            ttk.Label(leg, text=zone).pack(side=tk.LEFT, padx=(0, 8))
+
+        # Y-axis label (rotated via Label trick)
+        canvas_frame = ttk.Frame(left)
+        canvas_frame.pack(fill=tk.BOTH, expand=True)
+
+        y_label = ttk.Label(canvas_frame, text="← Probability Score →",
+                             font=("TkDefaultFont", 9))
+        y_label.pack(side=tk.LEFT, padx=(4, 0))
+
+        # Canvas
+        self._grid_canvas = tk.Canvas(canvas_frame, width=360, height=320,
+                                      bg="#f5f5f5", highlightthickness=1,
+                                      highlightbackground="#aaa")
+        self._grid_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self._grid_canvas.bind("<Button-1>", self._on_canvas_click)
+
+        # X-axis label
+        x_label = ttk.Label(left, text="← Impact Score →",
+                             font=("TkDefaultFont", 9))
+        x_label.pack(pady=(0, 4))
+
+        # Right: details panel
+        right = ttk.Frame(pane)
+        pane.add(right, weight=2)
+
+        # Zone summary
+        zone_lf = ttk.LabelFrame(right, text="Zone Summary")
+        zone_lf.pack(fill=tk.X, padx=5, pady=5)
+        self._zone_vars = {}
+        for zone in ("Critical", "High", "Medium", "Low"):
+            row_f = ttk.Frame(zone_lf)
+            row_f.pack(fill=tk.X, padx=5, pady=2)
+            tk.Frame(row_f, bg=self._ZONE_PALETTE[zone],
+                     width=14, height=14).pack(side=tk.LEFT, padx=(0, 4))
+            ttk.Label(row_f, text=f"{zone}:").pack(side=tk.LEFT)
+            var = tk.StringVar(value="0")
+            ttk.Label(row_f, textvariable=var,
+                      font=("TkDefaultFont", 9, "bold")).pack(side=tk.LEFT, padx=4)
+            self._zone_vars[zone] = var
+
+        # Selected cell risks
+        cell_lf = ttk.LabelFrame(right, text="Risks in Selected Cell")
+        cell_lf.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self._cell_label_var = tk.StringVar(value="Click a cell to see its risks.")
+        ttk.Label(cell_lf, textvariable=self._cell_label_var,
+                  font=("TkDefaultFont", 9, "italic")).pack(anchor=tk.W, padx=5, pady=2)
+
+        cell_cols = ("id", "name", "score")
+        self._cell_tree = ttk.Treeview(cell_lf, columns=cell_cols,
+                                        show="headings", height=8)
+        self._cell_tree.heading("id",    text="ID")
+        self._cell_tree.heading("name",  text="Risk Name")
+        self._cell_tree.heading("score", text="Score")
+        self._cell_tree.column("id",    width=50, anchor=tk.CENTER)
+        self._cell_tree.column("name",  width=150)
+        self._cell_tree.column("score", width=50, anchor=tk.CENTER)
+        self._cell_tree.pack(fill=tk.BOTH, expand=True, padx=5, pady=(0, 5))
+
+        # "Try It Yourself" practice panel (hidden by default)
+        self._try_it_visible = False
+        self._try_it_frame = ttk.LabelFrame(self._assessment_frame,
+                                             text="Try It Yourself")
+        self._build_try_it_assessment()
+
+    def _build_try_it_assessment(self):
+        """Build the practice panel for assessment tab."""
+        scenarios = [
+            ("A critical vendor unexpectedly closes operations, impacting delivery.",
+             4, 5, "Critical"),
+            ("Minor scope ambiguity may cause rework on a non-critical module.",
+             2, 2, "Low"),
+            ("A key architect resigns mid-project, delaying design decisions.",
+             3, 4, "High"),
+        ]
+        self._try_scenarios = scenarios
+        self._try_idx = 0
+
+        txt = ttk.Label(self._try_it_frame,
+                        text="Rate the following risk and identify its zone:",
+                        wraplength=600, justify=tk.LEFT)
+        txt.pack(anchor=tk.W, padx=10, pady=4)
+
+        self._try_scenario_var = tk.StringVar()
+        ttk.Label(self._try_it_frame, textvariable=self._try_scenario_var,
+                  wraplength=600, justify=tk.LEFT,
+                  font=("TkDefaultFont", 10, "italic")).pack(
+                      anchor=tk.W, padx=10, pady=(0, 6))
+
+        ctrl = ttk.Frame(self._try_it_frame)
+        ctrl.pack(anchor=tk.W, padx=10)
+        ttk.Label(ctrl, text="Prob Score (1-5):").grid(row=0, column=0, sticky=tk.W, padx=4)
+        self._try_ps = tk.StringVar(value="3")
+        ttk.Combobox(ctrl, textvariable=self._try_ps, width=4,
+                     values=["1","2","3","4","5"],
+                     state="readonly").grid(row=0, column=1, padx=4)
+        ttk.Label(ctrl, text="Impact Score (1-5):").grid(row=0, column=2, padx=12)
+        self._try_is = tk.StringVar(value="3")
+        ttk.Combobox(ctrl, textvariable=self._try_is, width=4,
+                     values=["1","2","3","4","5"],
+                     state="readonly").grid(row=0, column=3, padx=4)
+        ttk.Button(ctrl, text="Check",
+                   command=self._check_try_it_assessment).grid(row=0, column=4, padx=12)
+        ttk.Button(ctrl, text="Next",
+                   command=self._next_try_scenario).grid(row=0, column=5, padx=4)
+
+        self._try_result_var = tk.StringVar()
+        ttk.Label(self._try_it_frame, textvariable=self._try_result_var,
+                  font=("TkDefaultFont", 9, "bold")).pack(anchor=tk.W, padx=10, pady=4)
+        self._load_try_scenario()
+
+    def _load_try_scenario(self):
+        s = self._try_scenarios[self._try_idx % len(self._try_scenarios)]
+        self._try_scenario_var.set(s[0])
+        self._try_result_var.set("")
+
+    def _next_try_scenario(self):
+        self._try_idx += 1
+        self._load_try_scenario()
+
+    def _check_try_it_assessment(self):
+        _, exp_p, exp_i, exp_zone = self._try_scenarios[
+            self._try_idx % len(self._try_scenarios)]
+        try:
+            ps = int(self._try_ps.get())
+            is_ = int(self._try_is.get())
+            score = ps * is_
+            actual_zone = risk_zone(score)
+            correct = (ps == exp_p and is_ == exp_i)
+            if correct:
+                msg = f"✅ Correct! Score = {score}, Zone = {actual_zone}"
+            else:
+                exp_score = exp_p * exp_i
+                msg = (f"❌ Expected P={exp_p}, I={exp_i} → Score={exp_score} "
+                       f"({exp_zone}). You got P={ps}, I={is_} → {score} ({actual_zone}).")
+            self._try_result_var.set(msg)
+        except Exception:
+            self._try_result_var.set("Enter valid scores 1-5.")
+
+    def _toggle_try_it(self):
+        self._try_it_visible = not self._try_it_visible
+        if self._try_it_visible:
+            self._try_it_frame.pack(fill=tk.X, padx=5, pady=(0, 5))
+        else:
+            self._try_it_frame.pack_forget()
+
+    def _refresh_assessment_grid(self):
+        """Redraw the 5×5 assessment canvas grid."""
+        c = self._grid_canvas
+        c.delete("all")
+        reg = self.state.risk_register
+        if reg is None:
+            return
+
+        reg.recompute_scores()
+
+        MARGIN_L = 28
+        MARGIN_B = 20
+        MARGIN_T = 10
+        MARGIN_R = 8
+        canvas_w = int(c.winfo_width())  or 360
+        canvas_h = int(c.winfo_height()) or 320
+        usable_w = canvas_w - MARGIN_L - MARGIN_R
+        usable_h = canvas_h - MARGIN_B - MARGIN_T
+        cw = usable_w / 5
+        ch = usable_h / 5
+
+        def cell_x(i_score):   # i_score 1-5
+            return MARGIN_L + (i_score - 1) * cw
+
+        def cell_y(p_score):   # p_score 1-5, 5 at top
+            return MARGIN_T + (5 - p_score) * ch
+
+        # Draw cells
+        for p in range(1, 6):
+            for i in range(1, 6):
+                score = p * i
+                col   = zone_color(score)
+                x0 = cell_x(i)
+                y0 = cell_y(p)
+                x1, y1 = x0 + cw, y0 + ch
+                c.create_rectangle(x0, y0, x1, y1, fill=col, outline="white",
+                                   width=2, tags=f"cell_{p}_{i}")
+                # Risk count in cell
+                risks_here = reg.risks_in_cell(p, i)
+                n = len(risks_here)
+                if n > 0:
+                    c.create_text(x0 + cw/2, y0 + ch/2 - 6,
+                                  text=str(n), fill="black",
+                                  font=("TkDefaultFont", 12, "bold"))
+                    ids = " ".join(r.id for r in risks_here[:3])
+                    if len(risks_here) > 3:
+                        ids += "…"
+                    c.create_text(x0 + cw/2, y0 + ch/2 + 10,
+                                  text=ids, fill="#333",
+                                  font=("TkDefaultFont", 7))
+
+        # Axis labels — probability (left, top-to-bottom: 5→1)
+        for p in range(1, 6):
+            y = cell_y(p) + ch / 2
+            c.create_text(MARGIN_L / 2, y, text=str(p),
+                          font=("TkDefaultFont", 8, "bold"), fill="#555")
+
+        # Impact labels (bottom, left-to-right: 1→5)
+        for i in range(1, 6):
+            x = cell_x(i) + cw / 2
+            c.create_text(x, canvas_h - MARGIN_B / 2, text=str(i),
+                          font=("TkDefaultFont", 8, "bold"), fill="#555")
+
+        # Zone counts
+        counts = reg.zone_counts()
+        mapping = {"Critical": "Critical", "High": "High",
+                   "Medium": "Medium", "Low": "Low"}
+        for zone, k in mapping.items():
+            self._zone_vars[zone].set(str(counts.get(k.lower(), 0)))
+
+    def _on_canvas_click(self, event):
+        """Map canvas click to a (p,i) cell and show its risks."""
+        c = self._grid_canvas
+        canvas_w = int(c.winfo_width())  or 360
+        canvas_h = int(c.winfo_height()) or 320
+        MARGIN_L = 28; MARGIN_B = 20; MARGIN_T = 10; MARGIN_R = 8
+        usable_w = canvas_w - MARGIN_L - MARGIN_R
+        usable_h = canvas_h - MARGIN_B - MARGIN_T
+        cw = usable_w / 5
+        ch = usable_h / 5
+        col_idx = int((event.x - MARGIN_L) / cw)   # 0-4
+        row_idx = int((event.y - MARGIN_T)  / ch)   # 0-4, 0=top
+        if not (0 <= col_idx <= 4 and 0 <= row_idx <= 4):
+            return
+        i_score = col_idx + 1
+        p_score = 5 - row_idx
+        self._show_cell_risks(p_score, i_score)
+
+    def _show_cell_risks(self, p_score: int, i_score: int):
+        """Populate the cell-detail treeview for the given cell."""
+        reg = self.state.risk_register
+        if reg is None:
+            return
+        zone = risk_zone(p_score * i_score)
+        self._cell_label_var.set(
+            f"P={p_score}, I={i_score}  →  Score={p_score*i_score}  ({zone})")
+        self._cell_tree.delete(*self._cell_tree.get_children())
+        for r in reg.risks_in_cell(p_score, i_score):
+            self._cell_tree.insert("", tk.END, values=(r.id, r.name, r.risk_score))
+
+    # ------------------------------------------------------------------
+    # Sub-tab D: Response Planning
+    # ------------------------------------------------------------------
+
+    def _build_response_tab(self):
+        """Build the response planning sub-tab."""
+        # PanedWindow: risk list | form
+        main_pane = ttk.PanedWindow(self._response_frame, orient=tk.HORIZONTAL)
+        main_pane.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        # Left: risk list sorted by score
+        left_lf = ttk.LabelFrame(main_pane, text="Risks by Score")
+        main_pane.add(left_lf, weight=2)
+
+        self._resp_list_tree = ttk.Treeview(
+            left_lf,
+            columns=("id", "name", "score", "zone", "response"),
+            show="headings", selectmode="browse", height=18,
+        )
+        for col, hdr, w in [
+            ("id",       "ID",       50),
+            ("name",     "Name",     130),
+            ("score",    "Score",    45),
+            ("zone",     "Zone",     65),
+            ("response", "Strategy", 75),
+        ]:
+            self._resp_list_tree.heading(col, text=hdr)
+            self._resp_list_tree.column(col, width=w, anchor=tk.CENTER)
+        self._resp_list_tree.column("name", anchor=tk.W)
+        vsb2 = ttk.Scrollbar(left_lf, orient=tk.VERTICAL,
+                              command=self._resp_list_tree.yview)
+        self._resp_list_tree.configure(yscrollcommand=vsb2.set)
+        vsb2.pack(side=tk.RIGHT, fill=tk.Y)
+        self._resp_list_tree.pack(fill=tk.BOTH, expand=True)
+        self._resp_list_tree.bind("<<TreeviewSelect>>", self._on_resp_select)
+
+        ttk.Button(left_lf, text="Apply Accept to All Unplanned",
+                   command=self._apply_default_response).pack(
+                       fill=tk.X, padx=5, pady=5)
+
+        # Right: scrollable form
+        right_outer = ttk.Frame(main_pane)
+        main_pane.add(right_outer, weight=3)
+
+        form_lf = ttk.LabelFrame(right_outer, text="Response Details")
+        form_lf.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        # Scrollable canvas for the form
+        form_canvas = tk.Canvas(form_lf, highlightthickness=0)
+        form_vsb = ttk.Scrollbar(form_lf, orient=tk.VERTICAL,
+                                  command=form_canvas.yview)
+        form_canvas.configure(yscrollcommand=form_vsb.set)
+        form_vsb.pack(side=tk.RIGHT, fill=tk.Y)
+        form_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        form_inner = ttk.Frame(form_canvas)
+        form_win = form_canvas.create_window((0, 0), window=form_inner, anchor="nw")
+        form_inner.bind("<Configure>",
+                        lambda e: form_canvas.configure(
+                            scrollregion=form_canvas.bbox("all")))
+        form_canvas.bind("<Configure>",
+                         lambda e: form_canvas.itemconfig(
+                             form_win, width=e.width))
+
+        R = 0
+        ttk.Label(form_inner, text="Selected Risk:").grid(
+            row=R, column=0, sticky=tk.W, padx=8, pady=4)
+        self._resp_selected_var = tk.StringVar(value="(none selected)")
+        ttk.Label(form_inner, textvariable=self._resp_selected_var,
+                  font=("TkDefaultFont", 9, "bold")).grid(
+                      row=R, column=1, sticky=tk.W, padx=8)
+
+        R += 1
+        ttk.Separator(form_inner, orient=tk.HORIZONTAL).grid(
+            row=R, column=0, columnspan=2, sticky=tk.EW, padx=8, pady=4)
+
+        R += 1
+        ttk.Label(form_inner, text="Strategy:").grid(
+            row=R, column=0, sticky=tk.W, padx=8, pady=4)
+        self._resp_strategy_var = tk.StringVar()
+        ttk.Combobox(form_inner, textvariable=self._resp_strategy_var, width=18,
+                     values=[s.value for s in ResponseStrategy],
+                     state="readonly").grid(row=R, column=1, sticky=tk.W, padx=8)
+
+        R += 1
+        ttk.Label(form_inner, text="Description:").grid(
+            row=R, column=0, sticky=tk.NW, padx=8, pady=4)
+        self._resp_desc_text = tk.Text(form_inner, width=28, height=3)
+        self._resp_desc_text.grid(row=R, column=1, padx=8, pady=4)
+
+        R += 1
+        ttk.Label(form_inner, text="Owner:").grid(
+            row=R, column=0, sticky=tk.W, padx=8, pady=4)
+        self._resp_owner_var = tk.StringVar()
+        ttk.Entry(form_inner, textvariable=self._resp_owner_var, width=20).grid(
+            row=R, column=1, sticky=tk.W, padx=8)
+
+        R += 1
+        ttk.Label(form_inner, text="Response Cost ($):").grid(
+            row=R, column=0, sticky=tk.W, padx=8, pady=4)
+        self._resp_cost_var = tk.StringVar(value="0.00")
+        ttk.Entry(form_inner, textvariable=self._resp_cost_var, width=14).grid(
+            row=R, column=1, sticky=tk.W, padx=8)
+
+        R += 1
+        ttk.Separator(form_inner, orient=tk.HORIZONTAL).grid(
+            row=R, column=0, columnspan=2, sticky=tk.EW, padx=8, pady=4)
+
+        R += 1
+        ttk.Label(form_inner, text="Residual Prob. Score (1-5):",
+                  foreground="darkblue").grid(
+                      row=R, column=0, sticky=tk.W, padx=8, pady=4)
+        self._resp_res_p_var = tk.StringVar(value="3")
+        rp_box = ttk.Combobox(form_inner, textvariable=self._resp_res_p_var, width=5,
+                               values=["1","2","3","4","5"], state="readonly")
+        rp_box.grid(row=R, column=1, sticky=tk.W, padx=8)
+
+        R += 1
+        ttk.Label(form_inner, text="Residual Impact Score (1-5):",
+                  foreground="darkblue").grid(
+                      row=R, column=0, sticky=tk.W, padx=8, pady=4)
+        self._resp_res_i_var = tk.StringVar(value="3")
+        ri_box = ttk.Combobox(form_inner, textvariable=self._resp_res_i_var, width=5,
+                               values=["1","2","3","4","5"], state="readonly")
+        ri_box.grid(row=R, column=1, sticky=tk.W, padx=8)
+
+        R += 1
+        ttk.Label(form_inner, text="Residual Score:",
+                  foreground="darkblue").grid(
+                      row=R, column=0, sticky=tk.W, padx=8, pady=4)
+        self._resp_res_score_var = tk.StringVar(value="—")
+        ttk.Label(form_inner, textvariable=self._resp_res_score_var,
+                  font=("TkDefaultFont", 9, "bold"),
+                  foreground="darkblue").grid(
+                      row=R, column=1, sticky=tk.W, padx=8)
+
+        def _update_residual_score(*_):
+            try:
+                s = int(self._resp_res_p_var.get()) * int(self._resp_res_i_var.get())
+                self._resp_res_score_var.set(f"{s}  ({risk_zone(s)})")
+            except Exception:
+                pass
+
+        self._resp_res_p_var.trace_add("write", _update_residual_score)
+        self._resp_res_i_var.trace_add("write", _update_residual_score)
+
+        R += 1
+        ttk.Separator(form_inner, orient=tk.HORIZONTAL).grid(
+            row=R, column=0, columnspan=2, sticky=tk.EW, padx=8, pady=4)
+
+        R += 1
+        ttk.Label(form_inner, text="Trigger Conditions:").grid(
+            row=R, column=0, sticky=tk.NW, padx=8, pady=4)
+        self._resp_trigger_text = tk.Text(form_inner, width=28, height=3)
+        self._resp_trigger_text.grid(row=R, column=1, padx=8, pady=4)
+
+        R += 1
+        ttk.Label(form_inner, text="Contingency Plan:").grid(
+            row=R, column=0, sticky=tk.NW, padx=8, pady=4)
+        self._resp_contingency_text = tk.Text(form_inner, width=28, height=3)
+        self._resp_contingency_text.grid(row=R, column=1, padx=8, pady=4)
+
+        R += 1
+        ttk.Button(form_inner, text="💾 Save Response",
+                   command=self._save_response).grid(
+                       row=R, column=0, columnspan=2, pady=10)
+
+        # Bottom: Effectiveness summary
+        eff_lf = ttk.LabelFrame(right_outer, text="Effectiveness Summary")
+        eff_lf.pack(fill=tk.X, padx=5, pady=(0, 5))
+
+        eff_cols = ("id", "name", "orig", "resid", "pct")
+        self._eff_tree = ttk.Treeview(eff_lf, columns=eff_cols,
+                                       show="headings", height=5)
+        for col, hdr, w in [
+            ("id",    "ID",        50),
+            ("name",  "Risk",     140),
+            ("orig",  "Original",  60),
+            ("resid", "Residual",  60),
+            ("pct",   "% Red.",    55),
+        ]:
+            self._eff_tree.heading(col, text=hdr)
+            self._eff_tree.column(col, width=w, anchor=tk.CENTER)
+        self._eff_tree.column("name", anchor=tk.W)
+        self._eff_tree.pack(fill=tk.X, padx=5, pady=(0, 5))
+
+    def _refresh_response_list(self):
+        """Reload the left-side risk list sorted by risk score."""
+        reg = self.state.risk_register
+        if reg is None:
+            return
+        reg.recompute_scores()
+        reg.update_ranks()
+        self._resp_list_tree.delete(*self._resp_list_tree.get_children())
+        for r in reg.risks_by_score():
+            strat = r.response_strategy.value if r.response_strategy else ""
+            self._resp_list_tree.insert("", tk.END, iid=r.id, values=(
+                r.id, r.name, f"{r.risk_score:.0f}",
+                risk_zone(r.risk_score), strat,
+            ))
+
+    def _on_resp_select(self, _event=None):
+        """Load the form when a risk is selected in the left list."""
+        sel = self._resp_list_tree.selection()
+        if not sel:
+            return
+        self._selected_response_risk_id = sel[0]
+        self._load_response_form(sel[0])
+
+    def _load_response_form(self, risk_id: str):
+        """Populate the response form for the given risk."""
+        reg = self.state.risk_register
+        r = reg.get_risk(risk_id) if reg else None
+        if r is None:
+            return
+        self._resp_selected_var.set(f"[{r.id}] {r.name}  (Score: {r.risk_score:.0f})")
+        self._resp_strategy_var.set(
+            r.response_strategy.value if r.response_strategy else "")
+        self._resp_desc_text.delete("1.0", tk.END)
+        self._resp_desc_text.insert("1.0", r.response_description)
+        self._resp_owner_var.set(r.response_owner)
+        self._resp_cost_var.set(f"{r.response_cost:.2f}")
+        self._resp_res_p_var.set(str(int(r.residual_probability)))
+        self._resp_res_i_var.set(str(int(r.residual_impact)))
+        self._resp_trigger_text.delete("1.0", tk.END)
+        self._resp_trigger_text.insert("1.0", r.trigger_conditions)
+        self._resp_contingency_text.delete("1.0", tk.END)
+        self._resp_contingency_text.insert("1.0", r.contingency_plan)
+
+    def _save_response(self):
+        """Read form fields and save the response plan for the selected risk."""
+        region = self.state.risk_register
+        rid = self._selected_response_risk_id
+        if region is None or rid is None:
+            messagebox.showinfo("Info", "Select a risk first.")
+            return
+        try:
+            strategy_str = self._resp_strategy_var.get().strip()
+            strategy = ResponseStrategy(strategy_str) if strategy_str else None
+            desc      = self._resp_desc_text.get("1.0", tk.END).strip()
+            owner     = self._resp_owner_var.get().strip()
+            cost      = float(self._resp_cost_var.get())
+            res_p     = float(self._resp_res_p_var.get())
+            res_i     = float(self._resp_res_i_var.get())
+            trigger   = self._resp_trigger_text.get("1.0", tk.END).strip()
+            cont      = self._resp_contingency_text.get("1.0", tk.END).strip()
+            if cost < 0:
+                raise ValueError("Response cost cannot be negative.")
+            region.update_risk(
+                rid,
+                response_strategy=strategy,
+                response_description=desc,
+                response_owner=owner,
+                response_cost=cost,
+                residual_probability=res_p,
+                residual_impact=res_i,
+                trigger_conditions=trigger,
+                contingency_plan=cont,
+            )
+            self.state.mark_dirty()
+            self._refresh_response_list()
+            self._refresh_effectiveness()
+            self._refresh_register_tree()
+            messagebox.showinfo("Saved", "Response plan saved.")
+        except ValueError as exc:
+            messagebox.showerror("Validation Error", str(exc))
+
+    def _apply_default_response(self):
+        """Set 'Accept' strategy for all risks that have no strategy set."""
+        reg = self.state.risk_register
+        if reg is None:
+            return
+        count = 0
+        for r in reg.risks:
+            if r.response_strategy is None:
+                reg.update_risk(r.id, response_strategy=ResponseStrategy.ACCEPT)
+                count += 1
+        self.state.mark_dirty()
+        self._refresh_response_list()
+        self._refresh_effectiveness()
+        self._refresh_register_tree()
+        messagebox.showinfo("Done", f"Applied 'Accept' to {count} unplanned risk(s).")
+
+    def _refresh_effectiveness(self):
+        """Populate the effectiveness summary treeview."""
+        reg = self.state.risk_register
+        if reg is None:
+            return
+        reg.recompute_scores()
+        self._eff_tree.delete(*self._eff_tree.get_children())
+        for r in reg.risks_by_score():
+            orig  = r.risk_score
+            resid = r.residual_score
+            pct   = (orig - resid) / orig * 100 if orig > 0 else 0.0
+            self._eff_tree.insert("", tk.END, values=(
+                r.id, r.name,
+                f"{orig:.0f}", f"{resid:.0f}", f"{pct:.0f}%",
+            ))
+
+    # ------------------------------------------------------------------
     # Public interface
     # ------------------------------------------------------------------
 
     def set_mode(self, mode: str):
         """Adjust UI for UG/PG mode."""
         self._mode = mode
-        # Aggregate exposure section only in PG
-        # (Risk register and matrix always visible)
 
     def get_figures(self):
         """Return list of (name, Figure) for batch export."""
@@ -425,7 +1103,10 @@ class RiskTabEdu:
         return figs
 
     def on_tab_selected(self):
-        """Called when this tab is selected — refresh data."""
+        """Called when this tab is selected — refresh all sub-tabs."""
         self._refresh_register_tree()
         if HAS_MATPLOTLIB:
             self._draw_matrix()
+        self._refresh_assessment_grid()
+        self._refresh_response_list()
+        self._refresh_effectiveness()
