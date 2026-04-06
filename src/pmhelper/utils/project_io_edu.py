@@ -21,6 +21,7 @@ from pmhelper.core.risk_register_edu import RiskRegister
 from pmhelper.core.swot_models_edu import SWOTAnalysis
 from pmhelper.core.pestel_models_edu import PESTELAnalysis
 from pmhelper.core.wbs_models_edu import WBSTree
+from pmhelper.core.raci_model import RACIMatrix
 
 # Monte Carlo results are optional — avoid hard import failure
 try:
@@ -59,6 +60,9 @@ def save_full_project(state, filepath: str) -> None:
         "swot_analysis": state.swot_analysis.to_dict() if getattr(state, 'swot_analysis', None) else None,
         "pestel_analysis": state.pestel_analysis.to_dict() if getattr(state, 'pestel_analysis', None) else None,
         "wbs_tree": state.wbs_tree.to_dict() if getattr(state, 'wbs_tree', None) else None,
+        # Phase 4 (V2): RACI matrices
+        "raci_task": state.raci_task.to_dict() if getattr(state, 'raci_task', None) else None,
+        "raci_deliv": state.raci_deliv.to_dict() if getattr(state, 'raci_deliv', None) else None,
     }
 
     # MC results
@@ -149,6 +153,21 @@ def load_full_project(filepath: str) -> dict:
         except Exception:
             pass
 
+    # Phase 4 (V2): RACI matrices
+    raci_task = None
+    if data.get("raci_task"):
+        try:
+            raci_task = RACIMatrix.from_dict(data["raci_task"])
+        except Exception:
+            pass
+
+    raci_deliv = None
+    if data.get("raci_deliv"):
+        try:
+            raci_deliv = RACIMatrix.from_dict(data["raci_deliv"])
+        except Exception:
+            pass
+
     return {
         "version": version,
         "evm_project": evm_project,
@@ -162,6 +181,9 @@ def load_full_project(filepath: str) -> dict:
         "swot_analysis": swot_analysis,
         "pestel_analysis": pestel_analysis,
         "wbs_tree": wbs_tree,
+        # Phase 4 (V2)
+        "raci_task": raci_task,
+        "raci_deliv": raci_deliv,
     }
 
 

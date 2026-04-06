@@ -1,0 +1,62 @@
+{
+  "name": "Software Project RACI Demo",
+  "description": "A 10-activity, 5-role RACI matrix for a mobile app development project, plus a matching Deliverables × Department view.",
+  "version": "1.0",
+  "feature": "raci",
+  "data": {
+    "task_role": {
+      "rows": [
+        "1. Elicit Requirements",
+        "2. Architecture Design",
+        "3. Database Schema",
+        "4. Backend Development",
+        "5. Frontend Development",
+        "6. Unit Testing",
+        "7. Integration Testing",
+        "8. UAT Facilitation",
+        "9. Deployment",
+        "10. Project Closure"
+      ],
+      "cols": ["PM", "Tech Lead", "Developer", "QA Engineer", "Client"],
+      "cells": {
+        "0,0": "A", "0,1": "C", "0,2": "I", "0,3": "I", "0,4": "R",
+        "1,0": "C", "1,1": "A", "1,2": "R", "1,3": "I", "1,4": "I",
+        "2,0": "I", "2,1": "A", "2,2": "R", "2,3": "C", "2,4": "I",
+        "3,0": "I", "3,1": "A", "3,2": "R", "3,3": "C", "3,4": "I",
+        "4,0": "I", "4,1": "C", "4,2": "R", "4,3": "C", "4,4": "A",
+        "5,0": "I", "5,1": "C", "5,2": "R", "5,3": "A", "5,4": "I",
+        "6,0": "I", "6,1": "C", "6,2": "R", "6,3": "A", "6,4": "I",
+        "7,0": "A", "7,1": "I", "7,2": "C", "7,3": "R", "7,4": "C",
+        "8,0": "A", "8,1": "R", "8,2": "C", "8,3": "I", "8,4": "I",
+        "9,0": "R", "9,1": "C", "9,2": "I", "9,3": "I", "9,4": "A"
+      }
+    },
+    "deliv_dept": {
+      "rows": [
+        "Project Charter",
+        "Requirements Spec",
+        "Technical Design Doc",
+        "Sprint Backlog",
+        "Source Code",
+        "Test Results Report",
+        "UAT Sign-off Sheet",
+        "Deployment Package",
+        "User Manual",
+        "Project Closure Report"
+      ],
+      "cols": ["PMO", "IT Development", "QA", "Business", "Operations"],
+      "cells": {
+        "0,0": "A", "0,1": "C", "0,2": "I", "0,3": "R", "0,4": "I",
+        "1,0": "C", "1,1": "A", "1,2": "I", "1,3": "R", "1,4": "I",
+        "2,0": "I", "2,1": "A", "2,2": "C", "2,3": "I", "2,4": "R",
+        "3,0": "C", "3,1": "A", "3,2": "I", "3,3": "R", "3,4": "I",
+        "4,0": "I", "4,1": "A", "4,2": "C", "4,3": "I", "4,4": "R",
+        "5,0": "I", "5,1": "C", "5,2": "A", "5,3": "I", "5,4": "R",
+        "6,0": "C", "6,1": "I", "6,2": "A", "6,3": "R", "6,4": "I",
+        "7,0": "I", "7,1": "R", "7,2": "C", "7,3": "I", "7,4": "A",
+        "8,0": "I", "8,1": "C", "8,2": "I", "8,3": "A", "8,4": "R",
+        "9,0": "A", "9,1": "C", "9,2": "I", "9,3": "I", "9,4": "R"
+      }
+    }
+  }
+}

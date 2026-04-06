@@ -26,7 +26,7 @@ except ImportError:
 
 # PG-only tabs — hidden in UG mode
 _PG_ONLY_TABS = {"probability", "rcps", "rcps_crashing", "charter", "charter_mgr", "dpci",
-                  "swot", "pestel", "wbs"}
+                  "swot", "pestel", "wbs", "raci"}
 
 # File extension for project files
 _PROJ_EXT = ".pmproj"
@@ -172,6 +172,8 @@ class MainWindowEdu:
         self.state.swot_analysis = data.get("swot_analysis")
         self.state.pestel_analysis = data.get("pestel_analysis")
         self.state.wbs_tree = data.get("wbs_tree")
+        self.state.raci_task = data.get("raci_task")
+        self.state.raci_deliv = data.get("raci_deliv")
         self.state.current_file_path = filepath
         self.state.mark_clean()
         saved_mode = data.get("app_config", {}).get("mode", self.config.mode)
@@ -222,6 +224,7 @@ class MainWindowEdu:
         from pmhelper.gui.tabs.swot_tab_edu import SWOTTabEdu
         from pmhelper.gui.tabs.pestel_tab_edu import PESTELTabEdu
         from pmhelper.gui.tabs.wbs_tab_edu import WBSTabEdu
+        from pmhelper.gui.tabs.raci_tab_edu import RACITabEdu
 
         # ══════════════════════════════════════════════════════════
         #  Schedule group
@@ -294,6 +297,10 @@ class MainWindowEdu:
         #  Strategic group
         # ══════════════════════════════════════════════════════════
 
+        # 11b. Responsibility Matrix (edu, PG-only, V2 Phase 4) — manually add
+        self._raci_tab = RACITabEdu(strat_nb, self.state, main_window=self)
+        strat_nb.add(self._raci_tab.frame, text="Responsibility Matrix")
+
         # 12. Charter (real, PG-only) — ttk.Frame, add externally
         self._charter_tab = CharterTab(strat_nb, self)
         strat_nb.add(self._charter_tab, text="Charter")
@@ -354,6 +361,7 @@ class MainWindowEdu:
             id(self._swot_tab.frame): self._swot_tab,
             id(self._pestel_tab.frame): self._pestel_tab,
             id(self._wbs_tab.frame): self._wbs_tab,
+            id(self._raci_tab.frame): self._raci_tab,
             id(self._dashboard_tab.frame): self._dashboard_tab,
         }
 
@@ -375,6 +383,7 @@ class MainWindowEdu:
             "swot":           self._swot_tab,
             "pestel":         self._pestel_tab,
             "wbs":            self._wbs_tab,
+            "raci":           self._raci_tab,
         }
 
         # PG-only tab widget references for show/hide
@@ -388,6 +397,7 @@ class MainWindowEdu:
             self._swot_tab.frame,          # SWOT
             self._pestel_tab.frame,        # PESTEL
             self._wbs_tab.frame,           # WBS
+            self._raci_tab.frame,          # Responsibility Matrix
         ]
 
         # Auto-recalculate on tab switch (any group)
@@ -516,6 +526,8 @@ class MainWindowEdu:
         self.state.swot_analysis = data.get("swot_analysis")
         self.state.pestel_analysis = data.get("pestel_analysis")
         self.state.wbs_tree = data.get("wbs_tree")
+        self.state.raci_task = data.get("raci_task")
+        self.state.raci_deliv = data.get("raci_deliv")
         self.state.current_file_path = filepath
         self.state.mark_clean()
 
@@ -563,6 +575,9 @@ class MainWindowEdu:
             self.state._cpm_activities = self._input_tab_edu.get_activities_data()
             self.state._cpm_mode = getattr(self._input_tab_edu, 'current_mode',
                                            'deterministic')
+            # Sync RACI grid → state before serialising
+            if hasattr(self, '_raci_tab'):
+                self._raci_tab.sync_to_state()
             save_full_project(self.state, filepath)
             self.state.current_file_path = filepath
             self.state.mark_clean()
@@ -620,6 +635,8 @@ class MainWindowEdu:
         self.state.swot_analysis = data.get("swot_analysis")
         self.state.pestel_analysis = data.get("pestel_analysis")
         self.state.wbs_tree = data.get("wbs_tree")
+        self.state.raci_task = data.get("raci_task")
+        self.state.raci_deliv = data.get("raci_deliv")
         self.state.current_file_path = None  # demos are not saved
         self.state.mark_clean()
 
