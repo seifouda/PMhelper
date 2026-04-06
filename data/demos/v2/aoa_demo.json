@@ -1,0 +1,89 @@
+{
+  "name": "AOA Network Demo — Construction Project",
+  "description": "6-activity construction project illustrating AOA (Activity-on-Arrow) networks with dummy activities. Activities A→C→E→F form the critical path (duration 13). Dummy activities are required at merge events for E (predecessors B,C converge) and F (predecessors D,E converge).",
+  "version": 1,
+  "feature": "aoa_network",
+  "data": {
+    "activities": [
+      {
+        "id": "A",
+        "name": "Site Preparation",
+        "duration": 3,
+        "predecessors": [],
+        "note": "Start activity — no predecessors"
+      },
+      {
+        "id": "B",
+        "name": "Procurement",
+        "duration": 4,
+        "predecessors": [],
+        "note": "Parallel start activity — no predecessors"
+      },
+      {
+        "id": "C",
+        "name": "Foundation Work",
+        "duration": 5,
+        "predecessors": ["A"],
+        "note": "Depends on site preparation only (single predecessor, no dummy needed)"
+      },
+      {
+        "id": "D",
+        "name": "Framing",
+        "duration": 6,
+        "predecessors": ["A"],
+        "note": "Depends on site preparation only (parallel with C, both from A's exit event)"
+      },
+      {
+        "id": "E",
+        "name": "Plumbing",
+        "duration": 2,
+        "predecessors": ["B", "C"],
+        "note": "Depends on BOTH B and C — requires a merge event and two dummy arrows"
+      },
+      {
+        "id": "F",
+        "name": "Finishing",
+        "duration": 3,
+        "predecessors": ["D", "E"],
+        "note": "Depends on BOTH D and E — requires a second merge event and two dummy arrows"
+      }
+    ],
+    "aoa_ground_truth": {
+      "project_duration": 13,
+      "critical_path_activity_ids": ["A", "C", "E", "F"],
+      "events": [
+        {"id": 1, "label": "Start", "ET": 0, "LT": 0,  "slack": 0},
+        {"id": 2, "label": "",      "ET": 3, "LT": 3,  "slack": 0, "note": "A's exit — on critical path"},
+        {"id": 3, "label": "",      "ET": 4, "LT": 8,  "slack": 4, "note": "B's exit — float = 4"},
+        {"id": 4, "label": "",      "ET": 8, "LT": 8,  "slack": 0, "note": "C's exit — on critical path"},
+        {"id": 5, "label": "",      "ET": 9, "LT": 10, "slack": 1, "note": "D's exit — float = 1"},
+        {"id": 6, "label": "",      "ET": 10,"LT": 10, "slack": 0, "note": "E's exit — on critical path"},
+        {"id": 7, "label": "End",   "ET": 13,"LT": 13, "slack": 0, "note": "Project end"},
+        {"id": 8, "label": "",      "ET": 8, "LT": 8,  "slack": 0, "note": "Merge event for E (B+C converge)"},
+        {"id": 9, "label": "",      "ET": 10,"LT": 10, "slack": 0, "note": "Merge event for F (D+E converge)"}
+      ],
+      "real_activities_aoa": [
+        {"activity_id": "A", "from_event": 1, "to_event": 2, "duration": 3, "TF": 0, "FF": 0, "critical": true},
+        {"activity_id": "B", "from_event": 1, "to_event": 3, "duration": 4, "TF": 4, "FF": 0, "critical": false},
+        {"activity_id": "C", "from_event": 2, "to_event": 4, "duration": 5, "TF": 0, "FF": 0, "critical": true},
+        {"activity_id": "D", "from_event": 2, "to_event": 5, "duration": 6, "TF": 1, "FF": 0, "critical": false},
+        {"activity_id": "E", "from_event": 8, "to_event": 6, "duration": 2, "TF": 0, "FF": 0, "critical": true},
+        {"activity_id": "F", "from_event": 9, "to_event": 7, "duration": 3, "TF": 0, "FF": 0, "critical": true}
+      ],
+      "dummy_activities": [
+        {"activity_id": "D_3_8", "from_event": 3, "to_event": 8, "duration": 0, "TF": 4, "purpose": "B->merge event for E"},
+        {"activity_id": "D_4_8", "from_event": 4, "to_event": 8, "duration": 0, "TF": 0, "purpose": "C->merge event for E (critical dummy)"},
+        {"activity_id": "D_5_9", "from_event": 5, "to_event": 9, "duration": 0, "TF": 1, "purpose": "D->merge event for F"},
+        {"activity_id": "D_6_9", "from_event": 6, "to_event": 9, "duration": 0, "TF": 0, "purpose": "E->merge event for F (critical dummy)"}
+      ]
+    },
+    "learning_objectives": [
+      "Understand how AOA networks differ from AON networks",
+      "Recognise when dummy activities are required (multiple predecessors with distinct exit events)",
+      "Apply the forward pass to compute Earliest Event Times (ET)",
+      "Apply the backward pass to compute Latest Event Times (LT)",
+      "Calculate total float for each activity: TF = LT(to) - dur - ET(from)",
+      "Identify the critical path as the sequence of activities with TF = 0"
+    ]
+  }
+}

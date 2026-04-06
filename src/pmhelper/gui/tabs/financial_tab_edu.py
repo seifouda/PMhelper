@@ -804,7 +804,7 @@ class _FactorScoringSubTab:
         weighted = self._model_var.get() == "Weighted"
         for _, _, _, w_entry in self._crit_rows:
             if weighted:
-                w_entry.grid()
+                w_entry.pack(side=tk.LEFT, padx=1)
             else:
                 pass  # entries always present; header visibility controls appearance
         # Toggle weight column header

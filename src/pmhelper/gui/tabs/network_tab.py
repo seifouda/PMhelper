@@ -26,6 +26,12 @@ except ImportError as e:
     MATPLOTLIB_AVAILABLE = False
     NETWORKX_AVAILABLE = False
 
+try:
+    from pmhelper.core.network_converter import aon_to_aoa
+    AOA_AVAILABLE = True
+except ImportError:
+    AOA_AVAILABLE = False
+
 from pmhelper.utils.visualizations import NetworkDiagramVisualizer
 from pmhelper.utils.network_layout import sugiyama_layout, cleanup_virtual_nodes, draw_edges_polyline
 from pmhelper.gui.widgets.scrollable_mpl_frame import ScrollableMatplotlibFrame
@@ -42,6 +48,7 @@ class NetworkTab:
         self.analysis_mode = None
         self.figure = None
         self.canvas = None
+        self._view_mode_var = tk.StringVar(value="AON")
         
         self.create_tab()
     
@@ -123,6 +130,19 @@ class NetworkTab:
                        command=self.update_diagram).pack(side=tk.LEFT, padx=5)
         # REMOVED: Activity labels checkbox - labels are always shown now
         
+        # Network Type (AON / AOA) toggle
+        if AOA_AVAILABLE:
+            type_frame = ttk.LabelFrame(control_frame, text="Network Type", padding="3")
+            type_frame.pack(side=tk.LEFT, padx=(0, 10))
+            ttk.Radiobutton(
+                type_frame, text="AON (Activity on Node)", value="AON",
+                variable=self._view_mode_var, command=self.update_diagram,
+            ).pack(side=tk.LEFT, padx=4)
+            ttk.Radiobutton(
+                type_frame, text="AOA (Activity on Arrow)", value="AOA",
+                variable=self._view_mode_var, command=self.update_diagram,
+            ).pack(side=tk.LEFT, padx=4)
+
         # Action buttons
         button_frame = ttk.Frame(control_frame)
         button_frame.pack(side=tk.RIGHT)
@@ -188,7 +208,15 @@ class NetworkTab:
             critical_activities = self.results_data.get('critical_activities', [])
             
             if activities:
-                # Build NetworkX graph from activities
+                # Check view mode
+                view_mode = self._view_mode_var.get()
+                if view_mode == "AOA" and AOA_AVAILABLE:
+                    self._draw_aoa_diagram(activities)
+                    # AOA sets its own title — skip AON title setting below
+                    self.canvas.draw()
+                    return
+
+                # Build NetworkX graph from activities (AON mode)
                 G = self.build_graph_from_activities(activities)
                 
                 # Draw the professional network diagram
@@ -578,7 +606,258 @@ class NetworkTab:
         self.results_data = None
         self.analysis_mode = None
         self.create_empty_plot()
-    
+
+    # ---- AOA diagram (Activity-on-Arrow) ----------------------------------------
+
+    def _aoa_event_layout(self, network) -> dict:
+        """Compute (x, y) positions for each event based on topological level.
+
+        Events at the same level share an x-column; they are spread vertically
+        within each column.
+        """
+        order = network._topo_event_order()
+
+        # Longest-path level for each event (forward sweep)
+        levels = {network.start_event_id: 0}
+        for eid in order:
+            cur_lev = levels.get(eid, 0)
+            for a in network._outgoing(eid):
+                cand = cur_lev + 1
+                if cand > levels.get(a.to_event, -1):
+                    levels[a.to_event] = cand
+
+        # Group events per level
+        from collections import defaultdict
+        level_events: dict = defaultdict(list)
+        for eid, lev in levels.items():
+            level_events[lev].append(eid)
+
+        x_gap = 3.5
+        y_gap = 2.5
+        pos: dict = {}
+        for lev, eids in level_events.items():
+            eids_sorted = sorted(eids)
+            n = len(eids_sorted)
+            for i, eid in enumerate(eids_sorted):
+                x = lev * x_gap
+                y = (i - (n - 1) / 2.0) * y_gap
+                pos[eid] = (x, y)
+
+        return pos
+
+    def _draw_aoa_diagram(self, activities: list) -> None:
+        """Render an Activity-on-Arrow (AOA) network diagram.
+
+        Converts the current AON activity list to AOA via network_converter,
+        runs CPM, then draws:
+          * Events as split circles  [event# | ET | LT]
+          * Real arrows labelled with activity id and duration
+          * Dummy arrows as dashed grey lines
+          * Critical path in red
+        """
+        self.ax.clear()
+
+        # Convert + CPM
+        try:
+            network = aon_to_aoa(activities)
+            network.run_cpm()
+        except Exception as exc:
+            self.ax.text(
+                0.5, 0.5,
+                f"Could not convert to AOA:\n{exc}",
+                ha="center", va="center",
+                transform=self.ax.transAxes, fontsize=11, color="red",
+            )
+            return
+
+        pos = self._aoa_event_layout(network)
+        if not pos:
+            return
+
+        xs = [p[0] for p in pos.values()]
+        ys = [p[1] for p in pos.values()]
+        pad = 2.0
+        x_min, x_max = min(xs) - pad, max(xs) + pad
+        y_min, y_max = min(ys) - pad, max(ys) + pad
+
+        try:
+            self._scroll_frame.fit_to_viewport()
+        except Exception:
+            pass
+
+        show_crit  = self.show_critical_var.get()
+        show_times = self.show_times_var.get()
+        r_ev = 0.55   # event circle radius
+
+        # ── Draw arrows ──────────────────────────────────────────────
+        for act in network.activities:
+            if act.from_event not in pos or act.to_event not in pos:
+                continue
+            x1, y1 = pos[act.from_event]
+            x2, y2 = pos[act.to_event]
+
+            if act.is_dummy:
+                color, ls, lw, alpha = "#888888", "--", 1.0, 0.55
+            elif act.is_critical and show_crit:
+                color, ls, lw, alpha = "#cc2222", "-", 2.5, 0.92
+            else:
+                color, ls, lw, alpha = "#1a5296", "-", 1.8, 0.85
+
+            dx, dy = x2 - x1, y2 - y1
+            length = (dx ** 2 + dy ** 2) ** 0.5
+            if length < 1e-9:
+                continue
+            ux, uy = dx / length, dy / length
+
+            # Shorten by event-circle radius at both ends
+            x1a = x1 + ux * r_ev
+            y1a = y1 + uy * r_ev
+            x2a = x2 - ux * r_ev
+            y2a = y2 - uy * r_ev
+
+            # Arrow line
+            self.ax.plot(
+                [x1a, x2a], [y1a, y2a],
+                color=color, linewidth=lw, linestyle=ls, alpha=alpha, zorder=3,
+            )
+            # Arrowhead
+            self.ax.annotate(
+                "",
+                xy=(x2a, y2a),
+                xytext=(x2a - ux * 0.01, y2a - uy * 0.01),
+                arrowprops=dict(
+                    arrowstyle="->", color=color, lw=lw, mutation_scale=13,
+                ),
+                zorder=4,
+            )
+
+            # Arrow label (real activities only)
+            if not act.is_dummy:
+                mx = (x1a + x2a) / 2
+                my = (y1a + y2a) / 2
+                # Perpendicular offset so label doesn't sit on the line
+                perp_x = -uy * 0.35
+                perp_y =  ux * 0.35
+                lx, ly = mx + perp_x, my + perp_y
+
+                if show_times:
+                    tf_str = f"\nTF={act.total_float:.0f}"
+                else:
+                    tf_str = ""
+                label_text = f"{act.activity_id} ({act.duration:.0f}){tf_str}"
+
+                self.ax.text(
+                    lx, ly, label_text,
+                    ha="center", va="center", fontsize=7.5, zorder=5,
+                    bbox=dict(
+                        boxstyle="round,pad=0.2",
+                        facecolor="white", alpha=0.78, edgecolor="none",
+                    ),
+                )
+
+        # ── Draw events ──────────────────────────────────────────────
+        for eid, ev in network.events.items():
+            if eid not in pos:
+                continue
+            x, y = pos[eid]
+
+            is_start_end = eid in (network.start_event_id, network.end_event_id)
+            is_crit_ev    = show_crit and abs(ev.slack) < 1e-9
+
+            if is_start_end:
+                fc, ec_col, lw = "#ffffcc", "#999900", 2.0
+            elif is_crit_ev:
+                fc, ec_col, lw = "#ffdddd", "#cc2222", 2.2
+            else:
+                fc, ec_col, lw = "#dde8ff", "#336699", 1.5
+
+            circle = plt.Circle(
+                (x, y), r_ev, fill=True,
+                facecolor=fc, edgecolor=ec_col, linewidth=lw, zorder=5,
+            )
+            self.ax.add_patch(circle)
+
+            if show_times:
+                # Horizontal divider (lower half)
+                self.ax.plot(
+                    [x - r_ev, x + r_ev], [y, y],
+                    color=ec_col, linewidth=0.8, zorder=6,
+                )
+                # Vertical divider (lower half only)
+                self.ax.plot(
+                    [x, x], [y - r_ev, y],
+                    color=ec_col, linewidth=0.8, zorder=6,
+                )
+                # Event number (top)
+                self.ax.text(
+                    x, y + r_ev * 0.42, str(eid),
+                    ha="center", va="center", fontsize=7, fontweight="bold", zorder=7,
+                )
+                # ET (bottom-left)
+                self.ax.text(
+                    x - r_ev * 0.38, y - r_ev * 0.42,
+                    f"{ev.earliest_time:.0f}",
+                    ha="center", va="center", fontsize=6, color="#1a5296", zorder=7,
+                )
+                # LT (bottom-right)
+                self.ax.text(
+                    x + r_ev * 0.38, y - r_ev * 0.42,
+                    f"{ev.latest_time:.0f}",
+                    ha="center", va="center", fontsize=6, color="#aa0000", zorder=7,
+                )
+            else:
+                self.ax.text(
+                    x, y, str(eid),
+                    ha="center", va="center", fontsize=8, fontweight="bold", zorder=7,
+                )
+
+            # Start / End label below circle
+            if ev.label in ("Start", "End"):
+                self.ax.text(
+                    x, y - r_ev - 0.28, ev.label,
+                    ha="center", va="top", fontsize=7, style="italic", zorder=7,
+                )
+
+        # ── Legend ───────────────────────────────────────────────────
+        from matplotlib import patches as mpatches_local
+        legend_items = [
+            mpatches_local.Patch(
+                facecolor="#ffdddd", edgecolor="#cc2222", label="Critical Event"
+            ),
+            mpatches_local.Patch(
+                facecolor="#dde8ff", edgecolor="#336699", label="Normal Event"
+            ),
+            mpatches_local.Patch(
+                facecolor="#ffffcc", edgecolor="#999900", label="Start / End Event"
+            ),
+        ]
+        if show_crit:
+            legend_items += [
+                mpatches_local.Patch(color="#cc2222", label="Critical Arrow"),
+            ]
+        legend_items += [
+            mpatches_local.Patch(color="#1a5296", label="Normal Arrow"),
+            mpatches_local.Patch(color="#888888", label="Dummy Arrow (dashed)"),
+        ]
+        self.ax.legend(handles=legend_items, loc="lower right", fontsize=7)
+
+        # ── Title and axis ───────────────────────────────────────────
+        pd_val = network.project_duration
+        title_lines = [
+            "AOA Network Diagram",
+            f"Project Duration: {pd_val:.0f}",
+        ]
+        if show_times:
+            title_lines.append("Event circle: [ id | ET | LT ]")
+        self.ax.set_title("\n".join(title_lines), fontsize=12, fontweight="bold")
+
+        self.ax.set_xlim(x_min, x_max)
+        self.ax.set_ylim(y_min, y_max)
+        self.ax.axis("off")
+        self.figure.subplots_adjust(left=0.01, right=0.99, top=0.90, bottom=0.02)
+
+    # ---- end AOA section --------------------------------------------------------
+
     def trace_float_values(self):
         """Trace float values from analysis to display"""
         print("=" * 80)
