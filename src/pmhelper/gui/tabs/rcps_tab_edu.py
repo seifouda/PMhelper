@@ -976,7 +976,8 @@ class RCPSTabEdu:
         except Exception as exc:
             messagebox.showerror("Worked Solution Error", str(exc))
 
-    def set_mode(self, mode: str):        """PG-only tab."""
+    def set_mode(self, mode: str):
+        """PG-only tab."""
         self._mode = mode
 
     def get_figures(self):
