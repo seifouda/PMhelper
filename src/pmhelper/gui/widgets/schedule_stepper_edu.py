@@ -18,45 +18,39 @@ if TYPE_CHECKING:
 
 # ── Step definitions ────────────────────────────────────────────────
 
-_STEPS = [
-    {
-        "num": 1,
-        "label": "Define Activities",
-        "tooltip_pending": "Enter your project activities in the table below, "
-                           "or load data from a CSV file.",
-        "tooltip_done": "Activities defined — proceed to sequencing.",
-    },
-    {
-        "num": 2,
-        "label": "Sequence Activities",
-        "tooltip_pending": "Set the Predecessors column to define task "
-                           "dependencies (e.g., 'A, B'). The first activity "
-                           "has no predecessors.",
-        "tooltip_done": "Activity sequencing complete.",
-    },
-    {
-        "num": 3,
-        "label": "Estimate Resources",
-        "tooltip_pending": "Optional: Set Resource Demand per activity to "
-                           "enable resource-constrained scheduling.",
-        "tooltip_done": "Resource estimates entered.",
-        "optional": True,
-    },
-    {
-        "num": 4,
-        "label": "Estimate Durations",
-        "tooltip_pending": "Enter a Duration for each activity (CPM) or "
-                           "Optimistic/Most-Likely/Pessimistic estimates (PERT).",
-        "tooltip_done": "All durations estimated.",
-    },
-    {
-        "num": 5,
-        "label": "Develop Schedule",
-        "tooltip_pending": "Click ▶ Analyze to calculate the critical path, "
-                           "float values, and project duration.",
-        "tooltip_done": "Schedule developed — view Gantt and Results tabs.",
-    },
-]
+_STEPS = [{"num": 1,
+           "label": "Define Activities",
+           "tooltip_pending": "Enter your project activities in the table below, "
+           "or load data from a CSV file.",
+           "tooltip_done": "Activities defined — proceed to sequencing.",
+           },
+          {"num": 2,
+           "label": "Sequence Activities",
+           "tooltip_pending": "Set the Predecessors column to define task "
+           "dependencies (e.g., 'A, B'). The first activity "
+           "has no predecessors.",
+           "tooltip_done": "Activity sequencing complete.",
+           },
+          {"num": 3,
+           "label": "Estimate Resources",
+           "tooltip_pending": "Optional: Set Resource Demand per activity to "
+           "enable resource-constrained scheduling.",
+           "tooltip_done": "Resource estimates entered.",
+           "optional": True,
+           },
+          {"num": 4,
+           "label": "Estimate Durations",
+           "tooltip_pending": "Enter a Duration for each activity (CPM) or "
+           "Optimistic/Most-Likely/Pessimistic estimates (PERT).",
+           "tooltip_done": "All durations estimated.",
+           },
+          {"num": 5,
+           "label": "Develop Schedule",
+           "tooltip_pending": "Click ▶ Analyze to calculate the critical path, "
+           "float values, and project duration.",
+           "tooltip_done": "Schedule developed — view Gantt and Results tabs.",
+           },
+          ]
 
 # Colours
 _GREEN = "#27ae60"
@@ -118,7 +112,12 @@ class ScheduleStepperWidget(ttk.Frame):
             num = step["num"]
             for widget in (badge_frame, icon_lbl, text_lbl):
                 widget.bind("<Button-1>", lambda e, n=num: self._on_click(n))
-                widget.bind("<Enter>", lambda e, b=badge_info: self._show_tooltip(e, b))
+                widget.bind(
+                    "<Enter>",
+                    lambda e,
+                    b=badge_info: self._show_tooltip(
+                        e,
+                        b))
                 widget.bind("<Leave>", lambda e: self._hide_tooltip())
 
     # ──────────────────────────────────────────────────────────────
@@ -306,9 +305,12 @@ class ScheduleStepperWidget(ttk.Frame):
     def _flash_widget(self, widget):
         """Briefly flash a widget with yellow background."""
         try:
-            orig = widget.cget("style") if isinstance(widget, ttk.Button) else None
+            orig = widget.cget("style") if isinstance(
+                widget, ttk.Button) else None
             # Use a simple after-based flash
-            widget.configure(style="Accent.TButton") if isinstance(widget, ttk.Button) else None
+            widget.configure(
+                style="Accent.TButton") if isinstance(
+                widget, ttk.Button) else None
             self.after(500, lambda: None)  # brief pause
         except Exception:
             pass

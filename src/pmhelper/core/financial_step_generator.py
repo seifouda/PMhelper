@@ -63,7 +63,7 @@ def financial_steps(
 
 def _payback_step(inputs: FinancialInputs, result: FinancialResult) -> Step:
     inv = inputs.initial_investment
-    pb  = result.payback_period
+    pb = result.payback_period
     rag = "green" if pb is not None else "red"
 
     children: List[Step] = []
@@ -77,7 +77,7 @@ def _payback_step(inputs: FinancialInputs, result: FinancialResult) -> Step:
             formula="Cumulative = prev + CF",
             substitution=f"= {prev_cum:.2f} + {row.cash_flow:.2f}",
             result=f"= {cum:.2f}"
-                   + (f"  ← ≥ {inv:.2f} {status}" if status else ""),
+            + (f"  ← ≥ {inv:.2f} {status}" if status else ""),
         ))
         if cum >= inv:
             break
@@ -94,11 +94,13 @@ def _payback_step(inputs: FinancialInputs, result: FinancialResult) -> Step:
     )
 
 
-def _disc_payback_step(inputs: FinancialInputs, result: FinancialResult) -> Step:
-    inv  = inputs.initial_investment
+def _disc_payback_step(
+        inputs: FinancialInputs,
+        result: FinancialResult) -> Step:
+    inv = inputs.initial_investment
     rate = inputs.discount_rate
-    dpb  = result.discounted_payback
-    rag  = "green" if dpb is not None else "red"
+    dpb = result.discounted_payback
+    rag = "green" if dpb is not None else "red"
 
     children: List[Step] = []
     cum = 0.0
@@ -114,7 +116,7 @@ def _disc_payback_step(inputs: FinancialInputs, result: FinancialResult) -> Step
                 f" = {row.discounted_cf:.4f}"
             ),
             result=f"Cumulative DCF = {cum:.4f}"
-                   + (f"  ← ≥ {inv:.2f} {status}" if status else ""),
+            + (f"  ← ≥ {inv:.2f} {status}" if status else ""),
         ))
         if cum >= inv:
             break
@@ -123,7 +125,7 @@ def _disc_payback_step(inputs: FinancialInputs, result: FinancialResult) -> Step
     return Step(
         title="Discounted Payback Period",
         formula="Find t such that Σ [CFₜ / (1+r)ᵗ] ≥ Initial Investment",
-        substitution=f"Discount rate r = {rate*100:.1f}%",
+        substitution=f"Discount rate r = {rate * 100:.1f}%",
         result=f"Discounted Payback = {dpb_str} periods",
         interpretation=result.interpretation.get("discounted_payback", ""),
         rag=rag,
@@ -132,10 +134,10 @@ def _disc_payback_step(inputs: FinancialInputs, result: FinancialResult) -> Step
 
 
 def _roi_step(inputs: FinancialInputs, result: FinancialResult) -> Step:
-    inv    = inputs.initial_investment
-    total  = sum(inputs.cash_flows)
-    roi    = result.roi
-    rag    = "green" if roi > 0 else "red"
+    inv = inputs.initial_investment
+    total = sum(inputs.cash_flows)
+    roi = result.roi
+    rag = "green" if roi > 0 else "red"
 
     return Step(
         title="Return on Investment (ROI)",
@@ -162,10 +164,10 @@ def _roi_step(inputs: FinancialInputs, result: FinancialResult) -> Step:
 
 
 def _npv_step(inputs: FinancialInputs, result: FinancialResult) -> Step:
-    inv  = inputs.initial_investment
+    inv = inputs.initial_investment
     rate = inputs.discount_rate
-    npv  = result.npv
-    rag  = "green" if npv > 0 else "red" if npv < 0 else "amber"
+    npv = result.npv
+    rag = "green" if npv > 0 else "red" if npv < 0 else "amber"
 
     pv_children: List[Step] = []
     for t, cf in enumerate(inputs.cash_flows, start=1):
@@ -183,7 +185,7 @@ def _npv_step(inputs: FinancialInputs, result: FinancialResult) -> Step:
     return Step(
         title="Net Present Value (NPV)",
         formula="NPV = -C₀ + Σ [CFₜ / (1+r)ᵗ]",
-        substitution=f"C₀ = {inv:,.2f},  r = {rate*100:.1f}%",
+        substitution=f"C₀ = {inv:,.2f},  r = {rate * 100:.1f}%",
         result=f"NPV = {npv:,.4f}",
         interpretation=result.interpretation.get("npv", ""),
         rag=rag,
@@ -250,10 +252,10 @@ def _irr_step(inputs: FinancialInputs, result: FinancialResult) -> Step:
 
 
 def _pi_step(inputs: FinancialInputs, result: FinancialResult) -> Step:
-    inv  = inputs.initial_investment
+    inv = inputs.initial_investment
     rate = inputs.discount_rate
-    pi   = result.profitability_index
-    rag  = "green" if pi > 1 else "red" if pi < 1 else "amber"
+    pi = result.profitability_index
+    rag = "green" if pi > 1 else "red" if pi < 1 else "amber"
 
     pv_sum = sum(
         cf / ((1 + rate) ** (t + 1))

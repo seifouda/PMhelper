@@ -17,8 +17,8 @@ Models
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import List
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -58,8 +58,8 @@ class FactorScoringResult:
 class FactorScoringEngine:
     """Stateless factor scoring calculator."""
 
-    MODEL_01       = "0-1"
-    MODEL_FACTOR   = "Factor"
+    MODEL_01 = "0-1"
+    MODEL_FACTOR = "Factor"
     MODEL_WEIGHTED = "Weighted"
 
     @classmethod
@@ -105,15 +105,16 @@ class FactorScoringEngine:
             raise ValueError("At least one project is required.")
         if len(score_matrix) != n_proj:
             raise ValueError(
-                f"score_matrix has {len(score_matrix)} rows but {n_proj} projects."
-            )
+                f"score_matrix has {
+                    len(score_matrix)} rows but {n_proj} projects.")
 
         # Normalise weights (weighted model only)
         if model == cls.MODEL_WEIGHTED:
             raw_weights = [c.weight for c in criteria]
             weight_sum = sum(raw_weights)
             if weight_sum <= 0:
-                raise ValueError("Criterion weights must sum to a positive value.")
+                raise ValueError(
+                    "Criterion weights must sum to a positive value.")
             weights = [w / weight_sum for w in raw_weights]
         else:
             weights = [1.0] * n_crit

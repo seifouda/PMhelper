@@ -1,7 +1,5 @@
-import tkinter as tk
 from tkinter import ttk
 # Import the refactored core logic and GUI manager
-from .project_crashing_core import ProjectCrashing, RCPSProjectCrashing, CrashingStrategy, OptimizationObjective, CrashingResult, compare_crashing_results, generate_crashing_report
 from .crashing_tab_gui import CrashingTabGUIManager
 
 

@@ -4,7 +4,7 @@ All functions are PURE — no GUI, state, or I/O imports.
 """
 
 from __future__ import annotations
-from typing import List, Optional, Dict, Any
+from typing import List, Dict, Any
 
 from pmhelper.core.evm_models_edu import EVMProject, EVMTask
 
@@ -94,7 +94,8 @@ def compute_tcpi_bac(bac: float, ev: float, ac: float) -> float:
 
 # ── Orchestrator ─────────────────────────────────────────────────────
 
-def compute_all_kpis(project: EVMProject, primary_eac: int = 1) -> Dict[str, Any]:
+def compute_all_kpis(project: EVMProject,
+                     primary_eac: int = 1) -> Dict[str, Any]:
     """
     Compute all EVM KPIs from project data.
 
@@ -173,15 +174,15 @@ def compute_all_kpis(project: EVMProject, primary_eac: int = 1) -> Dict[str, Any
 # ── RAG Engine ───────────────────────────────────────────────────────
 
 RAG_DEFAULTS: Dict[str, Dict[str, float]] = {
-    "cpi":  {"amber_lower": 0.95, "green_lower": 1.0},
-    "spi":  {"amber_lower": 0.95, "green_lower": 1.0},
-    "cr":   {"amber_lower": 0.80, "green_lower": 0.90},
+    "cpi": {"amber_lower": 0.95, "green_lower": 1.0},
+    "spi": {"amber_lower": 0.95, "green_lower": 1.0},
+    "cr": {"amber_lower": 0.80, "green_lower": 0.90},
     "tcpi_bac": {"amber_upper": 1.10, "red_upper": 1.20},
     # For CV, SV, VAC: thresholds expressed as % of BAC
-    "cv":   {"amber_pct": 0.05},
-    "sv":   {"amber_pct": 0.05},
-    "vac":  {"amber_pct": 0.10},
-    "eac":  {"amber_pct": 0.10},
+    "cv": {"amber_pct": 0.05},
+    "sv": {"amber_pct": 0.05},
+    "vac": {"amber_pct": 0.10},
+    "eac": {"amber_pct": 0.10},
 }
 
 
@@ -256,27 +257,27 @@ def get_rag(kpi: str, value, bac: float,
 # ── Step-by-Step Walkthrough ─────────────────────────────────────────
 
 _KPI_META = {
-    "cv":  {"formula": "CV = EV − AC",
-            "good": "Positive CV — under budget.",
-            "bad": "Negative CV — over budget."},
-    "sv":  {"formula": "SV = EV − PV",
-            "good": "Positive SV — ahead of schedule.",
-            "bad": "Negative SV — behind schedule."},
+    "cv": {"formula": "CV = EV − AC",
+           "good": "Positive CV — under budget.",
+           "bad": "Negative CV — over budget."},
+    "sv": {"formula": "SV = EV − PV",
+           "good": "Positive SV — ahead of schedule.",
+           "bad": "Negative SV — behind schedule."},
     "cpi": {"formula": "CPI = EV / AC",
             "good": "CPI ≥ 1.0 — earning more per dollar spent.",
             "bad": "CPI < 1.0 — spending more per dollar of work earned."},
     "spi": {"formula": "SPI = EV / PV",
             "good": "SPI ≥ 1.0 — ahead of schedule.",
             "bad": "SPI < 1.0 — behind schedule."},
-    "cr":  {"formula": "CR = CPI × SPI",
-            "good": "CR ≥ 1.0 — favourable overall performance.",
-            "bad": "CR < 1.0 — unfavourable combined performance."},
-    "pc":  {"formula": "PC = (EV / BAC) × 100",
-            "good": "Percent complete based on earned value.",
-            "bad": "Percent complete based on earned value."},
-    "ps":  {"formula": "PS = (AC / BAC) × 100",
-            "good": "Percent of budget spent.",
-            "bad": "More than the earned fraction of budget has been spent."},
+    "cr": {"formula": "CR = CPI × SPI",
+           "good": "CR ≥ 1.0 — favourable overall performance.",
+           "bad": "CR < 1.0 — unfavourable combined performance."},
+    "pc": {"formula": "PC = (EV / BAC) × 100",
+           "good": "Percent complete based on earned value.",
+           "bad": "Percent complete based on earned value."},
+    "ps": {"formula": "PS = (AC / BAC) × 100",
+           "good": "Percent of budget spent.",
+           "bad": "More than the earned fraction of budget has been spent."},
     "eac1": {"formula": "EAC₁ = AC + (BAC − EV)",
              "good": "Forecast total cost (atypical variance assumed).",
              "bad": "Forecast exceeds BAC — corrective action needed."},

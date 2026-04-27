@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "charter_id": "c181426c-bca6-4580-8156-ae55be87248d",
+    "created_date": "2025-11-02T18:21:02.334416",
+    "modified_date": "2025-11-02T18:21:20.069691",
+    "status": "draft",
+    "version": "1.0",
+    "template_id": "standard_charter_v1",
+    "template_version": "1.0"
+  },
+  "data": {
+    "objectives": {
+      "business_case": "Describe the business justification for this project",
+      "objectives": "List specific, measurable objectives",
+      "success_criteria": "Define measurable success criteria"
+    },
+    "scope": {
+      "in_scope": "List what is included in the project",
+      "out_of_scope": "List what is explicitly excluded",
+      "deliverables": "List major deliverables",
+      "assumptions": "List project assumptions",
+      "constraints": "List project constraints"
+    },
+    "budget": {
+      "resource_requirements": "Describe resource needs"
+    },
+    "schedule": {
+      "phases": "Describe major project phases"
+    },
+    "team": {
+      "organizational_structure": "Describe reporting structure"
+    },
+    "stakeholders": {
+      "communication_plan": "Describe communication approach"
+    },
+    "risks": {
+      "known_issues": "Document any known issues"
+    },
+    "approval": {
+      "approval_notes": "Additional notes or conditions"
+    },
+    "identification": {
+      "start_date": "2025-11-20",
+      "end_date": "2025-11-30"
+    }
+  }
+}

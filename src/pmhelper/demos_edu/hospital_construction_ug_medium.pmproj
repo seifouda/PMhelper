@@ -1,0 +1,4573 @@
+{
+  "version": 1,
+  "evm_project": {
+    "schema_version": 1,
+    "project_name": "Hospital Construction (UG Demo — 150 tasks)",
+    "bac": 3347000.0,
+    "bac_auto_compute": false,
+    "currency_symbol": "$",
+    "tasks": [
+      {
+        "task_id": "T1",
+        "name": "Project Initiation",
+        "budget": 15000.0,
+        "pct_complete": 100.0,
+        "planned_start": 0,
+        "planned_finish": 2,
+        "actual_start": 0,
+        "actual_finish": 2,
+        "baseline_start": 0,
+        "baseline_finish": 2,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": []
+      },
+      {
+        "task_id": "T2",
+        "name": "Stakeholder Identification",
+        "budget": 8000.0,
+        "pct_complete": 100.0,
+        "planned_start": 0,
+        "planned_finish": 3,
+        "actual_start": 0,
+        "actual_finish": 3,
+        "baseline_start": 0,
+        "baseline_finish": 3,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": []
+      },
+      {
+        "task_id": "T3",
+        "name": "Feasibility Study",
+        "budget": 30000.0,
+        "pct_complete": 100.0,
+        "planned_start": 2,
+        "planned_finish": 6,
+        "actual_start": 2,
+        "actual_finish": 6,
+        "baseline_start": 2,
+        "baseline_finish": 6,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T1",
+          "T2"
+        ]
+      },
+      {
+        "task_id": "T4",
+        "name": "Site Selection",
+        "budget": 20000.0,
+        "pct_complete": 100.0,
+        "planned_start": 3,
+        "planned_finish": 7,
+        "actual_start": 3,
+        "actual_finish": 7,
+        "baseline_start": 3,
+        "baseline_finish": 7,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T2"
+        ]
+      },
+      {
+        "task_id": "T5",
+        "name": "Environmental Impact Assessment",
+        "budget": 25000.0,
+        "pct_complete": 100.0,
+        "planned_start": 4,
+        "planned_finish": 9,
+        "actual_start": 4,
+        "actual_finish": 9,
+        "baseline_start": 4,
+        "baseline_finish": 9,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T3",
+          "T4"
+        ]
+      },
+      {
+        "task_id": "T6",
+        "name": "Geotechnical Survey",
+        "budget": 22000.0,
+        "pct_complete": 100.0,
+        "planned_start": 4,
+        "planned_finish": 8,
+        "actual_start": 4,
+        "actual_finish": 8,
+        "baseline_start": 4,
+        "baseline_finish": 8,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T4"
+        ]
+      },
+      {
+        "task_id": "T7",
+        "name": "Utility Mapping",
+        "budget": 12000.0,
+        "pct_complete": 100.0,
+        "planned_start": 4,
+        "planned_finish": 7,
+        "actual_start": 4,
+        "actual_finish": 7,
+        "baseline_start": 4,
+        "baseline_finish": 7,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T4"
+        ]
+      },
+      {
+        "task_id": "T8",
+        "name": "Budget Estimation",
+        "budget": 18000.0,
+        "pct_complete": 100.0,
+        "planned_start": 6,
+        "planned_finish": 9,
+        "actual_start": 6,
+        "actual_finish": 9,
+        "baseline_start": 6,
+        "baseline_finish": 9,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T3"
+        ]
+      },
+      {
+        "task_id": "T9",
+        "name": "Risk Assessment",
+        "budget": 14000.0,
+        "pct_complete": 100.0,
+        "planned_start": 6,
+        "planned_finish": 9,
+        "actual_start": 6,
+        "actual_finish": 9,
+        "baseline_start": 6,
+        "baseline_finish": 9,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T3"
+        ]
+      },
+      {
+        "task_id": "T10",
+        "name": "Funding Approval",
+        "budget": 10000.0,
+        "pct_complete": 100.0,
+        "planned_start": 9,
+        "planned_finish": 12,
+        "actual_start": 9,
+        "actual_finish": 12,
+        "baseline_start": 9,
+        "baseline_finish": 12,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T5",
+          "T6",
+          "T7",
+          "T8",
+          "T9"
+        ]
+      },
+      {
+        "task_id": "T11",
+        "name": "Master Programme",
+        "budget": 16000.0,
+        "pct_complete": 100.0,
+        "planned_start": 9,
+        "planned_finish": 12,
+        "actual_start": 9,
+        "actual_finish": 12,
+        "baseline_start": 9,
+        "baseline_finish": 12,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T8"
+        ]
+      },
+      {
+        "task_id": "T12",
+        "name": "Procurement Strategy",
+        "budget": 13000.0,
+        "pct_complete": 100.0,
+        "planned_start": 9,
+        "planned_finish": 12,
+        "actual_start": 9,
+        "actual_finish": 12,
+        "baseline_start": 9,
+        "baseline_finish": 12,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T8"
+        ]
+      },
+      {
+        "task_id": "T13",
+        "name": "Stakeholder Approval",
+        "budget": 8000.0,
+        "pct_complete": 100.0,
+        "planned_start": 12,
+        "planned_finish": 14,
+        "actual_start": 12,
+        "actual_finish": 14,
+        "baseline_start": 12,
+        "baseline_finish": 14,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T10",
+          "T11",
+          "T12"
+        ]
+      },
+      {
+        "task_id": "T14",
+        "name": "Programme Board Setup",
+        "budget": 10000.0,
+        "pct_complete": 100.0,
+        "planned_start": 12,
+        "planned_finish": 14,
+        "actual_start": 12,
+        "actual_finish": 14,
+        "baseline_start": 12,
+        "baseline_finish": 14,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T10"
+        ]
+      },
+      {
+        "task_id": "T15",
+        "name": "Feasibility Sign-off",
+        "budget": 5000.0,
+        "pct_complete": 100.0,
+        "planned_start": 14,
+        "planned_finish": 15,
+        "actual_start": 14,
+        "actual_finish": 15,
+        "baseline_start": 14,
+        "baseline_finish": 15,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T13",
+          "T14"
+        ]
+      },
+      {
+        "task_id": "T16",
+        "name": "Concept Design",
+        "budget": 45000.0,
+        "pct_complete": 100.0,
+        "planned_start": 15,
+        "planned_finish": 19,
+        "actual_start": 15,
+        "actual_finish": 19,
+        "baseline_start": 15,
+        "baseline_finish": 19,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T15"
+        ]
+      },
+      {
+        "task_id": "T17",
+        "name": "Structural Concept",
+        "budget": 30000.0,
+        "pct_complete": 100.0,
+        "planned_start": 15,
+        "planned_finish": 18,
+        "actual_start": 15,
+        "actual_finish": 18,
+        "baseline_start": 15,
+        "baseline_finish": 18,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T15"
+        ]
+      },
+      {
+        "task_id": "T18",
+        "name": "MEP Concept Design",
+        "budget": 28000.0,
+        "pct_complete": 100.0,
+        "planned_start": 15,
+        "planned_finish": 18,
+        "actual_start": 15,
+        "actual_finish": 18,
+        "baseline_start": 15,
+        "baseline_finish": 18,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T15"
+        ]
+      },
+      {
+        "task_id": "T19",
+        "name": "Healthcare Planning",
+        "budget": 35000.0,
+        "pct_complete": 100.0,
+        "planned_start": 15,
+        "planned_finish": 20,
+        "actual_start": 15,
+        "actual_finish": 20,
+        "baseline_start": 15,
+        "baseline_finish": 20,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T15"
+        ]
+      },
+      {
+        "task_id": "T20",
+        "name": "Schematic Design",
+        "budget": 55000.0,
+        "pct_complete": 100.0,
+        "planned_start": 19,
+        "planned_finish": 24,
+        "actual_start": 19,
+        "actual_finish": 24,
+        "baseline_start": 19,
+        "baseline_finish": 24,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T16",
+          "T17"
+        ]
+      },
+      {
+        "task_id": "T21",
+        "name": "Structural Design Development",
+        "budget": 40000.0,
+        "pct_complete": 100.0,
+        "planned_start": 18,
+        "planned_finish": 23,
+        "actual_start": 18,
+        "actual_finish": 23,
+        "baseline_start": 18,
+        "baseline_finish": 23,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T17",
+          "T18"
+        ]
+      },
+      {
+        "task_id": "T22",
+        "name": "MEP Design Development",
+        "budget": 38000.0,
+        "pct_complete": 100.0,
+        "planned_start": 18,
+        "planned_finish": 23,
+        "actual_start": 18,
+        "actual_finish": 23,
+        "baseline_start": 18,
+        "baseline_finish": 23,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T18"
+        ]
+      },
+      {
+        "task_id": "T23",
+        "name": "Fire & Life Safety Design",
+        "budget": 25000.0,
+        "pct_complete": 100.0,
+        "planned_start": 20,
+        "planned_finish": 24,
+        "actual_start": 20,
+        "actual_finish": 24,
+        "baseline_start": 20,
+        "baseline_finish": 24,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T19",
+          "T20"
+        ]
+      },
+      {
+        "task_id": "T24",
+        "name": "IT & Communications Design",
+        "budget": 22000.0,
+        "pct_complete": 100.0,
+        "planned_start": 20,
+        "planned_finish": 24,
+        "actual_start": 20,
+        "actual_finish": 24,
+        "baseline_start": 20,
+        "baseline_finish": 24,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T19"
+        ]
+      },
+      {
+        "task_id": "T25",
+        "name": "Medical Gas Design",
+        "budget": 20000.0,
+        "pct_complete": 100.0,
+        "planned_start": 22,
+        "planned_finish": 25,
+        "actual_start": 22,
+        "actual_finish": 25,
+        "baseline_start": 22,
+        "baseline_finish": 25,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T22"
+        ]
+      },
+      {
+        "task_id": "T26",
+        "name": "Design Development Coordination",
+        "budget": 18000.0,
+        "pct_complete": 100.0,
+        "planned_start": 23,
+        "planned_finish": 26,
+        "actual_start": 23,
+        "actual_finish": 26,
+        "baseline_start": 23,
+        "baseline_finish": 26,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T21",
+          "T22",
+          "T23",
+          "T24"
+        ]
+      },
+      {
+        "task_id": "T27",
+        "name": "BIM Model Development",
+        "budget": 30000.0,
+        "pct_complete": 100.0,
+        "planned_start": 20,
+        "planned_finish": 26,
+        "actual_start": 20,
+        "actual_finish": 26,
+        "baseline_start": 20,
+        "baseline_finish": 26,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T20"
+        ]
+      },
+      {
+        "task_id": "T28",
+        "name": "Construction Documents",
+        "budget": 60000.0,
+        "pct_complete": 100.0,
+        "planned_start": 26,
+        "planned_finish": 31,
+        "actual_start": 26,
+        "actual_finish": 31,
+        "baseline_start": 26,
+        "baseline_finish": 31,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T25",
+          "T26",
+          "T27"
+        ]
+      },
+      {
+        "task_id": "T29",
+        "name": "Cost Plan",
+        "budget": 15000.0,
+        "pct_complete": 100.0,
+        "planned_start": 28,
+        "planned_finish": 31,
+        "actual_start": 28,
+        "actual_finish": 31,
+        "baseline_start": 28,
+        "baseline_finish": 31,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T28"
+        ]
+      },
+      {
+        "task_id": "T30",
+        "name": "Design Sign-off",
+        "budget": 8000.0,
+        "pct_complete": 100.0,
+        "planned_start": 31,
+        "planned_finish": 32,
+        "actual_start": 31,
+        "actual_finish": 32,
+        "baseline_start": 31,
+        "baseline_finish": 32,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T28",
+          "T29"
+        ]
+      },
+      {
+        "task_id": "T31",
+        "name": "Building Permit Application",
+        "budget": 12000.0,
+        "pct_complete": 100.0,
+        "planned_start": 32,
+        "planned_finish": 35,
+        "actual_start": 32,
+        "actual_finish": 35,
+        "baseline_start": 32,
+        "baseline_finish": 35,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T30"
+        ]
+      },
+      {
+        "task_id": "T32",
+        "name": "Planning Permission",
+        "budget": 10000.0,
+        "pct_complete": 100.0,
+        "planned_start": 32,
+        "planned_finish": 35,
+        "actual_start": 32,
+        "actual_finish": 35,
+        "baseline_start": 32,
+        "baseline_finish": 35,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T30"
+        ]
+      },
+      {
+        "task_id": "T33",
+        "name": "Health Authority Approval",
+        "budget": 15000.0,
+        "pct_complete": 100.0,
+        "planned_start": 32,
+        "planned_finish": 37,
+        "actual_start": 32,
+        "actual_finish": 37,
+        "baseline_start": 32,
+        "baseline_finish": 37,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T30"
+        ]
+      },
+      {
+        "task_id": "T34",
+        "name": "Fire Authority Approval",
+        "budget": 10000.0,
+        "pct_complete": 100.0,
+        "planned_start": 32,
+        "planned_finish": 36,
+        "actual_start": 32,
+        "actual_finish": 36,
+        "baseline_start": 32,
+        "baseline_finish": 36,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T30"
+        ]
+      },
+      {
+        "task_id": "T35",
+        "name": "Environmental Permits",
+        "budget": 12000.0,
+        "pct_complete": 100.0,
+        "planned_start": 32,
+        "planned_finish": 36,
+        "actual_start": 32,
+        "actual_finish": 36,
+        "baseline_start": 32,
+        "baseline_finish": 36,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T30"
+        ]
+      },
+      {
+        "task_id": "T36",
+        "name": "Utility Connection Permits",
+        "budget": 8000.0,
+        "pct_complete": 100.0,
+        "planned_start": 33,
+        "planned_finish": 37,
+        "actual_start": 33,
+        "actual_finish": 37,
+        "baseline_start": 33,
+        "baseline_finish": 37,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T31",
+          "T32"
+        ]
+      },
+      {
+        "task_id": "T37",
+        "name": "Contractor Pre-qualification",
+        "budget": 14000.0,
+        "pct_complete": 100.0,
+        "planned_start": 33,
+        "planned_finish": 37,
+        "actual_start": 33,
+        "actual_finish": 37,
+        "baseline_start": 33,
+        "baseline_finish": 37,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T31"
+        ]
+      },
+      {
+        "task_id": "T38",
+        "name": "Tender Documentation",
+        "budget": 18000.0,
+        "pct_complete": 100.0,
+        "planned_start": 35,
+        "planned_finish": 39,
+        "actual_start": 35,
+        "actual_finish": 39,
+        "baseline_start": 35,
+        "baseline_finish": 39,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T30",
+          "T37"
+        ]
+      },
+      {
+        "task_id": "T39",
+        "name": "Tender Period",
+        "budget": 5000.0,
+        "pct_complete": 100.0,
+        "planned_start": 39,
+        "planned_finish": 43,
+        "actual_start": 39,
+        "actual_finish": 43,
+        "baseline_start": 39,
+        "baseline_finish": 43,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T38"
+        ]
+      },
+      {
+        "task_id": "T40",
+        "name": "Tender Evaluation",
+        "budget": 10000.0,
+        "pct_complete": 100.0,
+        "planned_start": 43,
+        "planned_finish": 45,
+        "actual_start": 43,
+        "actual_finish": 45,
+        "baseline_start": 43,
+        "baseline_finish": 45,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T39"
+        ]
+      },
+      {
+        "task_id": "T41",
+        "name": "Contractor Selection",
+        "budget": 8000.0,
+        "pct_complete": 100.0,
+        "planned_start": 45,
+        "planned_finish": 47,
+        "actual_start": 45,
+        "actual_finish": 47,
+        "baseline_start": 45,
+        "baseline_finish": 47,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T40"
+        ]
+      },
+      {
+        "task_id": "T42",
+        "name": "Contract Award",
+        "budget": 5000.0,
+        "pct_complete": 100.0,
+        "planned_start": 47,
+        "planned_finish": 48,
+        "actual_start": 47,
+        "actual_finish": 48,
+        "baseline_start": 47,
+        "baseline_finish": 48,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T33",
+          "T34",
+          "T35",
+          "T36",
+          "T41"
+        ]
+      },
+      {
+        "task_id": "T43",
+        "name": "Insurance & Bonds",
+        "budget": 6000.0,
+        "pct_complete": 100.0,
+        "planned_start": 48,
+        "planned_finish": 50,
+        "actual_start": 48,
+        "actual_finish": 50,
+        "baseline_start": 48,
+        "baseline_finish": 50,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T42"
+        ]
+      },
+      {
+        "task_id": "T44",
+        "name": "Mobilisation Planning",
+        "budget": 8000.0,
+        "pct_complete": 100.0,
+        "planned_start": 48,
+        "planned_finish": 50,
+        "actual_start": 48,
+        "actual_finish": 50,
+        "baseline_start": 48,
+        "baseline_finish": 50,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T42"
+        ]
+      },
+      {
+        "task_id": "T45",
+        "name": "Permits Handover",
+        "budget": 3000.0,
+        "pct_complete": 100.0,
+        "planned_start": 50,
+        "planned_finish": 51,
+        "actual_start": 50,
+        "actual_finish": 51,
+        "baseline_start": 50,
+        "baseline_finish": 51,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T43",
+          "T44"
+        ]
+      },
+      {
+        "task_id": "T46",
+        "name": "Site Hoarding & Security",
+        "budget": 8000.0,
+        "pct_complete": 100.0,
+        "planned_start": 51,
+        "planned_finish": 53,
+        "actual_start": 51,
+        "actual_finish": 53,
+        "baseline_start": 51,
+        "baseline_finish": 53,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T45"
+        ]
+      },
+      {
+        "task_id": "T47",
+        "name": "Existing Services Diversion",
+        "budget": 35000.0,
+        "pct_complete": 100.0,
+        "planned_start": 51,
+        "planned_finish": 57,
+        "actual_start": 51,
+        "actual_finish": 57,
+        "baseline_start": 51,
+        "baseline_finish": 57,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T45"
+        ]
+      },
+      {
+        "task_id": "T48",
+        "name": "Demolition of Existing Structures",
+        "budget": 45000.0,
+        "pct_complete": 100.0,
+        "planned_start": 53,
+        "planned_finish": 59,
+        "actual_start": 53,
+        "actual_finish": 59,
+        "baseline_start": 53,
+        "baseline_finish": 59,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T46"
+        ]
+      },
+      {
+        "task_id": "T49",
+        "name": "Site Clearance",
+        "budget": 15000.0,
+        "pct_complete": 100.0,
+        "planned_start": 57,
+        "planned_finish": 62,
+        "actual_start": 57,
+        "actual_finish": 62,
+        "baseline_start": 57,
+        "baseline_finish": 62,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T47",
+          "T48"
+        ]
+      },
+      {
+        "task_id": "T50",
+        "name": "Bulk Earthworks",
+        "budget": 55000.0,
+        "pct_complete": 100.0,
+        "planned_start": 59,
+        "planned_finish": 66,
+        "actual_start": 59,
+        "actual_finish": 66,
+        "baseline_start": 59,
+        "baseline_finish": 66,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T48"
+        ]
+      },
+      {
+        "task_id": "T51",
+        "name": "Dewatering System",
+        "budget": 20000.0,
+        "pct_complete": 100.0,
+        "planned_start": 59,
+        "planned_finish": 63,
+        "actual_start": 59,
+        "actual_finish": 63,
+        "baseline_start": 59,
+        "baseline_finish": 63,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T48"
+        ]
+      },
+      {
+        "task_id": "T52",
+        "name": "Temporary Roads & Access",
+        "budget": 18000.0,
+        "pct_complete": 100.0,
+        "planned_start": 59,
+        "planned_finish": 63,
+        "actual_start": 59,
+        "actual_finish": 63,
+        "baseline_start": 59,
+        "baseline_finish": 63,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T48"
+        ]
+      },
+      {
+        "task_id": "T53",
+        "name": "Erosion & Sediment Control",
+        "budget": 10000.0,
+        "pct_complete": 100.0,
+        "planned_start": 60,
+        "planned_finish": 64,
+        "actual_start": 60,
+        "actual_finish": 64,
+        "baseline_start": 60,
+        "baseline_finish": 64,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T49",
+          "T50"
+        ]
+      },
+      {
+        "task_id": "T54",
+        "name": "Underground Infrastructure Survey",
+        "budget": 12000.0,
+        "pct_complete": 100.0,
+        "planned_start": 62,
+        "planned_finish": 65,
+        "actual_start": 62,
+        "actual_finish": 65,
+        "baseline_start": 62,
+        "baseline_finish": 65,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T51",
+          "T52"
+        ]
+      },
+      {
+        "task_id": "T55",
+        "name": "Temporary Site Offices",
+        "budget": 14000.0,
+        "pct_complete": 100.0,
+        "planned_start": 63,
+        "planned_finish": 66,
+        "actual_start": 63,
+        "actual_finish": 66,
+        "baseline_start": 63,
+        "baseline_finish": 66,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T52"
+        ]
+      },
+      {
+        "task_id": "T56",
+        "name": "Site Drainage Network",
+        "budget": 22000.0,
+        "pct_complete": 90.0,
+        "planned_start": 64,
+        "planned_finish": 69,
+        "actual_start": 64,
+        "actual_finish": 69,
+        "baseline_start": 64,
+        "baseline_finish": 69,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T53",
+          "T54"
+        ]
+      },
+      {
+        "task_id": "T57",
+        "name": "Temporary Power & Water",
+        "budget": 12000.0,
+        "pct_complete": 90.0,
+        "planned_start": 64,
+        "planned_finish": 67,
+        "actual_start": 64,
+        "actual_finish": 67,
+        "baseline_start": 64,
+        "baseline_finish": 67,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T54"
+        ]
+      },
+      {
+        "task_id": "T58",
+        "name": "Subgrade Preparation",
+        "budget": 18000.0,
+        "pct_complete": 85.0,
+        "planned_start": 66,
+        "planned_finish": 70,
+        "actual_start": 66,
+        "actual_finish": 70,
+        "baseline_start": 66,
+        "baseline_finish": 70,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T50",
+          "T55"
+        ]
+      },
+      {
+        "task_id": "T59",
+        "name": "Contamination Remediation",
+        "budget": 25000.0,
+        "pct_complete": 80.0,
+        "planned_start": 64,
+        "planned_finish": 70,
+        "actual_start": 64,
+        "actual_finish": 70,
+        "baseline_start": 64,
+        "baseline_finish": 70,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T54"
+        ]
+      },
+      {
+        "task_id": "T60",
+        "name": "Site Preparation Completion",
+        "budget": 5000.0,
+        "pct_complete": 80.0,
+        "planned_start": 70,
+        "planned_finish": 71,
+        "actual_start": 70,
+        "actual_finish": 71,
+        "baseline_start": 70,
+        "baseline_finish": 71,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T56",
+          "T57",
+          "T58",
+          "T59"
+        ]
+      },
+      {
+        "task_id": "T61",
+        "name": "Piling Design Review",
+        "budget": 10000.0,
+        "pct_complete": 80.0,
+        "planned_start": 71,
+        "planned_finish": 73,
+        "actual_start": 71,
+        "actual_finish": 73,
+        "baseline_start": 71,
+        "baseline_finish": 73,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T60"
+        ]
+      },
+      {
+        "task_id": "T62",
+        "name": "Piling Works — Block A",
+        "budget": 60000.0,
+        "pct_complete": 75.0,
+        "planned_start": 71,
+        "planned_finish": 78,
+        "actual_start": 71,
+        "actual_finish": 78,
+        "baseline_start": 71,
+        "baseline_finish": 78,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T60"
+        ]
+      },
+      {
+        "task_id": "T63",
+        "name": "Piling Works — Block B",
+        "budget": 55000.0,
+        "pct_complete": 70.0,
+        "planned_start": 73,
+        "planned_finish": 80,
+        "actual_start": 73,
+        "actual_finish": null,
+        "baseline_start": 73,
+        "baseline_finish": 80,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T61",
+          "T62"
+        ]
+      },
+      {
+        "task_id": "T64",
+        "name": "Pile Testing",
+        "budget": 12000.0,
+        "pct_complete": 70.0,
+        "planned_start": 78,
+        "planned_finish": 81,
+        "actual_start": 78,
+        "actual_finish": null,
+        "baseline_start": 78,
+        "baseline_finish": 81,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T62"
+        ]
+      },
+      {
+        "task_id": "T65",
+        "name": "Ground Beams — Block A",
+        "budget": 40000.0,
+        "pct_complete": 65.0,
+        "planned_start": 78,
+        "planned_finish": 83,
+        "actual_start": 78,
+        "actual_finish": null,
+        "baseline_start": 78,
+        "baseline_finish": 83,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T62",
+          "T64"
+        ]
+      },
+      {
+        "task_id": "T66",
+        "name": "Ground Beams — Block B",
+        "budget": 40000.0,
+        "pct_complete": 60.0,
+        "planned_start": 80,
+        "planned_finish": 85,
+        "actual_start": 80,
+        "actual_finish": null,
+        "baseline_start": 80,
+        "baseline_finish": 85,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T63"
+        ]
+      },
+      {
+        "task_id": "T67",
+        "name": "Raft Slab Design",
+        "budget": 8000.0,
+        "pct_complete": 60.0,
+        "planned_start": 79,
+        "planned_finish": 81,
+        "actual_start": 79,
+        "actual_finish": null,
+        "baseline_start": 79,
+        "baseline_finish": 81,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T63"
+        ]
+      },
+      {
+        "task_id": "T68",
+        "name": "Raft Slab — Block A",
+        "budget": 50000.0,
+        "pct_complete": 55.0,
+        "planned_start": 83,
+        "planned_finish": 88,
+        "actual_start": 83,
+        "actual_finish": null,
+        "baseline_start": 83,
+        "baseline_finish": 88,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T65",
+          "T67"
+        ]
+      },
+      {
+        "task_id": "T69",
+        "name": "Raft Slab — Block B",
+        "budget": 50000.0,
+        "pct_complete": 50.0,
+        "planned_start": 85,
+        "planned_finish": 90,
+        "actual_start": 85,
+        "actual_finish": null,
+        "baseline_start": 85,
+        "baseline_finish": 90,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T66"
+        ]
+      },
+      {
+        "task_id": "T70",
+        "name": "Waterproofing to Foundation",
+        "budget": 18000.0,
+        "pct_complete": 45.0,
+        "planned_start": 85,
+        "planned_finish": 89,
+        "actual_start": 85,
+        "actual_finish": null,
+        "baseline_start": 85,
+        "baseline_finish": 89,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T65",
+          "T66"
+        ]
+      },
+      {
+        "task_id": "T71",
+        "name": "Drainage to Foundation",
+        "budget": 14000.0,
+        "pct_complete": 40.0,
+        "planned_start": 86,
+        "planned_finish": 90,
+        "actual_start": 86,
+        "actual_finish": null,
+        "baseline_start": 86,
+        "baseline_finish": 90,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T70"
+        ]
+      },
+      {
+        "task_id": "T72",
+        "name": "Backfill & Compaction",
+        "budget": 22000.0,
+        "pct_complete": 35.0,
+        "planned_start": 88,
+        "planned_finish": 93,
+        "actual_start": 88,
+        "actual_finish": null,
+        "baseline_start": 88,
+        "baseline_finish": 93,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T68",
+          "T69",
+          "T70"
+        ]
+      },
+      {
+        "task_id": "T73",
+        "name": "Subbase Preparation",
+        "budget": 16000.0,
+        "pct_complete": 30.0,
+        "planned_start": 90,
+        "planned_finish": 94,
+        "actual_start": 90,
+        "actual_finish": null,
+        "baseline_start": 90,
+        "baseline_finish": 94,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T69",
+          "T71"
+        ]
+      },
+      {
+        "task_id": "T74",
+        "name": "Ground-floor Slab",
+        "budget": 45000.0,
+        "pct_complete": 20.0,
+        "planned_start": 93,
+        "planned_finish": 98,
+        "actual_start": 93,
+        "actual_finish": null,
+        "baseline_start": 93,
+        "baseline_finish": 98,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T72",
+          "T73"
+        ]
+      },
+      {
+        "task_id": "T75",
+        "name": "Foundation Completion",
+        "budget": 5000.0,
+        "pct_complete": 20.0,
+        "planned_start": 98,
+        "planned_finish": 99,
+        "actual_start": 98,
+        "actual_finish": null,
+        "baseline_start": 98,
+        "baseline_finish": 99,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T74"
+        ]
+      },
+      {
+        "task_id": "T76",
+        "name": "Structural Steel Fabrication",
+        "budget": 80000.0,
+        "pct_complete": 15.0,
+        "planned_start": 99,
+        "planned_finish": 105,
+        "actual_start": 99,
+        "actual_finish": null,
+        "baseline_start": 99,
+        "baseline_finish": 105,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T75"
+        ]
+      },
+      {
+        "task_id": "T77",
+        "name": "Precast Concrete Elements",
+        "budget": 65000.0,
+        "pct_complete": 15.0,
+        "planned_start": 99,
+        "planned_finish": 107,
+        "actual_start": 99,
+        "actual_finish": null,
+        "baseline_start": 99,
+        "baseline_finish": 107,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T75"
+        ]
+      },
+      {
+        "task_id": "T78",
+        "name": "Level 1 Columns & Slabs",
+        "budget": 70000.0,
+        "pct_complete": 10.0,
+        "planned_start": 105,
+        "planned_finish": 111,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 105,
+        "baseline_finish": 111,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T76"
+        ]
+      },
+      {
+        "task_id": "T79",
+        "name": "Level 2 Columns & Slabs",
+        "budget": 70000.0,
+        "pct_complete": 10.0,
+        "planned_start": 107,
+        "planned_finish": 113,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 107,
+        "baseline_finish": 113,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T77",
+          "T78"
+        ]
+      },
+      {
+        "task_id": "T80",
+        "name": "Level 3 Columns & Slabs",
+        "budget": 70000.0,
+        "pct_complete": 5.0,
+        "planned_start": 111,
+        "planned_finish": 117,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 111,
+        "baseline_finish": 117,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T78",
+          "T79"
+        ]
+      },
+      {
+        "task_id": "T81",
+        "name": "Roof Structure",
+        "budget": 55000.0,
+        "pct_complete": 5.0,
+        "planned_start": 113,
+        "planned_finish": 120,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 113,
+        "baseline_finish": 120,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T79",
+          "T80"
+        ]
+      },
+      {
+        "task_id": "T82",
+        "name": "Structural Steelwork — Atrium",
+        "budget": 40000.0,
+        "pct_complete": 5.0,
+        "planned_start": 113,
+        "planned_finish": 119,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 113,
+        "baseline_finish": 119,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T79"
+        ]
+      },
+      {
+        "task_id": "T83",
+        "name": "Precast Staircases",
+        "budget": 18000.0,
+        "pct_complete": 5.0,
+        "planned_start": 111,
+        "planned_finish": 117,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 111,
+        "baseline_finish": 117,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T80"
+        ]
+      },
+      {
+        "task_id": "T84",
+        "name": "Structural Waterproofing",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 117,
+        "planned_finish": 121,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 117,
+        "baseline_finish": 121,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T80",
+          "T81"
+        ]
+      },
+      {
+        "task_id": "T85",
+        "name": "Façade Steelwork",
+        "budget": 30000.0,
+        "pct_complete": 0.0,
+        "planned_start": 119,
+        "planned_finish": 124,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 119,
+        "baseline_finish": 124,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T81",
+          "T82"
+        ]
+      },
+      {
+        "task_id": "T86",
+        "name": "Roof Insulation & Waterproofing",
+        "budget": 25000.0,
+        "pct_complete": 0.0,
+        "planned_start": 120,
+        "planned_finish": 125,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 120,
+        "baseline_finish": 125,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T81"
+        ]
+      },
+      {
+        "task_id": "T87",
+        "name": "Lift Shaft Construction",
+        "budget": 28000.0,
+        "pct_complete": 0.0,
+        "planned_start": 115,
+        "planned_finish": 122,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 115,
+        "baseline_finish": 122,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T80"
+        ]
+      },
+      {
+        "task_id": "T88",
+        "name": "Plant Room Structures",
+        "budget": 16000.0,
+        "pct_complete": 0.0,
+        "planned_start": 119,
+        "planned_finish": 124,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 119,
+        "baseline_finish": 124,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T81"
+        ]
+      },
+      {
+        "task_id": "T89",
+        "name": "Structural Snagging",
+        "budget": 8000.0,
+        "pct_complete": 0.0,
+        "planned_start": 124,
+        "planned_finish": 126,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 124,
+        "baseline_finish": 126,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T84",
+          "T85",
+          "T86",
+          "T87",
+          "T88"
+        ]
+      },
+      {
+        "task_id": "T90",
+        "name": "Superstructure Sign-off",
+        "budget": 4000.0,
+        "pct_complete": 0.0,
+        "planned_start": 126,
+        "planned_finish": 127,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 126,
+        "baseline_finish": 127,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T89"
+        ]
+      },
+      {
+        "task_id": "T91",
+        "name": "Electrical Containment — L1",
+        "budget": 22000.0,
+        "pct_complete": 0.0,
+        "planned_start": 127,
+        "planned_finish": 131,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 127,
+        "baseline_finish": 131,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T90"
+        ]
+      },
+      {
+        "task_id": "T92",
+        "name": "Electrical Containment — L2",
+        "budget": 22000.0,
+        "pct_complete": 0.0,
+        "planned_start": 129,
+        "planned_finish": 133,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 129,
+        "baseline_finish": 133,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T91"
+        ]
+      },
+      {
+        "task_id": "T93",
+        "name": "Electrical Containment — L3",
+        "budget": 22000.0,
+        "pct_complete": 0.0,
+        "planned_start": 131,
+        "planned_finish": 135,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 131,
+        "baseline_finish": 135,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T92"
+        ]
+      },
+      {
+        "task_id": "T94",
+        "name": "Plumbing Rough-In — L1",
+        "budget": 18000.0,
+        "pct_complete": 0.0,
+        "planned_start": 127,
+        "planned_finish": 132,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 127,
+        "baseline_finish": 132,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T90"
+        ]
+      },
+      {
+        "task_id": "T95",
+        "name": "Plumbing Rough-In — L2",
+        "budget": 18000.0,
+        "pct_complete": 0.0,
+        "planned_start": 130,
+        "planned_finish": 135,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 130,
+        "baseline_finish": 135,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T94"
+        ]
+      },
+      {
+        "task_id": "T96",
+        "name": "Plumbing Rough-In — L3",
+        "budget": 18000.0,
+        "pct_complete": 0.0,
+        "planned_start": 133,
+        "planned_finish": 138,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 133,
+        "baseline_finish": 138,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T95"
+        ]
+      },
+      {
+        "task_id": "T97",
+        "name": "HVAC Ductwork — L1",
+        "budget": 25000.0,
+        "pct_complete": 0.0,
+        "planned_start": 127,
+        "planned_finish": 133,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 127,
+        "baseline_finish": 133,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T90"
+        ]
+      },
+      {
+        "task_id": "T98",
+        "name": "HVAC Ductwork — L2",
+        "budget": 25000.0,
+        "pct_complete": 0.0,
+        "planned_start": 131,
+        "planned_finish": 137,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 131,
+        "baseline_finish": 137,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T97"
+        ]
+      },
+      {
+        "task_id": "T99",
+        "name": "HVAC Ductwork — L3",
+        "budget": 25000.0,
+        "pct_complete": 0.0,
+        "planned_start": 135,
+        "planned_finish": 141,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 135,
+        "baseline_finish": 141,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T98"
+        ]
+      },
+      {
+        "task_id": "T100",
+        "name": "Medical Gas Rough-In",
+        "budget": 30000.0,
+        "pct_complete": 0.0,
+        "planned_start": 127,
+        "planned_finish": 135,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 127,
+        "baseline_finish": 135,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T90"
+        ]
+      },
+      {
+        "task_id": "T101",
+        "name": "Fire Suppression Rough-In",
+        "budget": 20000.0,
+        "pct_complete": 0.0,
+        "planned_start": 129,
+        "planned_finish": 136,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 129,
+        "baseline_finish": 136,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T91"
+        ]
+      },
+      {
+        "task_id": "T102",
+        "name": "Nurse Call System Rough-In",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 131,
+        "planned_finish": 136,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 131,
+        "baseline_finish": 136,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T93"
+        ]
+      },
+      {
+        "task_id": "T103",
+        "name": "Security & Access Control Rough-In",
+        "budget": 14000.0,
+        "pct_complete": 0.0,
+        "planned_start": 133,
+        "planned_finish": 138,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 133,
+        "baseline_finish": 138,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T93"
+        ]
+      },
+      {
+        "task_id": "T104",
+        "name": "IT Infrastructure Rough-In",
+        "budget": 16000.0,
+        "pct_complete": 0.0,
+        "planned_start": 133,
+        "planned_finish": 138,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 133,
+        "baseline_finish": 138,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T93"
+        ]
+      },
+      {
+        "task_id": "T105",
+        "name": "MEP Rough-In Inspection",
+        "budget": 8000.0,
+        "pct_complete": 0.0,
+        "planned_start": 141,
+        "planned_finish": 143,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 141,
+        "baseline_finish": 143,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T96",
+          "T99",
+          "T100",
+          "T101",
+          "T102",
+          "T103",
+          "T104"
+        ]
+      },
+      {
+        "task_id": "T106",
+        "name": "External Cladding System Design",
+        "budget": 15000.0,
+        "pct_complete": 0.0,
+        "planned_start": 143,
+        "planned_finish": 146,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 143,
+        "baseline_finish": 146,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T105"
+        ]
+      },
+      {
+        "task_id": "T107",
+        "name": "Curtain Wall — Block A",
+        "budget": 55000.0,
+        "pct_complete": 0.0,
+        "planned_start": 143,
+        "planned_finish": 151,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 143,
+        "baseline_finish": 151,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T105"
+        ]
+      },
+      {
+        "task_id": "T108",
+        "name": "Curtain Wall — Block B",
+        "budget": 50000.0,
+        "pct_complete": 0.0,
+        "planned_start": 146,
+        "planned_finish": 154,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 146,
+        "baseline_finish": 154,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T106",
+          "T107"
+        ]
+      },
+      {
+        "task_id": "T109",
+        "name": "Roof Cladding",
+        "budget": 30000.0,
+        "pct_complete": 0.0,
+        "planned_start": 143,
+        "planned_finish": 151,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 143,
+        "baseline_finish": 151,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T105"
+        ]
+      },
+      {
+        "task_id": "T110",
+        "name": "External Wall Insulation",
+        "budget": 22000.0,
+        "pct_complete": 0.0,
+        "planned_start": 148,
+        "planned_finish": 155,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 148,
+        "baseline_finish": 155,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T107"
+        ]
+      },
+      {
+        "task_id": "T111",
+        "name": "Rooflight Installation",
+        "budget": 18000.0,
+        "pct_complete": 0.0,
+        "planned_start": 148,
+        "planned_finish": 154,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 148,
+        "baseline_finish": 154,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T109"
+        ]
+      },
+      {
+        "task_id": "T112",
+        "name": "External Doors & Frames",
+        "budget": 16000.0,
+        "pct_complete": 0.0,
+        "planned_start": 151,
+        "planned_finish": 156,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 151,
+        "baseline_finish": 156,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T108"
+        ]
+      },
+      {
+        "task_id": "T113",
+        "name": "Glazing",
+        "budget": 20000.0,
+        "pct_complete": 0.0,
+        "planned_start": 151,
+        "planned_finish": 157,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 151,
+        "baseline_finish": 157,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T108"
+        ]
+      },
+      {
+        "task_id": "T114",
+        "name": "Sealing & Weatherproofing",
+        "budget": 14000.0,
+        "pct_complete": 0.0,
+        "planned_start": 154,
+        "planned_finish": 159,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 154,
+        "baseline_finish": 159,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T110",
+          "T111",
+          "T112",
+          "T113"
+        ]
+      },
+      {
+        "task_id": "T115",
+        "name": "External Landscaping Preparation",
+        "budget": 10000.0,
+        "pct_complete": 0.0,
+        "planned_start": 151,
+        "planned_finish": 156,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 151,
+        "baseline_finish": 156,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T108"
+        ]
+      },
+      {
+        "task_id": "T116",
+        "name": "Balustrades & Barriers",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 155,
+        "planned_finish": 159,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 155,
+        "baseline_finish": 159,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T112",
+          "T113"
+        ]
+      },
+      {
+        "task_id": "T117",
+        "name": "External Signage",
+        "budget": 6000.0,
+        "pct_complete": 0.0,
+        "planned_start": 156,
+        "planned_finish": 159,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 156,
+        "baseline_finish": 159,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T112"
+        ]
+      },
+      {
+        "task_id": "T118",
+        "name": "External Lighting",
+        "budget": 8000.0,
+        "pct_complete": 0.0,
+        "planned_start": 156,
+        "planned_finish": 160,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 156,
+        "baseline_finish": 160,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T115"
+        ]
+      },
+      {
+        "task_id": "T119",
+        "name": "Envelope Airtightness Test",
+        "budget": 5000.0,
+        "pct_complete": 0.0,
+        "planned_start": 159,
+        "planned_finish": 161,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 159,
+        "baseline_finish": 161,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T114",
+          "T116",
+          "T117"
+        ]
+      },
+      {
+        "task_id": "T120",
+        "name": "Envelope Sign-off",
+        "budget": 3000.0,
+        "pct_complete": 0.0,
+        "planned_start": 161,
+        "planned_finish": 162,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 161,
+        "baseline_finish": 162,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T118",
+          "T119"
+        ]
+      },
+      {
+        "task_id": "T121",
+        "name": "Internal Partitions — L1",
+        "budget": 28000.0,
+        "pct_complete": 0.0,
+        "planned_start": 162,
+        "planned_finish": 167,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 162,
+        "baseline_finish": 167,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T120"
+        ]
+      },
+      {
+        "task_id": "T122",
+        "name": "Internal Partitions — L2",
+        "budget": 28000.0,
+        "pct_complete": 0.0,
+        "planned_start": 164,
+        "planned_finish": 169,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 164,
+        "baseline_finish": 169,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T121"
+        ]
+      },
+      {
+        "task_id": "T123",
+        "name": "Internal Partitions — L3",
+        "budget": 28000.0,
+        "pct_complete": 0.0,
+        "planned_start": 167,
+        "planned_finish": 172,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 167,
+        "baseline_finish": 172,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T122"
+        ]
+      },
+      {
+        "task_id": "T124",
+        "name": "Ceiling Systems — L1",
+        "budget": 22000.0,
+        "pct_complete": 0.0,
+        "planned_start": 167,
+        "planned_finish": 172,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 167,
+        "baseline_finish": 172,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T121"
+        ]
+      },
+      {
+        "task_id": "T125",
+        "name": "Ceiling Systems — L2",
+        "budget": 22000.0,
+        "pct_complete": 0.0,
+        "planned_start": 169,
+        "planned_finish": 174,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 169,
+        "baseline_finish": 174,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T122",
+          "T124"
+        ]
+      },
+      {
+        "task_id": "T126",
+        "name": "Ceiling Systems — L3",
+        "budget": 22000.0,
+        "pct_complete": 0.0,
+        "planned_start": 172,
+        "planned_finish": 177,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 172,
+        "baseline_finish": 177,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T123",
+          "T125"
+        ]
+      },
+      {
+        "task_id": "T127",
+        "name": "Flooring — L1",
+        "budget": 30000.0,
+        "pct_complete": 0.0,
+        "planned_start": 169,
+        "planned_finish": 175,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 169,
+        "baseline_finish": 175,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T121"
+        ]
+      },
+      {
+        "task_id": "T128",
+        "name": "Flooring — L2",
+        "budget": 30000.0,
+        "pct_complete": 0.0,
+        "planned_start": 172,
+        "planned_finish": 178,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 172,
+        "baseline_finish": 178,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T122",
+          "T127"
+        ]
+      },
+      {
+        "task_id": "T129",
+        "name": "Flooring — L3",
+        "budget": 30000.0,
+        "pct_complete": 0.0,
+        "planned_start": 175,
+        "planned_finish": 181,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 175,
+        "baseline_finish": 181,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T123",
+          "T128"
+        ]
+      },
+      {
+        "task_id": "T130",
+        "name": "Painting & Decorating — L1",
+        "budget": 16000.0,
+        "pct_complete": 0.0,
+        "planned_start": 172,
+        "planned_finish": 177,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 172,
+        "baseline_finish": 177,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T124"
+        ]
+      },
+      {
+        "task_id": "T131",
+        "name": "Painting & Decorating — L2",
+        "budget": 16000.0,
+        "pct_complete": 0.0,
+        "planned_start": 175,
+        "planned_finish": 180,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 175,
+        "baseline_finish": 180,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T125",
+          "T130"
+        ]
+      },
+      {
+        "task_id": "T132",
+        "name": "Painting & Decorating — L3",
+        "budget": 16000.0,
+        "pct_complete": 0.0,
+        "planned_start": 178,
+        "planned_finish": 183,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 178,
+        "baseline_finish": 183,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T126",
+          "T131"
+        ]
+      },
+      {
+        "task_id": "T133",
+        "name": "Joinery & Millwork",
+        "budget": 20000.0,
+        "pct_complete": 0.0,
+        "planned_start": 175,
+        "planned_finish": 181,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 175,
+        "baseline_finish": 181,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T124",
+          "T125"
+        ]
+      },
+      {
+        "task_id": "T134",
+        "name": "Sanitary Ware Installation",
+        "budget": 14000.0,
+        "pct_complete": 0.0,
+        "planned_start": 178,
+        "planned_finish": 183,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 178,
+        "baseline_finish": 183,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T128",
+          "T129"
+        ]
+      },
+      {
+        "task_id": "T135",
+        "name": "Medical Equipment Bases",
+        "budget": 18000.0,
+        "pct_complete": 0.0,
+        "planned_start": 178,
+        "planned_finish": 184,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 178,
+        "baseline_finish": 184,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T129"
+        ]
+      },
+      {
+        "task_id": "T136",
+        "name": "Internal Signage",
+        "budget": 6000.0,
+        "pct_complete": 0.0,
+        "planned_start": 181,
+        "planned_finish": 184,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 181,
+        "baseline_finish": 184,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T130",
+          "T131",
+          "T132"
+        ]
+      },
+      {
+        "task_id": "T137",
+        "name": "IT Racks & Data Cabinets",
+        "budget": 10000.0,
+        "pct_complete": 0.0,
+        "planned_start": 181,
+        "planned_finish": 185,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 181,
+        "baseline_finish": 185,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T133"
+        ]
+      },
+      {
+        "task_id": "T138",
+        "name": "Fit-out Inspection",
+        "budget": 8000.0,
+        "pct_complete": 0.0,
+        "planned_start": 185,
+        "planned_finish": 187,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 185,
+        "baseline_finish": 187,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T132",
+          "T133",
+          "T134",
+          "T135",
+          "T136",
+          "T137"
+        ]
+      },
+      {
+        "task_id": "T139",
+        "name": "Electrical Final Fix",
+        "budget": 25000.0,
+        "pct_complete": 0.0,
+        "planned_start": 187,
+        "planned_finish": 192,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 187,
+        "baseline_finish": 192,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T138"
+        ]
+      },
+      {
+        "task_id": "T140",
+        "name": "Plumbing Final Fix",
+        "budget": 20000.0,
+        "pct_complete": 0.0,
+        "planned_start": 187,
+        "planned_finish": 192,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 187,
+        "baseline_finish": 192,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T138"
+        ]
+      },
+      {
+        "task_id": "T141",
+        "name": "HVAC Commissioning",
+        "budget": 30000.0,
+        "pct_complete": 0.0,
+        "planned_start": 190,
+        "planned_finish": 196,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 190,
+        "baseline_finish": 196,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T139"
+        ]
+      },
+      {
+        "task_id": "T142",
+        "name": "Electrical Testing & Commissioning",
+        "budget": 22000.0,
+        "pct_complete": 0.0,
+        "planned_start": 192,
+        "planned_finish": 197,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 192,
+        "baseline_finish": 197,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T139"
+        ]
+      },
+      {
+        "task_id": "T143",
+        "name": "Medical Gas Testing",
+        "budget": 14000.0,
+        "pct_complete": 0.0,
+        "planned_start": 192,
+        "planned_finish": 196,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 192,
+        "baseline_finish": 196,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T140"
+        ]
+      },
+      {
+        "task_id": "T144",
+        "name": "Fire Systems Testing",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 193,
+        "planned_finish": 197,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 193,
+        "baseline_finish": 197,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T141"
+        ]
+      },
+      {
+        "task_id": "T145",
+        "name": "BMS Commissioning",
+        "budget": 16000.0,
+        "pct_complete": 0.0,
+        "planned_start": 194,
+        "planned_finish": 198,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 194,
+        "baseline_finish": 198,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T141",
+          "T142"
+        ]
+      },
+      {
+        "task_id": "T146",
+        "name": "Equipment Installation",
+        "budget": 35000.0,
+        "pct_complete": 0.0,
+        "planned_start": 192,
+        "planned_finish": 199,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 192,
+        "baseline_finish": 199,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T138"
+        ]
+      },
+      {
+        "task_id": "T147",
+        "name": "Defects Inspection",
+        "budget": 10000.0,
+        "pct_complete": 0.0,
+        "planned_start": 199,
+        "planned_finish": 202,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 199,
+        "baseline_finish": 202,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T143",
+          "T144",
+          "T145",
+          "T146"
+        ]
+      },
+      {
+        "task_id": "T148",
+        "name": "Snagging & Remediation",
+        "budget": 18000.0,
+        "pct_complete": 0.0,
+        "planned_start": 202,
+        "planned_finish": 206,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 202,
+        "baseline_finish": 206,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T147"
+        ]
+      },
+      {
+        "task_id": "T149",
+        "name": "Regulatory Final Inspection",
+        "budget": 8000.0,
+        "pct_complete": 0.0,
+        "planned_start": 206,
+        "planned_finish": 209,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 206,
+        "baseline_finish": 209,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T148"
+        ]
+      },
+      {
+        "task_id": "T150",
+        "name": "Practical Completion & Handover",
+        "budget": 5000.0,
+        "pct_complete": 0.0,
+        "planned_start": 209,
+        "planned_finish": 210,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 209,
+        "baseline_finish": 210,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "T149"
+        ]
+      }
+    ],
+    "periods": [
+      {
+        "index": 0,
+        "label": "Week 1",
+        "pv_cumulative": 24200.0,
+        "ev_cumulative": 0.0,
+        "ac_cumulative": 0.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 1,
+        "label": "Week 2",
+        "pv_cumulative": 68400.0,
+        "ev_cumulative": 0.0,
+        "ac_cumulative": 0.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 2,
+        "label": "Week 3",
+        "pv_cumulative": 125400.0,
+        "ev_cumulative": 0.0,
+        "ac_cumulative": 0.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 3,
+        "label": "Week 4",
+        "pv_cumulative": 192600.0,
+        "ev_cumulative": 0.0,
+        "ac_cumulative": 0.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 4,
+        "label": "Week 5",
+        "pv_cumulative": 268300.0,
+        "ev_cumulative": 14600.0,
+        "ac_cumulative": 15900.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 5,
+        "label": "Week 6",
+        "pv_cumulative": 351300.0,
+        "ev_cumulative": 41100.0,
+        "ac_cumulative": 44800.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 6,
+        "label": "Week 7",
+        "pv_cumulative": 440700.0,
+        "ev_cumulative": 75400.0,
+        "ac_cumulative": 82200.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 7,
+        "label": "Week 8",
+        "pv_cumulative": 535600.0,
+        "ev_cumulative": 115800.0,
+        "ac_cumulative": 126200.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 8,
+        "label": "Week 9",
+        "pv_cumulative": 635300.0,
+        "ev_cumulative": 161300.0,
+        "ac_cumulative": 175800.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 9,
+        "label": "Week 10",
+        "pv_cumulative": 739100.0,
+        "ev_cumulative": 211100.0,
+        "ac_cumulative": 230100.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 10,
+        "label": "Week 11",
+        "pv_cumulative": 846400.0,
+        "ev_cumulative": 264800.0,
+        "ac_cumulative": 288600.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 11,
+        "label": "Week 12",
+        "pv_cumulative": 956600.0,
+        "ev_cumulative": 321700.0,
+        "ac_cumulative": 350700.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 12,
+        "label": "Week 13",
+        "pv_cumulative": 1069100.0,
+        "ev_cumulative": 381500.0,
+        "ac_cumulative": 415800.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 13,
+        "label": "Week 14",
+        "pv_cumulative": 1183300.0,
+        "ev_cumulative": 443700.0,
+        "ac_cumulative": 483600.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 14,
+        "label": "Week 15",
+        "pv_cumulative": 1298900.0,
+        "ev_cumulative": 507900.0,
+        "ac_cumulative": 553600.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 15,
+        "label": "Week 16",
+        "pv_cumulative": 1415100.0,
+        "ev_cumulative": 573800.0,
+        "ac_cumulative": 625400.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 16,
+        "label": "Week 17",
+        "pv_cumulative": 1531600.0,
+        "ev_cumulative": 641000.0,
+        "ac_cumulative": 698700.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 17,
+        "label": "Week 18",
+        "pv_cumulative": 1647800.0,
+        "ev_cumulative": 709200.0,
+        "ac_cumulative": 773000.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 18,
+        "label": "Week 19",
+        "pv_cumulative": 1763300.0,
+        "ev_cumulative": 778000.0,
+        "ac_cumulative": 848000.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 19,
+        "label": "Week 20",
+        "pv_cumulative": 1877500.0,
+        "ev_cumulative": 847100.0,
+        "ac_cumulative": 923300.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 20,
+        "label": "Week 21",
+        "pv_cumulative": 1990100.0,
+        "ev_cumulative": 916300.0,
+        "ac_cumulative": 998800.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 21,
+        "label": "Week 22",
+        "pv_cumulative": 2100700.0,
+        "ev_cumulative": 985200.0,
+        "ac_cumulative": 1073900.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 22,
+        "label": "Week 23",
+        "pv_cumulative": 2208700.0,
+        "ev_cumulative": 1053500.0,
+        "ac_cumulative": 1148300.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 23,
+        "label": "Week 24",
+        "pv_cumulative": 2313800.0,
+        "ev_cumulative": 1121000.0,
+        "ac_cumulative": 1221900.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 24,
+        "label": "Week 25",
+        "pv_cumulative": 2415600.0,
+        "ev_cumulative": 1187300.0,
+        "ac_cumulative": 1294200.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 25,
+        "label": "Week 26",
+        "pv_cumulative": 2513700.0,
+        "ev_cumulative": 1252200.0,
+        "ac_cumulative": 1364900.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 26,
+        "label": "Week 27",
+        "pv_cumulative": 2607800.0,
+        "ev_cumulative": 1315500.0,
+        "ac_cumulative": 1433900.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 27,
+        "label": "Week 28",
+        "pv_cumulative": 2697400.0,
+        "ev_cumulative": 1376800.0,
+        "ac_cumulative": 1500700.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 28,
+        "label": "Week 29",
+        "pv_cumulative": 2782400.0,
+        "ev_cumulative": 1436000.0,
+        "ac_cumulative": 1565200.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 29,
+        "label": "Week 30",
+        "pv_cumulative": 2862300.0,
+        "ev_cumulative": 1492800.0,
+        "ac_cumulative": 1627200.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 30,
+        "label": "Week 31",
+        "pv_cumulative": 2937000.0,
+        "ev_cumulative": 1547100.0,
+        "ac_cumulative": 1686300.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 31,
+        "label": "Week 32",
+        "pv_cumulative": 3006000.0,
+        "ev_cumulative": 1598500.0,
+        "ac_cumulative": 1742400.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 32,
+        "label": "Week 33",
+        "pv_cumulative": 3069300.0,
+        "ev_cumulative": 1646900.0,
+        "ac_cumulative": 1795100.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 33,
+        "label": "Week 34",
+        "pv_cumulative": 3126400.0,
+        "ev_cumulative": 1692100.0,
+        "ac_cumulative": 1844400.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 34,
+        "label": "Week 35",
+        "pv_cumulative": 3177400.0,
+        "ev_cumulative": 1734000.0,
+        "ac_cumulative": 1890100.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 35,
+        "label": "Week 36",
+        "pv_cumulative": 3221900.0,
+        "ev_cumulative": 1772400.0,
+        "ac_cumulative": 1931900.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 36,
+        "label": "Week 37",
+        "pv_cumulative": 3259900.0,
+        "ev_cumulative": 1807100.0,
+        "ac_cumulative": 1969700.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 37,
+        "label": "Week 38",
+        "pv_cumulative": 3291100.0,
+        "ev_cumulative": 1838100.0,
+        "ac_cumulative": 2003500.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 38,
+        "label": "Week 39",
+        "pv_cumulative": 3315500.0,
+        "ev_cumulative": 1865200.0,
+        "ac_cumulative": 2033100.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 39,
+        "label": "Week 40",
+        "pv_cumulative": 3333000.0,
+        "ev_cumulative": 1888200.0,
+        "ac_cumulative": 2058100.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 40,
+        "label": "Week 41",
+        "pv_cumulative": 3343500.0,
+        "ev_cumulative": 1907200.0,
+        "ac_cumulative": 2078800.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 41,
+        "label": "Week 42",
+        "pv_cumulative": 3347000.0,
+        "ev_cumulative": 1922100.0,
+        "ac_cumulative": 2095100.0,
+        "ev_source": "manual"
+      }
+    ]
+  },
+  "risk_register": {
+    "bac": 3347000.0,
+    "high_exposure_threshold_pct": 0.05,
+    "risks": [
+      {
+        "id": "UR1",
+        "name": "Ground Contamination",
+        "description": "Unknown contamination discovered during excavation",
+        "probability": 0.3,
+        "impact": 80000.0,
+        "category": "Cost"
+      },
+      {
+        "id": "UR2",
+        "name": "Permit Delays",
+        "description": "Health authority approval delayed by regulatory changes",
+        "probability": 0.4,
+        "impact": 120000.0,
+        "category": "Schedule"
+      },
+      {
+        "id": "UR3",
+        "name": "Material Supply Disruption",
+        "description": "Steel and precast supply delays due to global shortages",
+        "probability": 0.35,
+        "impact": 95000.0,
+        "category": "Cost"
+      },
+      {
+        "id": "UR4",
+        "name": "Subcontractor Failure",
+        "description": "Key MEP subcontractor financial failure mid-project",
+        "probability": 0.2,
+        "impact": 150000.0,
+        "category": "Schedule"
+      },
+      {
+        "id": "UR5",
+        "name": "Client Design Changes",
+        "description": "Client requests significant design alterations post-tender",
+        "probability": 0.45,
+        "impact": 200000.0,
+        "category": "Scope"
+      },
+      {
+        "id": "UR6",
+        "name": "Weather Delays",
+        "description": "Prolonged adverse weather halting external works",
+        "probability": 0.3,
+        "impact": 50000.0,
+        "category": "Schedule"
+      },
+      {
+        "id": "UR7",
+        "name": "Construction Inflation",
+        "description": "Cost inflation exceeding the contingency reserve",
+        "probability": 0.5,
+        "impact": 180000.0,
+        "category": "Cost"
+      },
+      {
+        "id": "UR8",
+        "name": "Community Opposition",
+        "description": "Local objection causing reputational and delay risks",
+        "probability": 0.15,
+        "impact": 60000.0,
+        "category": "Schedule"
+      },
+      {
+        "id": "UR9",
+        "name": "Equipment Lead Times",
+        "description": "Medical equipment delivery delays on critical path",
+        "probability": 0.4,
+        "impact": 70000.0,
+        "category": "Schedule"
+      },
+      {
+        "id": "UR10",
+        "name": "Labour Shortage",
+        "description": "Shortage of skilled trades during peak construction phase",
+        "probability": 0.35,
+        "impact": 110000.0,
+        "category": "Cost"
+      }
+    ]
+  },
+  "mc_results": null,
+  "app_config": {
+    "mode": "UG",
+    "currency_symbol": "$"
+  },
+  "cpm_activities": [
+    {
+      "id": "T1",
+      "activity": "Project Initiation",
+      "duration": "2",
+      "predecessors": "",
+      "min_duration": "1",
+      "crash_cost": "22000",
+      "resource_demand": "2",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "T2",
+      "activity": "Stakeholder Identification",
+      "duration": "3",
+      "predecessors": "",
+      "min_duration": "2",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "T3",
+      "activity": "Feasibility Study",
+      "duration": "4",
+      "predecessors": "T1,T2",
+      "min_duration": "3",
+      "crash_cost": "45000",
+      "resource_demand": "4",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "T4",
+      "activity": "Site Selection",
+      "duration": "4",
+      "predecessors": "T2",
+      "min_duration": "3",
+      "crash_cost": "30000",
+      "resource_demand": "3",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "T5",
+      "activity": "Environmental Impact Assessment",
+      "duration": "5",
+      "predecessors": "T3,T4",
+      "min_duration": "4",
+      "crash_cost": "37000",
+      "resource_demand": "3",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "T6",
+      "activity": "Geotechnical Survey",
+      "duration": "4",
+      "predecessors": "T4",
+      "min_duration": "3",
+      "crash_cost": "33000",
+      "resource_demand": "4",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "T7",
+      "activity": "Utility Mapping",
+      "duration": "3",
+      "predecessors": "T4",
+      "min_duration": "2",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "T8",
+      "activity": "Budget Estimation",
+      "duration": "3",
+      "predecessors": "T3",
+      "min_duration": "2",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "T9",
+      "activity": "Risk Assessment",
+      "duration": "3",
+      "predecessors": "T3",
+      "min_duration": "2",
+      "crash_cost": "21000",
+      "resource_demand": "2",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "T10",
+      "activity": "Funding Approval",
+      "duration": "3",
+      "predecessors": "T5,T6,T7,T8,T9",
+      "min_duration": "2",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "T11",
+      "activity": "Master Programme",
+      "duration": "3",
+      "predecessors": "T8",
+      "min_duration": "2",
+      "crash_cost": "24000",
+      "resource_demand": "2",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "T12",
+      "activity": "Procurement Strategy",
+      "duration": "3",
+      "predecessors": "T8",
+      "min_duration": "2",
+      "crash_cost": "19500",
+      "resource_demand": "2",
+      "normal_cost": "13000"
+    },
+    {
+      "id": "T13",
+      "activity": "Stakeholder Approval",
+      "duration": "2",
+      "predecessors": "T10,T11,T12",
+      "min_duration": "1",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "T14",
+      "activity": "Programme Board Setup",
+      "duration": "2",
+      "predecessors": "T10",
+      "min_duration": "1",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "T15",
+      "activity": "Feasibility Sign-off",
+      "duration": "1",
+      "predecessors": "T13,T14",
+      "min_duration": "1",
+      "crash_cost": "8000",
+      "resource_demand": "1",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "T16",
+      "activity": "Concept Design",
+      "duration": "4",
+      "predecessors": "T15",
+      "min_duration": "3",
+      "crash_cost": "67000",
+      "resource_demand": "5",
+      "normal_cost": "45000"
+    },
+    {
+      "id": "T17",
+      "activity": "Structural Concept",
+      "duration": "3",
+      "predecessors": "T15",
+      "min_duration": "2",
+      "crash_cost": "45000",
+      "resource_demand": "4",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "T18",
+      "activity": "MEP Concept Design",
+      "duration": "3",
+      "predecessors": "T15",
+      "min_duration": "2",
+      "crash_cost": "42000",
+      "resource_demand": "3",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "T19",
+      "activity": "Healthcare Planning",
+      "duration": "5",
+      "predecessors": "T15",
+      "min_duration": "4",
+      "crash_cost": "52000",
+      "resource_demand": "4",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "T20",
+      "activity": "Schematic Design",
+      "duration": "5",
+      "predecessors": "T16,T17",
+      "min_duration": "4",
+      "crash_cost": "82000",
+      "resource_demand": "6",
+      "normal_cost": "55000"
+    },
+    {
+      "id": "T21",
+      "activity": "Structural Design Development",
+      "duration": "5",
+      "predecessors": "T17,T18",
+      "min_duration": "4",
+      "crash_cost": "60000",
+      "resource_demand": "5",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "T22",
+      "activity": "MEP Design Development",
+      "duration": "5",
+      "predecessors": "T18",
+      "min_duration": "4",
+      "crash_cost": "57000",
+      "resource_demand": "4",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "T23",
+      "activity": "Fire & Life Safety Design",
+      "duration": "4",
+      "predecessors": "T19,T20",
+      "min_duration": "3",
+      "crash_cost": "37000",
+      "resource_demand": "3",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "T24",
+      "activity": "IT & Communications Design",
+      "duration": "4",
+      "predecessors": "T19",
+      "min_duration": "3",
+      "crash_cost": "33000",
+      "resource_demand": "3",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "T25",
+      "activity": "Medical Gas Design",
+      "duration": "3",
+      "predecessors": "T22",
+      "min_duration": "2",
+      "crash_cost": "30000",
+      "resource_demand": "3",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "T26",
+      "activity": "Design Development Coordination",
+      "duration": "3",
+      "predecessors": "T21,T22,T23,T24",
+      "min_duration": "2",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "T27",
+      "activity": "BIM Model Development",
+      "duration": "6",
+      "predecessors": "T20",
+      "min_duration": "5",
+      "crash_cost": "45000",
+      "resource_demand": "4",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "T28",
+      "activity": "Construction Documents",
+      "duration": "5",
+      "predecessors": "T25,T26,T27",
+      "min_duration": "4",
+      "crash_cost": "90000",
+      "resource_demand": "6",
+      "normal_cost": "60000"
+    },
+    {
+      "id": "T29",
+      "activity": "Cost Plan",
+      "duration": "3",
+      "predecessors": "T28",
+      "min_duration": "2",
+      "crash_cost": "22000",
+      "resource_demand": "2",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "T30",
+      "activity": "Design Sign-off",
+      "duration": "1",
+      "predecessors": "T28,T29",
+      "min_duration": "1",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "T31",
+      "activity": "Building Permit Application",
+      "duration": "3",
+      "predecessors": "T30",
+      "min_duration": "2",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "T32",
+      "activity": "Planning Permission",
+      "duration": "3",
+      "predecessors": "T30",
+      "min_duration": "2",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "T33",
+      "activity": "Health Authority Approval",
+      "duration": "5",
+      "predecessors": "T30",
+      "min_duration": "4",
+      "crash_cost": "22000",
+      "resource_demand": "2",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "T34",
+      "activity": "Fire Authority Approval",
+      "duration": "4",
+      "predecessors": "T30",
+      "min_duration": "3",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "T35",
+      "activity": "Environmental Permits",
+      "duration": "4",
+      "predecessors": "T30",
+      "min_duration": "3",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "T36",
+      "activity": "Utility Connection Permits",
+      "duration": "4",
+      "predecessors": "T31,T32",
+      "min_duration": "3",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "T37",
+      "activity": "Contractor Pre-qualification",
+      "duration": "4",
+      "predecessors": "T31",
+      "min_duration": "3",
+      "crash_cost": "21000",
+      "resource_demand": "3",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "T38",
+      "activity": "Tender Documentation",
+      "duration": "4",
+      "predecessors": "T30,T37",
+      "min_duration": "3",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "T39",
+      "activity": "Tender Period",
+      "duration": "4",
+      "predecessors": "T38",
+      "min_duration": "3",
+      "crash_cost": "7500",
+      "resource_demand": "1",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "T40",
+      "activity": "Tender Evaluation",
+      "duration": "2",
+      "predecessors": "T39",
+      "min_duration": "1",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "T41",
+      "activity": "Contractor Selection",
+      "duration": "2",
+      "predecessors": "T40",
+      "min_duration": "1",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "T42",
+      "activity": "Contract Award",
+      "duration": "1",
+      "predecessors": "T33,T34,T35,T36,T41",
+      "min_duration": "1",
+      "crash_cost": "7500",
+      "resource_demand": "1",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "T43",
+      "activity": "Insurance & Bonds",
+      "duration": "2",
+      "predecessors": "T42",
+      "min_duration": "1",
+      "crash_cost": "9000",
+      "resource_demand": "1",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "T44",
+      "activity": "Mobilisation Planning",
+      "duration": "2",
+      "predecessors": "T42",
+      "min_duration": "1",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "T45",
+      "activity": "Permits Handover",
+      "duration": "1",
+      "predecessors": "T43,T44",
+      "min_duration": "1",
+      "crash_cost": "5000",
+      "resource_demand": "1",
+      "normal_cost": "3000"
+    },
+    {
+      "id": "T46",
+      "activity": "Site Hoarding & Security",
+      "duration": "2",
+      "predecessors": "T45",
+      "min_duration": "1",
+      "crash_cost": "12000",
+      "resource_demand": "3",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "T47",
+      "activity": "Existing Services Diversion",
+      "duration": "6",
+      "predecessors": "T45",
+      "min_duration": "5",
+      "crash_cost": "52000",
+      "resource_demand": "5",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "T48",
+      "activity": "Demolition of Existing Structures",
+      "duration": "6",
+      "predecessors": "T46",
+      "min_duration": "5",
+      "crash_cost": "67000",
+      "resource_demand": "8",
+      "normal_cost": "45000"
+    },
+    {
+      "id": "T49",
+      "activity": "Site Clearance",
+      "duration": "5",
+      "predecessors": "T47,T48",
+      "min_duration": "4",
+      "crash_cost": "22000",
+      "resource_demand": "6",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "T50",
+      "activity": "Bulk Earthworks",
+      "duration": "7",
+      "predecessors": "T48",
+      "min_duration": "6",
+      "crash_cost": "82000",
+      "resource_demand": "8",
+      "normal_cost": "55000"
+    },
+    {
+      "id": "T51",
+      "activity": "Dewatering System",
+      "duration": "4",
+      "predecessors": "T48",
+      "min_duration": "3",
+      "crash_cost": "30000",
+      "resource_demand": "4",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "T52",
+      "activity": "Temporary Roads & Access",
+      "duration": "4",
+      "predecessors": "T48",
+      "min_duration": "3",
+      "crash_cost": "27000",
+      "resource_demand": "4",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "T53",
+      "activity": "Erosion & Sediment Control",
+      "duration": "4",
+      "predecessors": "T49,T50",
+      "min_duration": "3",
+      "crash_cost": "15000",
+      "resource_demand": "3",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "T54",
+      "activity": "Underground Infrastructure Survey",
+      "duration": "3",
+      "predecessors": "T51,T52",
+      "min_duration": "2",
+      "crash_cost": "18000",
+      "resource_demand": "3",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "T55",
+      "activity": "Temporary Site Offices",
+      "duration": "3",
+      "predecessors": "T52",
+      "min_duration": "2",
+      "crash_cost": "21000",
+      "resource_demand": "3",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "T56",
+      "activity": "Site Drainage Network",
+      "duration": "5",
+      "predecessors": "T53,T54",
+      "min_duration": "4",
+      "crash_cost": "33000",
+      "resource_demand": "4",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "T57",
+      "activity": "Temporary Power & Water",
+      "duration": "3",
+      "predecessors": "T54",
+      "min_duration": "2",
+      "crash_cost": "18000",
+      "resource_demand": "3",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "T58",
+      "activity": "Subgrade Preparation",
+      "duration": "4",
+      "predecessors": "T50,T55",
+      "min_duration": "3",
+      "crash_cost": "27000",
+      "resource_demand": "5",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "T59",
+      "activity": "Contamination Remediation",
+      "duration": "6",
+      "predecessors": "T54",
+      "min_duration": "5",
+      "crash_cost": "37000",
+      "resource_demand": "4",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "T60",
+      "activity": "Site Preparation Completion",
+      "duration": "1",
+      "predecessors": "T56,T57,T58,T59",
+      "min_duration": "1",
+      "crash_cost": "7500",
+      "resource_demand": "1",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "T61",
+      "activity": "Piling Design Review",
+      "duration": "2",
+      "predecessors": "T60",
+      "min_duration": "1",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "T62",
+      "activity": "Piling Works — Block A",
+      "duration": "7",
+      "predecessors": "T60",
+      "min_duration": "6",
+      "crash_cost": "90000",
+      "resource_demand": "8",
+      "normal_cost": "60000"
+    },
+    {
+      "id": "T63",
+      "activity": "Piling Works — Block B",
+      "duration": "7",
+      "predecessors": "T61,T62",
+      "min_duration": "6",
+      "crash_cost": "82000",
+      "resource_demand": "8",
+      "normal_cost": "55000"
+    },
+    {
+      "id": "T64",
+      "activity": "Pile Testing",
+      "duration": "3",
+      "predecessors": "T62",
+      "min_duration": "2",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "T65",
+      "activity": "Ground Beams — Block A",
+      "duration": "5",
+      "predecessors": "T62,T64",
+      "min_duration": "4",
+      "crash_cost": "60000",
+      "resource_demand": "6",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "T66",
+      "activity": "Ground Beams — Block B",
+      "duration": "5",
+      "predecessors": "T63",
+      "min_duration": "4",
+      "crash_cost": "60000",
+      "resource_demand": "6",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "T67",
+      "activity": "Raft Slab Design",
+      "duration": "2",
+      "predecessors": "T63",
+      "min_duration": "1",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "T68",
+      "activity": "Raft Slab — Block A",
+      "duration": "5",
+      "predecessors": "T65,T67",
+      "min_duration": "4",
+      "crash_cost": "75000",
+      "resource_demand": "7",
+      "normal_cost": "50000"
+    },
+    {
+      "id": "T69",
+      "activity": "Raft Slab — Block B",
+      "duration": "5",
+      "predecessors": "T66",
+      "min_duration": "4",
+      "crash_cost": "75000",
+      "resource_demand": "7",
+      "normal_cost": "50000"
+    },
+    {
+      "id": "T70",
+      "activity": "Waterproofing to Foundation",
+      "duration": "4",
+      "predecessors": "T65,T66",
+      "min_duration": "3",
+      "crash_cost": "27000",
+      "resource_demand": "4",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "T71",
+      "activity": "Drainage to Foundation",
+      "duration": "4",
+      "predecessors": "T70",
+      "min_duration": "3",
+      "crash_cost": "21000",
+      "resource_demand": "3",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "T72",
+      "activity": "Backfill & Compaction",
+      "duration": "5",
+      "predecessors": "T68,T69,T70",
+      "min_duration": "4",
+      "crash_cost": "33000",
+      "resource_demand": "5",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "T73",
+      "activity": "Subbase Preparation",
+      "duration": "4",
+      "predecessors": "T69,T71",
+      "min_duration": "3",
+      "crash_cost": "24000",
+      "resource_demand": "4",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "T74",
+      "activity": "Ground-floor Slab",
+      "duration": "5",
+      "predecessors": "T72,T73",
+      "min_duration": "4",
+      "crash_cost": "67000",
+      "resource_demand": "6",
+      "normal_cost": "45000"
+    },
+    {
+      "id": "T75",
+      "activity": "Foundation Completion",
+      "duration": "1",
+      "predecessors": "T74",
+      "min_duration": "1",
+      "crash_cost": "7500",
+      "resource_demand": "1",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "T76",
+      "activity": "Structural Steel Fabrication",
+      "duration": "6",
+      "predecessors": "T75",
+      "min_duration": "5",
+      "crash_cost": "120000",
+      "resource_demand": "6",
+      "normal_cost": "80000"
+    },
+    {
+      "id": "T77",
+      "activity": "Precast Concrete Elements",
+      "duration": "8",
+      "predecessors": "T75",
+      "min_duration": "7",
+      "crash_cost": "97000",
+      "resource_demand": "7",
+      "normal_cost": "65000"
+    },
+    {
+      "id": "T78",
+      "activity": "Level 1 Columns & Slabs",
+      "duration": "6",
+      "predecessors": "T76",
+      "min_duration": "5",
+      "crash_cost": "105000",
+      "resource_demand": "7",
+      "normal_cost": "70000"
+    },
+    {
+      "id": "T79",
+      "activity": "Level 2 Columns & Slabs",
+      "duration": "6",
+      "predecessors": "T77,T78",
+      "min_duration": "5",
+      "crash_cost": "105000",
+      "resource_demand": "7",
+      "normal_cost": "70000"
+    },
+    {
+      "id": "T80",
+      "activity": "Level 3 Columns & Slabs",
+      "duration": "6",
+      "predecessors": "T78,T79",
+      "min_duration": "5",
+      "crash_cost": "105000",
+      "resource_demand": "7",
+      "normal_cost": "70000"
+    },
+    {
+      "id": "T81",
+      "activity": "Roof Structure",
+      "duration": "7",
+      "predecessors": "T79,T80",
+      "min_duration": "6",
+      "crash_cost": "82000",
+      "resource_demand": "6",
+      "normal_cost": "55000"
+    },
+    {
+      "id": "T82",
+      "activity": "Structural Steelwork — Atrium",
+      "duration": "6",
+      "predecessors": "T79",
+      "min_duration": "5",
+      "crash_cost": "60000",
+      "resource_demand": "5",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "T83",
+      "activity": "Precast Staircases",
+      "duration": "6",
+      "predecessors": "T80",
+      "min_duration": "5",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "T84",
+      "activity": "Structural Waterproofing",
+      "duration": "4",
+      "predecessors": "T80,T81",
+      "min_duration": "3",
+      "crash_cost": "18000",
+      "resource_demand": "3",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "T85",
+      "activity": "Façade Steelwork",
+      "duration": "5",
+      "predecessors": "T81,T82",
+      "min_duration": "4",
+      "crash_cost": "45000",
+      "resource_demand": "4",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "T86",
+      "activity": "Roof Insulation & Waterproofing",
+      "duration": "5",
+      "predecessors": "T81",
+      "min_duration": "4",
+      "crash_cost": "37000",
+      "resource_demand": "4",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "T87",
+      "activity": "Lift Shaft Construction",
+      "duration": "7",
+      "predecessors": "T80",
+      "min_duration": "6",
+      "crash_cost": "42000",
+      "resource_demand": "4",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "T88",
+      "activity": "Plant Room Structures",
+      "duration": "5",
+      "predecessors": "T81",
+      "min_duration": "4",
+      "crash_cost": "24000",
+      "resource_demand": "3",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "T89",
+      "activity": "Structural Snagging",
+      "duration": "2",
+      "predecessors": "T84,T85,T86,T87,T88",
+      "min_duration": "1",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "T90",
+      "activity": "Superstructure Sign-off",
+      "duration": "1",
+      "predecessors": "T89",
+      "min_duration": "1",
+      "crash_cost": "6000",
+      "resource_demand": "1",
+      "normal_cost": "4000"
+    },
+    {
+      "id": "T91",
+      "activity": "Electrical Containment — L1",
+      "duration": "4",
+      "predecessors": "T90",
+      "min_duration": "3",
+      "crash_cost": "33000",
+      "resource_demand": "4",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "T92",
+      "activity": "Electrical Containment — L2",
+      "duration": "4",
+      "predecessors": "T91",
+      "min_duration": "3",
+      "crash_cost": "33000",
+      "resource_demand": "4",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "T93",
+      "activity": "Electrical Containment — L3",
+      "duration": "4",
+      "predecessors": "T92",
+      "min_duration": "3",
+      "crash_cost": "33000",
+      "resource_demand": "4",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "T94",
+      "activity": "Plumbing Rough-In — L1",
+      "duration": "5",
+      "predecessors": "T90",
+      "min_duration": "4",
+      "crash_cost": "27000",
+      "resource_demand": "4",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "T95",
+      "activity": "Plumbing Rough-In — L2",
+      "duration": "5",
+      "predecessors": "T94",
+      "min_duration": "4",
+      "crash_cost": "27000",
+      "resource_demand": "4",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "T96",
+      "activity": "Plumbing Rough-In — L3",
+      "duration": "5",
+      "predecessors": "T95",
+      "min_duration": "4",
+      "crash_cost": "27000",
+      "resource_demand": "4",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "T97",
+      "activity": "HVAC Ductwork — L1",
+      "duration": "6",
+      "predecessors": "T90",
+      "min_duration": "5",
+      "crash_cost": "37000",
+      "resource_demand": "5",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "T98",
+      "activity": "HVAC Ductwork — L2",
+      "duration": "6",
+      "predecessors": "T97",
+      "min_duration": "5",
+      "crash_cost": "37000",
+      "resource_demand": "5",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "T99",
+      "activity": "HVAC Ductwork — L3",
+      "duration": "6",
+      "predecessors": "T98",
+      "min_duration": "5",
+      "crash_cost": "37000",
+      "resource_demand": "5",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "T100",
+      "activity": "Medical Gas Rough-In",
+      "duration": "8",
+      "predecessors": "T90",
+      "min_duration": "7",
+      "crash_cost": "45000",
+      "resource_demand": "5",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "T101",
+      "activity": "Fire Suppression Rough-In",
+      "duration": "7",
+      "predecessors": "T91",
+      "min_duration": "6",
+      "crash_cost": "30000",
+      "resource_demand": "4",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "T102",
+      "activity": "Nurse Call System Rough-In",
+      "duration": "5",
+      "predecessors": "T93",
+      "min_duration": "4",
+      "crash_cost": "18000",
+      "resource_demand": "3",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "T103",
+      "activity": "Security & Access Control Rough-In",
+      "duration": "5",
+      "predecessors": "T93",
+      "min_duration": "4",
+      "crash_cost": "21000",
+      "resource_demand": "3",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "T104",
+      "activity": "IT Infrastructure Rough-In",
+      "duration": "5",
+      "predecessors": "T93",
+      "min_duration": "4",
+      "crash_cost": "24000",
+      "resource_demand": "3",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "T105",
+      "activity": "MEP Rough-In Inspection",
+      "duration": "2",
+      "predecessors": "T96,T99,T100,T101,T102,T103,T104",
+      "min_duration": "1",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "T106",
+      "activity": "External Cladding System Design",
+      "duration": "3",
+      "predecessors": "T105",
+      "min_duration": "2",
+      "crash_cost": "22000",
+      "resource_demand": "2",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "T107",
+      "activity": "Curtain Wall — Block A",
+      "duration": "8",
+      "predecessors": "T105",
+      "min_duration": "7",
+      "crash_cost": "82000",
+      "resource_demand": "6",
+      "normal_cost": "55000"
+    },
+    {
+      "id": "T108",
+      "activity": "Curtain Wall — Block B",
+      "duration": "8",
+      "predecessors": "T106,T107",
+      "min_duration": "7",
+      "crash_cost": "75000",
+      "resource_demand": "6",
+      "normal_cost": "50000"
+    },
+    {
+      "id": "T109",
+      "activity": "Roof Cladding",
+      "duration": "8",
+      "predecessors": "T105",
+      "min_duration": "7",
+      "crash_cost": "45000",
+      "resource_demand": "5",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "T110",
+      "activity": "External Wall Insulation",
+      "duration": "7",
+      "predecessors": "T107",
+      "min_duration": "6",
+      "crash_cost": "33000",
+      "resource_demand": "4",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "T111",
+      "activity": "Rooflight Installation",
+      "duration": "6",
+      "predecessors": "T109",
+      "min_duration": "5",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "T112",
+      "activity": "External Doors & Frames",
+      "duration": "5",
+      "predecessors": "T108",
+      "min_duration": "4",
+      "crash_cost": "24000",
+      "resource_demand": "3",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "T113",
+      "activity": "Glazing",
+      "duration": "6",
+      "predecessors": "T108",
+      "min_duration": "5",
+      "crash_cost": "30000",
+      "resource_demand": "3",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "T114",
+      "activity": "Sealing & Weatherproofing",
+      "duration": "5",
+      "predecessors": "T110,T111,T112,T113",
+      "min_duration": "4",
+      "crash_cost": "21000",
+      "resource_demand": "3",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "T115",
+      "activity": "External Landscaping Preparation",
+      "duration": "5",
+      "predecessors": "T108",
+      "min_duration": "4",
+      "crash_cost": "15000",
+      "resource_demand": "3",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "T116",
+      "activity": "Balustrades & Barriers",
+      "duration": "4",
+      "predecessors": "T112,T113",
+      "min_duration": "3",
+      "crash_cost": "18000",
+      "resource_demand": "3",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "T117",
+      "activity": "External Signage",
+      "duration": "3",
+      "predecessors": "T112",
+      "min_duration": "2",
+      "crash_cost": "9000",
+      "resource_demand": "2",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "T118",
+      "activity": "External Lighting",
+      "duration": "4",
+      "predecessors": "T115",
+      "min_duration": "3",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "T119",
+      "activity": "Envelope Airtightness Test",
+      "duration": "2",
+      "predecessors": "T114,T116,T117",
+      "min_duration": "1",
+      "crash_cost": "7500",
+      "resource_demand": "1",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "T120",
+      "activity": "Envelope Sign-off",
+      "duration": "1",
+      "predecessors": "T118,T119",
+      "min_duration": "1",
+      "crash_cost": "5000",
+      "resource_demand": "1",
+      "normal_cost": "3000"
+    },
+    {
+      "id": "T121",
+      "activity": "Internal Partitions — L1",
+      "duration": "5",
+      "predecessors": "T120",
+      "min_duration": "4",
+      "crash_cost": "42000",
+      "resource_demand": "5",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "T122",
+      "activity": "Internal Partitions — L2",
+      "duration": "5",
+      "predecessors": "T121",
+      "min_duration": "4",
+      "crash_cost": "42000",
+      "resource_demand": "5",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "T123",
+      "activity": "Internal Partitions — L3",
+      "duration": "5",
+      "predecessors": "T122",
+      "min_duration": "4",
+      "crash_cost": "42000",
+      "resource_demand": "5",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "T124",
+      "activity": "Ceiling Systems — L1",
+      "duration": "5",
+      "predecessors": "T121",
+      "min_duration": "4",
+      "crash_cost": "33000",
+      "resource_demand": "4",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "T125",
+      "activity": "Ceiling Systems — L2",
+      "duration": "5",
+      "predecessors": "T122,T124",
+      "min_duration": "4",
+      "crash_cost": "33000",
+      "resource_demand": "4",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "T126",
+      "activity": "Ceiling Systems — L3",
+      "duration": "5",
+      "predecessors": "T123,T125",
+      "min_duration": "4",
+      "crash_cost": "33000",
+      "resource_demand": "4",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "T127",
+      "activity": "Flooring — L1",
+      "duration": "6",
+      "predecessors": "T121",
+      "min_duration": "5",
+      "crash_cost": "45000",
+      "resource_demand": "5",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "T128",
+      "activity": "Flooring — L2",
+      "duration": "6",
+      "predecessors": "T122,T127",
+      "min_duration": "5",
+      "crash_cost": "45000",
+      "resource_demand": "5",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "T129",
+      "activity": "Flooring — L3",
+      "duration": "6",
+      "predecessors": "T123,T128",
+      "min_duration": "5",
+      "crash_cost": "45000",
+      "resource_demand": "5",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "T130",
+      "activity": "Painting & Decorating — L1",
+      "duration": "5",
+      "predecessors": "T124",
+      "min_duration": "4",
+      "crash_cost": "24000",
+      "resource_demand": "4",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "T131",
+      "activity": "Painting & Decorating — L2",
+      "duration": "5",
+      "predecessors": "T125,T130",
+      "min_duration": "4",
+      "crash_cost": "24000",
+      "resource_demand": "4",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "T132",
+      "activity": "Painting & Decorating — L3",
+      "duration": "5",
+      "predecessors": "T126,T131",
+      "min_duration": "4",
+      "crash_cost": "24000",
+      "resource_demand": "4",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "T133",
+      "activity": "Joinery & Millwork",
+      "duration": "6",
+      "predecessors": "T124,T125",
+      "min_duration": "5",
+      "crash_cost": "30000",
+      "resource_demand": "3",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "T134",
+      "activity": "Sanitary Ware Installation",
+      "duration": "5",
+      "predecessors": "T128,T129",
+      "min_duration": "4",
+      "crash_cost": "21000",
+      "resource_demand": "3",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "T135",
+      "activity": "Medical Equipment Bases",
+      "duration": "6",
+      "predecessors": "T129",
+      "min_duration": "5",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "T136",
+      "activity": "Internal Signage",
+      "duration": "3",
+      "predecessors": "T130,T131,T132",
+      "min_duration": "2",
+      "crash_cost": "9000",
+      "resource_demand": "2",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "T137",
+      "activity": "IT Racks & Data Cabinets",
+      "duration": "4",
+      "predecessors": "T133",
+      "min_duration": "3",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "T138",
+      "activity": "Fit-out Inspection",
+      "duration": "2",
+      "predecessors": "T132,T133,T134,T135,T136,T137",
+      "min_duration": "1",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "T139",
+      "activity": "Electrical Final Fix",
+      "duration": "5",
+      "predecessors": "T138",
+      "min_duration": "4",
+      "crash_cost": "37000",
+      "resource_demand": "5",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "T140",
+      "activity": "Plumbing Final Fix",
+      "duration": "5",
+      "predecessors": "T138",
+      "min_duration": "4",
+      "crash_cost": "30000",
+      "resource_demand": "4",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "T141",
+      "activity": "HVAC Commissioning",
+      "duration": "6",
+      "predecessors": "T139",
+      "min_duration": "5",
+      "crash_cost": "45000",
+      "resource_demand": "5",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "T142",
+      "activity": "Electrical Testing & Commissioning",
+      "duration": "5",
+      "predecessors": "T139",
+      "min_duration": "4",
+      "crash_cost": "33000",
+      "resource_demand": "4",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "T143",
+      "activity": "Medical Gas Testing",
+      "duration": "4",
+      "predecessors": "T140",
+      "min_duration": "3",
+      "crash_cost": "21000",
+      "resource_demand": "3",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "T144",
+      "activity": "Fire Systems Testing",
+      "duration": "4",
+      "predecessors": "T141",
+      "min_duration": "3",
+      "crash_cost": "18000",
+      "resource_demand": "3",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "T145",
+      "activity": "BMS Commissioning",
+      "duration": "4",
+      "predecessors": "T141,T142",
+      "min_duration": "3",
+      "crash_cost": "24000",
+      "resource_demand": "3",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "T146",
+      "activity": "Equipment Installation",
+      "duration": "7",
+      "predecessors": "T138",
+      "min_duration": "6",
+      "crash_cost": "52000",
+      "resource_demand": "5",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "T147",
+      "activity": "Defects Inspection",
+      "duration": "3",
+      "predecessors": "T143,T144,T145,T146",
+      "min_duration": "2",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "T148",
+      "activity": "Snagging & Remediation",
+      "duration": "4",
+      "predecessors": "T147",
+      "min_duration": "3",
+      "crash_cost": "27000",
+      "resource_demand": "4",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "T149",
+      "activity": "Regulatory Final Inspection",
+      "duration": "3",
+      "predecessors": "T148",
+      "min_duration": "2",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "T150",
+      "activity": "Practical Completion & Handover",
+      "duration": "1",
+      "predecessors": "T149",
+      "min_duration": "1",
+      "crash_cost": "7500",
+      "resource_demand": "1",
+      "normal_cost": "5000"
+    }
+  ],
+  "cpm_mode": "deterministic"
+}

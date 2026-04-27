@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "charter_id": "f85eaa32-6a42-4965-86d5-7d073e2b3f1e",
+    "created_date": "2025-11-04T15:54:55.571779",
+    "modified_date": "2025-12-07T19:19:33.863297",
+    "status": "draft",
+    "version": "1.0",
+    "template_id": "standard_charter_v1",
+    "template_version": "1.0"
+  },
+  "data": {
+    "objectives": {
+      "business_case": null,
+      "objectives": null,
+      "success_criteria": null
+    },
+    "scope": {
+      "in_scope": null,
+      "out_of_scope": null,
+      "deliverables": null,
+      "assumptions": null,
+      "constraints": null
+    },
+    "budget": {
+      "resource_requirements": null,
+      "currency": "USD"
+    },
+    "schedule": {
+      "phases": null
+    },
+    "team": {
+      "organizational_structure": null
+    },
+    "stakeholders": {
+      "communication_plan": null
+    },
+    "risks": {
+      "known_issues": null
+    },
+    "approval": {
+      "approval_notes": null
+    },
+    "identification": {
+      "project_name": "project test"
+    }
+  }
+}

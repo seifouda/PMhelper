@@ -6,10 +6,10 @@ from tkinter import ttk
 
 class CharterHelpDialog:
     """Help dialog showing charter feature documentation."""
-    
+
     def __init__(self, parent):
         """Initialize help dialog.
-        
+
         Args:
             parent: Parent window
         """
@@ -18,40 +18,40 @@ class CharterHelpDialog:
         self.dialog.geometry("700x600")
         self.dialog.transient(parent)
         self.dialog.grab_set()
-        
+
         self._create_ui()
-        
+
         # Center on parent
         self.dialog.update_idletasks()
         x = parent.winfo_x() + (parent.winfo_width() - self.dialog.winfo_width()) // 2
         y = parent.winfo_y() + (parent.winfo_height() - self.dialog.winfo_height()) // 2
         self.dialog.geometry(f"+{x}+{y}")
-    
+
     def _create_ui(self):
         """Create the help UI."""
         # Create notebook for tabs
         notebook = ttk.Notebook(self.dialog)
         notebook.pack(fill="both", expand=True, padx=10, pady=10)
-        
+
         # Overview tab
         overview_frame = ttk.Frame(notebook)
         notebook.add(overview_frame, text="Overview")
         self._create_overview_tab(overview_frame)
-        
+
         # Keyboard shortcuts tab
         shortcuts_frame = ttk.Frame(notebook)
         notebook.add(shortcuts_frame, text="Keyboard Shortcuts")
         self._create_shortcuts_tab(shortcuts_frame)
-        
+
         # Fields tab
         fields_frame = ttk.Frame(notebook)
         notebook.add(fields_frame, text="Field Types")
         self._create_fields_tab(fields_frame)
-        
+
         # Close button
         btn_frame = ttk.Frame(self.dialog)
         btn_frame.pack(side="bottom", pady=(0, 10))
-        
+
         close_btn = ttk.Button(
             btn_frame,
             text="Close",
@@ -59,7 +59,7 @@ class CharterHelpDialog:
             width=15
         )
         close_btn.pack()
-    
+
     def _create_overview_tab(self, parent):
         """Create overview content."""
         # Create scrollable text
@@ -71,11 +71,11 @@ class CharterHelpDialog:
             font=("Arial", 10)
         )
         text.pack(fill="both", expand=True, side="left")
-        
+
         scrollbar = ttk.Scrollbar(parent, command=text.yview)
         scrollbar.pack(side="right", fill="y")
         text.configure(yscrollcommand=scrollbar.set)
-        
+
         # Add content
         content = """PROJECT CHARTER FEATURE
 
@@ -153,16 +153,16 @@ TIPS:
 • Save frequently to avoid data loss
 • Export to PDF only when the charter is complete
 """
-        
+
         text.insert("1.0", content)
         text.configure(state="disabled")
-    
+
     def _create_shortcuts_tab(self, parent):
         """Create keyboard shortcuts content."""
         # Create frame for shortcuts
         frame = ttk.Frame(parent)
         frame.pack(fill="both", expand=True, padx=20, pady=20)
-        
+
         # Title
         title = ttk.Label(
             frame,
@@ -170,7 +170,7 @@ TIPS:
             font=("Arial", 14, "bold")
         )
         title.pack(pady=(0, 20))
-        
+
         # Shortcuts list
         shortcuts = [
             ("Ctrl+N", "Create new charter"),
@@ -182,12 +182,12 @@ TIPS:
             ("Shift+Tab", "Navigate to previous field"),
             ("Enter", "Expand/collapse section (when focused)"),
         ]
-        
+
         # Create table
         for shortcut, description in shortcuts:
             row_frame = ttk.Frame(frame)
             row_frame.pack(fill="x", pady=5)
-            
+
             shortcut_label = ttk.Label(
                 row_frame,
                 text=shortcut,
@@ -195,14 +195,14 @@ TIPS:
                 width=15
             )
             shortcut_label.pack(side="left")
-            
+
             desc_label = ttk.Label(
                 row_frame,
                 text=description,
                 font=("Arial", 10)
             )
             desc_label.pack(side="left", padx=10)
-    
+
     def _create_fields_tab(self, parent):
         """Create field types content."""
         # Create scrollable text
@@ -214,11 +214,11 @@ TIPS:
             font=("Arial", 10)
         )
         text.pack(fill="both", expand=True, side="left")
-        
+
         scrollbar = ttk.Scrollbar(parent, command=text.yview)
         scrollbar.pack(side="right", fill="y")
         text.configure(yscrollcommand=scrollbar.set)
-        
+
         # Add content
         content = """FIELD TYPES
 
@@ -282,14 +282,14 @@ HELP TEXT
 
 Hover over field labels to see help text and requirements for specific fields.
 """
-        
+
         text.insert("1.0", content)
         text.configure(state="disabled")
 
 
 def show_charter_help(parent):
     """Show the charter help dialog.
-    
+
     Args:
         parent: Parent window
     """

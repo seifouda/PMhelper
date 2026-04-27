@@ -5,8 +5,8 @@ Produces (x, y) positions for each node for Canvas or Matplotlib rendering.
 """
 
 from __future__ import annotations
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from dataclasses import dataclass
+from typing import Dict, Optional
 
 from pmhelper.core.wbs_models_edu import WBSTree
 
@@ -131,10 +131,12 @@ class WBSLayoutEngine:
         if not children:
             # Leaf node
             node = tree.get_node(node_id)
-            siblings = tree.get_children(node.parent_id) if node.parent_id else tree.get_roots()
+            siblings = tree.get_children(
+                node.parent_id) if node.parent_id else tree.get_roots()
             left_sibling = self._get_left_sibling(node_id, siblings)
             if left_sibling:
-                layout._prelim = self._layouts[left_sibling]._prelim + self._sibling_sep
+                layout._prelim = self._layouts[left_sibling]._prelim + \
+                    self._sibling_sep
             else:
                 layout._prelim = 0
         else:
@@ -149,14 +151,17 @@ class WBSLayoutEngine:
 
             first_child_layout = self._layouts[children[0].id]
             last_child_layout = self._layouts[children[-1].id]
-            midpoint = (first_child_layout._prelim + last_child_layout._prelim) / 2
+            midpoint = (first_child_layout._prelim +
+                        last_child_layout._prelim) / 2
 
             node = tree.get_node(node_id)
-            siblings = tree.get_children(node.parent_id) if node.parent_id else tree.get_roots()
+            siblings = tree.get_children(
+                node.parent_id) if node.parent_id else tree.get_roots()
             left_sibling = self._get_left_sibling(node_id, siblings)
 
             if left_sibling:
-                layout._prelim = self._layouts[left_sibling]._prelim + self._sibling_sep
+                layout._prelim = self._layouts[left_sibling]._prelim + \
+                    self._sibling_sep
                 layout._modifier = layout._prelim - midpoint
             else:
                 layout._prelim = midpoint
@@ -175,7 +180,7 @@ class WBSLayoutEngine:
         """Shift subtrees to avoid overlaps."""
         node = self._tree.get_node(node_id)
         siblings = (self._tree.get_children(node.parent_id)
-                     if node.parent_id else self._tree.get_roots())
+                    if node.parent_id else self._tree.get_roots())
         left_sibling_id = self._get_left_sibling(node_id, siblings)
 
         if left_sibling_id is None:
@@ -207,7 +212,8 @@ class WBSLayoutEngine:
                      self._subtree_sep)
 
             if shift > 0:
-                ancestor = self._find_ancestor(v_inner_left, node_id, default_ancestor)
+                ancestor = self._find_ancestor(
+                    v_inner_left, node_id, default_ancestor)
                 self._move_subtree(ancestor, node_id, shift)
                 sir += shift
                 sor += shift
@@ -220,12 +226,14 @@ class WBSLayoutEngine:
         # Set threads
         if (self._next_right(v_inner_left) is not None and
                 self._next_right(v_outer_right) is None):
-            self._layouts[v_outer_right]._thread = self._next_right(v_inner_left)
+            self._layouts[v_outer_right]._thread = self._next_right(
+                v_inner_left)
             self._layouts[v_outer_right]._modifier += sil - sor
 
         if (self._next_left(v_inner_right) is not None and
                 self._next_left(v_outer_left) is None):
-            self._layouts[v_outer_left]._thread = self._next_left(v_inner_right)
+            self._layouts[v_outer_left]._thread = self._next_left(
+                v_inner_right)
             self._layouts[v_outer_left]._modifier += sir - sol
             default_ancestor = node_id
 
@@ -255,14 +263,21 @@ class WBSLayoutEngine:
             node_layout._prelim += shift
             node_layout._modifier += shift
 
-    def _find_ancestor(self, inner_left_id: str, node_id: str, default: str) -> str:
+    def _find_ancestor(
+            self,
+            inner_left_id: str,
+            node_id: str,
+            default: str) -> str:
         """Find the greatest uncommon ancestor."""
         anc_id = self._layouts[inner_left_id]._ancestor
         node = self._tree.get_node(node_id)
-        parent = self._tree.get_node(node.parent_id) if node.parent_id else None
+        parent = self._tree.get_node(
+            node.parent_id) if node.parent_id else None
 
         if parent:
-            parent_children_ids = {c.id for c in self._tree.get_children(parent.id)}
+            parent_children_ids = {
+                c.id for c in self._tree.get_children(
+                    parent.id)}
             if anc_id in parent_children_ids:
                 return anc_id
 

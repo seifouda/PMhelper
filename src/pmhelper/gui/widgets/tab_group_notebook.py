@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import tkinter as tk
 from tkinter import ttk
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional
 
 
 class TabGroupNotebook(ttk.Frame):
@@ -84,7 +84,13 @@ class TabGroupNotebook(ttk.Frame):
 
         return nb
 
-    def add_tab(self, group_name: str, widget: Any, *, text: str, **kw) -> None:
+    def add_tab(
+            self,
+            group_name: str,
+            widget: Any,
+            *,
+            text: str,
+            **kw) -> None:
         """Convenience: add *widget* to the named group's notebook."""
         grp = self._groups[group_name]
         grp.notebook.add(widget, text=text, **kw)
@@ -108,7 +114,7 @@ class TabGroupNotebook(ttk.Frame):
                 return nb.tab(widget, **kw)
             except tk.TclError:
                 continue
-        raise tk.TclError(f"widget not managed by TabGroupNotebook")
+        raise tk.TclError("widget not managed by TabGroupNotebook")
 
     def index(self, what) -> int:
         """Return the flat index of the currently selected inner tab."""

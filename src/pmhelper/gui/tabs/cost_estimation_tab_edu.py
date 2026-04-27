@@ -36,6 +36,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from typing import Dict, List, Optional, Tuple
 
+from pmhelper.gui.widgets.sortable_treeview import enhance_treeview
+
 from pmhelper.core.cost_estimation import (
     AdjustmentFactor, AnalogousEstimator,
     WorkPackage, BottomUpEstimator,
@@ -53,10 +55,32 @@ try:
 except ImportError:
     HAS_MATPLOTLIB = False
 
+# Plotly embed
+try:
+    from pmhelper.gui.widgets.plotly_chart_frame import PlotlyChartFrame, WEBVIEW2_AVAILABLE
+    from pmhelper.utils.plotly_charts import plotly_learning_curve, PLOTLY_AVAILABLE as _PLT_AVAIL
+    _PLOTLY_EMBED = WEBVIEW2_AVAILABLE and _PLT_AVAIL
+except ImportError:
+    _PLOTLY_EMBED = False
+
 _DEMO_PATH = os.path.normpath(os.path.join(
     os.path.dirname(__file__),
-    "..", "..", "..", "data", "demos", "v2", "cost_estimation_demo.json",
+    "..", "..", "..", "..", "data", "demos", "v2", "cost_estimation_demo.json",
 ))
+
+if not os.path.exists(_DEMO_PATH):
+    _here = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(6):
+        _candidate = os.path.join(
+            _here,
+            "data",
+            "demos",
+            "v2",
+            "cost_estimation_demo.json")
+        if os.path.exists(_candidate):
+            _DEMO_PATH = _candidate
+            break
+        _here = os.path.dirname(_here)
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -72,10 +96,10 @@ class CostEstimationTabEdu:
     ]
 
     def __init__(self, parent, state, main_window=None):
-        self.parent      = parent
-        self.state       = state
+        self.parent = parent
+        self.state = state
         self.main_window = main_window
-        self._mode       = "UG"
+        self._mode = "UG"
         self._results: Dict[str, CostEstimateResult] = {}
 
         self.frame = ttk.Frame(parent)
@@ -100,38 +124,40 @@ class CostEstimationTabEdu:
         top.pack(fill=tk.X, padx=6, pady=(5, 2))
         ttk.Label(top, text="Cost Estimation Techniques",
                   font=("TkDefaultFont", 11, "bold")).pack(side=tk.LEFT)
-        ttk.Button(top, text="📊 Compare Methods",
-                   command=self._show_comparison).pack(side=tk.RIGHT)
+
+        # B5: method Combobox (replaces left-panel Listbox)
+        ttk.Separator(
+            top,
+            orient=tk.VERTICAL).pack(
+            side=tk.LEFT,
+            padx=10,
+            fill=tk.Y)
+        ttk.Label(top, text="Method:").pack(side=tk.LEFT)
+        self._method_combo = ttk.Combobox(top, values=METHOD_LABELS,
+                                          state="readonly", width=30)
+        self._method_combo.current(0)
+        self._method_combo.pack(side=tk.LEFT, padx=(4, 0))
+        self._method_combo.bind("<<ComboboxSelected>>", self._on_method_select)
+
+        # B5: Compare button — disabled until ≥2 methods calculated
+        self._compare_btn = ttk.Button(top, text="⚖ Compare Methods",
+                                       command=self._show_comparison,
+                                       state="disabled")
+        self._compare_btn.pack(side=tk.RIGHT)
         ttk.Button(top, text="📖 Theory Overview",
                    command=self._show_theory).pack(side=tk.RIGHT, padx=(0, 6))
 
-        # Main area: method list (left) + content (right)
-        pane = ttk.PanedWindow(self.frame, orient=tk.HORIZONTAL)
-        pane.pack(fill=tk.BOTH, expand=True, padx=6, pady=4)
-
-        # Left: method selector listbox
-        left_lf = ttk.LabelFrame(pane, text="Method")
-        pane.add(left_lf, weight=1)
-        self._method_list = tk.Listbox(left_lf, width=22,
-                                       font=("TkDefaultFont", 9),
-                                       activestyle="dotbox")
-        for label in METHOD_LABELS:
-            self._method_list.insert(tk.END, label)
-        self._method_list.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
-        self._method_list.bind("<<ListboxSelect>>", self._on_method_select)
-        self._method_list.selection_set(0)
-
-        # Right: stacked panels (one per method, shown/hidden)
-        right_frame = ttk.Frame(pane)
-        pane.add(right_frame, weight=5)
+        # Main area: full-width method panels (no left sidebar)
+        right_frame = ttk.Frame(self.frame)
+        right_frame.pack(fill=tk.BOTH, expand=True, padx=6, pady=4)
 
         self._panels: Dict[str, _MethodPanel] = {
-            "analogous":      _AnalogousPanel(right_frame, self),
-            "bottom_up":      _BottomUpPanel(right_frame, self),
-            "work_element":   _WorkElementPanel(right_frame, self),
-            "power_sizing":   _PowerSizingPanel(right_frame, self, label="Power Sizing"),
-            "unit_factor":    _UnitFactorPanel(right_frame, self),
-            "cost_capacity":  _PowerSizingPanel(right_frame, self, label="Cost-Capacity Index"),
+            "analogous": _AnalogousPanel(right_frame, self),
+            "bottom_up": _BottomUpPanel(right_frame, self),
+            "work_element": _WorkElementPanel(right_frame, self),
+            "power_sizing": _PowerSizingPanel(right_frame, self, label="Power Sizing"),
+            "unit_factor": _UnitFactorPanel(right_frame, self),
+            "cost_capacity": _PowerSizingPanel(right_frame, self, label="Cost-Capacity Index"),
             "learning_curve": _LearningCurvePanel(right_frame, self),
         }
         for panel in self._panels.values():
@@ -141,10 +167,10 @@ class CostEstimationTabEdu:
         self._show_panel("analogous")
 
     def _on_method_select(self, event=None):
-        sel = self._method_list.curselection()
-        if not sel:
+        sel = self._method_combo.current()
+        if sel < 0:
             return
-        key = self._METHOD_KEYS[sel[0]]
+        key = self._METHOD_KEYS[sel]
         self._active_key = key
         self._show_panel(key)
 
@@ -179,6 +205,12 @@ class CostEstimationTabEdu:
 
     def record_result(self, key: str, result: CostEstimateResult):
         self._results[key] = result
+        self._update_compare_btn_state()
+
+    def _update_compare_btn_state(self):
+        """Enable Compare button only when ≥2 methods have results (B5)."""
+        state = "normal" if len(self._results) >= 2 else "disabled"
+        self._compare_btn.configure(state=state)
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -190,10 +222,10 @@ class _MethodPanel:
 
     def __init__(self, parent: tk.Widget, owner: CostEstimationTabEdu,
                  title: str, method_key: str):
-        self.parent     = parent
-        self.owner      = owner
+        self.parent = parent
+        self.owner = owner
         self.method_key = method_key
-        self._try_mode  = False
+        self._try_mode = False
 
         self.frame = ttk.Frame(parent)
         lf = ttk.LabelFrame(self.frame, text=title)
@@ -204,18 +236,53 @@ class _MethodPanel:
         tb.pack(fill=tk.X, padx=4, pady=(4, 2))
         self._build_toolbar(tb)
 
-        # Content area
-        content = ttk.Frame(lf)
-        content.pack(fill=tk.BOTH, expand=True, padx=4, pady=4)
+        # Scrollable content area
+        _scroll_outer = ttk.Frame(lf)
+        _scroll_outer.pack(fill=tk.BOTH, expand=True, padx=4, pady=4)
+        _vsb = ttk.Scrollbar(_scroll_outer, orient=tk.VERTICAL)
+        _vsb.pack(side=tk.RIGHT, fill=tk.Y)
+        self._tiy_canvas = tk.Canvas(_scroll_outer, yscrollcommand=_vsb.set,
+                                     highlightthickness=0)
+        self._tiy_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        _vsb.config(command=self._tiy_canvas.yview)
+        self._inner_content = ttk.Frame(self._tiy_canvas)
+        _tiy_win = self._tiy_canvas.create_window(
+            (0, 0), window=self._inner_content, anchor='nw')
+        self._inner_content.bind(
+            '<Configure>', lambda e: self._tiy_canvas.configure(
+                scrollregion=self._tiy_canvas.bbox('all')))
+        self._tiy_canvas.bind(
+            '<Configure>',
+            lambda e: self._tiy_canvas.itemconfig(
+                _tiy_win,
+                width=e.width))
+        _scroll_outer.bind('<Enter>', lambda e: self._tiy_canvas.bind_all(
+            '<MouseWheel>', lambda ev: self._tiy_canvas.yview_scroll(int(-1 * (ev.delta / 120)), 'units')))
+        _scroll_outer.bind(
+            '<Leave>',
+            lambda e: self._tiy_canvas.unbind_all('<MouseWheel>'))
+        content = self._inner_content
         self._build_content(content)
 
     def _build_toolbar(self, parent: ttk.Frame):
         ttk.Button(parent, text="▶ Calculate",
                    command=self._calculate).pack(side=tk.LEFT, padx=(0, 6))
-        ttk.Button(parent, text="📂 Load Demo",
-                   command=self._load_demo_data).pack(side=tk.LEFT, padx=(0, 6))
-        ttk.Button(parent, text="📖 Worked Solution",
-                   command=self._show_worked_solution).pack(side=tk.LEFT, padx=(0, 6))
+        ttk.Button(
+            parent,
+            text="📂 Load Demo",
+            command=self._load_demo_data).pack(
+            side=tk.LEFT,
+            padx=(
+                0,
+                6))
+        ttk.Button(
+            parent,
+            text="📖 Worked Solution",
+            command=self._show_worked_solution).pack(
+            side=tk.LEFT,
+            padx=(
+                0,
+                6))
         self._try_var = tk.BooleanVar(value=False)
         ttk.Checkbutton(parent, text="🎓 Try It Yourself",
                         variable=self._try_var,
@@ -239,13 +306,19 @@ class _MethodPanel:
     def _toggle_practice(self):
         self._try_mode = self._try_var.get()
         self._on_toggle_practice(self._try_mode)
+        if self._try_mode and hasattr(self, '_tiy_canvas'):
+            self._inner_content.update_idletasks()
+            self._tiy_canvas.yview_moveto(1.0)
 
     def _on_toggle_practice(self, active: bool):
         pass  # override in subclass if needed
 
     # ── Results display helper ────────────────────────────────────
 
-    def _show_result_in_tree(self, tree: ttk.Treeview, result: CostEstimateResult):
+    def _show_result_in_tree(
+            self,
+            tree: ttk.Treeview,
+            result: CostEstimateResult):
         tree.delete(*tree.get_children())
         for label, val in result.breakdown:
             if isinstance(val, float):
@@ -267,13 +340,14 @@ class _MethodPanel:
         tree.configure(yscrollcommand=vsb.set)
         vsb.pack(side=tk.RIGHT, fill=tk.Y)
         tree.pack(fill=tk.BOTH, expand=True)
+        enhance_treeview(tree)
         return tree
 
     def _build_summary_bar(self, parent: ttk.Frame):
         f = ttk.Frame(parent)
         f.pack(fill=tk.X, pady=(4, 0))
         self._summary_var = tk.StringVar()
-        self._interp_var  = tk.StringVar()
+        self._interp_var = tk.StringVar()
         ttk.Label(f, textvariable=self._summary_var,
                   font=("TkDefaultFont", 10, "bold"),
                   foreground="#1d4ed8").pack(anchor=tk.W)
@@ -292,7 +366,7 @@ class _MethodPanel:
         """Load a specific section from the cost estimation demo file."""
         if not os.path.exists(_DEMO_PATH):
             messagebox.showerror("Load Demo",
-                                  f"Demo file not found:\n{_DEMO_PATH}")
+                                 f"Demo file not found:\n{_DEMO_PATH}")
             return None
         with open(_DEMO_PATH, encoding="utf-8") as fh:
             demo = json.load(fh)
@@ -300,7 +374,7 @@ class _MethodPanel:
 
     def _show_practice_result(self, ok: bool, msg: str):
         color = "#15803d" if ok else "#b91c1c"
-        icon  = "✓" if ok else "✗"
+        icon = "✓" if ok else "✗"
         if hasattr(self, "_prac_result_var"):
             self._prac_result_var.set(f"{icon} {msg}")
             if hasattr(self, "_prac_lbl"):
@@ -331,7 +405,8 @@ class _AnalogousPanel(_MethodPanel):
             side=tk.LEFT)
 
         # Factors table
-        ftable_lf = ttk.LabelFrame(inp, text="Adjustment Factors  (name | multiplier)")
+        ftable_lf = ttk.LabelFrame(
+            inp, text="Adjustment Factors  (name | multiplier)")
         ftable_lf.pack(fill=tk.X, padx=4, pady=4)
         self._factors_frame = ttk.Frame(ftable_lf)
         self._factors_frame.pack(fill=tk.X, padx=2, pady=2)
@@ -353,10 +428,26 @@ class _AnalogousPanel(_MethodPanel):
         nv = tk.StringVar(value=name)
         fv = tk.StringVar(value=factor)
         self._factor_rows.append((nv, fv))
-        ttk.Entry(row, textvariable=nv, width=20).pack(side=tk.LEFT, padx=(0, 4))
-        ttk.Entry(row, textvariable=fv, width=10).pack(side=tk.LEFT, padx=(0, 4))
-        ttk.Button(row, text="−", width=2,
-                   command=lambda r=row, t=(nv, fv): self._remove_factor(r, t)).pack(
+        ttk.Entry(
+            row,
+            textvariable=nv,
+            width=20).pack(
+            side=tk.LEFT,
+            padx=(
+                0,
+                4))
+        ttk.Entry(
+            row,
+            textvariable=fv,
+            width=10).pack(
+            side=tk.LEFT,
+            padx=(
+                0,
+                4))
+        ttk.Button(
+            row, text="−", width=2, command=lambda r=row, t=(
+                nv, fv): self._remove_factor(
+                r, t)).pack(
             side=tk.LEFT)
 
     def _remove_factor(self, row_widget, row_tuple):
@@ -368,7 +459,9 @@ class _AnalogousPanel(_MethodPanel):
         try:
             ref = float(self._ref_cost_var.get())
         except ValueError:
-            messagebox.showerror("Input Error", "Reference cost must be a number.")
+            messagebox.showerror(
+                "Input Error",
+                "Reference cost must be a number.")
             return
         factors = []
         for nv, fv in self._factor_rows:
@@ -377,7 +470,7 @@ class _AnalogousPanel(_MethodPanel):
                 f = float(fv.get())
             except ValueError:
                 messagebox.showerror("Input Error",
-                                      f"Invalid factor value for '{name}'.")
+                                     f"Invalid factor value for '{name}'.")
                 return
             factors.append(AdjustmentFactor(name=name, factor=f))
 
@@ -394,8 +487,13 @@ class _AnalogousPanel(_MethodPanel):
             if not hasattr(self, "_last_result"):
                 return
         result, ref, factors = self._last_result
-        WorkedSolutionWindow(self.frame, "Top-Down (Analogous) — Worked Solution",
-                              analogous_steps(result, ref, factors))
+        WorkedSolutionWindow(
+            self.frame,
+            "Top-Down (Analogous) — Worked Solution",
+            analogous_steps(
+                result,
+                ref,
+                factors))
 
     def _load_demo_data(self):
         data = self._load_demo_section("analogous")
@@ -422,7 +520,7 @@ class _AnalogousPanel(_MethodPanel):
             side=tk.LEFT)
         self._prac_result_var = tk.StringVar()
         self._prac_lbl = ttk.Label(self._prac_frame,
-                                    textvariable=self._prac_result_var)
+                                   textvariable=self._prac_result_var)
         self._prac_lbl.pack(anchor=tk.W, padx=6)
 
     def _on_toggle_practice(self, active: bool):
@@ -444,8 +542,10 @@ class _AnalogousPanel(_MethodPanel):
         ok = abs(answer - expected) / max(abs(expected), 1) < 0.01
         self._show_practice_result(
             ok,
-            f"Correct! C_new = {expected:,.2f}" if ok
-            else f"Not quite. Expected {expected:,.2f}, you entered {answer:,.2f}",
+            f"Correct! C_new = {
+                expected:,.2f}" if ok else f"Not quite. Expected {
+                expected:,.2f}, you entered {
+                answer:,.2f}",
         )
 
 
@@ -462,11 +562,35 @@ class _BottomUpPanel(_MethodPanel):
     def _build_content(self, parent: ttk.Frame):
         hdr = ttk.Frame(parent)
         hdr.pack(fill=tk.X, pady=(0, 2))
-        ttk.Label(hdr, text="Work Package", width=20).grid(row=0, column=0, padx=2)
-        ttk.Label(hdr, text="Labour $",    width=10).grid(row=0, column=1, padx=2)
-        ttk.Label(hdr, text="Material $",  width=10).grid(row=0, column=2, padx=2)
-        ttk.Label(hdr, text="Equipment $", width=10).grid(row=0, column=3, padx=2)
-        ttk.Label(hdr, text="Overhead %",  width=10).grid(row=0, column=4, padx=2)
+        ttk.Label(
+            hdr,
+            text="Work Package",
+            width=20).grid(
+            row=0,
+            column=0,
+            padx=2)
+        ttk.Label(hdr, text="Labour $", width=10).grid(row=0, column=1, padx=2)
+        ttk.Label(
+            hdr,
+            text="Material $",
+            width=10).grid(
+            row=0,
+            column=2,
+            padx=2)
+        ttk.Label(
+            hdr,
+            text="Equipment $",
+            width=10).grid(
+            row=0,
+            column=3,
+            padx=2)
+        ttk.Label(
+            hdr,
+            text="Overhead %",
+            width=10).grid(
+            row=0,
+            column=4,
+            padx=2)
 
         self._wp_scroll = ttk.Frame(parent)
         self._wp_scroll.pack(fill=tk.X)
@@ -491,7 +615,7 @@ class _BottomUpPanel(_MethodPanel):
             self._add_wp_row(name, l, m, e, o)
 
     def _add_wp_row(self, name="", labour="0", material="0",
-                     equipment="0", overhead="10"):
+                    equipment="0", overhead="10"):
         row = ttk.Frame(self._wp_scroll)
         row.pack(fill=tk.X, pady=1)
         nv = tk.StringVar(value=name)
@@ -505,9 +629,11 @@ class _BottomUpPanel(_MethodPanel):
         ttk.Entry(row, textvariable=mv, width=10).pack(side=tk.LEFT, padx=1)
         ttk.Entry(row, textvariable=ev, width=10).pack(side=tk.LEFT, padx=1)
         ttk.Entry(row, textvariable=ov, width=8).pack(side=tk.LEFT, padx=1)
-        ttk.Button(row, text="−", width=2,
-                   command=lambda r=row, t=(nv, lv, mv, ev, ov): self._remove_wp(r, t)
-                   ).pack(side=tk.LEFT, padx=1)
+        ttk.Button(
+            row, text="−", width=2, command=lambda r=row, t=(
+                nv, lv, mv, ev, ov): self._remove_wp(
+                r, t)).pack(
+            side=tk.LEFT, padx=1)
 
     def _remove_wp(self, row_widget, row_tuple):
         row_widget.destroy()
@@ -539,7 +665,7 @@ class _BottomUpPanel(_MethodPanel):
                 )
         if not self._wp_rows:
             messagebox.showinfo("Load from Project",
-                                 "No WBS leaf nodes found.")
+                                "No WBS leaf nodes found.")
 
     def _calculate(self):
         wps = []
@@ -554,7 +680,7 @@ class _BottomUpPanel(_MethodPanel):
                 ))
             except ValueError:
                 messagebox.showerror("Input Error",
-                                      f"Invalid number in row '{nv.get()}'.")
+                                     f"Invalid number in row '{nv.get()}'.")
                 return
         result = BottomUpEstimator().estimate(wps)
         self._last_result = (result, wps)
@@ -570,7 +696,7 @@ class _BottomUpPanel(_MethodPanel):
                 return
         result, wps = self._last_result
         WorkedSolutionWindow(self.frame, "Bottom-Up — Worked Solution",
-                              bottom_up_steps(result, wps))
+                             bottom_up_steps(result, wps))
 
     def _load_demo_data(self):
         data = self._load_demo_section("bottom_up")
@@ -602,7 +728,7 @@ class _BottomUpPanel(_MethodPanel):
             side=tk.LEFT)
         self._prac_result_var = tk.StringVar()
         self._prac_lbl = ttk.Label(self._prac_frame,
-                                    textvariable=self._prac_result_var)
+                                   textvariable=self._prac_result_var)
         self._prac_lbl.pack(anchor=tk.W, padx=6)
 
     def _on_toggle_practice(self, active):
@@ -667,7 +793,7 @@ class _WorkElementPanel(_MethodPanel):
             self._add_el_row(name, h, r, m, e)
 
     def _add_el_row(self, name="", hours="0", rate="0",
-                     material="0", equipment="0"):
+                    material="0", equipment="0"):
         row = ttk.Frame(self._el_scroll)
         row.pack(fill=tk.X, pady=1)
         nv = tk.StringVar(value=name)
@@ -678,9 +804,11 @@ class _WorkElementPanel(_MethodPanel):
         self._el_rows.append((nv, hv, rv, mv, ev))
         for sv, w in [(nv, 16), (hv, 8), (rv, 8), (mv, 10), (ev, 10)]:
             ttk.Entry(row, textvariable=sv, width=w).pack(side=tk.LEFT, padx=1)
-        ttk.Button(row, text="−", width=2,
-                   command=lambda r=row, t=(nv, hv, rv, mv, ev): self._remove_el(r, t)
-                   ).pack(side=tk.LEFT)
+        ttk.Button(
+            row, text="−", width=2, command=lambda r=row, t=(
+                nv, hv, rv, mv, ev): self._remove_el(
+                r, t)).pack(
+            side=tk.LEFT)
 
     def _remove_el(self, row_widget, row_tuple):
         row_widget.destroy()
@@ -700,7 +828,7 @@ class _WorkElementPanel(_MethodPanel):
                 ))
             except ValueError:
                 messagebox.showerror("Input Error",
-                                      f"Invalid number in row '{nv.get()}'.")
+                                     f"Invalid number in row '{nv.get()}'.")
                 return
         result = WorkElementEstimator().estimate(els)
         self._last_result = (result, els)
@@ -716,7 +844,7 @@ class _WorkElementPanel(_MethodPanel):
                 return
         result, els = self._last_result
         WorkedSolutionWindow(self.frame, "Work Element — Worked Solution",
-                              work_element_steps(result, els))
+                             work_element_steps(result, els))
 
     def _load_demo_data(self):
         data = self._load_demo_section("work_element")
@@ -748,7 +876,7 @@ class _WorkElementPanel(_MethodPanel):
             side=tk.LEFT)
         self._prac_result_var = tk.StringVar()
         self._prac_lbl = ttk.Label(self._prac_frame,
-                                    textvariable=self._prac_result_var)
+                                   textvariable=self._prac_result_var)
         self._prac_lbl.pack(anchor=tk.W, padx=6)
 
     def _on_toggle_practice(self, active):
@@ -814,7 +942,7 @@ class _PowerSizingPanel(_MethodPanel):
             ref_c = float(self._ref_cost_var.get())
             ref_s = float(self._ref_cap_var.get())
             new_s = float(self._new_cap_var.get())
-            exp   = float(self._exp_var.get())
+            exp = float(self._exp_var.get())
         except ValueError:
             messagebox.showerror("Input Error", "All fields must be numbers.")
             return
@@ -836,7 +964,7 @@ class _PowerSizingPanel(_MethodPanel):
                 return
         result, rc, rs, ns, exp = self._last_result
         WorkedSolutionWindow(self.frame, "Power Sizing — Worked Solution",
-                              power_sizing_steps(result, rc, rs, ns, exp))
+                             power_sizing_steps(result, rc, rs, ns, exp))
 
     def _load_demo_data(self):
         data = self._load_demo_section("power_sizing")
@@ -861,7 +989,7 @@ class _PowerSizingPanel(_MethodPanel):
             side=tk.LEFT)
         self._prac_result_var = tk.StringVar()
         self._prac_lbl = ttk.Label(self._prac_frame,
-                                    textvariable=self._prac_result_var)
+                                   textvariable=self._prac_result_var)
         self._prac_lbl.pack(anchor=tk.W, padx=6)
 
     def _on_toggle_practice(self, active):
@@ -934,9 +1062,11 @@ class _UnitFactorPanel(_MethodPanel):
         self._item_rows.append((nv, uv, qv, fv))
         for sv, w in [(nv, 16), (uv, 10), (qv, 10), (fv, 8)]:
             ttk.Entry(row, textvariable=sv, width=w).pack(side=tk.LEFT, padx=1)
-        ttk.Button(row, text="−", width=2,
-                   command=lambda r=row, t=(nv, uv, qv, fv): self._remove_item(r, t)
-                   ).pack(side=tk.LEFT)
+        ttk.Button(
+            row, text="−", width=2, command=lambda r=row, t=(
+                nv, uv, qv, fv): self._remove_item(
+                r, t)).pack(
+            side=tk.LEFT)
 
     def _remove_item(self, row_widget, row_tuple):
         row_widget.destroy()
@@ -955,7 +1085,7 @@ class _UnitFactorPanel(_MethodPanel):
                 ))
             except ValueError:
                 messagebox.showerror("Input Error",
-                                      f"Invalid number in row '{nv.get()}'.")
+                                     f"Invalid number in row '{nv.get()}'.")
                 return
         result = UnitFactorEstimator().estimate(items)
         self._last_result = (result, items)
@@ -971,7 +1101,7 @@ class _UnitFactorPanel(_MethodPanel):
                 return
         result, items = self._last_result
         WorkedSolutionWindow(self.frame, "Unit/Factor — Worked Solution",
-                              unit_factor_steps(result, items))
+                             unit_factor_steps(result, items))
 
     def _load_demo_data(self):
         data = self._load_demo_section("unit_factor")
@@ -1002,7 +1132,7 @@ class _UnitFactorPanel(_MethodPanel):
             side=tk.LEFT)
         self._prac_result_var = tk.StringVar()
         self._prac_lbl = ttk.Label(self._prac_frame,
-                                    textvariable=self._prac_result_var)
+                                   textvariable=self._prac_result_var)
         self._prac_lbl.pack(anchor=tk.W, padx=6)
 
     def _on_toggle_practice(self, active):
@@ -1056,10 +1186,19 @@ class _LearningCurvePanel(_MethodPanel):
             setattr(self, f"_{attr}", v)
             ttk.Entry(row, textvariable=v, width=14).pack(side=tk.LEFT)
 
-        ttk.Label(inp, text="Learning rate: 0.80 = 80% curve (common in manufacturing)",
-                  foreground="grey",
-                  font=("TkDefaultFont", 8, "italic")).pack(
-            anchor=tk.W, padx=4, pady=(0, 4))
+        ttk.Label(
+            inp,
+            text="Learning rate: 0.80 = 80% curve (common in manufacturing)",
+            foreground="grey",
+            font=(
+                "TkDefaultFont",
+                8,
+                "italic")).pack(
+            anchor=tk.W,
+            padx=4,
+            pady=(
+                0,
+                4))
 
         paned = ttk.PanedWindow(parent, orient=tk.HORIZONTAL)
         paned.pack(fill=tk.BOTH, expand=True)
@@ -1074,24 +1213,55 @@ class _LearningCurvePanel(_MethodPanel):
         if HAS_MATPLOTLIB:
             chart_lf = ttk.LabelFrame(paned, text="Learning Curve Chart")
             paned.add(chart_lf, weight=3)
+
+            self._render_mode_var = tk.StringVar(value="matplotlib")
+            if _PLOTLY_EMBED:
+                ctrl = ttk.Frame(chart_lf)
+                ctrl.pack(fill=tk.X, padx=5, pady=(2, 0))
+                rf = ttk.LabelFrame(ctrl, text="Renderer", padding="3")
+                rf.pack(side=tk.LEFT)
+                ttk.Radiobutton(
+                    rf,
+                    text="Classic",
+                    value="matplotlib",
+                    variable=self._render_mode_var,
+                    command=self._switch_renderer).pack(
+                    side=tk.LEFT,
+                    padx=4)
+                ttk.Radiobutton(
+                    rf,
+                    text="\U0001f4ca Plotly",
+                    value="plotly",
+                    variable=self._render_mode_var,
+                    command=self._switch_renderer).pack(
+                    side=tk.LEFT,
+                    padx=4)
+
+            self._mpl_chart_frame = ttk.Frame(chart_lf)
+            self._mpl_chart_frame.pack(fill=tk.BOTH, expand=True)
             self._fig = Figure(figsize=(4, 3), dpi=80)
-            self._ax  = self._fig.add_subplot(111)
-            self._canvas = FigureCanvasTkAgg(self._fig, master=chart_lf)
+            self._ax = self._fig.add_subplot(111)
+            self._canvas = FigureCanvasTkAgg(
+                self._fig, master=self._mpl_chart_frame)
             self._canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+            self._plotly_frame = None
+            if _PLOTLY_EMBED:
+                self._plotly_frame = PlotlyChartFrame(chart_lf)
 
         self._build_practice_frame(parent)
 
     def _calculate(self):
         try:
-            t1   = float(self._t1_var.get())
+            t1 = float(self._t1_var.get())
             rate = float(self._rate_var.get())
-            n    = int(float(self._n_var.get()))
+            n = int(float(self._n_var.get()))
         except ValueError:
             messagebox.showerror("Input Error", "All fields must be numbers.")
             return
         try:
             result = LearningCurveEstimator().estimate(t1, rate, n,
-                                                        build_curve=True)
+                                                       build_curve=True)
         except ValueError as exc:
             messagebox.showerror("Calculation Error", str(exc))
             return
@@ -1102,17 +1272,38 @@ class _LearningCurvePanel(_MethodPanel):
             self._draw_chart(result, t1)
 
     def _draw_chart(self, result: CostEstimateResult, t1: float):
+        if getattr(
+                self,
+                '_render_mode_var',
+                None) and self._render_mode_var.get() == "plotly" and getattr(
+                self,
+                '_plotly_frame',
+                None):
+            self._update_plotly_lc(result, t1)
+            return
         self._ax.clear()
         curve = result.extra.get("curve", [])
         if not curve:
             return
-        ns   = [pt["n"] for pt in curve]
-        uts  = [pt["unit_time"] for pt in curve]
+        ns = [pt["n"] for pt in curve]
+        uts = [pt["unit_time"] for pt in curve]
         avgs = [pt["cum_avg"] for pt in curve]
-        self._ax.plot(ns, uts,  "b-o", markersize=3, label="Unit Cost",     linewidth=1.5)
-        self._ax.plot(ns, avgs, "r--s", markersize=3, label="Cumul. Avg",   linewidth=1.2)
+        self._ax.plot(
+            ns,
+            uts,
+            "b-o",
+            markersize=3,
+            label="Unit Cost",
+            linewidth=1.5)
+        self._ax.plot(
+            ns,
+            avgs,
+            "r--s",
+            markersize=3,
+            label="Cumul. Avg",
+            linewidth=1.2)
         self._ax.axhline(t1, color="grey", linestyle=":", linewidth=1,
-                          label=f"T₁={t1}")
+                         label=f"T₁={t1}")
         self._ax.set_xlabel("Unit Number")
         self._ax.set_ylabel("Cost / Time")
         self._ax.set_title("Learning Curve")
@@ -1130,7 +1321,7 @@ class _LearningCurvePanel(_MethodPanel):
                 return
         result, t1, rate, n = self._last_result
         WorkedSolutionWindow(self.frame, "Learning Curves — Worked Solution",
-                              learning_curve_steps(result, t1, rate, n))
+                             learning_curve_steps(result, t1, rate, n))
 
     def _load_demo_data(self):
         data = self._load_demo_section("learning_curve")
@@ -1163,7 +1354,7 @@ class _LearningCurvePanel(_MethodPanel):
 
         self._prac_result_var = tk.StringVar()
         self._prac_lbl = ttk.Label(self._prac_frame,
-                                    textvariable=self._prac_result_var)
+                                   textvariable=self._prac_result_var)
         self._prac_lbl.pack(anchor=tk.W, padx=6)
 
     def _on_toggle_practice(self, active):
@@ -1181,14 +1372,42 @@ class _LearningCurvePanel(_MethodPanel):
             tn_ans = float(self._prac_answer.get())
         except ValueError:
             return
-        expected_tn  = result.total_cost
+        expected_tn = result.total_cost
         tol = max(abs(expected_tn) * 0.01, 0.001)
-        ok  = abs(tn_ans - expected_tn) <= tol
+        ok = abs(tn_ans - expected_tn) <= tol
         msg = (
-            f"T_{n} = {expected_tn:,.4f}  ({'✓ Correct' if ok else '✗ Incorrect'})\n"
-            f"Cumulative = {result.extra.get('cumulative_total', 0):,.4f}"
-        )
+            f"T_{n} = {
+                expected_tn:,.4f}  ({
+                '✓ Correct' if ok else '✗ Incorrect'})\n" f"Cumulative = {
+                result.extra.get(
+                    'cumulative_total',
+                    0):,.4f}")
         self._show_practice_result(ok, msg)
+
+    def _switch_renderer(self):
+        mode = self._render_mode_var.get()
+        if mode == "plotly" and getattr(self, '_plotly_frame', None):
+            self._mpl_chart_frame.pack_forget()
+            self._plotly_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        else:
+            if getattr(self, '_plotly_frame', None):
+                self._plotly_frame.pack_forget()
+            self._mpl_chart_frame.pack(fill=tk.BOTH, expand=True)
+        if hasattr(self, '_last_result'):
+            result, t1, rate, n = self._last_result
+            self._draw_chart(result, t1)
+
+    def _update_plotly_lc(self, result, t1):
+        if not self._plotly_frame:
+            return
+        try:
+            curve = result.extra.get("curve", [])
+            fig = plotly_learning_curve(curve, t1)
+            if fig:
+                self._plotly_frame.update_chart(fig)
+        except Exception as e:
+            self._plotly_frame.load_html(
+                f"<html><body><pre>Error: {e}</pre></body></html>")
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -1199,12 +1418,12 @@ class _ComparisonWindow:
     """Pop-up window showing all calculated estimates side by side."""
 
     _LABEL_MAP = {
-        "analogous":      "Top-Down",
-        "bottom_up":      "Bottom-Up",
-        "work_element":   "Work Element",
-        "power_sizing":   "Power Sizing",
-        "unit_factor":    "Unit/Factor",
-        "cost_capacity":  "Cost-Capacity",
+        "analogous": "Top-Down",
+        "bottom_up": "Bottom-Up",
+        "work_element": "Work Element",
+        "power_sizing": "Power Sizing",
+        "unit_factor": "Unit/Factor",
+        "cost_capacity": "Cost-Capacity",
         "learning_curve": "Learning Curves",
     }
 
@@ -1212,37 +1431,50 @@ class _ComparisonWindow:
                  results: Dict[str, CostEstimateResult]):
         win = tk.Toplevel(parent)
         win.title("Cost Estimation — Method Comparison")
-        win.geometry("600x420")
+        win.geometry("900x500")
         win.grab_set()
 
         ttk.Label(win, text="Method Comparison",
                   font=("TkDefaultFont", 12, "bold")).pack(pady=8)
 
-        tree = ttk.Treeview(win, columns=("method", "cost", "interp"),
-                             show="headings", height=10)
+        # Horizontal layout: table on left, chart on right
+        body = ttk.PanedWindow(win, orient=tk.HORIZONTAL)
+        body.pack(fill=tk.BOTH, expand=True, padx=8, pady=4)
+
+        # Left: table
+        left = ttk.Frame(body)
+        body.add(left, weight=1)
+
+        tree = ttk.Treeview(left, columns=("method", "cost", "interp"),
+                            show="headings", height=10)
         tree.heading("method", text="Method")
-        tree.heading("cost",   text="Estimated Cost")
+        tree.heading("cost", text="Estimated Cost")
         tree.heading("interp", text="Notes")
-        tree.column("method", width=160, anchor=tk.W)
-        tree.column("cost",   width=140, anchor=tk.E)
-        tree.column("interp", width=280, anchor=tk.W)
-        vsb = ttk.Scrollbar(win, orient=tk.VERTICAL, command=tree.yview)
+        tree.column("method", width=120, anchor=tk.W)
+        tree.column("cost", width=110, anchor=tk.E)
+        tree.column("interp", width=200, anchor=tk.W)
+        vsb = ttk.Scrollbar(left, orient=tk.VERTICAL, command=tree.yview)
         tree.configure(yscrollcommand=vsb.set)
-        vsb.pack(side=tk.RIGHT, fill=tk.Y, padx=(0, 4))
-        tree.pack(fill=tk.BOTH, expand=True, padx=8, pady=4)
+        vsb.pack(side=tk.RIGHT, fill=tk.Y)
+        tree.pack(fill=tk.BOTH, expand=True)
+        enhance_treeview(tree)
 
         for key, res in results.items():
             label = self._LABEL_MAP.get(key, key)
             tree.insert("", tk.END, values=(
                 label, f"{res.total_cost:,.2f}", res.interpretation[:60]))
 
+        # Right: chart
         if HAS_MATPLOTLIB and results:
-            fig = Figure(figsize=(5, 2.5), dpi=80)
-            ax  = fig.add_subplot(111)
+            right = ttk.Frame(body)
+            body.add(right, weight=1)
+
+            fig = Figure(figsize=(5, 4), dpi=90)
+            ax = fig.add_subplot(111)
             labels = [self._LABEL_MAP.get(k, k) for k in results]
-            costs  = [r.total_cost for r in results.values()]
+            costs = [r.total_cost for r in results.values()]
             colors = ["#3b82f6", "#10b981", "#f59e0b",
-                       "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6"]
+                      "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6"]
             ax.bar(labels, costs, color=colors[:len(labels)])
             ax.set_ylabel("Estimated Cost")
             ax.set_title("Cost Estimates by Method")
@@ -1250,9 +1482,8 @@ class _ComparisonWindow:
                 tick.set_rotation(25)
                 tick.set_fontsize(8)
             fig.tight_layout()
-            canvas = FigureCanvasTkAgg(fig, master=win)
-            canvas.get_tk_widget().pack(fill=tk.BOTH, expand=False,
-                                         padx=8, pady=4)
+            canvas = FigureCanvasTkAgg(fig, master=right)
+            canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
             canvas.draw()
 
         ttk.Button(win, text="Close", command=win.destroy).pack(pady=6)

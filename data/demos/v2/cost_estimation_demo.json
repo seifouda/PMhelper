@@ -6,9 +6,9 @@
     "_comment": "C_new = 500000 × 1.10 × 0.95 × 1.15 = 600,875.00",
     "reference_cost": 500000,
     "factors": [
-      { "name": "Complexity Increase",  "factor": 1.10 },
-      { "name": "Productivity Saving",  "factor": 0.95 },
-      { "name": "Technology Uplift",    "factor": 1.15 }
+      { "name": "Complexity Increase", "factor": 1.1 },
+      { "name": "Productivity Saving", "factor": 0.95 },
+      { "name": "Technology Uplift", "factor": 1.15 }
     ],
     "expected_total": 600875.0
   },
@@ -16,11 +16,41 @@
   "bottom_up": {
     "_comment": "Σ (Labour + Material + Equipment) × (1 + overhead_pct/100)",
     "work_packages": [
-      { "name": "Requirements Analysis", "labour_cost": 8000,  "material_cost": 500,  "equipment_cost": 0,    "overhead_pct": 15 },
-      { "name": "System Design",         "labour_cost": 12000, "material_cost": 1000, "equipment_cost": 500,  "overhead_pct": 15 },
-      { "name": "Development",           "labour_cost": 35000, "material_cost": 2000, "equipment_cost": 1000, "overhead_pct": 15 },
-      { "name": "Testing & QA",          "labour_cost": 10000, "material_cost": 500,  "equipment_cost": 500,  "overhead_pct": 15 },
-      { "name": "Deployment",            "labour_cost": 4000,  "material_cost": 200,  "equipment_cost": 300,  "overhead_pct": 15 }
+      {
+        "name": "Requirements Analysis",
+        "labour_cost": 8000,
+        "material_cost": 500,
+        "equipment_cost": 0,
+        "overhead_pct": 15
+      },
+      {
+        "name": "System Design",
+        "labour_cost": 12000,
+        "material_cost": 1000,
+        "equipment_cost": 500,
+        "overhead_pct": 15
+      },
+      {
+        "name": "Development",
+        "labour_cost": 35000,
+        "material_cost": 2000,
+        "equipment_cost": 1000,
+        "overhead_pct": 15
+      },
+      {
+        "name": "Testing & QA",
+        "labour_cost": 10000,
+        "material_cost": 500,
+        "equipment_cost": 500,
+        "overhead_pct": 15
+      },
+      {
+        "name": "Deployment",
+        "labour_cost": 4000,
+        "material_cost": 200,
+        "equipment_cost": 300,
+        "overhead_pct": 15
+      }
     ],
     "expected_total": 86825.0
   },
@@ -28,11 +58,41 @@
   "work_element": {
     "_comment": "Cost per element = Hours × Rate + Material + Equipment",
     "elements": [
-      { "name": "Site Preparation",  "hours": 100, "hourly_rate": 40,  "material_cost": 2000,  "equipment_cost": 1500 },
-      { "name": "Foundation Work",   "hours": 200, "hourly_rate": 45,  "material_cost": 15000, "equipment_cost": 3000 },
-      { "name": "Structural Frame",  "hours": 350, "hourly_rate": 50,  "material_cost": 40000, "equipment_cost": 5000 },
-      { "name": "Mechanical / Elec", "hours": 150, "hourly_rate": 60,  "material_cost": 8000,  "equipment_cost": 2000 },
-      { "name": "Finishing Works",   "hours": 120, "hourly_rate": 40,  "material_cost": 5000,  "equipment_cost": 1000 }
+      {
+        "name": "Site Preparation",
+        "hours": 100,
+        "hourly_rate": 40,
+        "material_cost": 2000,
+        "equipment_cost": 1500
+      },
+      {
+        "name": "Foundation Work",
+        "hours": 200,
+        "hourly_rate": 45,
+        "material_cost": 15000,
+        "equipment_cost": 3000
+      },
+      {
+        "name": "Structural Frame",
+        "hours": 350,
+        "hourly_rate": 50,
+        "material_cost": 40000,
+        "equipment_cost": 5000
+      },
+      {
+        "name": "Mechanical / Elec",
+        "hours": 150,
+        "hourly_rate": 60,
+        "material_cost": 8000,
+        "equipment_cost": 2000
+      },
+      {
+        "name": "Finishing Works",
+        "hours": 120,
+        "hourly_rate": 40,
+        "material_cost": 5000,
+        "equipment_cost": 1000
+      }
     ],
     "expected_total": 126800.0
   },
@@ -49,11 +109,36 @@
   "unit_factor": {
     "_comment": "Cost = Σ unit_cost × quantity × factor per item",
     "items": [
-      { "name": "Concrete — 30 MPa (m³)",    "unit_cost": 150,  "quantity": 500,  "factor": 1.05 },
-      { "name": "Structural Steel (ton)",     "unit_cost": 900,  "quantity": 80,   "factor": 1.10 },
-      { "name": "Formwork (m²)",              "unit_cost": 40,   "quantity": 1200, "factor": 1.0  },
-      { "name": "Labour — skilled (days)",    "unit_cost": 320,  "quantity": 300,  "factor": 1.0  },
-      { "name": "Labour — unskilled (days)",  "unit_cost": 180,  "quantity": 200,  "factor": 1.0  }
+      {
+        "name": "Concrete — 30 MPa (m³)",
+        "unit_cost": 150,
+        "quantity": 500,
+        "factor": 1.05
+      },
+      {
+        "name": "Structural Steel (ton)",
+        "unit_cost": 900,
+        "quantity": 80,
+        "factor": 1.1
+      },
+      {
+        "name": "Formwork (m²)",
+        "unit_cost": 40,
+        "quantity": 1200,
+        "factor": 1.0
+      },
+      {
+        "name": "Labour — skilled (days)",
+        "unit_cost": 320,
+        "quantity": 300,
+        "factor": 1.0
+      },
+      {
+        "name": "Labour — unskilled (days)",
+        "unit_cost": 180,
+        "quantity": 200,
+        "factor": 1.0
+      }
     ],
     "expected_total": 337950.0
   },
@@ -70,7 +155,7 @@
   "learning_curve": {
     "_comment": "T_N = 1000 × 16^b  where b = ln(0.80)/ln(2)",
     "first_unit_cost": 1000,
-    "learning_rate": 0.80,
+    "learning_rate": 0.8,
     "target_unit": 16,
     "expected_total": 409.6
   }

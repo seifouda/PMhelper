@@ -37,7 +37,7 @@ def risk_assessment_theory_steps() -> List[Step]:
                 "The cell colour indicates risk zone: "
                 "🟢 Low (1–4), 🟡 Medium (5–9), 🟠 High (10–15), 🔴 Critical (16–25)."
             ),
-            rag="G",
+            rag="green",
             children=[],
         ),
         Step(
@@ -63,7 +63,7 @@ def risk_assessment_theory_steps() -> List[Step]:
                 "Project teams agree on consistent definitions before scoring. "
                 "Use team consensus or a facilitator to reduce subjectivity."
             ),
-            rag="G",
+            rag="green",
             children=[],
         ),
         Step(
@@ -88,7 +88,7 @@ def risk_assessment_theory_steps() -> List[Step]:
                 "Low risks are often Accepted. "
                 "After applying a strategy, assign Residual P and I scores."
             ),
-            rag="A",
+            rag="amber",
             children=[],
         ),
         Step(
@@ -105,7 +105,7 @@ def risk_assessment_theory_steps() -> List[Step]:
                 "A good response plan drives Critical/High risks down to Low/Medium. "
                 "Effectiveness > 50% is generally considered strong mitigation."
             ),
-            rag="G",
+            rag="green",
             children=[],
         ),
     ]
@@ -130,7 +130,7 @@ def risk_scoring_steps(risk: "Risk") -> List[Step]:
                 f"{'Rare' if risk.prob_score == 1 else 'Unlikely' if risk.prob_score == 2 else 'Possible' if risk.prob_score == 3 else 'Likely' if risk.prob_score == 4 else 'Almost Certain'} "
                 f"probability of occurrence."
             ),
-            rag="G",
+            rag="green",
             children=[],
         ),
         Step(
@@ -143,7 +143,7 @@ def risk_scoring_steps(risk: "Risk") -> List[Step]:
                 f"{'Insignificant' if risk.impact_score == 1 else 'Minor' if risk.impact_score == 2 else 'Moderate' if risk.impact_score == 3 else 'Major' if risk.impact_score == 4 else 'Catastrophic'} "
                 f"impact on the project."
             ),
-            rag="G",
+            rag="green",
             children=[],
         ),
         Step(
@@ -158,9 +158,8 @@ def risk_scoring_steps(risk: "Risk") -> List[Step]:
                 f"{zone})."
             ),
             rag=(
-                "G" if zone == "Low" else
-                "A" if zone == "Medium" else
-                "R"
+                "green" if zone == "Low" else
+                "amber" if zone == "Medium" else "red"
             ),
             children=[],
         ),
@@ -175,8 +174,8 @@ def response_strategy_steps(risk: "Risk") -> List[Step]:
     """Three steps: strategy rationale, plan description, effectiveness preview."""
     from pmhelper.core.risk_register_edu import risk_zone
     strategy_name = risk.response_strategy.value if risk.response_strategy else "Not assigned"
-    original_zone  = risk_zone(risk.risk_score)
-    residual_zone  = risk_zone(risk.residual_score)
+    original_zone = risk_zone(risk.risk_score)
+    residual_zone = risk_zone(risk.residual_score)
 
     # Effectiveness for this individual risk
     eff = 0.0
@@ -192,7 +191,7 @@ def response_strategy_steps(risk: "Risk") -> List[Step]:
             interpretation=(
                 _strategy_rationale(risk.response_strategy, original_zone)
             ),
-            rag="A",
+            rag="amber",
             children=[],
         ),
         Step(
@@ -211,7 +210,7 @@ def response_strategy_steps(risk: "Risk") -> List[Step]:
                 "HOW much it costs, and WHEN to act (trigger conditions). "
                 "The contingency plan is activated if the risk actually occurs."
             ),
-            rag="A",
+            rag="amber",
             children=[],
         ),
         Step(
@@ -237,9 +236,8 @@ def response_strategy_steps(risk: "Risk") -> List[Step]:
                 f"Response effectiveness: {eff:.1f}%."
             ),
             rag=(
-                "G" if residual_zone in ("Low", "Medium") else
-                "A" if residual_zone == "High" else
-                "R"
+                "green" if residual_zone in ("Low", "Medium") else
+                "amber" if residual_zone == "High" else "red"
             ),
             children=[],
         ),
@@ -256,8 +254,8 @@ def full_register_steps(register: "RiskRegister") -> List[Step]:
     register.update_ranks()
 
     zones = register.zone_counts()
-    total_score  = sum(r.risk_score for r in register.risks)
-    total_resid  = register.total_residual_exposure()
+    total_score = sum(r.risk_score for r in register.risks)
+    total_resid = register.total_residual_exposure()
     effectiveness = register.response_effectiveness()
     top5 = register.risks_by_score()[:5]
 
@@ -277,9 +275,8 @@ def full_register_steps(register: "RiskRegister") -> List[Step]:
                 f"{zones['Medium']} Medium, {zones['Low']} Low."
             ),
             rag=(
-                "R" if zones["Critical"] > 0 else
-                "A" if zones["High"] > 0 else
-                "G"
+                "red" if zones["Critical"] > 0 else
+                "amber" if zones["High"] > 0 else "green"
             ),
             children=[],
         ),
@@ -295,7 +292,7 @@ def full_register_steps(register: "RiskRegister") -> List[Step]:
                 "Highest-score risks need immediate attention. "
                 "Ensure all Critical and High risks have defined response strategies."
             ),
-            rag="A",
+            rag="amber",
             children=[],
         ),
         Step(
@@ -312,9 +309,8 @@ def full_register_steps(register: "RiskRegister") -> List[Step]:
                 f"Target: drive all Critical risks below High zone post-response."
             ),
             rag=(
-                "G" if effectiveness >= 50 else
-                "A" if effectiveness >= 20 else
-                "R"
+                "green" if effectiveness >= 50 else
+                "amber" if effectiveness >= 20 else "red"
             ),
             children=[],
         ),
@@ -329,17 +325,17 @@ def _strategy_rationale(strategy, zone: str) -> str:
     from pmhelper.core.risk_register_edu import ResponseStrategy
     if strategy is None:
         return (
-            f"No strategy assigned yet. "
-            f"For a risk in the {zone} zone, consider: "
-            + ("Avoid or Mitigate" if zone in ("Critical", "High") else "Accept or Mitigate")
-        )
+            f"No strategy assigned yet. " f"For a risk in the {zone} zone, consider: " + (
+                "Avoid or Mitigate" if zone in (
+                    "Critical",
+                    "High") else "Accept or Mitigate"))
     rationales = {
-        ResponseStrategy.AVOID:    "Eliminate the risk by changing the plan, scope, or approach.",
+        ResponseStrategy.AVOID: "Eliminate the risk by changing the plan, scope, or approach.",
         ResponseStrategy.TRANSFER: "Shift the impact to a third party via insurance or contract clauses.",
         ResponseStrategy.MITIGATE: "Reduce the probability or impact to an acceptable level.",
-        ResponseStrategy.ACCEPT:   "Acknowledge the risk; take no action unless it materialises.",
-        ResponseStrategy.EXPLOIT:  "Ensure the opportunity definitely occurs.",
-        ResponseStrategy.SHARE:    "Partner with another party to share the benefit.",
-        ResponseStrategy.ENHANCE:  "Increase probability or impact of the positive event.",
+        ResponseStrategy.ACCEPT: "Acknowledge the risk; take no action unless it materialises.",
+        ResponseStrategy.EXPLOIT: "Ensure the opportunity definitely occurs.",
+        ResponseStrategy.SHARE: "Partner with another party to share the benefit.",
+        ResponseStrategy.ENHANCE: "Increase probability or impact of the positive event.",
     }
     return rationales.get(strategy, "")

@@ -106,7 +106,7 @@ class AnalogousEstimator:
         breakdown.append(("= Estimated Cost", total))
 
         factor_str = " · ".join(
-            f"F_{i+1}" for i in range(len(factors))) or "1"
+            f"F_{i + 1}" for i in range(len(factors))) or "1"
         formula = f"C_new = C_ref × {factor_str}"
 
         parts = " × ".join(
@@ -115,10 +115,11 @@ class AnalogousEstimator:
         subst = f"C_new = {parts} = {total:,.2f}"
 
         interp = (
-            f"Estimated cost = {total:,.2f}  "
-            f"(adjusted from reference cost of {reference_cost:,.2f} "
-            f"using {len(factors)} factor(s), combined multiplier = {combined:.4f})."
-        )
+            f"Estimated cost = {
+                total:,.2f}  " f"(adjusted from reference cost of {
+                reference_cost:,.2f} " f"using {
+                len(factors)} factor(s), combined multiplier = {
+                    combined:.4f}).")
         return CostEstimateResult(
             total_cost=total, breakdown=breakdown,
             formula_text=formula, substitution_text=subst,
@@ -134,10 +135,10 @@ class AnalogousEstimator:
 class WorkPackage:
     """One work-package line in a bottom-up estimate."""
     name: str
-    labour_cost: float   = 0.0
+    labour_cost: float = 0.0
     material_cost: float = 0.0
     equipment_cost: float = 0.0
-    overhead_pct: float  = 0.0   # percentage, e.g. 10.0 = 10 %
+    overhead_pct: float = 0.0   # percentage, e.g. 10.0 = 10 %
 
     @property
     def direct_cost(self) -> float:
@@ -202,8 +203,8 @@ class BottomUpEstimator:
 class WorkElement:
     """One cost element (labour + materials + equipment)."""
     name: str
-    hours: float        = 0.0   # labour hours
-    hourly_rate: float  = 0.0   # currency per hour
+    hours: float = 0.0   # labour hours
+    hourly_rate: float = 0.0   # currency per hour
     material_cost: float = 0.0
     equipment_cost: float = 0.0
 

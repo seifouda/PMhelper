@@ -6,7 +6,7 @@ PG-only. Pure data classes, no Tkinter dependency.
 from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional
+from typing import List
 
 
 class PESTELCategory(Enum):
@@ -21,12 +21,12 @@ class PESTELCategory(Enum):
 
 # Colours for UI rendering
 PESTEL_COLOURS: dict[PESTELCategory, str] = {
-    PESTELCategory.POLITICAL:      "#4e79a7",
-    PESTELCategory.ECONOMIC:       "#f28e2b",
-    PESTELCategory.SOCIAL:         "#e15759",
-    PESTELCategory.TECHNOLOGICAL:  "#76b7b2",
-    PESTELCategory.ENVIRONMENTAL:  "#59a14f",
-    PESTELCategory.LEGAL:          "#edc948",
+    PESTELCategory.POLITICAL: "#4e79a7",
+    PESTELCategory.ECONOMIC: "#f28e2b",
+    PESTELCategory.SOCIAL: "#e15759",
+    PESTELCategory.TECHNOLOGICAL: "#76b7b2",
+    PESTELCategory.ENVIRONMENTAL: "#59a14f",
+    PESTELCategory.LEGAL: "#edc948",
 }
 
 
@@ -55,7 +55,8 @@ class PESTELFactor:
         if not 0 <= self.probability <= 1:
             errors.append("Probability must be between 0 and 1.")
         if self.timeframe not in ("Short-term", "Medium-term", "Long-term"):
-            errors.append("Timeframe must be Short-term, Medium-term, or Long-term.")
+            errors.append(
+                "Timeframe must be Short-term, Medium-term, or Long-term.")
         return errors
 
     def to_dict(self) -> dict:

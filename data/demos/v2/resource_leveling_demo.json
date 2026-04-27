@@ -62,13 +62,13 @@
       "name": "Install Furniture",
       "duration": 2,
       "resource_demand": 1,
-      "es": 7,
-      "ef": 9,
-      "ls": 7,
-      "lf": 9,
-      "float": 0,
+      "es": 2,
+      "ef": 4,
+      "ls": 4,
+      "lf": 6,
+      "float": 2,
       "predecessors": ["B"],
-      "successors": []
+      "successors": ["F"]
     },
     {
       "id": "F",
@@ -77,17 +77,17 @@
       "resource_demand": 1,
       "es": 6,
       "ef": 7,
-      "ls": 9,
-      "lf": 10,
-      "float": 3,
-      "predecessors": ["C", "D"],
+      "ls": 6,
+      "lf": 7,
+      "float": 0,
+      "predecessors": ["C", "D", "E"],
       "successors": []
     }
   ],
   "educational_notes": {
-    "before": "At early-start schedule: periods 0-2 peak at 7 resources (A+B+background), well above limit of 5.",
-    "leveling_target": "Shift B (float=5) to period 5 and F (float=3) to period 8-9 to flatten the profile.",
-    "after": "Peak drops from 7 to 4 resources — a ~28% improvement in moment metric.",
-    "key_insight": "Activity B has the most float (5 periods) and high resource demand (3), making it the best candidate to shift right."
+    "before": "At early-start schedule: periods 0-1 peak at 5 resources (A=2 + B=3), right at the limit of 5.",
+    "leveling_target": "Shift B (float=2) later to avoid overlap with A and reduce early peak demand.",
+    "after": "Peak demand is spread more evenly across the project timeline.",
+    "key_insight": "Activity B has float (2 periods) and high resource demand (3), making it the best candidate to shift right."
   }
 }

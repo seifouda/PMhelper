@@ -20,7 +20,7 @@ from __future__ import annotations
 from typing import List
 
 from pmhelper.core.step_generators_edu import Step
-from pmhelper.core.raci_model import RACIMatrix, ROLE_DESCRIPTIONS
+from pmhelper.core.raci_model import RACIMatrix
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -238,15 +238,15 @@ def raci_matrix_steps(matrix: RACIMatrix,
         ok = (a_count == 1 and r_count >= 1)
         rag = "green" if ok else "red"
 
-        row_children.append(Step(
-            title=f"Activity: {row_name}",
-            substitution="  |  ".join(assignments) if assignments else "(no assignments)",
-            result=(
-                f"A={a_count}, R={r_count}  → "
-                + ("✓ Valid" if ok else "✗ Invalid (see rules)")
-            ),
-            rag=rag,
-        ))
+        row_children.append(
+            Step(
+                title=f"Activity: {row_name}",
+                substitution="  |  ".join(assignments) if assignments else "(no assignments)",
+                result=(
+                    f"A={a_count}, R={r_count}  → " + (
+                        "✓ Valid" if ok else "✗ Invalid (see rules)")),
+                rag=rag,
+            ))
 
     steps.append(Step(
         title="Step 2 — Analyse Each Activity Row",
@@ -262,15 +262,18 @@ def raci_matrix_steps(matrix: RACIMatrix,
         a_count = col.count("A")
         r_count = col.count("R")
 
-        col_children.append(Step(
-            title=f"Role: {col_name}",
-            result=(
-                f"Total assignments: {len(assigned_cells)}  (R={r_count}, A={a_count}, "
-                f"C={col.count('C')}, I={col.count('I')})"
-            ),
-            rag="green" if assigned_cells else "amber",
-            interpretation=("No assignments — consider removing this role." if not assigned_cells else ""),
-        ))
+        col_children.append(
+            Step(
+                title=f"Role: {col_name}",
+                result=(
+                    f"Total assignments: {
+                        len(assigned_cells)}  (R={r_count}, A={a_count}, " f"C={
+                        col.count('C')}, I={
+                        col.count('I')})"),
+                rag="green" if assigned_cells else "amber",
+                interpretation=(
+                    "No assignments — consider removing this role." if not assigned_cells else ""),
+            ))
 
     steps.append(Step(
         title="Step 3 — Analyse Each Role Column",
@@ -280,7 +283,7 @@ def raci_matrix_steps(matrix: RACIMatrix,
 
     # ── Step 4: Validation summary ───────────────────────────────
     issues = matrix.validate()
-    errors   = [i for i in issues if i.level == "error"]
+    errors = [i for i in issues if i.level == "error"]
     warnings = [i for i in issues if i.level == "warning"]
 
     if not issues:

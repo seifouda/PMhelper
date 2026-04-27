@@ -1,38 +1,56 @@
 {
   "name": "Financial Analysis Demo",
-  "description": "Two project scenarios with known Payback, NPV, IRR, and PI values for classroom illustration.",
+  "description": "Three project scenarios of increasing complexity for classroom illustration of Payback, NPV, IRR, and PI.",
   "version": "v2",
   "feature": "financial_calcs",
   "data": {
     "scenarios": [
       {
-        "name": "Office Automation System",
-        "description": "A $100,000 investment in office automation expected to generate $30,000 per year for 5 years at a 10% discount rate. Payback ≈ 3.33 years, NPV ≈ $13,724, IRR ≈ 15.24%, PI ≈ 1.137.",
-        "initial_investment": 100000,
-        "discount_rate_pct": 10,
-        "cash_flows": [30000, 30000, 30000, 30000, 30000],
+        "name": "Capital Investment — Manufacturing Line",
+        "description": "A $500,000 investment in an automated production line with a 10-year horizon at 12% discount rate. Cash flows ramp up over years 1-3, peak in years 4-7, then decline as the technology ages. Year 2 includes a $15,000 maintenance hit. Demonstrates uneven cash flows with clear ramp-up/decline pattern.",
+        "initial_investment": 500000,
+        "discount_rate_pct": 12,
+        "cash_flows": [
+          30000, 55000, 90000, 120000, 120000, 115000, 110000, 80000, 50000,
+          30000
+        ],
         "known_solutions": {
-          "payback_period":      3.33,
-          "discounted_payback":  4.18,
-          "roi_pct":             50.0,
-          "npv":                 13724.0,
-          "irr_pct":             15.24,
-          "profitability_index": 1.137
+          "payback_period": 5.42,
+          "discounted_payback": null,
+          "roi_pct": 60.0,
+          "npv": -47750.0,
+          "irr_pct": 9.05,
+          "profitability_index": 0.9
         }
       },
       {
-        "name": "Warehouse Expansion",
-        "description": "A $200,000 warehouse expansion with uneven cash flows over 6 years at 8% discount rate. Growing inflows reflect ramp-up in utilisation.",
-        "initial_investment": 200000,
+        "name": "Lease vs Buy — Server Infrastructure",
+        "description": "Buy option: $280,000 upfront for on-premise servers generating $75,000/yr savings over 6 years at 8% discount rate. Compare against lease alternative ($60,000/yr for 6 years). The buy option looks expensive upfront but has a positive NPV — a non-obvious winner.",
+        "initial_investment": 280000,
         "discount_rate_pct": 8,
-        "cash_flows": [20000, 40000, 60000, 80000, 80000, 60000],
+        "cash_flows": [75000, 75000, 75000, 75000, 75000, 75000],
         "known_solutions": {
-          "payback_period":      4.0,
-          "discounted_payback":  null,
-          "roi_pct":             70.0,
-          "npv":                 -12067.0,
-          "irr_pct":             5.77,
-          "profitability_index": 0.94
+          "payback_period": 3.73,
+          "discounted_payback": 4.77,
+          "roi_pct": 60.71,
+          "npv": 66812.0,
+          "irr_pct": 15.34,
+          "profitability_index": 1.24
+        }
+      },
+      {
+        "name": "Digital Product — SaaS Platform",
+        "description": "A $150,000 investment in a SaaS product with exponential revenue growth over 5 years at 10% discount rate. Year 1 is mostly development with minimal revenue, then adoption accelerates. High-IRR scenario illustrating software economics.",
+        "initial_investment": 150000,
+        "discount_rate_pct": 10,
+        "cash_flows": [10000, 35000, 80000, 140000, 220000],
+        "known_solutions": {
+          "payback_period": 3.18,
+          "discounted_payback": 3.54,
+          "roi_pct": 223.33,
+          "npv": 192972.0,
+          "irr_pct": 46.39,
+          "profitability_index": 2.29
         }
       }
     ]

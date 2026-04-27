@@ -6,7 +6,7 @@ DFS cycle detection, orphan check, depth limit, and structural validation.
 from __future__ import annotations
 from typing import List, Set
 
-from pmhelper.core.wbs_models_edu import WBSTree, WBSNode
+from pmhelper.core.wbs_models_edu import WBSTree
 
 
 class WBSValidationError:
@@ -54,11 +54,14 @@ class WBSValidator:
             current = node
             while current:
                 if current.id in path:
-                    errors.append(WBSValidationError(
-                        "ERROR",
-                        f"Cycle detected involving node '{current.name}' ({current.id})",
-                        current.id,
-                    ))
+                    errors.append(
+                        WBSValidationError(
+                            "ERROR",
+                            f"Cycle detected involving node '{
+                                current.name}' ({
+                                current.id})",
+                            current.id,
+                        ))
                     break
                 path.add(current.id)
                 visited.add(current.id)
@@ -76,11 +79,15 @@ class WBSValidator:
         node_ids = {n.id for n in tree.nodes}
         for node in tree.nodes:
             if node.parent_id and node.parent_id not in node_ids:
-                errors.append(WBSValidationError(
-                    "ERROR",
-                    f"Orphan node '{node.name}' ({node.id}) — parent '{node.parent_id}' not found.",
-                    node.id,
-                ))
+                errors.append(
+                    WBSValidationError(
+                        "ERROR",
+                        f"Orphan node '{
+                            node.name}' ({
+                            node.id}) — parent '{
+                            node.parent_id}' not found.",
+                        node.id,
+                    ))
         return errors
 
     @classmethod
@@ -90,11 +97,11 @@ class WBSValidator:
         for node in tree.nodes:
             depth = tree.get_depth(node.id)
             if depth > cls.MAX_DEPTH:
-                errors.append(WBSValidationError(
-                    "WARNING",
-                    f"Node '{node.name}' at depth {depth} exceeds recommended max {cls.MAX_DEPTH}.",
-                    node.id,
-                ))
+                errors.append(
+                    WBSValidationError(
+                        "WARNING", f"Node '{
+                            node.name}' at depth {depth} exceeds recommended max {
+                            cls.MAX_DEPTH}.", node.id, ))
         return errors
 
     @classmethod
@@ -103,11 +110,12 @@ class WBSValidator:
         errors = []
         n = tree.node_count()
         if n > cls.MAX_NODES:
-            errors.append(WBSValidationError(
-                "WARNING",
-                f"WBS has {n} nodes, exceeding the recommended limit of {cls.MAX_NODES}. "
-                f"Performance may degrade.",
-            ))
+            errors.append(
+                WBSValidationError(
+                    "WARNING",
+                    f"WBS has {n} nodes, exceeding the recommended limit of {
+                        cls.MAX_NODES}. " f"Performance may degrade.",
+                ))
         return errors
 
     @classmethod

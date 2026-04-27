@@ -29,20 +29,27 @@ class EVMTask:
     baseline_finish: Optional[int] = None
     pv_spread: PVSpread = PVSpread.UNIFORM
     cpm_task_id: Optional[str] = None               # optional link to CPM task
-    predecessors: List[str] = field(default_factory=list)  # EVMTask IDs (for MC)
+    predecessors: List[str] = field(
+        default_factory=list)  # EVMTask IDs (for MC)
 
     def __post_init__(self):
         self.validate()
 
     def validate(self) -> None:
         if self.budget < 0:
-            raise ValueError(f"Task '{self.task_id}': budget cannot be negative")
+            raise ValueError(
+                f"Task '{
+                    self.task_id}': budget cannot be negative")
         if not 0 <= self.pct_complete <= 100:
-            raise ValueError(f"Task '{self.task_id}': pct_complete must be 0\u2013100")
+            raise ValueError(
+                f"Task '{
+                    self.task_id}': pct_complete must be 0\u2013100")
         if self.planned_finish < self.planned_start:
             raise ValueError(
-                f"Task '{self.task_id}': planned_finish ({self.planned_finish}) "
-                f"< planned_start ({self.planned_start})")
+                f"Task '{
+                    self.task_id}': planned_finish ({
+                    self.planned_finish}) " f"< planned_start ({
+                    self.planned_start})")
 
     @property
     def ev(self) -> float:
@@ -117,7 +124,8 @@ class EVMProject:
     periods: List[EVMPeriod] = field(default_factory=list)
     tasks: List[EVMTask] = field(default_factory=list)
     schema_version: int = 1                         # for forward-compatibility
-    bac_auto_compute: bool = True                   # BAC = sum(task budgets) by default
+    # BAC = sum(task budgets) by default
+    bac_auto_compute: bool = True
 
     def __post_init__(self):
         if self.bac < 0:

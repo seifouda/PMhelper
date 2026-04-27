@@ -89,12 +89,13 @@ def pert_steps(results_data: Dict[str, Any],
             result=f"= {te:.4f}",
         ))
     if te_children:
-        steps.append(Step(
-            title="Step 1 — Expected Time (tₑ) per Activity",
-            formula="tₑ = (o + 4m + p) / 6",
-            interpretation="Weighted average of optimistic, most-likely and pessimistic estimates.",
-            children=te_children,
-        ))
+        steps.append(
+            Step(
+                title="Step 1 — Expected Time (tₑ) per Activity",
+                formula="tₑ = (o + 4m + p) / 6",
+                interpretation="Weighted average of optimistic, most-likely and pessimistic estimates.",
+                children=te_children,
+            ))
 
     # ── Step 2: Variance per Activity (critical-path only) ──────────
     var_children: List[Step] = []
@@ -114,16 +115,18 @@ def pert_steps(results_data: Dict[str, Any],
             result=f"= {v:.4f}",
         ))
     if var_children:
-        steps.append(Step(
-            title="Step 2 — Variance (σ²) per Critical-Path Activity",
-            formula="σ² = ((p − o) / 6)²",
-            interpretation="Only critical-path activities contribute to project variance.",
-            children=var_children,
-        ))
+        steps.append(
+            Step(
+                title="Step 2 — Variance (σ²) per Critical-Path Activity",
+                formula="σ² = ((p − o) / 6)²",
+                interpretation="Only critical-path activities contribute to project variance.",
+                children=var_children,
+            ))
 
     # ── Step 3: Project Variance ────────────────────────────────────
     proj_var = results_data.get("project_variance", 0)
-    cp_labels = " + ".join(f"σ²({a})" for a in sorted(cp_set) if a not in ("START", "END"))
+    cp_labels = " + ".join(f"σ²({a})" for a in sorted(cp_set)
+                           if a not in ("START", "END"))
     cp_values = []
     for act in activities:
         if act["id"] in cp_set:
@@ -149,7 +152,7 @@ def pert_steps(results_data: Dict[str, Any],
         interpretation="Measures the spread of possible project durations.",
     ))
 
-    # ── Step 5 & 6: Z-score + Probability (if target given) ────────
+    # ── Step 5, 5b & 6: Z-score + Z-table lookup + Probability ───
     exp_dur = results_data.get("expected_duration", 0)
     if target_duration is not None and std_dev > 0:
         z = (target_duration - exp_dur) / std_dev
@@ -161,6 +164,39 @@ def pert_steps(results_data: Dict[str, Any],
             interpretation="Number of standard deviations from the expected duration.",
         ))
 
+        # Step 5b — Z-table lookup (best-effort; non-fatal if CSV missing)
+        try:
+            from pmhelper.core.ztable_loader import load_ztable, lookup_forward
+            import os
+            csv_path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "..", "..", "..", "ztable.csv")
+            if os.path.isfile(csv_path):
+                _zt = load_ztable(csv_path)
+                _res = lookup_forward(_zt, z)
+                if _res is not None:
+                    steps.append(
+                        Step(
+                            title="Step 5b — Z-Table Lookup",
+                            formula=f"Row {
+                                _res.row_label}, Column {
+                                _res.col_label}",
+                            substitution=f"Z = {
+                                _res.z_value:.2f} → " f"row '{
+                                _res.row_label}' ∩ col '{
+                                _res.col_label}'",
+                            result=f"= {
+                                _res.probability:.4f}",
+                            interpretation=(
+                                "Read from the standard normal (Z) table: " f"row {
+                                    _res.row_label} and column {
+                                    _res.col_label} " f"give P(Z ≤ {
+                                    _res.z_value:.2f}) = {
+                                    _res.probability:.4f}."),
+                        ))
+        except Exception:
+            pass  # Z-table step is optional enrichment
+
         try:
             from scipy.stats import norm as _norm
             prob = _norm.cdf(z)
@@ -170,13 +206,19 @@ def pert_steps(results_data: Dict[str, Any],
         pct = prob * 100
         if pct >= 80:
             rag = "green"
-            interp = f"High confidence ({pct:.1f}%) of finishing within {target_duration:.2f} periods."
+            interp = f"High confidence ({
+                pct:.1f}%) of finishing within {
+                target_duration:.2f} periods."
         elif pct >= 50:
             rag = "amber"
-            interp = f"Moderate confidence ({pct:.1f}%) of finishing within {target_duration:.2f} periods."
+            interp = f"Moderate confidence ({
+                pct:.1f}%) of finishing within {
+                target_duration:.2f} periods."
         else:
             rag = "red"
-            interp = f"Low confidence ({pct:.1f}%) of finishing within {target_duration:.2f} periods."
+            interp = f"Low confidence ({
+                pct:.1f}%) of finishing within {
+                target_duration:.2f} periods."
 
         steps.append(Step(
             title="Step 6 — Probability P(T ≤ d)",
@@ -195,18 +237,18 @@ def pert_steps(results_data: Dict[str, Any],
 # ════════════════════════════════════════════════════════════════════
 
 _EVM_FORMULAS = {
-    "cv":  ("Cost Variance (CV)",         "CV = EV − AC"),
-    "sv":  ("Schedule Variance (SV)",     "SV = EV − PV"),
-    "cpi": ("Cost Performance Index",     "CPI = EV / AC"),
+    "cv": ("Cost Variance (CV)", "CV = EV − AC"),
+    "sv": ("Schedule Variance (SV)", "SV = EV − PV"),
+    "cpi": ("Cost Performance Index", "CPI = EV / AC"),
     "spi": ("Schedule Performance Index", "SPI = EV / PV"),
-    "cr":  ("Critical Ratio",            "CR = CPI × SPI"),
-    "pc":  ("Percent Complete",          "PC = (EV / BAC) × 100"),
-    "ps":  ("Percent Spent",             "PS = (AC / BAC) × 100"),
-    "eac1": ("EAC₁ (Atypical)",          "EAC₁ = AC + (BAC − EV)"),
-    "eac2": ("EAC₂ (Typical)",           "EAC₂ = BAC / CPI"),
-    "eac3": ("EAC₃ (Composite)",         "EAC₃ = AC + (BAC − EV) / (CPI × SPI)"),
-    "vac":  ("Variance at Completion",   "VAC = BAC − EAC"),
-    "tcpi_bac": ("TCPI (BAC)",           "TCPI = (BAC − EV) / (BAC − AC)"),
+    "cr": ("Critical Ratio", "CR = CPI × SPI"),
+    "pc": ("Percent Complete", "PC = (EV / BAC) × 100"),
+    "ps": ("Percent Spent", "PS = (AC / BAC) × 100"),
+    "eac1": ("EAC₁ (Atypical)", "EAC₁ = AC + (BAC − EV)"),
+    "eac2": ("EAC₂ (Typical)", "EAC₂ = BAC / CPI"),
+    "eac3": ("EAC₃ (Composite)", "EAC₃ = AC + (BAC − EV) / (CPI × SPI)"),
+    "vac": ("Variance at Completion", "VAC = BAC − EAC"),
+    "tcpi_bac": ("TCPI (BAC)", "TCPI = (BAC − EV) / (BAC − AC)"),
 }
 
 
@@ -255,13 +297,18 @@ def evm_steps(kpis: Dict[str, Any], currency: str = "$") -> List[Step]:
     steps: List[Step] = []
 
     # ── Base values ────────────────────────────────────────
-    steps.append(Step(
-        title="Step 1 — Base Earned Value Metrics",
-        formula="EV, PV, AC, BAC are inputs from the project data.",
-        substitution=f"EV = {_fc(ev)},  PV = {_fc(pv)},  AC = {_fc(ac)},  BAC = {_fc(bac)}",
-        result="(base values)",
-        interpretation="These are the foundation for all other KPIs.",
-    ))
+    steps.append(
+        Step(
+            title="Step 1 — Base Earned Value Metrics",
+            formula="EV, PV, AC, BAC are inputs from the project data.",
+            substitution=f"EV = {
+                _fc(ev)},  PV = {
+                _fc(pv)},  AC = {
+                    _fc(ac)},  BAC = {
+                        _fc(bac)}",
+            result="(base values)",
+            interpretation="These are the foundation for all other KPIs.",
+        ))
 
     # ── Variances ──────────────────────────────────────────
     cv = kpis.get("cv")
@@ -453,10 +500,14 @@ def cpm_forward_steps(results_data: Dict[str, Any]) -> List[Step]:
 
         preds = [p for p in graph.predecessors(node) if p != "START"]
         if preds:
-            pred_efs = [f"EF({p})={graph.nodes[p].get('EF', 0)}" for p in preds]
+            pred_efs = [
+                f"EF({p})={
+                    graph.nodes[p].get(
+                        'EF',
+                        0)}" for p in preds]
             sub_es = f"ES = max({', '.join(pred_efs)}) = {es}"
         else:
-            sub_es = f"ES = 0  (no predecessors)"
+            sub_es = "ES = 0  (no predecessors)"
 
         sub_ef = f"EF = ES + Duration = {es} + {dur}"
 
@@ -469,12 +520,13 @@ def cpm_forward_steps(results_data: Dict[str, Any]) -> List[Step]:
             rag="red" if is_critical else "",
         ))
 
-    return [Step(
-        title="Forward Pass — Early Start (ES) & Early Finish (EF)",
-        formula="ES = max(EF of all predecessors);  EF = ES + Duration",
-        interpretation="Process activities in topological order (left → right).",
-        children=steps,
-    )]
+    return [
+        Step(
+            title="Forward Pass — Early Start (ES) & Early Finish (EF)",
+            formula="ES = max(EF of all predecessors);  EF = ES + Duration",
+            interpretation="Process activities in topological order (left → right).",
+            children=steps,
+        )]
 
 
 def cpm_backward_steps(results_data: Dict[str, Any]) -> List[Step]:
@@ -504,7 +556,11 @@ def cpm_backward_steps(results_data: Dict[str, Any]) -> List[Step]:
 
         succs = [s for s in graph.successors(node) if s != "END"]
         if succs:
-            succ_lss = [f"LS({s})={graph.nodes[s].get('LS', 0)}" for s in succs]
+            succ_lss = [
+                f"LS({s})={
+                    graph.nodes[s].get(
+                        'LS',
+                        0)}" for s in succs]
             sub_lf = f"LF = min({', '.join(succ_lss)}) = {lf}"
         else:
             sub_lf = f"LF = {proj_dur}  (end activity)"
@@ -513,21 +569,23 @@ def cpm_backward_steps(results_data: Dict[str, Any]) -> List[Step]:
         sub_float = f"Float = LS − ES = {ls} − {data.get('ES', 0)}"
 
         is_critical = flt == 0
-        steps.append(Step(
-            title=f"Activity {node}",
-            formula="LF = min(LS of successors);  LS = LF − Duration;  Float = LS − ES",
-            substitution=f"{sub_lf}\n{sub_ls}\n{sub_float}",
-            result=f"LS = {ls},  LF = {lf},  Float = {flt}",
-            interpretation="Critical!" if is_critical else f"Float = {flt} (non-critical)",
-            rag="red" if is_critical else "green",
-        ))
+        steps.append(
+            Step(
+                title=f"Activity {node}",
+                formula="LF = min(LS of successors);  LS = LF − Duration;  Float = LS − ES",
+                substitution=f"{sub_lf}\n{sub_ls}\n{sub_float}",
+                result=f"LS = {ls},  LF = {lf},  Float = {flt}",
+                interpretation="Critical!" if is_critical else f"Float = {flt} (non-critical)",
+                rag="red" if is_critical else "green",
+            ))
 
-    return [Step(
-        title="Backward Pass — Late Finish (LF), Late Start (LS) & Float",
-        formula="LF = min(LS of all successors);  LS = LF − Duration;  Float = LS − ES",
-        interpretation=f"Process activities in reverse topological order (right → left). Project duration = {proj_dur}.",
-        children=steps,
-    )]
+    return [
+        Step(
+            title="Backward Pass — Late Finish (LF), Late Start (LS) & Float",
+            formula="LF = min(LS of all successors);  LS = LF − Duration;  Float = LS − ES",
+            interpretation=f"Process activities in reverse topological order (right → left). Project duration = {proj_dur}.",
+            children=steps,
+        )]
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -549,7 +607,8 @@ def _step_to_dict(step: Step) -> Dict[str, Any]:
     return d
 
 
-def generate_cpm_steps(graph: Any, critical_paths: Any) -> List[Dict[str, Any]]:
+def generate_cpm_steps(
+        graph: Any, critical_paths: Any) -> List[Dict[str, Any]]:
     """Wrapper for the web API — returns serialised CPM forward + backward steps."""
     results_data = {"graph": graph, "critical_paths": critical_paths}
     forward = cpm_forward_steps(results_data)
@@ -563,7 +622,8 @@ def generate_pert_steps(results: Dict[str, Any]) -> List[Dict[str, Any]]:
     return [_step_to_dict(s) for s in raw]
 
 
-def generate_evm_steps(bac: float, pv: float, ev: float, ac: float) -> List[Dict[str, Any]]:
+def generate_evm_steps(bac: float, pv: float, ev: float,
+                       ac: float) -> List[Dict[str, Any]]:
     """Wrapper for the web API — returns serialised EVM steps."""
     kpis: Dict[str, Any] = {"bac": bac, "pv": pv, "ev": ev, "ac": ac}
     # Compute derived KPIs so evm_steps can use them

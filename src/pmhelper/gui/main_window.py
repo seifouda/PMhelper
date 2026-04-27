@@ -159,7 +159,7 @@ class MainWindow:
                 label="Start Server",
                 command=self.start_server)
             server_menu.add_command(
-                label="Stop Server", 
+                label="Stop Server",
                 command=self.stop_server)
             server_menu.add_separator()
             server_menu.add_command(
@@ -239,7 +239,6 @@ class MainWindow:
         # Add Project Charter tab
         self.charter_tab = CharterTab(self.notebook, self)
         self.notebook.add(self.charter_tab, text="Project Charter")
-        
 
         # Add Charter Manager tab
         self.charter_manager = CharterManager(
@@ -260,7 +259,8 @@ class MainWindow:
         self.risk_tab = RiskAnalysisTab(self.notebook, self)
 
         # Add Cost Optimization tab
-        self.optimization_tab = OptimizationTab(self.notebook, self.cpm_analyzer)
+        self.optimization_tab = OptimizationTab(
+            self.notebook, self.cpm_analyzer)
         self.notebook.add(self.optimization_tab, text="Cost Optimization")
 
         # Add Server tab (if available)
@@ -539,7 +539,7 @@ class MainWindow:
                 return
 
             # [DEBUG] Check analysis mode and data
-            print(f"\n[DEBUG_ANALYZE] [MAIN WINDOW] ANALYSIS DEBUG")
+            print("\n[DEBUG_ANALYZE] [MAIN WINDOW] ANALYSIS DEBUG")
             print(f"   Analysis mode: {self.analysis_mode}")
             print(f"   Current analyzer: {type(self.current_analyzer)}")
             print(f"   Activities data count: {len(activities_data)}")
@@ -554,7 +554,7 @@ class MainWindow:
                 activities_data)
 
             # [DEBUG] Check analysis results
-            print(f"\n[DEBUG_COST] [ANALYSIS RESULTS] COST DATA CHECK")
+            print("\n[DEBUG_COST] [ANALYSIS RESULTS] COST DATA CHECK")
             print(f"   Graph created: {G is not None}")
             if G:
                 print(f"   Graph nodes: {list(G.nodes())}")
@@ -566,7 +566,7 @@ class MainWindow:
                             f"   {node_id}: crash_cost={crash_cost}, normal_cost={normal_cost}")
 
             # [DEBUG] Check analyzer state after analysis
-            print(f"\n[DEBUG_DATA] [ANALYZER STATE] AFTER ANALYSIS")
+            print("\n[DEBUG_DATA] [ANALYZER STATE] AFTER ANALYSIS")
             if hasattr(self.current_analyzer, 'activities'):
                 print(
                     f"   Analyzer has activities: {len(self.current_analyzer.activities)}")
@@ -574,23 +574,23 @@ class MainWindow:
                 for activity in self.current_analyzer.activities[:3]:
                     print(f"   Activity: {activity}")
             else:
-                print(f"   Analyzer has NO activities attribute")
+                print("   Analyzer has NO activities attribute")
 
             if hasattr(self.current_analyzer, 'G'):
                 print(
                     f"   Analyzer has graph G: {
                         self.current_analyzer.G is not None}")
             else:
-                print(f"   Analyzer has NO graph G")
+                print("   Analyzer has NO graph G")
 
             # Store analyzer references for RCPS/Crashing
             if self.analysis_mode == 'probabilistic':
                 self.pert_analyzer = self.current_analyzer
                 print(
-                    f"   [DEBUG_SUCCESS] PERT analyzer stored in main window")
+                    "   [DEBUG_SUCCESS] PERT analyzer stored in main window")
             else:
                 self.cmp_analyzer = self.current_analyzer
-                print(f"   [DEBUG_SUCCESS] CPM analyzer stored in main window")
+                print("   [DEBUG_SUCCESS] CPM analyzer stored in main window")
 
             # Optional debug output (comment out for production)
             # print("=" * 80)
@@ -912,7 +912,7 @@ class MainWindow:
         # If not found, show info
         messagebox.showinfo(
             "Info", "RCPS Crashing tab not found. Please check integration.")
-    
+
     def show_optimization_tab(self):
         """Show the Cost Optimization tab"""
         # Switch to the Cost Optimization tab
@@ -923,60 +923,83 @@ class MainWindow:
                 if hasattr(self, 'optimization_tab') and self.current_analyzer:
                     self.optimization_tab.set_analyzer(self.current_analyzer)
                 return
-        
+
         # If not found, show info
         messagebox.showinfo(
             "Info", "Cost Optimization tab not found. Please check integration.")
 
     def show_server_tab(self):
         """Show the Server tab"""
-        if not SERVER_MODE_AVAILABLE or not hasattr(self, 'server_tab') or not self.server_tab:
-            messagebox.showwarning("Server Mode", "Server mode is not available in this installation.")
+        if not SERVER_MODE_AVAILABLE or not hasattr(
+                self, 'server_tab') or not self.server_tab:
+            messagebox.showwarning(
+                "Server Mode",
+                "Server mode is not available in this installation.")
             return
-        
+
         # Switch to the Server tab
         for i in range(self.notebook.index('end')):
             if self.notebook.tab(i, 'text') == 'Server':
                 self.notebook.select(i)
                 return
-    
+
     def start_server(self):
         """Start the PMHelper server"""
-        if not SERVER_MODE_AVAILABLE or not hasattr(self, 'server_tab') or not self.server_tab:
-            messagebox.showwarning("Server Mode", "Server mode is not available in this installation.")
+        if not SERVER_MODE_AVAILABLE or not hasattr(
+                self, 'server_tab') or not self.server_tab:
+            messagebox.showwarning(
+                "Server Mode",
+                "Server mode is not available in this installation.")
             return
-        
+
         try:
             self.server_tab.control_panel.start_server()
         except Exception as e:
-            messagebox.showerror("Server Error", f"Failed to start server: {str(e)}")
-    
+            messagebox.showerror(
+                "Server Error",
+                f"Failed to start server: {
+                    str(e)}")
+
     def stop_server(self):
         """Stop the PMHelper server"""
-        if not SERVER_MODE_AVAILABLE or not hasattr(self, 'server_tab') or not self.server_tab:
-            messagebox.showwarning("Server Mode", "Server mode is not available in this installation.")
+        if not SERVER_MODE_AVAILABLE or not hasattr(
+                self, 'server_tab') or not self.server_tab:
+            messagebox.showwarning(
+                "Server Mode",
+                "Server mode is not available in this installation.")
             return
-        
+
         try:
             self.server_tab.control_panel.stop_server()
         except Exception as e:
-            messagebox.showerror("Server Error", f"Failed to stop server: {str(e)}")
-    
+            messagebox.showerror(
+                "Server Error",
+                f"Failed to stop server: {
+                    str(e)}")
+
     def open_api_docs(self):
         """Open API documentation in browser"""
-        if not SERVER_MODE_AVAILABLE or not hasattr(self, 'server_tab') or not self.server_tab:
-            messagebox.showwarning("Server Mode", "Server mode is not available in this installation.")
+        if not SERVER_MODE_AVAILABLE or not hasattr(
+                self, 'server_tab') or not self.server_tab:
+            messagebox.showwarning(
+                "Server Mode",
+                "Server mode is not available in this installation.")
             return
-        
+
         if not self.server_tab.is_server_running():
-            messagebox.showinfo("Server Not Running", "Please start the server first to access the API documentation.")
+            messagebox.showinfo(
+                "Server Not Running",
+                "Please start the server first to access the API documentation.")
             return
-        
+
         try:
             import webbrowser
             webbrowser.open(f"{self.server_tab.get_server_url()}/docs")
         except Exception as e:
-            messagebox.showerror("Browser Error", f"Failed to open API documentation: {str(e)}")
+            messagebox.showerror(
+                "Browser Error",
+                f"Failed to open API documentation: {
+                    str(e)}")
 
     def generate_sample_cpm(self):
         """Generate and save sample CPM data"""
@@ -2394,17 +2417,17 @@ PMHelper is designed to meet professional project management analysis needs whil
             # CRITICAL FIX 3: Additional handling for Gantt tab visibility
             if "Gantt" in tab_text or "gantt" in tab_text.lower():
                 self.handle_gantt_tab_selection()
-            
+
             # Refresh charter manager when tab is selected
             elif "Charter Manager" in tab_text:
                 self.charter_manager.refresh()
         except Exception as e:
             print(f"ERROR: Tab change handler failed: {e}")
             self.set_status("Ready")
-    
+
     def _open_charter_from_manager(self, filepath: str):
         """Open a charter from the manager in the charter tab.
-        
+
         Args:
             filepath: Path to the charter file to open
         """
@@ -2414,23 +2437,24 @@ PMHelper is designed to meet professional project management analysis needs whil
                 if self.notebook.tab(i, "text") == "Project Charter":
                     self.notebook.select(i)
                     break
-            
+
             # Load the charter in the charter tab
             self.charter_tab.load_charter_from_file(filepath)
-            
+
         except Exception as e:
             messagebox.showerror("Error", f"Failed to open charter: {str(e)}")
-    
+
     def on_closing(self):
         """Handle application closing with proper cleanup."""
         try:
             # Cleanup server resources if available
-            if SERVER_MODE_AVAILABLE and hasattr(self, 'server_tab') and self.server_tab:
+            if SERVER_MODE_AVAILABLE and hasattr(
+                    self, 'server_tab') and self.server_tab:
                 self.server_tab.cleanup()
-                
+
             # Close the application
             self.root.destroy()
-            
+
         except Exception as e:
             print(f"Warning: Error during cleanup: {e}")
             self.root.destroy()

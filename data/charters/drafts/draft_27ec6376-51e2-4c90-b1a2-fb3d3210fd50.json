@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "charter_id": "27ec6376-51e2-4c90-b1a2-fb3d3210fd50",
+    "created_date": "2025-11-02T17:30:09.504850",
+    "modified_date": "2025-11-02T17:35:00.631777",
+    "status": "draft",
+    "version": "1.0",
+    "template_id": "standard_charter_v1",
+    "template_version": "1.0"
+  },
+  "data": {
+    "objectives": {
+      "business_case": "Describe the business justification for this project",
+      "objectives": "List specific, measurable objectives",
+      "success_criteria": "Define measurable success criteria"
+    },
+    "scope": {
+      "in_scope": "List what is included in the project",
+      "out_of_scope": "List what is explicitly excluded",
+      "deliverables": "List major deliverables",
+      "assumptions": "List project assumptions",
+      "constraints": "List project constraints"
+    },
+    "budget": {
+      "resource_requirements": "Describe resource needs",
+      "total_budget": "14asdfasd",
+      "currency": "GBP",
+      "budget_breakdown": [
+        {
+          "category": "asdfasdf",
+          "amount": "6564",
+          "notes": ""
+        },
+        {
+          "category": "asdfasdf",
+          "amount": "asdfa",
+          "notes": ""
+        },
+        {
+          "category": "asdfasdf",
+          "amount": "asdfasdf",
+          "notes": ""
+        }
+      ]
+    },
+    "schedule": {
+      "phases": "Describe major project phases",
+      "milestones": [
+        {
+          "milestone": "sadjhgacksjdgc",
+          "date": "date",
+          "deliverable": ""
+        }
+      ]
+    },
+    "team": {
+      "organizational_structure": "Describe reporting structure",
+      "team_members": [
+        {
+          "name": "asdfas",
+          "role": "asdf",
+          "responsibility": "asdfa"
+        }
+      ]
+    },
+    "stakeholders": {
+      "communication_plan": "Describe communication approach",
+      "stakeholder_list": [
+        {
+          "name": "asdfasd",
+          "interest": "asdfasd",
+          "influence": "adsfasdfasdv",
+          "strategy": "adcsdczxxcv"
+        }
+      ]
+    },
+    "risks": {
+      "known_issues": "Document any known issues",
+      "risk_register": [
+        {
+          "risk": "asdfas",
+          "probability": "asdfa",
+          "impact": "fasdf",
+          "mitigation": "asdfasd"
+        }
+      ]
+    },
+    "approval": {
+      "approval_notes": "Additional notes or conditions",
+      "prepared_date": "2025-11-04",
+      "approval_signatures": [
+        {
+          "name": "fasdfzxkcjvh",
+          "title": "ASDFAS",
+          "date": "ASDFASDF"
+        }
+      ]
+    },
+    "identification": {
+      "start_date": "2025-11-13",
+      "end_date": "2026-03-21"
+    }
+  }
+}

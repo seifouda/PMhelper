@@ -8,7 +8,7 @@ import csv
 from pathlib import Path
 from typing import List
 
-from pmhelper.core.risk_register_edu import Risk, RiskRegister, RiskCategory
+from pmhelper.core.risk_register_edu import Risk, RiskRegister
 
 # Ordered fieldnames for CSV export (V1 + Phase 6 additions)
 _CSV_FIELDS = [
@@ -42,7 +42,8 @@ def load_register(filepath: str) -> RiskRegister:
 def export_to_csv(register: RiskRegister, filepath: str) -> None:
     """Export risk register to CSV (V1 + Phase 6 fields)."""
     with open(filepath, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=_CSV_FIELDS, extrasaction="ignore")
+        writer = csv.DictWriter(
+            f, fieldnames=_CSV_FIELDS, extrasaction="ignore")
         writer.writeheader()
         for r in register.risks:
             writer.writerow(r.to_dict())
@@ -59,25 +60,24 @@ def import_from_csv(filepath: str) -> RiskRegister:
         for row in reader:
             try:
                 risks.append(Risk.from_dict({
-                    "id":          row["id"],
-                    "name":        row["name"],
+                    "id": row["id"],
+                    "name": row["name"],
                     "description": row.get("description", ""),
                     "probability": float(row["probability"]),
-                    "impact":      float(row["impact"]),
-                    "category":    row.get("category", "Other"),
+                    "impact": float(row["impact"]),
+                    "category": row.get("category", "Other"),
                     # Phase 6 optional fields (may not exist in old CSV files)
-                    "prob_score":            int(row["prob_score"])   if row.get("prob_score")   else 3,
-                    "impact_score":          int(row["impact_score"]) if row.get("impact_score") else 3,
-                    "response_strategy":     row.get("response_strategy") or None,
-                    "response_description":  row.get("response_description", ""),
-                    "response_owner":        row.get("response_owner", ""),
-                    "response_cost":         float(row["response_cost"]) if row.get("response_cost") else 0.0,
-                    "residual_probability":  float(row["residual_probability"]) if row.get("residual_probability") else 3.0,
-                    "residual_impact":       float(row["residual_impact"])      if row.get("residual_impact")      else 3.0,
-                    "trigger_conditions":    row.get("trigger_conditions", ""),
-                    "contingency_plan":      row.get("contingency_plan", ""),
+                    "prob_score": int(row["prob_score"]) if row.get("prob_score") else 3,
+                    "impact_score": int(row["impact_score"]) if row.get("impact_score") else 3,
+                    "response_strategy": row.get("response_strategy") or None,
+                    "response_description": row.get("response_description", ""),
+                    "response_owner": row.get("response_owner", ""),
+                    "response_cost": float(row["response_cost"]) if row.get("response_cost") else 0.0,
+                    "residual_probability": float(row["residual_probability"]) if row.get("residual_probability") else 3.0,
+                    "residual_impact": float(row["residual_impact"]) if row.get("residual_impact") else 3.0,
+                    "trigger_conditions": row.get("trigger_conditions", ""),
+                    "contingency_plan": row.get("contingency_plan", ""),
                 }))
             except (ValueError, KeyError):
                 continue  # skip invalid rows
     return RiskRegister(risks=risks)
-

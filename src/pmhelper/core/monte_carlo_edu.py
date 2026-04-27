@@ -4,8 +4,8 @@ PERT-Beta duration sampling, Triangular cost sampling, threaded runner.
 """
 
 from __future__ import annotations
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Callable, Any
+from dataclasses import dataclass
+from typing import Dict, Optional, Callable
 import numpy as np
 
 from pmhelper.core.cpm_sampler_edu import run_cpm_on_sample
@@ -121,7 +121,8 @@ def run_simulation(
     -------
     MCResults
     """
-    seed = inputs.seed if inputs.seed is not None else np.random.default_rng().integers(0, 2**31)
+    seed = inputs.seed if inputs.seed is not None else np.random.default_rng().integers(0,
+                                                                                        2**31)
     rng = np.random.default_rng(seed)
 
     n = inputs.n_trials
@@ -162,9 +163,12 @@ def run_simulation(
 
             # --- Duration sampling ---
             if has_pert[aid]:
-                o = float(act.get("optimistic") or act.get("optimistic_duration"))
-                m = float(act.get("most_likely") or act.get("most_likely_duration"))
-                p = float(act.get("pessimistic") or act.get("pessimistic_duration"))
+                o = float(act.get("optimistic")
+                          or act.get("optimistic_duration"))
+                m = float(act.get("most_likely")
+                          or act.get("most_likely_duration"))
+                p = float(act.get("pessimistic")
+                          or act.get("pessimistic_duration"))
                 dur = _sample_pert_beta(rng, o, m, p)
             else:
                 dur = _get_task_duration(act)
@@ -177,7 +181,9 @@ def run_simulation(
                 min_cost = task_budget * inputs.cost_min_factor
                 likely = task_budget
                 max_cost = task_budget * inputs.cost_max_factor
-                sampled_task_cost = float(rng.triangular(min_cost, likely, max_cost))
+                sampled_task_cost = float(
+                    rng.triangular(
+                        min_cost, likely, max_cost))
             else:
                 sampled_task_cost = 0.0
             sampled_cost += sampled_task_cost
@@ -209,7 +215,8 @@ def run_simulation(
 
     # Compute summary statistics
     p50, p80, p90 = np.percentile(durations_arr, [50, 80, 90])
-    p_cost_within_bac = float(np.mean(costs_arr <= inputs.bac)) if inputs.bac > 0 else 0.0
+    p_cost_within_bac = float(
+        np.mean(costs_arr <= inputs.bac)) if inputs.bac > 0 else 0.0
 
     cp_freq = {aid: count / n for aid, count in cp_counts.items()}
 
@@ -242,6 +249,15 @@ class MonteCarloRunner:
             If None, callbacks are called synchronously (for testing).
         """
         self._root = root
+        self._cancel_flag = False
+
+    @property
+    def cancelled(self) -> bool:
+        return self._cancel_flag
+
+    def cancel(self) -> None:
+        """Request cancellation of a running simulation."""
+        self._cancel_flag = True
 
     def run_async(
         self,
@@ -250,38 +266,58 @@ class MonteCarloRunner:
         on_complete: Callable[[MCResults], None],
         on_error: Callable[[Exception], None],
     ) -> None:
-        """Run simulation in a background thread."""
+        """Run simulation in a background thread.
+
+        All three callbacks are invoked on the Tkinter main thread
+        (via ``root.after``), so they may safely touch widgets.
+        """
         import threading
         import queue as queue_mod
 
-        q = queue_mod.Queue()
+        self._cancel_flag = False
+        q: queue_mod.Queue = queue_mod.Queue()
+
+        cancel_ref = self                       # capture for closure
 
         def worker():
             try:
-                def progress_cb(pct):
+                def progress_cb(pct: float):
                     q.put(("progress", pct))
+                    if cancel_ref._cancel_flag:
+                        raise _SimulationCancelled()
+
                 result = run_simulation(inputs, progress_cb)
                 q.put(("done", result))
+            except _SimulationCancelled:
+                q.put(("cancelled", None))
             except Exception as e:
                 q.put(("error", e))
 
         def poll():
+            # Process ONE message per tick to avoid micro-freezes when
+            # many progress updates accumulate in a single 50 ms window.
             try:
-                while True:
-                    msg_type, payload = q.get_nowait()
-                    if msg_type == "progress":
-                        on_progress(payload)
-                    elif msg_type == "done":
-                        on_complete(payload)
-                        return
-                    elif msg_type == "error":
-                        on_error(payload)
-                        return
+                msg_type, payload = q.get_nowait()
+                if msg_type == "progress":
+                    on_progress(payload)
+                elif msg_type == "done":
+                    on_complete(payload)
+                    return          # stop polling
+                elif msg_type == "cancelled":
+                    on_error(Exception("Simulation cancelled by user."))
+                    return
+                elif msg_type == "error":
+                    on_error(payload)
+                    return          # stop polling
             except queue_mod.Empty:
                 pass
             if self._root is not None:
-                self._root.after(100, poll)
+                self._root.after(50, poll)
 
         threading.Thread(target=worker, daemon=True).start()
         if self._root is not None:
-            self._root.after(100, poll)
+            self._root.after(50, poll)
+
+
+class _SimulationCancelled(Exception):
+    """Internal sentinel — raised inside the worker thread to abort."""

@@ -80,7 +80,8 @@ def run_cpm_on_sample(
         if not preds:
             es[aid] = 0.0
         else:
-            es[aid] = max(ef.get(p, 0.0) for p in preds if p in ef) if preds else 0.0
+            es[aid] = max(ef.get(p, 0.0)
+                          for p in preds if p in ef) if preds else 0.0
         ef[aid] = es[aid] + dur
 
     project_duration = max(ef.values()) if ef else 0.0
@@ -94,7 +95,8 @@ def run_cpm_on_sample(
         if not succs:
             lf[aid] = project_duration
         else:
-            lf[aid] = min(ls[s] for s in succs if s in ls) if succs else project_duration
+            lf[aid] = min(ls[s]
+                          for s in succs if s in ls) if succs else project_duration
         ls[aid] = lf[aid] - dur
 
     # Critical path — activities with zero total float

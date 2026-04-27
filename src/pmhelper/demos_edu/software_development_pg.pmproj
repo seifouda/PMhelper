@@ -516,6 +516,16 @@
       "crash_cost": "75000",
       "resource_demand": "2",
       "normal_cost": "50000"
+    },
+    {
+      "id": "SD13",
+      "activity": "Project Closure & Sign-off",
+      "duration": "2",
+      "predecessors": "SD11,SD12",
+      "min_duration": "1",
+      "crash_cost": "200",
+      "normal_cost": "100",
+      "resource_demand": "1"
     }
   ],
   "cpm_mode": "probabilistic",

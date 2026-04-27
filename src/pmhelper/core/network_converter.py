@@ -92,7 +92,8 @@ def aon_to_aoa(activity_list: List[Dict]) -> AOANetwork:
                 G.add_edge(p, aid)
 
     try:
-        topo: List[str] = [aid for aid in nx.topological_sort(G) if aid in act_map]
+        topo: List[str] = [
+            aid for aid in nx.topological_sort(G) if aid in act_map]
     except nx.NetworkXUnfeasible:
         raise ValueError(
             "Activity network contains a cycle — cannot convert to AOA."
@@ -143,7 +144,8 @@ def aon_to_aoa(activity_list: List[Dict]) -> AOANetwork:
             unique_exits = list(seen.values())
 
             if len(unique_exits) == 1:
-                # All predecessors already share one exit event — no dummy needed
+                # All predecessors already share one exit event — no dummy
+                # needed
                 from_event[aid] = unique_exits[0]
             else:
                 # Need a merge event + one dummy per distinct predecessor exit

@@ -30,18 +30,18 @@ def leveling_concepts_steps() -> List[Step]:
     """Educational overview of resource leveling concepts."""
     steps: List[Step] = []
 
-    steps.append(Step(
-        title="Step 1 — What is Resource Leveling?",
-        formula="Peak Usage ↓    Duration may ↑",
-        interpretation=(
-            "Resource leveling rearranges activity start times to reduce resource "
-            "peaks and valleys. Activities are shifted within their float without "
-            "extending the project unless necessary (constrained mode).\n\n"
-            "Two modes:\n"
-            "  • Smoothing — only shifts within float; never extends project\n"
-            "  • Constrained — may extend duration to honour resource limits"
-        ),
-    ))
+    steps.append(
+        Step(
+            title="Step 1 — What is Resource Leveling?",
+            formula="Peak Usage ↓    Duration may ↑",
+            interpretation=(
+                "Resource leveling rearranges activity start times to reduce resource "
+                "peaks and valleys. Activities are shifted within their float without "
+                "extending the project unless necessary (constrained mode).\n\n"
+                "Two modes:\n"
+                "  • Smoothing — only shifts within float; never extends project\n"
+                "  • Constrained — may extend duration to honour resource limits"),
+        ))
 
     steps.append(Step(
         title="Step 2 — Float and Scheduling Flexibility",
@@ -64,30 +64,30 @@ def leveling_concepts_steps() -> List[Step]:
         ],
     ))
 
-    steps.append(Step(
-        title="Step 3 — Resource Profile",
-        formula="r(t) = Σ resource_demand(i)  for all active activities i at period t",
-        interpretation=(
-            "The resource profile sums all demands at each time period. "
-            "The goal of leveling is to flatten this profile — reducing spikes "
-            "and filling troughs."
-        ),
-    ))
+    steps.append(
+        Step(
+            title="Step 3 — Resource Profile",
+            formula="r(t) = Σ resource_demand(i)  for all active activities i at period t",
+            interpretation=(
+                "The resource profile sums all demands at each time period. "
+                "The goal of leveling is to flatten this profile — reducing spikes "
+                "and filling troughs."),
+        ))
 
-    steps.append(Step(
-        title="Step 4 — Smoothing vs Constrained Scheduling",
-        formula="Smoothing: shift within float  |  Constrained: enforce resource_limit ≤ R_max",
-        interpretation=(
-            "Resource Smoothing (Mode: Smoothing):\n"
-            "  – Shifts activities within their available float.\n"
-            "  – Project duration is preserved.\n"
-            "  – Metric minimised: Moment (Min-Moment) or Sum-of-Squares (Burgess).\n\n"
-            "Resource-Constrained Scheduling (Mode: Constrained):\n"
-            "  – Hard upper limit on resource usage per period.\n"
-            "  – Activities that exceed the limit are delayed even beyond their float.\n"
-            "  – Project duration may extend."
-        ),
-    ))
+    steps.append(
+        Step(
+            title="Step 4 — Smoothing vs Constrained Scheduling",
+            formula="Smoothing: shift within float  |  Constrained: enforce resource_limit ≤ R_max",
+            interpretation=(
+                "Resource Smoothing (Mode: Smoothing):\n"
+                "  – Shifts activities within their available float.\n"
+                "  – Project duration is preserved.\n"
+                "  – Metric minimised: Moment (Min-Moment) or Sum-of-Squares (Burgess).\n\n"
+                "Resource-Constrained Scheduling (Mode: Constrained):\n"
+                "  – Hard upper limit on resource usage per period.\n"
+                "  – Activities that exceed the limit are delayed even beyond their float.\n"
+                "  – Project duration may extend."),
+        ))
 
     return steps
 
@@ -96,7 +96,8 @@ def leveling_concepts_steps() -> List[Step]:
 #  Float Analysis
 # ════════════════════════════════════════════════════════════════════
 
-def float_analysis_steps(activities: List[Any], schedule: Dict[str, int]) -> List[Step]:
+def float_analysis_steps(
+        activities: List[Any], schedule: Dict[str, int]) -> List[Step]:
     """Show which activities have scheduling flexibility."""
     steps: List[Step] = []
 
@@ -117,14 +118,14 @@ def float_analysis_steps(activities: List[Any], schedule: Dict[str, int]) -> Lis
     ))
 
     if not non_critical:
-        steps.append(Step(
-            title="Step 2 — No Leveling Possible",
-            interpretation=(
-                "Every activity is on the critical path. Resource leveling "
-                "cannot improve the resource profile without extending the project."
-            ),
-            rag="amber",
-        ))
+        steps.append(
+            Step(
+                title="Step 2 — No Leveling Possible",
+                interpretation=(
+                    "Every activity is on the critical path. Resource leveling "
+                    "cannot improve the resource profile without extending the project."),
+                rag="amber",
+            ))
         return steps
 
     for act in sorted(non_critical, key=lambda a: -getattr(a, "float", 0)):
@@ -162,34 +163,39 @@ def minimum_moment_algorithm_steps(result: Dict[str, Any]) -> List[Step]:
     improvement = result.get("improvement_pct", 0.0)
 
     # ── Theory recap ─────────────────────────────────────────────────
-    steps.append(Step(
-        title="Step 1 — Minimum Moment Method: The Formula",
-        formula="M = Σₜ (r(t) − r̄)²   where r̄ = (Σ r(t)) / T",
-        interpretation=(
-            "The moment M measures the variance of the resource profile. "
-            "A lower moment means a flatter profile.\n\n"
-            "The algorithm iterates over all non-critical activities and tries "
-            "each feasible start time, keeping the position that gives the "
-            "smallest moment. It repeats until no improvement is found."
-        ),
-    ))
+    steps.append(
+        Step(
+            title="Step 1 — Minimum Moment Method: The Formula",
+            formula="M = Σₜ (r(t) − r̄)²   where r̄ = (Σ r(t)) / T",
+            interpretation=(
+                "The moment M measures the variance of the resource profile. "
+                "A lower moment means a flatter profile.\n\n"
+                "The algorithm iterates over all non-critical activities and tries "
+                "each feasible start time, keeping the position that gives the "
+                "smallest moment. It repeats until no improvement is found."),
+        ))
 
     # ── Original state ────────────────────────────────────────────────
     orig_profile_obj = result.get("original_profile")
     if orig_profile_obj:
         peak = orig_profile_obj.get_peak_usage()
         mean = orig_profile_obj.get_mean_usage()
-        steps.append(Step(
-            title="Step 2 — Original Resource Profile",
-            formula="M₀ = Σₜ (r(t) − r̄)²",
-            substitution=f"r̄ = {mean:.2f},  Peak = {peak:.1f}",
-            result=f"M₀ = {orig_moment:.2f}",
-            interpretation=(
-                f"Before leveling, the resource profile has a moment of {orig_moment:.2f}. "
-                f"The peak demand is {peak:.1f} resources per period with a mean of {mean:.2f}."
-            ),
-            rag="amber" if orig_moment > 0 else "green",
-        ))
+        steps.append(
+            Step(
+                title="Step 2 — Original Resource Profile",
+                formula="M₀ = Σₜ (r(t) − r̄)²",
+                substitution=f"r̄ = {
+                    mean:.2f},  Peak = {
+                    peak:.1f}",
+                result=f"M₀ = {
+                    orig_moment:.2f}",
+                interpretation=(
+                    f"Before leveling, the resource profile has a moment of {
+                        orig_moment:.2f}. " f"The peak demand is {
+                        peak:.1f} resources per period with a mean of {
+                        mean:.2f}."),
+                rag="amber" if orig_moment > 0 else "green",
+            ))
 
     # ── Recorded moves ────────────────────────────────────────────────
     if leveling_steps:
@@ -213,14 +219,14 @@ def minimum_moment_algorithm_steps(result: Dict[str, Any]) -> List[Step]:
             ],
         ))
     else:
-        steps.append(Step(
-            title="Step 3 — No Moves Made",
-            interpretation=(
-                "The algorithm found no improvement: the schedule is already at "
-                "minimum moment for the given float constraints."
-            ),
-            rag="amber",
-        ))
+        steps.append(
+            Step(
+                title="Step 3 — No Moves Made",
+                interpretation=(
+                    "The algorithm found no improvement: the schedule is already at "
+                    "minimum moment for the given float constraints."),
+                rag="amber",
+            ))
 
     # ── Final state ───────────────────────────────────────────────────
     final_profile_obj = result.get("leveled_profile")
@@ -255,17 +261,17 @@ def burgess_algorithm_steps(result: Dict[str, Any]) -> List[Step]:
     improvement = result.get("improvement_pct", 0.0)
 
     # ── Theory recap ─────────────────────────────────────────────────
-    steps.append(Step(
-        title="Step 1 — Burgess Method: The Formula",
-        formula="B = Σₜ r(t)²",
-        interpretation=(
-            "The Burgess cost B is the sum of squares of resource usage at each "
-            "period. Unlike the moment method, it does not subtract the mean — "
-            "this penalises high peaks more severely.\n\n"
-            "The algorithm works identically to the Minimum Moment method but "
-            "minimises B instead of M."
-        ),
-    ))
+    steps.append(
+        Step(
+            title="Step 1 — Burgess Method: The Formula",
+            formula="B = Σₜ r(t)²",
+            interpretation=(
+                "The Burgess cost B is the sum of squares of resource usage at each "
+                "period. Unlike the moment method, it does not subtract the mean — "
+                "this penalises high peaks more severely.\n\n"
+                "The algorithm works identically to the Minimum Moment method but "
+                "minimises B instead of M."),
+        ))
 
     # ── Original state ────────────────────────────────────────────────
     orig_profile_obj = result.get("original_profile")
@@ -284,34 +290,41 @@ def burgess_algorithm_steps(result: Dict[str, Any]) -> List[Step]:
 
     # ── Recorded moves ────────────────────────────────────────────────
     if leveling_steps:
-        steps.append(Step(
-            title=f"Step 3 — Leveling Moves ({len(leveling_steps)} total)",
-            formula="For each move: B_new = Σₜ r_new(t)²",
-            interpretation=(
-                f"The algorithm made {len(leveling_steps)} improvement(s) across "
-                f"{iterations} iteration(s)."
-            ),
-            children=[
-                Step(
-                    title=f"Move {ls.step_number}: Activity {ls.activity_id}",
-                    formula=f"Shift day {ls.from_start} → day {ls.to_start}",
-                    substitution=f"Burgess cost before = {ls.metric_before:.2f}",
-                    result=f"Burgess cost after = {ls.metric_after:.2f}  (Δ = {ls.metric_after - ls.metric_before:+.2f})",
-                    interpretation=ls.reason,
-                    rag="green" if ls.metric_after < ls.metric_before else "amber",
-                )
-                for ls in leveling_steps
-            ],
-        ))
+        steps.append(
+            Step(
+                title=f"Step 3 — Leveling Moves ({
+                    len(leveling_steps)} total)",
+                formula="For each move: B_new = Σₜ r_new(t)²",
+                interpretation=(
+                    f"The algorithm made {
+                        len(leveling_steps)} improvement(s) across " f"{iterations} iteration(s)."),
+                children=[
+                    Step(
+                        title=f"Move {
+                            ls.step_number}: Activity {
+                            ls.activity_id}",
+                        formula=f"Shift day {
+                            ls.from_start} → day {
+                            ls.to_start}",
+                        substitution=f"Burgess cost before = {
+                            ls.metric_before:.2f}",
+                        result=f"Burgess cost after = {
+                            ls.metric_after:.2f}  (Δ = {
+                            ls.metric_after -
+                            ls.metric_before:+.2f})",
+                        interpretation=ls.reason,
+                        rag="green" if ls.metric_after < ls.metric_before else "amber",
+                    ) for ls in leveling_steps],
+            ))
     else:
-        steps.append(Step(
-            title="Step 3 — No Moves Made",
-            interpretation=(
-                "The algorithm found no improvement: the schedule is already at "
-                "minimum Burgess cost for the given float constraints."
-            ),
-            rag="amber",
-        ))
+        steps.append(
+            Step(
+                title="Step 3 — No Moves Made",
+                interpretation=(
+                    "The algorithm found no improvement: the schedule is already at "
+                    "minimum Burgess cost for the given float constraints."),
+                rag="amber",
+            ))
 
     # ── Final state ───────────────────────────────────────────────────
     final_profile_obj = result.get("leveled_profile")
@@ -342,8 +355,12 @@ def before_after_comparison_steps(result: Dict[str, Any]) -> List[Step]:
 
     peak_before = result.get("peak_usage_original", 0.0)
     peak_after = result.get("peak_usage_leveled", 0.0)
-    moment_before = result.get("original_moment", result.get("original_cost", 0.0))
-    moment_after = result.get("leveled_moment", result.get("leveled_cost", 0.0))
+    moment_before = result.get(
+        "original_moment", result.get(
+            "original_cost", 0.0))
+    moment_after = result.get(
+        "leveled_moment", result.get(
+            "leveled_cost", 0.0))
     improvement = result.get("improvement_pct", 0.0)
     feasible = result.get("feasible", True)
 
@@ -391,18 +408,16 @@ def before_after_comparison_steps(result: Dict[str, Any]) -> List[Step]:
         rag="green" if feasible else "red",
     ))
 
-    steps.append(Step(
-        title="Step 4 — When to Use Each Method",
-        interpretation=(
-            "Minimum Moment Method:\n"
-            "  – Balances the profile symmetrically around the mean.\n"
-            "  – Best when you want an even distribution of workload.\n\n"
-            "Burgess Method:\n"
-            "  – More aggressively reduces high peaks (squares magnify large values).\n"
-            "  – Better when high peaks carry disproportionate costs (e.g. overtime).\n\n"
-            "Both methods produce heuristic solutions. Neither guarantees the "
-            "global optimum, but both are fast and practical for real projects."
-        ),
-    ))
+    steps.append(
+        Step(
+            title="Step 4 — When to Use Each Method", interpretation=(
+                "Minimum Moment Method:\n"
+                "  – Balances the profile symmetrically around the mean.\n"
+                "  – Best when you want an even distribution of workload.\n\n"
+                "Burgess Method:\n"
+                "  – More aggressively reduces high peaks (squares magnify large values).\n"
+                "  – Better when high peaks carry disproportionate costs (e.g. overtime).\n\n"
+                "Both methods produce heuristic solutions. Neither guarantees the "
+                "global optimum, but both are fast and practical for real projects."), ))
 
     return steps

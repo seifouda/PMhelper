@@ -6,6 +6,8 @@ Histogram sub-tab: Cost-per-period and Resource usage charts.
 import tkinter as tk
 from tkinter import ttk, messagebox
 
+from pmhelper.gui.widgets.sortable_treeview import enhance_treeview
+
 try:
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -19,6 +21,17 @@ try:
     HAS_PANDAS = True
 except ImportError:
     HAS_PANDAS = False
+
+# Plotly embed
+try:
+    from pmhelper.gui.widgets.plotly_chart_frame import PlotlyChartFrame, WEBVIEW2_AVAILABLE
+    from pmhelper.utils.plotly_charts import (
+        plotly_rcps_gantt,
+        PLOTLY_AVAILABLE as _PLT_AVAIL,
+    )
+    _PLOTLY_EMBED = WEBVIEW2_AVAILABLE and _PLT_AVAIL
+except ImportError:
+    _PLOTLY_EMBED = False
 
 
 class RCPSTabEdu:
@@ -35,6 +48,7 @@ class RCPSTabEdu:
         self._rcps_analyzer = None
         self._rcps_table_data = None
         self._resource_limit = 5
+        self._render_mode_var = tk.StringVar(value="matplotlib")
 
         # Inner notebook
         self._notebook = ttk.Notebook(self.frame)
@@ -70,20 +84,40 @@ class RCPSTabEdu:
 
         ttk.Label(ctrl, text="Resource Limit:").pack(side=tk.LEFT, padx=(0, 4))
         self._res_limit_var = tk.IntVar(value=5)
-        ttk.Spinbox(ctrl, from_=1, to=100, increment=1,
-                    textvariable=self._res_limit_var, width=5).pack(side=tk.LEFT, padx=(0, 8))
+        ttk.Spinbox(
+            ctrl,
+            from_=1,
+            to=100,
+            increment=1,
+            textvariable=self._res_limit_var,
+            width=5).pack(
+            side=tk.LEFT,
+            padx=(
+                0,
+                8))
 
         ttk.Label(ctrl, text="Priority Rule:").pack(side=tk.LEFT, padx=(0, 4))
         self._priority_var = tk.StringVar(value="minimum_slack")
-        ttk.Combobox(ctrl, textvariable=self._priority_var,
-                     values=["minimum_slack", "shortest_duration", "earliest_start"],
-                     state="readonly", width=18).pack(side=tk.LEFT, padx=(0, 8))
+        ttk.Combobox(
+            ctrl,
+            textvariable=self._priority_var,
+            values=[
+                "minimum_slack",
+                "shortest_duration",
+                "earliest_start"],
+            state="readonly",
+            width=18).pack(
+            side=tk.LEFT,
+            padx=(
+                0,
+                8))
 
         self._run_btn = ttk.Button(ctrl, text="▶ Run RCPS",
-                                    command=self._run_rcps)
+                                   command=self._run_rcps)
         self._run_btn.pack(side=tk.LEFT, padx=2)
 
-        self._status_var = tk.StringVar(value="Ready — run CPM/PERT analysis first")
+        self._status_var = tk.StringVar(
+            value="Ready — run CPM/PERT analysis first")
         ttk.Label(ctrl, textvariable=self._status_var,
                   foreground="grey").pack(side=tk.LEFT, padx=8)
 
@@ -99,51 +133,109 @@ class RCPSTabEdu:
                 "CPM ES", "CPM EF", "CPM Float",
                 "RCPS ES", "RCPS EF", "RCPS Float", "Delay")
         self._cmp_tree = ttk.Treeview(table_frame, columns=cols,
-                                       show="headings", height=8)
+                                      show="headings", height=8)
         for c in cols:
             self._cmp_tree.heading(c, text=c)
             w = 70 if c != "Activity" else 100
             self._cmp_tree.column(c, width=w, anchor=tk.CENTER)
         vsb = ttk.Scrollbar(table_frame, orient=tk.VERTICAL,
-                             command=self._cmp_tree.yview)
+                            command=self._cmp_tree.yview)
         self._cmp_tree.configure(yscrollcommand=vsb.set)
         vsb.pack(side=tk.RIGHT, fill=tk.Y)
         self._cmp_tree.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+        enhance_treeview(self._cmp_tree)
 
         # Comparison Gantt chart
         gantt_frame = ttk.LabelFrame(pane, text="CPM vs RCPS Gantt")
         pane.add(gantt_frame, weight=1)
 
+        # Renderer toggle
+        if _PLOTLY_EMBED:
+            ctrl = ttk.Frame(gantt_frame)
+            ctrl.pack(fill=tk.X, padx=5, pady=(2, 0))
+            rf = ttk.LabelFrame(ctrl, text="Renderer", padding="3")
+            rf.pack(side=tk.LEFT)
+            ttk.Radiobutton(
+                rf,
+                text="Classic",
+                value="matplotlib",
+                variable=self._render_mode_var,
+                command=self._switch_renderer).pack(
+                side=tk.LEFT,
+                padx=4)
+            ttk.Radiobutton(
+                rf,
+                text="\U0001f4ca Plotly",
+                value="plotly",
+                variable=self._render_mode_var,
+                command=self._switch_renderer).pack(
+                side=tk.LEFT,
+                padx=4)
+
         if not HAS_MATPLOTLIB:
-            ttk.Label(gantt_frame,
-                      text="Matplotlib not installed — chart unavailable.").pack(expand=True)
+            ttk.Label(
+                gantt_frame,
+                text="Matplotlib not installed — chart unavailable.").pack(
+                expand=True)
         else:
+            self._mpl_sched_frame = ttk.Frame(gantt_frame)
+            self._mpl_sched_frame.pack(fill=tk.BOTH, expand=True)
             self._sched_fig = Figure(figsize=(8, 4), dpi=100)
             self._sched_ax = self._sched_fig.add_subplot(111)
-            self._sched_canvas = FigureCanvasTkAgg(self._sched_fig, master=gantt_frame)
-            self._sched_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+            self._sched_canvas = FigureCanvasTkAgg(
+                self._sched_fig, master=self._mpl_sched_frame)
+            self._sched_canvas.get_tk_widget().pack(
+                fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        # Plotly RCPS Gantt frame (hidden)
+        self._plotly_sched_frame = None
+        if _PLOTLY_EMBED:
+            self._plotly_sched_frame = PlotlyChartFrame(gantt_frame)
 
         # Export bar
         exp_bar = ttk.Frame(self._sched_frame)
         exp_bar.pack(fill=tk.X, padx=5, pady=(0, 5))
-        ttk.Button(exp_bar, text="Export Gantt PNG",
-                   command=lambda: self._export_sched("png")).pack(side=tk.LEFT, padx=2)
-        ttk.Button(exp_bar, text="Export Gantt PDF",
-                   command=lambda: self._export_sched("pdf")).pack(side=tk.LEFT, padx=2)
+        ttk.Button(
+            exp_bar,
+            text="Export Gantt PNG",
+            command=lambda: self._export_sched("png")).pack(
+            side=tk.LEFT,
+            padx=2)
+        ttk.Button(
+            exp_bar,
+            text="Export Gantt PDF",
+            command=lambda: self._export_sched("pdf")).pack(
+            side=tk.LEFT,
+            padx=2)
+        ttk.Button(
+            exp_bar,
+            text="\U0001f50d Open Interactive",
+            command=self._open_gantt_interactive).pack(
+            side=tk.LEFT,
+            padx=6)
+
+    def _open_gantt_interactive(self):
+        cpm = getattr(self, '_cpm_table_data', None)
+        rcps = getattr(self, '_rcps_table_data', None)
+        if cpm is None or rcps is None:
+            messagebox.showinfo("Interactive", "Run RCPS first.")
+            return
+        from pmhelper.utils.interactive_charts import open_chart_in_browser
+        fig = plotly_rcps_gantt(cpm, rcps)
+        open_chart_in_browser(fig, "RCPS Gantt")
 
     def _run_rcps(self):
         """Run RCPS scheduling and populate comparison table + Gantt."""
         if not self.main_window:
             messagebox.showinfo("RCPS", "Main window reference not available.")
             return
-        if not self.main_window.current_data is not None:
-            pass  # current_data could be a DataFrame
         if self.main_window.current_data is None:
             messagebox.showinfo("RCPS",
                                 "No analysis data. Run ▶ Analyze first.")
             return
         if not HAS_PANDAS:
-            messagebox.showerror("RCPS", "pandas is required for RCPS scheduling.")
+            messagebox.showerror(
+                "RCPS", "pandas is required for RCPS scheduling.")
             return
 
         df = self.main_window.current_data
@@ -156,30 +248,39 @@ class RCPSTabEdu:
             try:
                 max_res = pd.to_numeric(df['resource'], errors='coerce').max()
                 if max_res is not None and resource_limit < max_res:
-                    messagebox.showwarning(
-                        "Resource Limit",
+                    messagebox.showerror(
+                        "Resource Limit Too Low",
                         f"Resource limit ({resource_limit}) is less than the maximum "
-                        f"per-activity resource demand ({max_res:.0f}).\n"
-                        "Some activities may be infeasible.")
+                        f"per-activity resource demand ({max_res:.0f}).\n\n"
+                        "Scheduling cannot proceed \u2014 at least one task would never be "
+                        "schedulable. Please increase the resource limit to at least "
+                        f"{int(max_res)} and try again.")
+                    self._run_btn.configure(state="normal")
+                    return
             except Exception:
                 pass
 
         # Select analyzer
-        analysis_mode = getattr(self.main_window, 'analysis_mode', 'deterministic')
+        analysis_mode = getattr(
+            self.main_window,
+            'analysis_mode',
+            'deterministic')
         if analysis_mode == 'probabilistic' and self.main_window.pert_analyzer:
             analyzer = self.main_window.pert_analyzer
         else:
             analyzer = self.main_window.cpm_analyzer
 
         if analyzer is None:
-            messagebox.showerror("RCPS", "No analyzer available. Run analysis first.")
+            messagebox.showerror(
+                "RCPS", "No analyzer available. Run analysis first.")
             return
 
         self._status_var.set("Running RCPS...")
         self._run_btn.configure(state="disabled")
 
         try:
-            cpm_table, _, _ = analyzer.build_cpm_schedule_table(df, resource_limit)
+            cpm_table, _, _ = analyzer.build_cpm_schedule_table(
+                df, resource_limit)
             rcps_table, _, _ = analyzer.rcps_heuristic_schedule_table(
                 df, resource_limit, priority_rule=priority_rule)
         except Exception as exc:
@@ -191,6 +292,20 @@ class RCPSTabEdu:
         # Store for downstream (crashing etc.)
         self._rcps_analyzer = analyzer
         self._rcps_table_data = rcps_table
+        self._cpm_table_data = cpm_table
+
+        # Compute per-period resource usage profile
+        profile = {}
+        for _, row in rcps_table.iterrows():
+            aid = row.get('id', '')
+            if not aid or aid in ('RA', 'RS'):
+                continue
+            es = row.get('actual_start', row.get('early_start', 0))
+            dur = row.get('duration', 0)
+            res = row.get('resource_demand', row.get('resource', 0))
+            for t in range(int(es), int(es + dur)):
+                profile[t] = profile.get(t, 0) + res
+        self._rcps_resource_profile = profile
 
         self._run_btn.configure(state="normal")
 
@@ -217,9 +332,40 @@ class RCPSTabEdu:
             rcps_float = row.get('float', 0)
 
             cpm_row = cpm_lookup.get(aid, {})
-            cpm_es = cpm_row.get('early_start', 0) if isinstance(cpm_row, dict) else getattr(cpm_row, 'get', lambda k, d=0: d)('early_start', 0)
-            cpm_ef = cpm_row.get('early_finish', cpm_es + dur) if isinstance(cpm_row, dict) else getattr(cpm_row, 'get', lambda k, d=0: d)('early_finish', 0)
-            cpm_flt = cpm_row.get('float', 0) if isinstance(cpm_row, dict) else getattr(cpm_row, 'get', lambda k, d=0: d)('float', 0)
+            cpm_es = cpm_row.get(
+                'early_start',
+                0) if isinstance(
+                cpm_row,
+                dict) else getattr(
+                cpm_row,
+                'get',
+                lambda k,
+                d=0: d)(
+                'early_start',
+                0)
+            cpm_ef = cpm_row.get(
+                'early_finish',
+                cpm_es +
+                dur) if isinstance(
+                cpm_row,
+                dict) else getattr(
+                cpm_row,
+                'get',
+                lambda k,
+                d=0: d)(
+                'early_finish',
+                0)
+            cpm_flt = cpm_row.get(
+                'float',
+                0) if isinstance(
+                cpm_row,
+                dict) else getattr(
+                cpm_row,
+                'get',
+                lambda k,
+                d=0: d)(
+                'float',
+                0)
 
             # For pandas Series
             if hasattr(cpm_row, 'get'):
@@ -246,8 +392,16 @@ class RCPSTabEdu:
         if HAS_MATPLOTLIB and hasattr(self, '_sched_ax'):
             self._draw_comparison_gantt(cpm_table, rcps_table, resource_limit)
 
+        # ---- Update histograms with resource profile ----
+        if HAS_MATPLOTLIB:
+            self._draw_histograms()
+
     def _draw_comparison_gantt(self, cpm_table, rcps_table, resource_limit):
         """Draw side-by-side CPM vs RCPS Gantt chart."""
+        if self._render_mode_var.get() == "plotly" and getattr(
+                self, '_plotly_sched_frame', None):
+            self._update_plotly_gantt(cpm_table, rcps_table)
+            return
         import matplotlib.patches as mpatches
 
         ax = self._sched_ax
@@ -339,31 +493,85 @@ class RCPSTabEdu:
             messagebox.showinfo("Export", f"Saved to {filepath}")
 
     # ================================================================
-    #  Histograms sub-tab
+    #  Histograms sub-tab  (B6.2: 2 independent figures; B6.3: per-chart Open Interactive)
     # ================================================================
 
     def _build_histogram_tab(self):
         toolbar = ttk.Frame(self._hist_frame)
         toolbar.pack(fill=tk.X, padx=5, pady=(5, 2))
-        ttk.Button(toolbar, text="Refresh", command=self._draw_histograms).pack(
-            side=tk.LEFT, padx=2)
-        ttk.Button(toolbar, text="Export PNG",
-                   command=lambda: self._export("png")).pack(side=tk.LEFT, padx=2)
-        ttk.Button(toolbar, text="Export PDF",
-                   command=lambda: self._export("pdf")).pack(side=tk.LEFT, padx=2)
+        ttk.Button(
+            toolbar,
+            text="Refresh",
+            command=self._draw_histograms).pack(
+            side=tk.LEFT,
+            padx=2)
+        ttk.Button(
+            toolbar,
+            text="Export PNG",
+            command=lambda: self._export("png")).pack(
+            side=tk.LEFT,
+            padx=2)
+        ttk.Button(
+            toolbar,
+            text="Export PDF",
+            command=lambda: self._export("pdf")).pack(
+            side=tk.LEFT,
+            padx=2)
 
         if not HAS_MATPLOTLIB:
-            ttk.Label(self._hist_frame,
-                      text="Matplotlib not installed — histograms unavailable.").pack(
+            ttk.Label(
+                self._hist_frame,
+                text="Matplotlib not installed — histograms unavailable.").pack(
                 expand=True)
             return
 
-        # Matplotlib figure with 2 subplots
-        self._fig = Figure(figsize=(8, 6), dpi=100)
-        self._ax_cost = self._fig.add_subplot(211)
-        self._ax_resource = self._fig.add_subplot(212)
-        self._canvas = FigureCanvasTkAgg(self._fig, master=self._hist_frame)
-        self._canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        # B6.2: two independent figures in a vertical PanedWindow
+        hist_pane = ttk.PanedWindow(self._hist_frame, orient=tk.VERTICAL)
+        hist_pane.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        # Cost-per-Period panel (top)
+        cost_lf = ttk.LabelFrame(hist_pane, text="Cost per Period")
+        hist_pane.add(cost_lf, weight=1)
+
+        cost_ctrl = ttk.Frame(cost_lf)
+        cost_ctrl.pack(fill=tk.X, padx=4, pady=(2, 0))
+        # B6.3: per-chart interactive button
+        ttk.Button(
+            cost_ctrl,
+            text="🔁 Open Interactive",
+            command=self._open_cost_interactive).pack(
+            side=tk.LEFT,
+            padx=2)
+
+        self._fig_cost = Figure(figsize=(8, 3), dpi=90)
+        self._ax_cost = self._fig_cost.add_subplot(111)
+        self._canvas_cost = FigureCanvasTkAgg(self._fig_cost, master=cost_lf)
+        self._canvas_cost.get_tk_widget().pack(
+            fill=tk.BOTH, expand=True, padx=2, pady=2)
+        # keep legacy alias so _export still works
+        self._fig = self._fig_cost
+        self._canvas = self._canvas_cost
+
+        # Resource Usage panel (bottom)
+        res_lf = ttk.LabelFrame(hist_pane, text="Resource Usage")
+        hist_pane.add(res_lf, weight=1)
+
+        res_ctrl = ttk.Frame(res_lf)
+        res_ctrl.pack(fill=tk.X, padx=4, pady=(2, 0))
+        # B6.3: per-chart interactive button
+        ttk.Button(
+            res_ctrl,
+            text="🔁 Open Interactive",
+            command=self._open_resource_interactive).pack(
+            side=tk.LEFT,
+            padx=2)
+
+        self._fig_resource = Figure(figsize=(8, 3), dpi=90)
+        self._ax_resource = self._fig_resource.add_subplot(111)
+        self._canvas_resource = FigureCanvasTkAgg(
+            self._fig_resource, master=res_lf)
+        self._canvas_resource.get_tk_widget().pack(
+            fill=tk.BOTH, expand=True, padx=2, pady=2)
 
     def _draw_histograms(self):
         if not HAS_MATPLOTLIB:
@@ -386,11 +594,13 @@ class RCPSTabEdu:
             # Compute per-period AC deltas
             ac_deltas = [periods[0].ac_cumulative]
             for i in range(1, len(periods)):
-                ac_deltas.append(periods[i].ac_cumulative - periods[i - 1].ac_cumulative)
+                ac_deltas.append(
+                    periods[i].ac_cumulative - periods[i - 1].ac_cumulative)
             # Compute per-period PV deltas
             pv_deltas = [periods[0].pv_cumulative]
             for i in range(1, len(periods)):
-                pv_deltas.append(periods[i].pv_cumulative - periods[i - 1].pv_cumulative)
+                pv_deltas.append(
+                    periods[i].pv_cumulative - periods[i - 1].pv_cumulative)
 
             x = np.arange(len(labels))
             width = 0.35
@@ -407,15 +617,95 @@ class RCPSTabEdu:
         # --- Resource Usage chart ---
         ax2 = self._ax_resource
         ax2.clear()
-        ax2.text(0.5, 0.5,
-                 "Resource usage data requires RCPS analysis.\n"
-                 "Run RCPS analysis first.",
-                 ha="center", va="center", fontsize=11, color="grey",
-                 transform=ax2.transAxes)
+        if hasattr(
+                self,
+                '_rcps_resource_profile') and self._rcps_resource_profile:
+            periods_r = sorted(self._rcps_resource_profile.keys())
+            usage_vals = [self._rcps_resource_profile[t] for t in periods_r]
+            ax2.bar(
+                periods_r,
+                usage_vals,
+                color="#3498db",
+                alpha=0.8,
+                label="Resource Usage")
+            if hasattr(self, '_resource_limit') and self._resource_limit:
+                ax2.axhline(
+                    self._resource_limit,
+                    color='#e74c3c',
+                    linestyle='--',
+                    linewidth=1.5,
+                    label=f"Limit = {
+                        self._resource_limit}")
+            ax2.set_xlabel("Period")
+            ax2.set_ylabel("Resource Units")
+            ax2.legend(fontsize=8)
+        else:
+            ax2.text(0.5, 0.5,
+                     "Resource usage data requires RCPS analysis.\n"
+                     "Run RCPS analysis first.",
+                     ha="center", va="center", fontsize=11, color="grey",
+                     transform=ax2.transAxes)
         ax2.set_title("Resource Usage", fontsize=10, fontweight="bold")
 
-        self._fig.tight_layout()
-        self._canvas.draw()
+        # B6.2: draw each figure independently
+        self._fig_cost.tight_layout()
+        self._canvas_cost.draw()
+        self._fig_resource.tight_layout()
+        self._canvas_resource.draw()
+
+    # B6.3: per-chart interactive openers
+    def _open_cost_interactive(self):
+        """Open Cost-per-Period histogram in browser."""
+        proj = self.state.evm_project
+        if not proj or not proj.periods:
+            messagebox.showinfo("Interactive", "No EVM period data available.")
+            return
+        periods = proj.periods
+        try:
+            import plotly.graph_objects as go
+            pv_deltas = [periods[0].pv_cumulative]
+            ac_deltas = [periods[0].ac_cumulative]
+            for i in range(1, len(periods)):
+                pv_deltas.append(
+                    periods[i].pv_cumulative - periods[i - 1].pv_cumulative)
+                ac_deltas.append(
+                    periods[i].ac_cumulative - periods[i - 1].ac_cumulative)
+            labels = [p.label for p in periods]
+            fig = go.Figure()
+            fig.add_bar(name="PV per period", x=labels, y=pv_deltas,
+                        marker_color="#2ecc71", opacity=0.85)
+            fig.add_bar(name="AC per period", x=labels, y=ac_deltas,
+                        marker_color="#e74c3c", opacity=0.85)
+            fig.update_layout(title="Cost per Period", barmode="group",
+                              xaxis_title="Period", yaxis_title="Cost ($)")
+            from pmhelper.utils.interactive_charts import open_chart_in_browser
+            open_chart_in_browser(fig, "Cost per Period")
+        except Exception as exc:
+            messagebox.showerror("Interactive", str(exc))
+
+    def _open_resource_interactive(self):
+        """Open Resource Usage histogram in browser."""
+        profile = getattr(self, '_rcps_resource_profile', None)
+        if not profile:
+            messagebox.showinfo("Interactive", "Run RCPS analysis first.")
+            return
+        try:
+            import plotly.graph_objects as go
+            periods_r = sorted(profile.keys())
+            usage_vals = [profile[t] for t in periods_r]
+            fig = go.Figure()
+            fig.add_bar(name="Resource Usage", x=periods_r, y=usage_vals,
+                        marker_color="#3498db", opacity=0.85)
+            lim = getattr(self, '_resource_limit', None)
+            if lim:
+                fig.add_hline(y=lim, line_color="#e74c3c", line_dash="dash",
+                              annotation_text=f"Limit = {lim}")
+            fig.update_layout(title="Resource Usage", xaxis_title="Period",
+                              yaxis_title="Resource Units")
+            from pmhelper.utils.interactive_charts import open_chart_in_browser
+            open_chart_in_browser(fig, "Resource Usage")
+        except Exception as exc:
+            messagebox.showerror("Interactive", str(exc))
 
     def _export(self, fmt):
         from tkinter import filedialog
@@ -441,62 +731,166 @@ class RCPSTabEdu:
         ctrl = ttk.LabelFrame(outer, text="Leveling Settings")
         ctrl.pack(fill=tk.X, pady=(0, 4))
 
-        ttk.Label(ctrl, text="Method:").grid(row=0, column=0, padx=6, pady=4, sticky="e")
+        ttk.Label(
+            ctrl,
+            text="Method:").grid(
+            row=0,
+            column=0,
+            padx=6,
+            pady=4,
+            sticky="e")
         self._lev_method_var = tk.StringVar(value="minimum_moment")
-        ttk.Combobox(ctrl, textvariable=self._lev_method_var,
-                     values=["minimum_moment", "burgess"],
-                     state="readonly", width=16).grid(row=0, column=1, padx=4, pady=4, sticky="w")
+        ttk.Combobox(
+            ctrl,
+            textvariable=self._lev_method_var,
+            values=[
+                "minimum_moment",
+                "burgess"],
+            state="readonly",
+            width=16).grid(
+            row=0,
+            column=1,
+            padx=4,
+            pady=4,
+            sticky="w")
 
-        ttk.Label(ctrl, text="Mode:").grid(row=0, column=2, padx=(12, 6), pady=4, sticky="e")
+        ttk.Label(
+            ctrl,
+            text="Mode:").grid(
+            row=0,
+            column=2,
+            padx=(
+                12,
+                6),
+            pady=4,
+            sticky="e")
         self._lev_mode_var = tk.StringVar(value="smoothing")
-        ttk.Combobox(ctrl, textvariable=self._lev_mode_var,
-                     values=["smoothing", "constrained"],
-                     state="readonly", width=14).grid(row=0, column=3, padx=4, pady=4, sticky="w")
+        ttk.Combobox(
+            ctrl,
+            textvariable=self._lev_mode_var,
+            values=[
+                "smoothing",
+                "constrained"],
+            state="readonly",
+            width=14).grid(
+            row=0,
+            column=3,
+            padx=4,
+            pady=4,
+            sticky="w")
 
-        ttk.Label(ctrl, text="Resource Limit:").grid(row=0, column=4, padx=(12, 6), pady=4, sticky="e")
+        ttk.Label(
+            ctrl, text="Resource Limit:").grid(
+            row=0, column=4, padx=(
+                12, 6), pady=4, sticky="e")
         self._lev_limit_var = tk.IntVar(value=5)
-        ttk.Spinbox(ctrl, from_=1, to=99, increment=1,
-                    textvariable=self._lev_limit_var, width=5).grid(row=0, column=5, padx=4, pady=4, sticky="w")
+        ttk.Spinbox(
+            ctrl,
+            from_=1,
+            to=99,
+            increment=1,
+            textvariable=self._lev_limit_var,
+            width=5).grid(
+            row=0,
+            column=5,
+            padx=4,
+            pady=4,
+            sticky="w")
 
         self._lev_run_btn = ttk.Button(ctrl, text="▶ Run Leveling",
                                        command=self._run_leveling)
         self._lev_run_btn.grid(row=0, column=6, padx=(16, 4), pady=4)
 
-        ttk.Button(ctrl, text="📂 Load Demo",
-                   command=self._load_leveling_demo).grid(row=0, column=7, padx=4, pady=4)
+        ttk.Button(
+            ctrl,
+            text="📂 Load Demo",
+            command=self._load_leveling_demo).grid(
+            row=0,
+            column=7,
+            padx=4,
+            pady=4)
 
-        ttk.Button(ctrl, text="📖 Worked Solution",
-                   command=self._show_leveling_worked_solution).grid(row=0, column=8, padx=4, pady=4)
+        ttk.Button(
+            ctrl,
+            text="📖 Worked Solution",
+            command=self._show_leveling_worked_solution).grid(
+            row=0,
+            column=8,
+            padx=4,
+            pady=4)
 
-        self._lev_status_var = tk.StringVar(value="Ready — load a demo or run analysis first.")
+        self._lev_status_var = tk.StringVar(
+            value="Ready — load a demo or run analysis first.")
         ttk.Label(ctrl, textvariable=self._lev_status_var,
                   foreground="grey").grid(row=1, column=0, columnspan=9,
                                           padx=6, pady=(0, 4), sticky="w")
 
-        # ── Main paned: chart (top) + walkthrough (bottom) ───────────
-        pane = ttk.PanedWindow(outer, orient=tk.VERTICAL)
-        pane.pack(fill=tk.BOTH, expand=True)
+        # ── Main scrollable area ─────────────────────────────────────
+        scroll_container = ttk.Frame(outer)
+        scroll_container.pack(fill=tk.BOTH, expand=True)
+        _scroll_canvas = tk.Canvas(scroll_container, highlightthickness=0)
+        _scroll_vsb = ttk.Scrollbar(scroll_container, orient=tk.VERTICAL,
+                                    command=_scroll_canvas.yview)
+        _scroll_canvas.configure(yscrollcommand=_scroll_vsb.set)
+        _scroll_vsb.pack(side=tk.RIGHT, fill=tk.Y)
+        _scroll_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        inner = ttk.Frame(_scroll_canvas)
+        _scroll_canvas.create_window((0, 0), window=inner, anchor="nw")
+        inner.bind(
+            "<Configure>",
+            lambda e: _scroll_canvas.configure(
+                scrollregion=_scroll_canvas.bbox("all")))
+        # Make inner frame width follow canvas width
+
+        def _sync_inner_width(event):
+            _scroll_canvas.itemconfigure(
+                _scroll_canvas.find_withtag("all")[0], width=event.width)
+        _scroll_canvas.bind("<Configure>", _sync_inner_width)
+        # Enable mousewheel scrolling
+
+        def _on_mousewheel(event):
+            _scroll_canvas.yview_scroll(-1 * (event.delta // 120), "units")
+
+        def _bind_mousewheel(widget):
+            widget.bind("<MouseWheel>", _on_mousewheel)
+            try:
+                for child in widget.winfo_children():
+                    _bind_mousewheel(child)
+            except Exception:
+                pass
+        _bind_mousewheel(_scroll_canvas)
+        _bind_mousewheel(inner)
+        self._lev_scroll_canvas = _scroll_canvas
+        self._lev_inner = inner
+        self._lev_bind_mousewheel = _bind_mousewheel
 
         # ─ Before / After chart ──────────────────────────────────────
-        chart_frm = ttk.LabelFrame(pane, text="Before / After Resource Profile")
-        pane.add(chart_frm, weight=2)
+        chart_frm = ttk.LabelFrame(
+            inner, text="Before / After Resource Profile")
+        chart_frm.pack(fill=tk.X, pady=(0, 4))
 
         if not HAS_MATPLOTLIB:
-            ttk.Label(chart_frm,
-                      text="Matplotlib not installed — chart unavailable.").pack(expand=True)
+            ttk.Label(
+                chart_frm,
+                text="Matplotlib not installed — chart unavailable.").pack(
+                expand=True)
         else:
             self._lev_fig = Figure(figsize=(8, 3), dpi=100)
             self._lev_ax_before = self._lev_fig.add_subplot(121)
             self._lev_ax_after = self._lev_fig.add_subplot(122)
-            self._lev_canvas = FigureCanvasTkAgg(self._lev_fig, master=chart_frm)
-            self._lev_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
-            self._lev_fig.text(0.5, 0.5, "Run Leveling to see chart",
-                               ha="center", va="center", fontsize=12, color="grey")
+            self._lev_canvas = FigureCanvasTkAgg(
+                self._lev_fig, master=chart_frm)
+            self._lev_canvas.get_tk_widget().pack(fill=tk.X, padx=2, pady=2)
+            self._lev_canvas.get_tk_widget().configure(height=300)
+            self._lev_placeholder_text = self._lev_fig.text(
+                0.5, 0.5, "Run Leveling to see chart",
+                ha="center", va="center", fontsize=12, color="grey")
             self._lev_canvas.draw()
 
         # ─ Metrics panel ─────────────────────────────────────────────
-        metrics_frm = ttk.LabelFrame(pane, text="Leveling Metrics")
-        pane.add(metrics_frm, weight=1)
+        metrics_frm = ttk.LabelFrame(inner, text="Leveling Metrics")
+        metrics_frm.pack(fill=tk.X, pady=(0, 4))
 
         metrics_cols = ("Metric", "Before", "After", "Improvement")
         self._metrics_tree = ttk.Treeview(metrics_frm, columns=metrics_cols,
@@ -505,10 +899,11 @@ class RCPSTabEdu:
             self._metrics_tree.heading(col, text=col)
             self._metrics_tree.column(col, width=150, anchor=tk.CENTER)
         self._metrics_tree.pack(fill=tk.BOTH, expand=True, padx=4, pady=4)
+        enhance_treeview(self._metrics_tree)
 
         # ─ Step walkthrough ──────────────────────────────────────────
-        step_frm = ttk.LabelFrame(pane, text="Step-by-Step Walkthrough")
-        pane.add(step_frm, weight=2)
+        step_frm = ttk.LabelFrame(inner, text="Step-by-Step Walkthrough")
+        step_frm.pack(fill=tk.X, pady=(0, 4))
 
         # Step list (left) + description (right)
         step_inner = ttk.Frame(step_frm)
@@ -546,23 +941,29 @@ class RCPSTabEdu:
         self._step_desc.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # ─ Try It Yourself panel ─────────────────────────────────────
-        try_frm = ttk.LabelFrame(pane, text="Try It Yourself")
-        pane.add(try_frm, weight=1)
+        try_frm = ttk.LabelFrame(inner, text="Try It Yourself")
+        try_frm.pack(fill=tk.X, pady=(0, 4))
 
         try_inner = ttk.Frame(try_frm)
         try_inner.pack(fill=tk.X, padx=6, pady=4)
 
-        ttk.Label(try_inner,
-                  text="Manually adjust start times for non-critical activities "
-                       "and see whether the moment improves:").pack(anchor="w")
+        ttk.Label(
+            try_inner,
+            text="Manually adjust start times for non-critical activities "
+            "and see whether the moment improves:").pack(
+            anchor="w")
 
         self._try_table_frame = ttk.Frame(try_frm)
         self._try_table_frame.pack(fill=tk.X, padx=6, pady=2)
 
         try_btn_bar = ttk.Frame(try_frm)
         try_btn_bar.pack(fill=tk.X, padx=6, pady=(0, 4))
-        ttk.Button(try_btn_bar, text="📐 Calculate Moment",
-                   command=self._calculate_try_moment).pack(side=tk.LEFT, padx=2)
+        ttk.Button(
+            try_btn_bar,
+            text="📐 Calculate Moment",
+            command=self._calculate_try_moment).pack(
+            side=tk.LEFT,
+            padx=2)
         ttk.Button(try_btn_bar, text="↺ Reset to Original",
                    command=self._reset_try_schedule).pack(side=tk.LEFT, padx=2)
 
@@ -587,7 +988,10 @@ class RCPSTabEdu:
                                 "No analysis data. Run ▶ Analyze first.")
             return
 
-        analysis_mode = getattr(self.main_window, "analysis_mode", "deterministic")
+        analysis_mode = getattr(
+            self.main_window,
+            "analysis_mode",
+            "deterministic")
         if analysis_mode == "probabilistic" and self.main_window.pert_analyzer:
             analyzer = self.main_window.pert_analyzer
         else:
@@ -601,6 +1005,13 @@ class RCPSTabEdu:
 
         self._lev_run_btn.configure(state="disabled")
         self._lev_status_var.set("Running…")
+        # B1.4: clear stale cached state before each run
+        self._leveling_result = None
+        self._leveling_steps = []
+        if hasattr(self, '_metrics_tree'):
+            self._metrics_tree.delete(*self._metrics_tree.get_children())
+        if hasattr(self, '_step_listbox'):
+            self._step_listbox.delete(0, tk.END)
         self.frame.update_idletasks()
 
         try:
@@ -632,7 +1043,8 @@ class RCPSTabEdu:
 
     def _load_leveling_demo(self):
         """Load the built-in resource leveling demo project."""
-        import json, os
+        import json
+        import os
         demo_path = os.path.join(
             os.path.dirname(__file__),
             "..", "..", "..", "..", "data", "demos", "v2",
@@ -651,8 +1063,9 @@ class RCPSTabEdu:
                 here = os.path.dirname(here)
 
         if not os.path.exists(demo_path):
-            messagebox.showerror("Load Demo",
-                                 f"Demo file not found.\nLooked in:\n{demo_path}")
+            messagebox.showerror(
+                "Load Demo",
+                f"Demo file not found.\nLooked in:\n{demo_path}")
             return
 
         try:
@@ -680,7 +1093,8 @@ class RCPSTabEdu:
 
             method = self._lev_method_var.get()
             mode = self._lev_mode_var.get()
-            limit = data.get("resource_limit") if mode == "constrained" else None
+            limit = data.get(
+                "resource_limit") if mode == "constrained" else None
 
             leveler = ResourceLevelingFactory.create(method, activities, limit)
             result = leveler.level(record_steps=True)
@@ -707,10 +1121,27 @@ class RCPSTabEdu:
         self._build_step_walkthrough(result)
         self._build_try_it_panel(activities, result)
 
+        # Re-bind mousewheel on dynamically created children
+        if hasattr(
+                self,
+                '_lev_bind_mousewheel') and hasattr(
+                self,
+                '_lev_inner'):
+            self._lev_bind_mousewheel(self._lev_inner)
+
     def _draw_leveling_chart(self, result):
         """Draw before/after resource profile histograms."""
         if not HAS_MATPLOTLIB:
             return
+
+        # B1.3: clear the placeholder text on first successful draw
+        placeholder = getattr(self, '_lev_placeholder_text', None)
+        if placeholder is not None:
+            try:
+                placeholder.remove()
+            except Exception:
+                pass
+            self._lev_placeholder_text = None
 
         orig_prof = result.get("original_profile")
         lev_prof = result.get("leveled_profile")
@@ -761,8 +1192,12 @@ class RCPSTabEdu:
         peak_a = result.get("peak_usage_leveled", 0.0)
         peak_delta = (peak_b - peak_a) / peak_b * 100 if peak_b > 0 else 0.0
 
-        moment_b = result.get("original_moment", result.get("original_cost", 0.0))
-        moment_a = result.get("leveled_moment", result.get("leveled_cost", 0.0))
+        moment_b = result.get(
+            "original_moment", result.get(
+                "original_cost", 0.0))
+        moment_a = result.get(
+            "leveled_moment", result.get(
+                "leveled_cost", 0.0))
         improv = result.get("improvement_pct", 0.0)
 
         feasible = result.get("feasible", True)
@@ -827,7 +1262,8 @@ class RCPSTabEdu:
         ]
         if step.profile:
             for t in sorted(step.profile.keys()):
-                lines.append(f"  Period {t:3d}: {'█' * int(step.profile[t])}  {step.profile[t]:.1f}")
+                lines.append(
+                    f"  Period {t:3d}: {'█' * int(step.profile[t])}  {step.profile[t]:.1f}")
         self._set_step_description("\n".join(lines))
 
     def _set_step_description(self, text: str):
@@ -870,14 +1306,15 @@ class RCPSTabEdu:
         non_critical = [a for a in activities if getattr(a, "float", 0) > 0]
 
         if not non_critical:
-            ttk.Label(self._try_table_frame,
-                      text="All activities are critical — nothing to adjust.").pack()
+            ttk.Label(
+                self._try_table_frame,
+                text="All activities are critical — nothing to adjust.").pack()
             return
 
         hdr = ttk.Frame(self._try_table_frame)
         hdr.pack(fill=tk.X)
         for i, h in enumerate(("Activity", "Float", "ES", "LS",
-                                "Res", "Start Time (adjust)")):
+                               "Res", "Start Time (adjust)")):
             ttk.Label(hdr, text=h, font=("TkDefaultFont", 9, "bold"),
                       width=14, anchor="center").grid(row=0, column=i, padx=2)
 
@@ -896,8 +1333,17 @@ class RCPSTabEdu:
                 ttk.Label(row_f, text=str(val), width=14,
                           anchor="center").grid(row=0, column=col_idx, padx=2)
 
-            ttk.Spinbox(row_f, from_=act.es, to=act.ls, increment=1,
-                        textvariable=var, width=8).grid(row=0, column=5, padx=2, pady=1)
+            ttk.Spinbox(
+                row_f,
+                from_=act.es,
+                to=act.ls,
+                increment=1,
+                textvariable=var,
+                width=8).grid(
+                row=0,
+                column=5,
+                padx=2,
+                pady=1)
 
         self._try_activities = activities
         self._try_result_var.set("")
@@ -926,7 +1372,8 @@ class RCPSTabEdu:
                 self._leveling_result.get("original_cost", 0.0),
             )
             user_peak = user_profile.get_peak_usage()
-            improv = (orig_moment - user_moment) / orig_moment * 100 if orig_moment > 0 else 0
+            improv = (orig_moment - user_moment) / \
+                orig_moment * 100 if orig_moment > 0 else 0
             sign = "↓" if improv > 0 else ("↑" if improv < 0 else "=")
             self._try_result_var.set(
                 f"Moment = {user_moment:.2f}  "
@@ -963,7 +1410,8 @@ class RCPSTabEdu:
                 algo_steps = burgess_algorithm_steps(self._leveling_result)
                 method_label = "Burgess"
             else:
-                algo_steps = minimum_moment_algorithm_steps(self._leveling_result)
+                algo_steps = minimum_moment_algorithm_steps(
+                    self._leveling_result)
                 method_label = "Minimum Moment"
 
             all_steps = (
@@ -1013,3 +1461,29 @@ class RCPSTabEdu:
     def get_rcps_table_data(self):
         """Return the current RCPS table data for crashing analysis."""
         return self._rcps_table_data
+
+    # ── Plotly embedded renderer ──────────────────────────────────
+
+    def _switch_renderer(self):
+        mode = self._render_mode_var.get()
+        if mode == "plotly" and getattr(self, '_plotly_sched_frame', None):
+            if hasattr(self, '_mpl_sched_frame'):
+                self._mpl_sched_frame.pack_forget()
+            self._plotly_sched_frame.pack(
+                fill=tk.BOTH, expand=True, padx=5, pady=5)
+        else:
+            if getattr(self, '_plotly_sched_frame', None):
+                self._plotly_sched_frame.pack_forget()
+            if hasattr(self, '_mpl_sched_frame'):
+                self._mpl_sched_frame.pack(fill=tk.BOTH, expand=True)
+
+    def _update_plotly_gantt(self, cpm_table, rcps_table):
+        if not getattr(self, '_plotly_sched_frame', None):
+            return
+        try:
+            fig = plotly_rcps_gantt(cpm_table, rcps_table)
+            if fig:
+                self._plotly_sched_frame.update_chart(fig)
+        except Exception as e:
+            self._plotly_sched_frame.load_html(
+                f"<html><body><pre>Error: {e}</pre></body></html>")

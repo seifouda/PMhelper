@@ -21,8 +21,8 @@ if TYPE_CHECKING:
 _RAG = {
     "green": "#27ae60",
     "amber": "#f39c12",
-    "red":   "#e74c3c",
-    "grey":  "#95a5a6",
+    "red": "#e74c3c",
+    "grey": "#95a5a6",
 }
 
 
@@ -55,12 +55,13 @@ class WorkedSolutionWindow(tk.Toplevel):
 
         self._canvas = tk.Canvas(container, highlightthickness=0)
         vsb = ttk.Scrollbar(container, orient=tk.VERTICAL,
-                             command=self._canvas.yview)
+                            command=self._canvas.yview)
         self._inner = ttk.Frame(self._canvas)
 
         self._inner.bind(
             "<Configure>",
-            lambda e: self._canvas.configure(scrollregion=self._canvas.bbox("all")))
+            lambda e: self._canvas.configure(
+                scrollregion=self._canvas.bbox("all")))
         self._canvas.create_window((0, 0), window=self._inner, anchor="nw")
         self._canvas.configure(yscrollcommand=vsb.set)
 
@@ -206,14 +207,29 @@ class WorkedSolutionWindow(tk.Toplevel):
             indent = depth * 15
             _write(step.title, "Helvetica-Bold", 10, indent)
             if step.formula:
-                _write(f"  Formula:        {step.formula}", "Courier", 9, indent)
+                _write(
+                    f"  Formula:        {
+                        step.formula}",
+                    "Courier",
+                    9,
+                    indent)
             if step.substitution:
                 for line in step.substitution.split("\n"):
                     _write(f"  Substitution:   {line}", "Courier", 9, indent)
             if step.result:
-                _write(f"  Result:         {step.result}", "Courier", 9, indent)
+                _write(
+                    f"  Result:         {
+                        step.result}",
+                    "Courier",
+                    9,
+                    indent)
             if step.interpretation:
-                _write(f"  {step.interpretation}", "Helvetica-Oblique", 9, indent)
+                _write(
+                    f"  {
+                        step.interpretation}",
+                    "Helvetica-Oblique",
+                    9,
+                    indent)
             for child in step.children:
                 _render_pdf(child, depth + 1)
 

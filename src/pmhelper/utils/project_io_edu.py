@@ -14,7 +14,7 @@ File format:
 
 import json
 from pathlib import Path
-from typing import Optional, Tuple, Any
+from typing import Tuple
 
 from pmhelper.core.evm_models_edu import EVMProject
 from pmhelper.core.risk_register_edu import RiskRegister

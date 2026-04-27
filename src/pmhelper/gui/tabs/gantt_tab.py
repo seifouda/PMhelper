@@ -10,7 +10,6 @@ Displays professional project Gantt charts with advanced features:
 - Removed float toggles for cleaner interface
 """
 
-from pmhelper.utils.visualizations import GanttChartVisualizer
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import sys
@@ -22,10 +21,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 try:
     import matplotlib.pyplot as plt
-    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
     from matplotlib.figure import Figure
-    import matplotlib.dates as mdates
-    from datetime import datetime, timedelta
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
@@ -345,7 +342,7 @@ class GanttTab:
             critical_activities = results_data.get('critical_activities', [])
             project_duration = results_data.get('project_duration', None)
 
-            print(f"DEBUG: Professional Gantt data:")
+            print("DEBUG: Professional Gantt data:")
             print(f"  Graph nodes: {len(G.nodes()) if G else 0}")
             print(f"  Critical activities: {critical_activities}")
             print(f"  Project duration: {project_duration}")
@@ -415,34 +412,6 @@ class GanttTab:
 
         except Exception as e:
             print(f"Error creating empty chart: {e}")
-
-    def create_error_chart(self, error_message):
-        """Create an error message chart"""
-        try:
-            # Clean up previous chart
-            if hasattr(self, 'canvas') and self.canvas:
-                self.canvas.get_tk_widget().destroy()
-
-            if hasattr(self, 'figure'):
-                plt.close(self.figure)
-
-            # Create new figure
-            self.figure = plt.figure(figsize=(12, 8))
-            ax = self.figure.add_subplot(111)
-
-            ax.text(0.5, 0.5, f'Error creating Gantt chart:\n{error_message}',
-                    ha='center', va='center', fontsize=12, color='red',
-                    transform=ax.transAxes)
-            ax.set_title('Gantt Chart Error', fontsize=14)
-            ax.axis('off')
-
-            # Create canvas
-            self.canvas = FigureCanvasTkAgg(self.figure, self.gantt_frame)
-            self.canvas.draw()
-            self.canvas.get_tk_widget().pack(fill='both', expand=True)
-
-        except Exception as e:
-            print(f"Error creating error chart: {e}")
 
     def refresh_gantt(self):
         """Refresh the professional gantt chart with current data"""
@@ -525,7 +494,7 @@ class GanttTab:
             if project_duration is not None:
                 self.last_project_duration = project_duration
 
-            print(f"DEBUG: Processing chart update with:")
+            print("DEBUG: Processing chart update with:")
             print(f"  Graph nodes: {len(G.nodes()) if G else 0}")
             print(
                 f"  Critical activities: {
@@ -567,7 +536,7 @@ class GanttTab:
     def build_activities_from_graph(self, G):
         """Build activities list from NetworkX graph data"""
         try:
-            import networkx as nx
+            pass
 
             activities = []
 

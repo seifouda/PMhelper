@@ -9,7 +9,6 @@ diagrams (NetworkTab, PertDiagramTab).
 Phase 17 — PMhelper Edu V1.
 """
 
-import os
 import platform
 import tempfile
 import urllib.parse
@@ -24,7 +23,7 @@ except ImportError:
 
 
 def generate_interactive_network(results_data, analysis_mode=None,
-                                  mode='network'):
+                                 mode='network'):
     """Build an interactive vis.js network and open it in the default browser.
 
     Parameters
@@ -118,6 +117,7 @@ def generate_interactive_gantt(results_data, analysis_mode=None):
                          reverse=True)
 
     ids = []
+    max_ef = 0
     for act in sorted_acts:
         aid = act.get('id', '')
         es = float(act.get('ES', 0))
@@ -127,10 +127,16 @@ def generate_interactive_gantt(results_data, analysis_mode=None):
         is_critical = aid in critical_activities
         flt = max(0, lf - ef)
 
-        ids.append(aid)
+        # Use "ID – Name" labels (truncated) for readability
+        name = act.get('name', act.get('activity', ''))
+        if name:
+            label = f"{aid} – {name[:30]}"
+        else:
+            label = aid
+        ids.append(label)
+        max_ef = max(max_ef, lf, ef)
         color = '#E74C3C' if is_critical else '#3498DB'
 
-        name = act.get('name', act.get('activity', ''))
         hover = (f"<b>{aid}</b>"
                  f"{'<br>' + name if name else ''}"
                  f"<br>Duration: {duration:.0f}"
@@ -139,7 +145,7 @@ def generate_interactive_gantt(results_data, analysis_mode=None):
                  f"<br>{'CRITICAL' if is_critical else 'Non-critical'}")
 
         fig.add_trace(go.Bar(
-            y=[aid],
+            y=[label],
             x=[duration],
             base=[es],
             orientation='h',
@@ -153,7 +159,7 @@ def generate_interactive_gantt(results_data, analysis_mode=None):
         # Float bar
         if flt > 0:
             fig.add_trace(go.Bar(
-                y=[aid],
+                y=[label],
                 x=[flt],
                 base=[ef],
                 orientation='h',
@@ -164,20 +170,40 @@ def generate_interactive_gantt(results_data, analysis_mode=None):
                 showlegend=False,
             ))
 
-    # Layout
+    # Layout — cap height so chart fits in browser, with scroll for overflow
+    n = len(activities)
+    chart_height = min(900, max(400, n * 28 + 120))
+    left_margin = 180 if any(len(i) > 15 for i in ids) else 120
     fig.update_layout(
-        title=dict(text=f"Interactive Gantt Chart  -  Duration: {project_duration}",
-                   font=dict(size=18)),
-        xaxis=dict(title="Time Units", side='top', showgrid=True,
-                   gridcolor='#eee'),
-        yaxis=dict(title="", categoryorder='array',
-                   categoryarray=ids),
+        title=dict(
+            text=f"Interactive Gantt Chart  -  Duration: {project_duration}",
+            font=dict(
+                size=18)),
+        xaxis=dict(
+            title="Time Units",
+            side='top',
+            showgrid=True,
+            gridcolor='#eee',
+            range=[
+                0,
+                max_ef * 1.05]),
+        yaxis=dict(
+            title="",
+            categoryorder='array',
+            categoryarray=ids,
+            autorange='reversed'),
         barmode='overlay',
-        height=max(400, len(activities) * 28 + 120),
-        margin=dict(l=100, r=30, t=80, b=40),
+        height=chart_height,
+        margin=dict(
+            l=left_margin,
+            r=30,
+            t=80,
+            b=40),
         plot_bgcolor='#fafafa',
         hovermode='closest',
-        legend=dict(orientation='h', y=-0.05),
+        legend=dict(
+            orientation='h',
+            y=-0.05),
     )
 
     # Add legend traces (one of each)
@@ -187,9 +213,16 @@ def generate_interactive_gantt(results_data, analysis_mode=None):
     fig.add_trace(go.Bar(
         y=[None], x=[None], orientation='h',
         marker=dict(color='#3498DB'), name='Normal', showlegend=True))
-    fig.add_trace(go.Bar(
-        y=[None], x=[None], orientation='h',
-        marker=dict(color='#BDC3C7', opacity=0.5), name='Float', showlegend=True))
+    fig.add_trace(
+        go.Bar(
+            y=[None],
+            x=[None],
+            orientation='h',
+            marker=dict(
+                color='#BDC3C7',
+                opacity=0.5),
+            name='Float',
+            showlegend=True))
 
     # Write HTML
     tmp = tempfile.NamedTemporaryFile(
@@ -197,7 +230,8 @@ def generate_interactive_gantt(results_data, analysis_mode=None):
         encoding='utf-8')
     tmp.close()
     fig.write_html(tmp.name, include_plotlyjs='cdn',
-                   full_html=True, auto_open=False)
+                   full_html=True, auto_open=False,
+                   config={'scrollZoom': True})
     return tmp.name
 
 
@@ -219,7 +253,6 @@ def _open_in_browser(path):
     url = Path(path).as_uri()          # file:///C:/Users/…
     if platform.system() == 'Windows':
         import subprocess
-        import shlex
         # Read the system HTTP handler — this is always the browser
         try:
             import winreg
@@ -311,7 +344,9 @@ def _add_nodes(net, activities, critical_activities, analysis_mode, mode):
         aid = act.get('id', '')
         duration = act.get('duration', 0)
         if analysis_mode == 'probabilistic':
-            duration = act.get('expected', act.get('expected_duration', duration))
+            duration = act.get(
+                'expected', act.get(
+                    'expected_duration', duration))
 
         is_critical = aid in critical_activities
         color = '#FF6B6B' if is_critical else '#97C2FC'
@@ -346,11 +381,15 @@ def _add_nodes(net, activities, critical_activities, analysis_mode, mode):
                 color={
                     'background': color,
                     'border': border_color,
-                    'highlight': {'background': '#FFF176', 'border': '#F57F17'},
+                    'highlight': {
+                        'background': '#FFF176',
+                        'border': '#F57F17'},
                 },
                 shape='box',
                 size=25,
-                font={'size': 12, 'face': 'Arial'},
+                font={
+                    'size': 12,
+                    'face': 'Arial'},
                 title=tooltip,
                 borderWidth=border_width,
             )
@@ -391,7 +430,7 @@ def _build_pert_svg(aid, duration, es, ef, ls, lf, bg_color, border_color):
 
     svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}">
   <!-- background rect -->
-  <rect x="0.5" y="0.5" width="{w-1}" height="{h-1}" rx="4" ry="4"
+  <rect x="0.5" y="0.5" width="{w - 1}" height="{h - 1}" rx="4" ry="4"
         fill="{bg_color}" stroke="{border_color}" stroke-width="2" opacity="0.85"/>
   <!-- vertical divider after semicircle column -->
   <line x1="{sc_w}" y1="0" x2="{sc_w}" y2="{h}" stroke="{border_color}" stroke-width="1.2"/>
@@ -400,28 +439,28 @@ def _build_pert_svg(aid, duration, es, ef, ls, lf, bg_color, border_color):
   <!-- horizontal divider -->
   <line x1="0" y1="{mid_y}" x2="{w}" y2="{mid_y}" stroke="{border_color}" stroke-width="1.2"/>
   <!-- Text: ID (top-left) -->
-  <text x="{sc_w/2}" y="{mid_y/2}" text-anchor="middle" dominant-baseline="central"
+  <text x="{sc_w / 2}" y="{mid_y / 2}" text-anchor="middle" dominant-baseline="central"
         font-family="Arial" font-size="13" font-weight="bold" fill="#222">{_svg_esc(str(aid))}</text>
   <!-- Text: Duration (bottom-left) -->
-  <text x="{sc_w/2}" y="{mid_y + mid_y/2}" text-anchor="middle" dominant-baseline="central"
+  <text x="{sc_w / 2}" y="{mid_y + mid_y / 2}" text-anchor="middle" dominant-baseline="central"
         font-family="Arial" font-size="12" fill="#333">{_svg_esc(str(duration))}</text>
   <!-- Text: ES (top-middle) -->
-  <text x="{sc_w + col_w/2}" y="{mid_y/2}" text-anchor="middle" dominant-baseline="central"
+  <text x="{sc_w + col_w / 2}" y="{mid_y / 2}" text-anchor="middle" dominant-baseline="central"
         font-family="Arial" font-size="11" fill="#333">{_svg_esc(str(es))}</text>
   <!-- Text: EF (top-right) -->
-  <text x="{sc_w + col_w + col_w/2}" y="{mid_y/2}" text-anchor="middle" dominant-baseline="central"
+  <text x="{sc_w + col_w + col_w / 2}" y="{mid_y / 2}" text-anchor="middle" dominant-baseline="central"
         font-family="Arial" font-size="11" fill="#333">{_svg_esc(str(ef))}</text>
   <!-- Text: LS (bottom-middle) -->
-  <text x="{sc_w + col_w/2}" y="{mid_y + mid_y/2}" text-anchor="middle" dominant-baseline="central"
+  <text x="{sc_w + col_w / 2}" y="{mid_y + mid_y / 2}" text-anchor="middle" dominant-baseline="central"
         font-family="Arial" font-size="11" fill="#333">{_svg_esc(str(ls))}</text>
   <!-- Text: LF (bottom-right) -->
-  <text x="{sc_w + col_w + col_w/2}" y="{mid_y + mid_y/2}" text-anchor="middle" dominant-baseline="central"
+  <text x="{sc_w + col_w + col_w / 2}" y="{mid_y + mid_y / 2}" text-anchor="middle" dominant-baseline="central"
         font-family="Arial" font-size="11" fill="#333">{_svg_esc(str(lf))}</text>
   <!-- Column headers (tiny, inside cells) -->
-  <text x="{sc_w + col_w/2}" y="10" text-anchor="middle" font-family="Arial" font-size="8" fill="#666">ES</text>
-  <text x="{sc_w + col_w + col_w/2}" y="10" text-anchor="middle" font-family="Arial" font-size="8" fill="#666">EF</text>
-  <text x="{sc_w + col_w/2}" y="{mid_y + 10}" text-anchor="middle" font-family="Arial" font-size="8" fill="#666">LS</text>
-  <text x="{sc_w + col_w + col_w/2}" y="{mid_y + 10}" text-anchor="middle" font-family="Arial" font-size="8" fill="#666">LF</text>
+  <text x="{sc_w + col_w / 2}" y="10" text-anchor="middle" font-family="Arial" font-size="8" fill="#666">ES</text>
+  <text x="{sc_w + col_w + col_w / 2}" y="10" text-anchor="middle" font-family="Arial" font-size="8" fill="#666">EF</text>
+  <text x="{sc_w + col_w / 2}" y="{mid_y + 10}" text-anchor="middle" font-family="Arial" font-size="8" fill="#666">LS</text>
+  <text x="{sc_w + col_w + col_w / 2}" y="{mid_y + 10}" text-anchor="middle" font-family="Arial" font-size="8" fill="#666">LF</text>
 </svg>'''
     encoded = urllib.parse.quote(svg, safe='')
     return f"data:image/svg+xml,{encoded}"

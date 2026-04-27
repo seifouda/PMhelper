@@ -1,6 +1,5 @@
 """Selection tab — stub placeholder for feat--sel-risk-da-co implementation."""
 
-import tkinter as tk
 from tkinter import ttk
 
 

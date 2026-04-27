@@ -95,7 +95,9 @@ class EduProjectState:
         self.swot_analysis: Any = None      # Set in Phase 9A (SWOTAnalysis)
         self.pestel_analysis: Any = None    # Set in Phase 9B (PESTELAnalysis)
         self.wbs_tree: Any = None           # Set in Phase 9C (WBSTree)
-        self.charter_data: Optional[dict] = None  # Charter tab data for SWOT extraction
+        # Charter tab data for SWOT extraction
+        self.charter_data: Optional[dict] = None
+        self.results_data: Optional[dict] = None  # CPM/PERT analysis results
         self.current_file_path: Optional[str] = None
         self._dirty: bool = False
         self._callbacks: List[Callable] = []
@@ -126,5 +128,6 @@ class EduProjectState:
         self.pestel_analysis = None
         self.wbs_tree = None
         self.charter_data = None
+        self.results_data = None
         self.current_file_path = None
         self._dirty = False

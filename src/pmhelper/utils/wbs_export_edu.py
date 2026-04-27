@@ -6,11 +6,8 @@ Export WBS tree to CSV, JSON, Excel (openpyxl), PNG/PDF (Matplotlib).
 from __future__ import annotations
 import csv
 import json
-import io
-import os
-from typing import Optional
 
-from pmhelper.core.wbs_models_edu import WBSTree, WBSNode, WBS_STATUS_COLOURS
+from pmhelper.core.wbs_models_edu import WBSTree, WBS_STATUS_COLOURS
 
 try:
     from matplotlib.figure import Figure
@@ -75,10 +72,21 @@ class WBSExporter:
         ws.title = "WBS"
 
         # Header
-        headers = ["WBS Code", "Name", "Parent Code", "Duration (days)",
-                    "Cost ($)", "Progress (%)", "Status", "Responsible", "Description"]
+        headers = [
+            "WBS Code",
+            "Name",
+            "Parent Code",
+            "Duration (days)",
+            "Cost ($)",
+            "Progress (%)",
+            "Status",
+            "Responsible",
+            "Description"]
         header_font = Font(bold=True, color="FFFFFF")
-        header_fill = PatternFill(start_color="2F5496", end_color="2F5496", fill_type="solid")
+        header_fill = PatternFill(
+            start_color="2F5496",
+            end_color="2F5496",
+            fill_type="solid")
         thin_border = Border(
             left=Side(style='thin'), right=Side(style='thin'),
             top=Side(style='thin'), bottom=Side(style='thin')
@@ -98,12 +106,13 @@ class WBSExporter:
         status_fills = {
             "Not Started": PatternFill(start_color="E0E0E0", fill_type="solid"),
             "In Progress": PatternFill(start_color="CCE5FF", fill_type="solid"),
-            "Completed":   PatternFill(start_color="D4EDDA", fill_type="solid"),
-            "Delayed":     PatternFill(start_color="F8D7DA", fill_type="solid"),
-            "On Hold":     PatternFill(start_color="FFF3CD", fill_type="solid"),
+            "Completed": PatternFill(start_color="D4EDDA", fill_type="solid"),
+            "Delayed": PatternFill(start_color="F8D7DA", fill_type="solid"),
+            "On Hold": PatternFill(start_color="FFF3CD", fill_type="solid"),
         }
 
-        for row_idx, node in enumerate(sorted(tree.nodes, key=lambda n: n.wbs_code), 2):
+        for row_idx, node in enumerate(
+                sorted(tree.nodes, key=lambda n: n.wbs_code), 2):
             parent_code = code_map.get(node.parent_id, "")
             values = [
                 node.wbs_code, node.name, parent_code,
@@ -125,7 +134,8 @@ class WBSExporter:
 
         # Auto-width
         for col in range(1, len(headers) + 1):
-            ws.column_dimensions[chr(64 + col) if col <= 26 else 'A'].width = 18
+            ws.column_dimensions[chr(64 + col) if col <=
+                                 26 else 'A'].width = 18
 
         wb.save(filepath)
 
@@ -135,9 +145,13 @@ class WBSExporter:
         if not HAS_MATPLOTLIB:
             raise ImportError("Matplotlib is required for image export.")
 
-        from pmhelper.utils.wbs_layout_edu import WBSLayoutEngine, NodeLayout
+        from pmhelper.utils.wbs_layout_edu import WBSLayoutEngine
 
-        engine = WBSLayoutEngine(node_width=140, node_height=50, h_gap=20, v_gap=60)
+        engine = WBSLayoutEngine(
+            node_width=140,
+            node_height=50,
+            h_gap=20,
+            v_gap=60)
         layouts = engine.compute(tree)
 
         if not layouts:
@@ -189,7 +203,8 @@ class WBSExporter:
 
             ax.text(cx, cy_code, node.wbs_code, ha="center", va="center",
                     fontsize=7, fontweight="bold", color="#333")
-            name_display = node.name[:16] + "..." if len(node.name) > 16 else node.name
+            name_display = node.name[:16] + \
+                "..." if len(node.name) > 16 else node.name
             ax.text(cx, cy_name, name_display, ha="center", va="center",
                     fontsize=7, color="#333")
 

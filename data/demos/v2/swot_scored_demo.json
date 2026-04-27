@@ -1,0 +1,140 @@
+{
+  "metadata": {
+    "name": "SWOT Scored Demo — Software Platform Launch",
+    "description": "16 scored SWOT factors (4 per quadrant) demonstrating the bubble chart with varied impact, likelihood, and weight values.",
+    "version": "2.0",
+    "demo_type": "swot_scored"
+  },
+  "swot_analysis": {
+    "factors": [
+      {
+        "text": "Strong engineering team with 5+ yrs experience",
+        "category": "Strength",
+        "source": "Manual",
+        "weight": 0.9,
+        "impact_score": 4.5,
+        "likelihood": 0.95
+      },
+      {
+        "text": "Proprietary ML algorithm — 2× competitor accuracy",
+        "category": "Strength",
+        "source": "Manual",
+        "weight": 0.85,
+        "impact_score": 5.0,
+        "likelihood": 0.8
+      },
+      {
+        "text": "Established relationships with 3 enterprise clients",
+        "category": "Strength",
+        "source": "Charter",
+        "weight": 0.7,
+        "impact_score": 3.5,
+        "likelihood": 0.7
+      },
+      {
+        "text": "Agile delivery process with 2-week sprints",
+        "category": "Strength",
+        "source": "Manual",
+        "weight": 0.5,
+        "impact_score": 2.5,
+        "likelihood": 0.6
+      },
+      {
+        "text": "Limited marketing budget ($50K vs $500K competitors)",
+        "category": "Weakness",
+        "source": "Charter",
+        "weight": 0.8,
+        "impact_score": 4.0,
+        "likelihood": 0.9
+      },
+      {
+        "text": "Single point of failure — lead architect",
+        "category": "Weakness",
+        "source": "Risk Register",
+        "weight": 0.75,
+        "impact_score": 4.5,
+        "likelihood": 0.6
+      },
+      {
+        "text": "No mobile app — desktop/web only",
+        "category": "Weakness",
+        "source": "Manual",
+        "weight": 0.6,
+        "impact_score": 3.0,
+        "likelihood": 0.7
+      },
+      {
+        "text": "Technical debt in legacy payment module",
+        "category": "Weakness",
+        "source": "Manual",
+        "weight": 0.5,
+        "impact_score": 2.0,
+        "likelihood": 0.4
+      },
+      {
+        "text": "Growing market — 25% YoY demand increase",
+        "category": "Opportunity",
+        "source": "Charter",
+        "weight": 0.9,
+        "impact_score": 5.0,
+        "likelihood": 0.85
+      },
+      {
+        "text": "Potential government contract ($2M+)",
+        "category": "Opportunity",
+        "source": "Manual",
+        "weight": 0.7,
+        "impact_score": 4.0,
+        "likelihood": 0.35
+      },
+      {
+        "text": "Competitor X exiting the mid-market segment",
+        "category": "Opportunity",
+        "source": "Manual",
+        "weight": 0.65,
+        "impact_score": 3.5,
+        "likelihood": 0.5
+      },
+      {
+        "text": "Partnership offer from cloud provider",
+        "category": "Opportunity",
+        "source": "Manual",
+        "weight": 0.55,
+        "impact_score": 2.5,
+        "likelihood": 0.6
+      },
+      {
+        "text": "New entrant with $10M VC funding",
+        "category": "Threat",
+        "source": "Risk Register",
+        "weight": 0.85,
+        "impact_score": 4.5,
+        "likelihood": 0.7
+      },
+      {
+        "text": "Upcoming data-privacy regulation (GDPR-like)",
+        "category": "Threat",
+        "source": "Manual",
+        "weight": 0.8,
+        "impact_score": 4.0,
+        "likelihood": 0.8
+      },
+      {
+        "text": "Supply chain chip shortage affecting hardware partners",
+        "category": "Threat",
+        "source": "Manual",
+        "weight": 0.6,
+        "impact_score": 3.0,
+        "likelihood": 0.45
+      },
+      {
+        "text": "Key client threatening to switch vendors",
+        "category": "Threat",
+        "source": "Risk Register",
+        "weight": 0.5,
+        "impact_score": 2.0,
+        "likelihood": 0.3
+      }
+    ]
+  }
+}

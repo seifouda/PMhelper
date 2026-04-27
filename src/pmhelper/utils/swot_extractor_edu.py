@@ -119,7 +119,8 @@ class SWOTExtractor:
                 if isinstance(sh, dict):
                     name = sh.get("name", "Unknown")
                     influence = sh.get("influence", "")
-                    if str(influence).lower() in ("high", "sponsor", "champion"):
+                    if str(influence).lower() in (
+                            "high", "sponsor", "champion"):
                         factors.append(SWOTFactor(
                             text=f"Strong sponsor: {name}",
                             category=SWOTCategory.STRENGTH,
@@ -135,7 +136,9 @@ class SWOTExtractor:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def from_risk_register(risk_register: Any, bac: float = 0.0) -> List[SWOTFactor]:
+    def from_risk_register(
+            risk_register: Any,
+            bac: float = 0.0) -> List[SWOTFactor]:
         """Extract SWOT Threats from high-exposure risks.
 
         Args:
@@ -220,13 +223,17 @@ class SWOTExtractor:
 
         if spi is not None:
             if spi >= 1.0:
-                factors.append(SWOTFactor(
-                    text=f"Schedule efficiency: SPI = {spi:.2f} (ahead of schedule)",
-                    category=SWOTCategory.STRENGTH,
-                    source=SWOTSource.EVM,
-                    weight=min(1.0, spi - 0.9),
-                    linked_to="spi",
-                ))
+                factors.append(
+                    SWOTFactor(
+                        text=f"Schedule efficiency: SPI = {
+                            spi:.2f} (ahead of schedule)",
+                        category=SWOTCategory.STRENGTH,
+                        source=SWOTSource.EVM,
+                        weight=min(
+                            1.0,
+                            spi - 0.9),
+                        linked_to="spi",
+                    ))
             elif spi < 0.95:
                 factors.append(SWOTFactor(
                     text=f"Schedule delay: SPI = {spi:.2f} (behind schedule)",
@@ -241,13 +248,18 @@ class SWOTExtractor:
         if eac is not None and bac > 0:
             overrun_pct = (eac - bac) / bac
             if overrun_pct > 0.10:
-                factors.append(SWOTFactor(
-                    text=f"Forecast overrun: EAC ${eac:,.0f} exceeds BAC by {overrun_pct:.0%}",
-                    category=SWOTCategory.WEAKNESS,
-                    source=SWOTSource.EVM,
-                    weight=min(1.0, overrun_pct),
-                    linked_to="eac",
-                ))
+                factors.append(
+                    SWOTFactor(
+                        text=f"Forecast overrun: EAC ${
+                            eac:,.0f} exceeds BAC by {
+                            overrun_pct:.0%}",
+                        category=SWOTCategory.WEAKNESS,
+                        source=SWOTSource.EVM,
+                        weight=min(
+                            1.0,
+                            overrun_pct),
+                        linked_to="eac",
+                    ))
 
         return factors
 

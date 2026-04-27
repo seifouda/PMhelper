@@ -40,19 +40,19 @@ def cost_estimation_theory_steps() -> List[Step]:
     """Educational overview of all 7 cost estimation techniques."""
     steps: List[Step] = []
 
-    steps.append(Step(
-        title="Step 1 — What is Cost Estimation?",
-        formula="Estimated Cost = f(scope, resources, time, risk)",
-        interpretation=(
-            "Cost estimation is the process of predicting the total cost of "
-            "completing a project. Estimates become more accurate as the project "
-            "progresses (funnel of uncertainty).\n\n"
-            "Common accuracy ranges by phase:\n"
-            "  • Rough Order of Magnitude (ROM): −50% to +100%\n"
-            "  • Budgetary: −10% to +25%\n"
-            "  • Definitive: −5% to +10%"
-        ),
-    ))
+    steps.append(
+        Step(
+            title="Step 1 — What is Cost Estimation?",
+            formula="Estimated Cost = f(scope, resources, time, risk)",
+            interpretation=(
+                "Cost estimation is the process of predicting the total cost of "
+                "completing a project. Estimates become more accurate as the project "
+                "progresses (funnel of uncertainty).\n\n"
+                "Common accuracy ranges by phase:\n"
+                "  • Rough Order of Magnitude (ROM): −50% to +100%\n"
+                "  • Budgetary: −10% to +25%\n"
+                "  • Definitive: −5% to +10%"),
+        ))
 
     steps.append(Step(
         title="Step 2 — Top-Down vs Bottom-Up",
@@ -181,10 +181,11 @@ def analogous_steps(
             ),
         ))
     else:
-        steps.append(Step(
-            title="Step 2 — No Adjustment Factors",
-            interpretation="No adjustment factors provided; estimate equals the reference cost.",
-        ))
+        steps.append(
+            Step(
+                title="Step 2 — No Adjustment Factors",
+                interpretation="No adjustment factors provided; estimate equals the reference cost.",
+            ))
 
     steps.append(Step(
         title="Step 3 — Calculate Estimated Cost",
@@ -228,12 +229,13 @@ def bottom_up_steps(
             result=f"{wp.total:,.2f}",
         ))
 
-    steps.append(Step(
-        title="Step 2 — Estimate Each Work Package",
-        formula="Cost_i = (L_i + M_i + E_i) × (1 + Overhead%_i)",
-        children=wp_children,
-        interpretation="Estimate direct costs (labour, materials, equipment) plus overhead for each WP.",
-    ))
+    steps.append(
+        Step(
+            title="Step 2 — Estimate Each Work Package",
+            formula="Cost_i = (L_i + M_i + E_i) × (1 + Overhead%_i)",
+            children=wp_children,
+            interpretation="Estimate direct costs (labour, materials, equipment) plus overhead for each WP.",
+        ))
 
     steps.append(Step(
         title="Step 3 — Sum All Work Packages",
@@ -274,12 +276,13 @@ def work_element_steps(
             result=f"{el.total:,.2f}",
         ))
 
-    steps.append(Step(
-        title="Step 2 — Cost Each Element",
-        formula="Cost_i = (H_i × Rate_i) + Material_i + Equipment_i",
-        children=el_children,
-        interpretation="Break down each element into labour, material and equipment cost.",
-    ))
+    steps.append(
+        Step(
+            title="Step 2 — Cost Each Element",
+            formula="Cost_i = (H_i × Rate_i) + Material_i + Equipment_i",
+            children=el_children,
+            interpretation="Break down each element into labour, material and equipment cost.",
+        ))
 
     steps.append(Step(
         title="Step 3 — Sum Elements",
@@ -414,8 +417,8 @@ def learning_curve_steps(
             substitution=f"b = ln({learning_rate}) / ln(2) = {math.log(learning_rate):.6f} / {math.log(2):.6f}",
             result=f"b = {b:.6f}",
             interpretation=(
-                f"b is negative for learning rates < 1, meaning unit costs "
-                f"decline as production increases."
+                "b is negative for learning rates < 1, meaning unit costs "
+                "decline as production increases."
             ),
         ),
         Step(

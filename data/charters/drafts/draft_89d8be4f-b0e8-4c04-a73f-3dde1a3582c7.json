@@ -1,0 +1,92 @@
+{
+  "metadata": {
+    "charter_id": "89d8be4f-b0e8-4c04-a73f-3dde1a3582c7",
+    "created_date": "2025-11-02T20:22:49.442504",
+    "modified_date": "2026-03-22T00:26:16.598957",
+    "status": "draft",
+    "version": "1.0",
+    "template_id": "standard_charter_v1",
+    "template_version": "1.0"
+  },
+  "data": {
+    "objectives": {
+      "business_case": "lsjkfgadsnf\na;lsdkknfasldkfn\nasdlfna;lsdf\na;sldfnasd",
+      "objectives": "alskjdf;asjdnf\naslkdjfal;sdnf\\\nalshbdbfhabsd\nalksdflkasdff",
+      "success_criteria": "a,sdhblasdbcbas\nalsblkasdjbkjadsv\nas;kdadsncas\\"
+    },
+    "scope": {
+      "in_scope": "sadfaszcv\nsdfvsdfv\nsdzxcvsdfzgwesdf\ncesdfg\ncvsdz\nfxcv\nsedzf\ngv\nesdfxcv",
+      "out_of_scope": "sdfiusdfinosdf\n\nsdfvsfdvsdfv\nsdfv\nsdfv\nsdfv\nsdgh\nrsyhsb\neratvw5\nesntsurg",
+      "deliverables": "sdvsldkjfvbbsdfv\nsdlkvsdlnfvesd\nsdkvcs;dlfnvsfdlv",
+      "assumptions": null,
+      "constraints": null
+    },
+    "budget": {
+      "resource_requirements": null,
+      "total_budget": "366262629652.00",
+      "currency": "CAD",
+      "budget_breakdown": [
+        {
+          "category": "asoijvasjnv",
+          "amount": "$366,262,629,652.00",
+          "notes": ""
+        }
+      ]
+    },
+    "schedule": {
+      "phases": null,
+      "milestones": [
+        {
+          "milestone": "alskdnf;lasnd;",
+          "date": "2025-11-22",
+          "deliverable": "end"
+        }
+      ]
+    },
+    "team": {
+      "organizational_structure": null,
+      "team_members": [
+        {
+          "name": "asdfasdf asdf asdf a",
+          "role": " asdf asdf asdf",
+          "responsibility": " asdf ahweafg asdg  sdfgv"
+        }
+      ]
+    },
+    "stakeholders": {
+      "communication_plan": null,
+      "stakeholder_list": [
+        {
+          "name": " asdf asdfa hresh fg",
+          "interest": " asdfqqewsgvcawe",
+          "influence": "a sdf qeazfxg asgd",
+          "strategy": "a rsfry raesg v"
+        }
+      ]
+    },
+    "risks": {
+      "known_issues": null,
+      "risk_register": []
+    },
+    "approval": {
+      "approval_notes": null,
+      "prepared_by": "p9ssudfghas",
+      "prepared_date": "2025-11-01",
+      "approval_signatures": [
+        {
+          "name": "asdafcasdf",
+          "title": "afsdfas df",
+          "date": " asdf asdf"
+        }
+      ]
+    },
+    "identification": {
+      "project_name": "project",
+      "project_code": "IM-popo",
+      "project_manager": "seif fouda",
+      "sponsor": "seifouda",
+      "start_date": "2025-11-01",
+      "end_date": "2025-11-22"
+    }
+  }
+}

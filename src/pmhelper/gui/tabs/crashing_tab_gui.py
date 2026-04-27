@@ -5,22 +5,25 @@ Contains all GUI and visualization logic for the Crashing tab.
 All references to 'enhanced' have been removed.
 """
 import tkinter as tk
-from tkinter import ttk, messagebox, scrolledtext, simpledialog
+from tkinter import ttk, messagebox, scrolledtext
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
-from typing import Dict, List, Optional, Any
 import matplotlib.backends.backend_agg as agg
 from PIL import Image, ImageTk
 from .project_crashing_core import (
     ProjectCrashing,
-    RCPSProjectCrashing,
     CrashingStrategy,
     OptimizationObjective,
-    CrashingResult,
-    compare_crashing_results,
     generate_crashing_report)
 from pmhelper.core.crashing_visualization import draw_network_diagram_on_ax, draw_network_diagram_on_ax_small
+
+# Plotly embed
+try:
+    from pmhelper.gui.widgets.plotly_chart_frame import PlotlyChartFrame, WEBVIEW2_AVAILABLE
+    from pmhelper.utils.plotly_charts import plotly_crashing_network, PLOTLY_AVAILABLE as _PLT_AVAIL
+    _PLOTLY_EMBED = WEBVIEW2_AVAILABLE and _PLT_AVAIL
+except ImportError:
+    _PLOTLY_EMBED = False
 
 
 class CrashingTabGUIManager:
@@ -78,7 +81,7 @@ class CrashingTabGUIManager:
                 "Max Normal Cost must be an integer or blank.")
             return
 
-        max_iterations = 300  # Fixed as per requirements
+        max_iterations = 1500  # Fixed as per requirements
 
         # 2. Retrieve project data (base_analyzer) from main app
         # Try current_analyzer (preferred), fallback to base_analyzer
@@ -141,15 +144,22 @@ class CrashingTabGUIManager:
         # 3. Instantiate ProjectCrashing and run analysis
         crashing_engine = ProjectCrashing(base_analyzer)
         if hasattr(crashing_engine, "run"):
-            result = crashing_engine.run(
-                target_duration=target_duration,
-                strategy=strategy,
-                objective=objective,
-                max_budget=max_budget,
-                max_crash_cost=max_crash_cost,
-                max_normal_cost=max_normal_cost,
-                max_iterations=max_iterations
-            )
+            try:
+                result = crashing_engine.run(
+                    target_duration=target_duration,
+                    strategy=strategy,
+                    objective=objective,
+                    max_budget=max_budget,
+                    max_crash_cost=max_crash_cost,
+                    max_normal_cost=max_normal_cost,
+                    max_iterations=max_iterations
+                )
+            except NotImplementedError as nie:
+                messagebox.showwarning(
+                    "Strategy Not Available",
+                    f"The selected strategy is not yet implemented:\n\n{nie}\n\n"
+                    "Please use 'lowest_cost' or 'enhanced_lowest_cost' instead.")
+                return
         else:
             messagebox.showerror(
                 "Implementation Error",
@@ -651,7 +661,6 @@ class CrashingTabGUIManager:
                 return
 
             from tkinter import filedialog
-            import os
             from datetime import datetime
 
             # Ask user for file location
@@ -909,6 +918,8 @@ class CrashingTabGUIManager:
         self.rcps_engine = None
         self.current_results = []
         self.comparison_window = None
+        if _PLOTLY_EMBED:
+            self._render_mode_var = tk.StringVar(value="matplotlib")
         # Build the interface when the manager is initialized
         self.build_interface()
 
@@ -1028,8 +1039,8 @@ class CrashingTabGUIManager:
             padx=5,
             pady=2)
 
-        # Set max_iterations to 300 (no advanced parameters UI)
-        self.max_iterations_var = tk.StringVar(value="300")
+        # Set max_iterations to 1500 (no advanced parameters UI)
+        self.max_iterations_var = tk.StringVar(value="1500")
 
         # Run Crashing button next to input fields
         ttk.Button(
@@ -1166,14 +1177,61 @@ class CrashingTabGUIManager:
         self.step_display_frame = ttk.Frame(viz_frame)
         self.step_display_frame.pack(fill=tk.BOTH, expand=True)
 
+        # Plotly toggle + frame
+        if _PLOTLY_EMBED:
+            tog = ttk.Frame(nav_frame)
+            tog.pack(side=tk.RIGHT, padx=10)
+            ttk.Radiobutton(
+                tog,
+                text="Classic",
+                variable=self._render_mode_var,
+                value="matplotlib",
+                command=self._switch_renderer).pack(
+                side='left')
+            ttk.Radiobutton(
+                tog,
+                text="\U0001f4ca Plotly",
+                variable=self._render_mode_var,
+                value="plotly",
+                command=self._switch_renderer).pack(
+                side='left')
+            self._plotly_frame = PlotlyChartFrame(viz_frame)
+
     def show_step(self, step_index):
         if 0 <= step_index < len(self.step_graphs):
             self.current_step = step_index
             step_num, activity, new_duration, G_step = self.step_graphs[step_index]
+
+            # --- Plotly path ---
+            if _PLOTLY_EMBED and self._render_mode_var.get() == "plotly":
+                if step_num == 0:
+                    label = "Initial Network"
+                    crit = set()
+                else:
+                    label = f"Step {step_num}"
+                    if activity and activity != 'None':
+                        label += f": {activity} → {new_duration}"
+                    crit = {n for n in G_step.nodes()
+                            if G_step.nodes[n].get('float', 1) == 0}
+                try:
+                    fig = plotly_crashing_network(G_step, step_label=label,
+                                                  critical_activities=crit)
+                    if fig:
+                        self._plotly_frame.update_chart(fig)
+                except Exception:
+                    pass
+                self.step_info_label.config(
+                    text=f"Step {step_index} of {self.total_steps - 1}")
+                self.step_select_var.set(str(step_index))
+                return
+
+            # --- Matplotlib path (original) ---
             for widget in self.step_display_frame.winfo_children():
                 widget.destroy()
             fig = plt.Figure(figsize=(10, 6))
+            fig.patch.set_facecolor('white')
             ax = fig.add_subplot(111)
+            ax.set_facecolor('white')
             if step_num == 0:
                 draw_network_diagram_on_ax(ax, G_step, initial=True)
                 ax.set_title("Initial Network", fontsize=14, fontweight='bold')
@@ -1245,7 +1303,9 @@ class CrashingTabGUIManager:
         for idx, (step_num, activity, new_duration,
                   G_step) in enumerate(self.step_graphs):
             fig = plt.Figure(figsize=(5, 4))
+            fig.patch.set_facecolor('white')
             ax = fig.add_subplot(111)
+            ax.set_facecolor('white')
             draw_network_diagram_on_ax_small(ax, G_step)
             if step_num == 0:
                 ax.set_title("Initial Network", fontsize=10, fontweight='bold')
@@ -1279,3 +1339,18 @@ class CrashingTabGUIManager:
             if event.widget == grid_window:
                 canvas.unbind_all("<MouseWheel>")
         grid_window.bind("<Destroy>", _on_destroy)
+
+    # -- Plotly helpers (Crashing) ------------------------------------------
+    def _switch_renderer(self):
+        if not _PLOTLY_EMBED:
+            return
+        if self._render_mode_var.get() == "plotly":
+            self.step_display_frame.pack_forget()
+            self._plotly_frame.pack(fill="both", expand=True)
+            if self.step_graphs:
+                self.show_step(self.current_step)
+        else:
+            self._plotly_frame.pack_forget()
+            self.step_display_frame.pack(fill="both", expand=True)
+            if self.step_graphs:
+                self.show_step(self.current_step)

@@ -59,8 +59,8 @@ class PERTAnalyzer:
         # Build table
         table = df[['id', 'duration', 'resource',
                     'early_start', 'late_finish', 'float']].copy()
-        for t in time_cols:
-            table[t] = ''
+        extra = pd.DataFrame('', index=table.index, columns=time_cols)
+        table = pd.concat([table, extra], axis=1)
         # Fill schedule cells
         for idx, row in table.iterrows():
             es = int(row['early_start'])
@@ -106,6 +106,8 @@ class PERTAnalyzer:
         unscheduled = set(tasks.index)
         pred_map = {tid: [p.strip() for p in str(tasks.at[tid, 'predecessors']).split(
             ',') if p.strip() and p.strip() != 'nan'] for tid in tasks.index}
+        _max_time = sum(int(tasks.at[tid, 'duration'])
+                        for tid in tasks.index) * 3
         # Scheduling loop
         while unscheduled:
             # Find ready tasks
@@ -159,6 +161,15 @@ class PERTAnalyzer:
                     break
             if not scheduled_this_step:
                 current_time += 1
+                if current_time > _max_time:
+                    infeasible = [
+                        tid for tid in unscheduled
+                        if int(tasks.at[tid, 'resource']) > resource_limit
+                    ]
+                    raise ValueError(
+                        f"RCPS scheduling cannot complete: resource limit ({resource_limit}) "
+                        f"is less than the demand of task(s) {infeasible}. "
+                        "Increase the resource limit and try again.")
         # After scheduling, get the actual PERT project duration
         actual_project_duration = max(
             [tasks.at[tid, 'actual_finish'] for tid in tasks.index])
@@ -172,9 +183,10 @@ class PERTAnalyzer:
                                      'late_finish',
                                      'float',
                                      'actual_start']].copy()
-        # Ensure all time columns are initialized
+        # Add all time columns at once to avoid fragmentation
+        extra = pd.DataFrame('', index=table.index, columns=time_cols)
+        table = pd.concat([table, extra], axis=1)
         for t in time_cols:
-            table[t] = ''
             if t not in resource_usage:
                 resource_usage[t] = 0
         # Fill schedule cells for all activities FIRST
@@ -578,14 +590,14 @@ class PERTAnalyzer:
                 })
 
         return critical_activities_info
-    
+
     def get_risk_analysis_input(self) -> dict:
         """
         Prepare data for risk analysis modules.
-        
+
         Returns structured PERT results suitable for DelayRiskAnalyzer,
         ContingencyPlanner, VarianceReductionAnalyzer, and ActivityRiskPrioritizer.
-        
+
         Returns:
             Dict with:
                 - expected_duration: Project expected completion time
@@ -596,13 +608,14 @@ class PERTAnalyzer:
                 - network: NetworkX graph (optional)
         """
         if not self.G:
-            raise ValueError("No analysis results available. Run analyze() first.")
-        
+            raise ValueError(
+                "No analysis results available. Run analyze() first.")
+
         # Get project statistics
         stats = self.get_project_statistics()
         if not stats:
             raise ValueError("Unable to retrieve project statistics")
-        
+
         # Build activities dictionary with detailed information
         activities_dict = {}
         for node_id in self.G.nodes():
@@ -629,7 +642,7 @@ class PERTAnalyzer:
                     'resource_demand': node_data.get('resource_demand', 0),
                     'min_duration': node_data.get('min_duration', 1)
                 }
-        
+
         return {
             'expected_duration': stats['expected_duration'],
             'variance': stats['variance'],
@@ -638,7 +651,7 @@ class PERTAnalyzer:
             'activities': activities_dict,
             'network': self.G
         }
-    
+
     def analyze_delay_risk(
         self,
         contract_time: float,
@@ -648,18 +661,18 @@ class PERTAnalyzer:
     ) -> dict:
         """
         Convenience method for delay risk analysis.
-        
+
         Args:
             contract_time: Contracted completion deadline
             penalty_rate: Penalty cost per time unit of delay
             max_penalty_percent: Maximum penalty as fraction of contract (default 20%)
             contract_value: Contract value for penalty cap (optional)
-        
+
         Returns:
             Risk analysis results from DelayRiskAnalyzer
         """
         from .risk_analysis import DelayRiskAnalyzer
-        
+
         risk_input = self.get_risk_analysis_input()
         analyzer = DelayRiskAnalyzer(risk_input)
         return analyzer.calculate_risk_cost(
@@ -668,7 +681,7 @@ class PERTAnalyzer:
             max_penalty_percent,
             contract_value
         )
-    
+
     def estimate_contingency(
         self,
         confidence_level: float = 0.95,
@@ -676,20 +689,20 @@ class PERTAnalyzer:
     ) -> dict:
         """
         Convenience method for contingency planning.
-        
+
         Args:
             confidence_level: Desired probability of completion (0.5 to 0.999)
             daily_cost_rate: Cost per time unit (optional)
-        
+
         Returns:
             Contingency planning results from ContingencyPlanner
         """
         from .risk_analysis import ContingencyPlanner
-        
+
         risk_input = self.get_risk_analysis_input()
         planner = ContingencyPlanner(risk_input)
         return planner.calculate_contingency(confidence_level, daily_cost_rate)
-    
+
     def analyze_variance_reduction_strategies(
         self,
         contract_time: float,
@@ -700,19 +713,19 @@ class PERTAnalyzer:
     ) -> dict:
         """
         Convenience method for variance reduction strategy analysis.
-        
+
         Args:
             contract_time: Contract deadline
             penalty_rate: Penalty per time unit
             time_reduction_cost: Cost per unit time reduction
             variance_reduction_cost: Cost per unit variance reduction
             max_budget: Maximum budget for improvements (optional)
-        
+
         Returns:
             Strategy comparison results from VarianceReductionAnalyzer
         """
         from .risk_analysis import VarianceReductionAnalyzer
-        
+
         risk_input = self.get_risk_analysis_input()
         analyzer = VarianceReductionAnalyzer(risk_input)
         return analyzer.analyze_strategies(
@@ -722,20 +735,20 @@ class PERTAnalyzer:
             variance_reduction_cost,
             max_budget
         )
-    
+
     def prioritize_activity_risks(self) -> pd.DataFrame:
         """
         Convenience method for activity risk prioritization.
-        
+
         Returns:
             DataFrame with activity risk scores and recommendations
         """
         from .risk_analysis import ActivityRiskPrioritizer
-        
+
         risk_input = self.get_risk_analysis_input()
         prioritizer = ActivityRiskPrioritizer(risk_input)
         return prioritizer.calculate_risk_scores()
-    
+
     def generate_risk_mitigation_plan(
         self,
         budget_available: float = None,
@@ -743,16 +756,17 @@ class PERTAnalyzer:
     ) -> dict:
         """
         Convenience method for generating mitigation plan.
-        
+
         Args:
             budget_available: Budget available for mitigation (optional)
             focus_critical_path: Prioritize critical path activities
-        
+
         Returns:
             Comprehensive mitigation plan from ActivityRiskPrioritizer
         """
         from .risk_analysis import ActivityRiskPrioritizer
-        
+
         risk_input = self.get_risk_analysis_input()
         prioritizer = ActivityRiskPrioritizer(risk_input)
-        return prioritizer.generate_mitigation_plan(budget_available, focus_critical_path)
+        return prioritizer.generate_mitigation_plan(
+            budget_available, focus_critical_path)

@@ -23,7 +23,7 @@ serialisable dicts for storage in ``.pmproj`` project files.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -38,7 +38,7 @@ CELL_COLORS: Dict[str, str] = {
     "A": "#fecaca",   # light red
     "C": "#fef08a",   # light yellow
     "I": "#bbf7d0",   # light green
-    "":  "#f3f4f6",   # light grey (unassigned)
+    "": "#f3f4f6",   # light grey (unassigned)
 }
 
 #: Human-readable descriptions for tooltip / educational text
@@ -47,7 +47,7 @@ ROLE_DESCRIPTIONS: Dict[str, str] = {
     "A": "Accountable — owns the outcome (one per activity)",
     "C": "Consulted — provides input (two-way communication)",
     "I": "Informed — kept in the loop (one-way communication)",
-    "":  "Not assigned",
+    "": "Not assigned",
 }
 
 
@@ -161,20 +161,20 @@ class RACIMatrix:
                 issues.append(ValidationIssue(
                     level="error", row=r_idx, col=None,
                     message=f"'{row_name}' has no Accountable (A). "
-                            f"Every activity must have exactly one A.",
+                    f"Every activity must have exactly one A.",
                 ))
             elif a_count > 1:
                 issues.append(ValidationIssue(
                     level="error", row=r_idx, col=None,
                     message=f"'{row_name}' has {a_count} Accountable (A) "
-                            f"assignments. Only one A is allowed per activity.",
+                    f"assignments. Only one A is allowed per activity.",
                 ))
 
             if r_count == 0:
                 issues.append(ValidationIssue(
                     level="error", row=r_idx, col=None,
                     message=f"'{row_name}' has no Responsible (R). "
-                            f"At least one person must be responsible.",
+                    f"At least one person must be responsible.",
                 ))
 
         for c_idx, col_name in enumerate(self.cols):
@@ -183,7 +183,7 @@ class RACIMatrix:
                 issues.append(ValidationIssue(
                     level="warning", row=None, col=c_idx,
                     message=f"Role/column '{col_name}' has no assignments. "
-                            f"Consider whether this role is needed.",
+                    f"Consider whether this role is needed.",
                 ))
 
         return issues
@@ -198,8 +198,8 @@ class RACIMatrix:
     def to_dict(self) -> dict:
         """Serialise to a plain dict (JSON-safe)."""
         return {
-            "rows":  list(self.rows),
-            "cols":  list(self.cols),
+            "rows": list(self.rows),
+            "cols": list(self.cols),
             "cells": dict(self.cells),
         }
 

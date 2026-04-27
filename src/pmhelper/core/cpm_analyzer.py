@@ -9,7 +9,6 @@ and resource-constrained project scheduling (RCPS).
 import networkx as nx
 import pandas as pd
 import numpy as np
-from collections import defaultdict
 
 from .network_builder import NetworkBuilder
 
@@ -140,8 +139,8 @@ class CPMAnalyzer:
         # Build table
         table = df[['id', 'duration', 'resource',
                     'early_start', 'late_finish', 'float']].copy()
-        for t in time_cols:
-            table[t] = ''
+        extra = pd.DataFrame('', index=table.index, columns=time_cols)
+        table = pd.concat([table, extra], axis=1)
         # Fill schedule cells
         for idx, row in table.iterrows():
             es = int(row['early_start'])
@@ -187,6 +186,8 @@ class CPMAnalyzer:
         unscheduled = set(tasks.index)
         pred_map = {tid: [p.strip() for p in str(tasks.at[tid, 'predecessors']).split(
             ',') if p.strip() and p.strip() != 'nan'] for tid in tasks.index}
+        _max_time = sum(int(tasks.at[tid, 'duration'])
+                        for tid in tasks.index) * 3
 
         # Scheduling loop
         while unscheduled:
@@ -243,6 +244,15 @@ class CPMAnalyzer:
                     break
             if not scheduled_this_step:
                 current_time += 1
+                if current_time > _max_time:
+                    infeasible = [
+                        tid for tid in unscheduled
+                        if int(tasks.at[tid, 'resource']) > resource_limit
+                    ]
+                    raise ValueError(
+                        f"RCPS scheduling cannot complete: resource limit ({resource_limit}) "
+                        f"is less than the demand of task(s) {infeasible}. "
+                        "Increase the resource limit and try again.")
 
         # After scheduling, get the actual RCPS project duration
         actual_project_duration = max(
@@ -260,9 +270,10 @@ class CPMAnalyzer:
                                      'float',
                                      'actual_start']].copy()
 
-        # Ensure all time columns are initialized
+        # Add all time columns at once to avoid fragmentation
+        extra = pd.DataFrame('', index=table.index, columns=time_cols)
+        table = pd.concat([table, extra], axis=1)
         for t in time_cols:
-            table[t] = ''
             if t not in resource_usage:
                 resource_usage[t] = 0
 
@@ -398,7 +409,7 @@ class CPMAnalyzer:
     def crash_project(
             self,
             target_duration,
-            max_iterations=300,
+            max_iterations=1500,
             max_budget=None):
         """
         Crash the project to achieve target duration with enhanced logging and proper simulation time tracking.

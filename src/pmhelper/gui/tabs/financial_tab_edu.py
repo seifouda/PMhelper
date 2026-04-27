@@ -26,8 +26,10 @@ from __future__ import annotations
 import json
 import os
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
-from typing import List, Optional, Tuple
+from tkinter import ttk, messagebox
+from typing import List, Tuple
+
+from pmhelper.gui.widgets.sortable_treeview import enhance_treeview
 
 try:
     from matplotlib.figure import Figure
@@ -35,6 +37,18 @@ try:
     HAS_MATPLOTLIB = True
 except ImportError:
     HAS_MATPLOTLIB = False
+
+# Plotly embed
+try:
+    from pmhelper.gui.widgets.plotly_chart_frame import PlotlyChartFrame, WEBVIEW2_AVAILABLE
+    from pmhelper.utils.plotly_charts import (
+        plotly_financial_cf,
+        plotly_factor_scoring,
+        PLOTLY_AVAILABLE as _PLT_AVAIL,
+    )
+    _PLOTLY_EMBED = WEBVIEW2_AVAILABLE and _PLT_AVAIL
+except ImportError:
+    _PLOTLY_EMBED = False
 
 
 class FinancialTabEdu:
@@ -51,10 +65,10 @@ class FinancialTabEdu:
         self._nb.pack(fill=tk.BOTH, expand=True)
 
         self._fin = _FinancialCalcSubTab(self._nb, state)
-        self._fs  = _FactorScoringSubTab(self._nb, state)
+        self._fs = _FactorScoringSubTab(self._nb, state)
 
         self._nb.add(self._fin.frame, text="Financial Calculators")
-        self._nb.add(self._fs.frame,  text="Factor Scoring")
+        self._nb.add(self._fs.frame, text="Factor Scoring")
 
     # ── Public interface ─────────────────────────────────────────
 
@@ -80,9 +94,10 @@ class _FinancialCalcSubTab:
 
     def __init__(self, parent, state):
         self.parent = parent
-        self.state  = state
-        self._result  = None
-        self._inputs  = None
+        self.state = state
+        self._result = None
+        self._inputs = None
+        self._render_mode_var = tk.StringVar(value="matplotlib")
 
         self.frame = ttk.Frame(parent)
         self._build_ui()
@@ -105,9 +120,34 @@ class _FinancialCalcSubTab:
             variable=self._try_var, command=self._toggle_practice,
         ).pack(side=tk.RIGHT)
 
-        # Main horizontal pane
-        pane = ttk.PanedWindow(self.frame, orient=tk.HORIZONTAL)
-        pane.pack(fill=tk.BOTH, expand=True, padx=6, pady=2)
+        # Scrollable container
+        _scroll_outer = ttk.Frame(self.frame)
+        _scroll_outer.pack(fill=tk.BOTH, expand=True, padx=6, pady=2)
+        _vsb = ttk.Scrollbar(_scroll_outer, orient=tk.VERTICAL)
+        _vsb.pack(side=tk.RIGHT, fill=tk.Y)
+        self._tiy_canvas = tk.Canvas(_scroll_outer, yscrollcommand=_vsb.set,
+                                     highlightthickness=0)
+        self._tiy_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        _vsb.config(command=self._tiy_canvas.yview)
+        self._inner_frame = ttk.Frame(self._tiy_canvas)
+        self._tiy_win = self._tiy_canvas.create_window(
+            (0, 0), window=self._inner_frame, anchor='nw')
+        self._inner_frame.bind('<Configure>',
+                               lambda e: self._tiy_canvas.configure(
+                                   scrollregion=self._tiy_canvas.bbox('all')))
+        self._tiy_canvas.bind(
+            '<Configure>',
+            lambda e: self._tiy_canvas.itemconfig(
+                self._tiy_win,
+                width=e.width))
+        self._tiy_canvas.bind_all('<MouseWheel>', lambda e: self._tiy_canvas.yview_scroll(
+            int(-1 * (e.delta / 120)), 'units'))
+
+        content_frame = ttk.Frame(self._inner_frame)
+        content_frame.pack(fill=tk.BOTH, expand=True)
+
+        pane = ttk.PanedWindow(content_frame, orient=tk.HORIZONTAL)
+        pane.pack(fill=tk.BOTH, expand=True)
 
         # Left: inputs + metric checkboxes
         left_frame = ttk.Frame(pane)
@@ -120,14 +160,14 @@ class _FinancialCalcSubTab:
         self._build_right_panel(right_pane)
 
         # Bottom: edu bar
-        edu_bar = ttk.Frame(self.frame)
-        edu_bar.pack(fill=tk.X, padx=6, pady=(2, 2))
+        edu_bar = ttk.Frame(content_frame)
+        edu_bar.pack(fill=tk.X, pady=(2, 2))
         ttk.Button(edu_bar, text="📖 Show Worked Solution",
                    command=self._show_worked_solution).pack(side=tk.LEFT)
 
-        # Practice frame (hidden)
+        # Practice frame (below content, hidden initially)
         self._practice_frame = ttk.LabelFrame(
-            self.frame, text="🎓 Try It Yourself")
+            self._inner_frame, text="🎓 Try It Yourself")
         self._build_practice_panel()
 
     # ── Left panel ───────────────────────────────────────────────
@@ -196,12 +236,12 @@ class _FinancialCalcSubTab:
         metrics_lf.pack(fill=tk.X, padx=4, pady=2)
 
         metrics = [
-            ("payback",    "Payback Period"),
-            ("disc_pb",    "Discounted Payback"),
-            ("roi",        "ROI (%)"),
-            ("npv",        "NPV ($)"),
-            ("irr",        "IRR (%)"),
-            ("pi",         "Profitability Index"),
+            ("payback", "Payback Period"),
+            ("disc_pb", "Discounted Payback"),
+            ("roi", "ROI (%)"),
+            ("npv", "NPV ($)"),
+            ("irr", "IRR (%)"),
+            ("pi", "Profitability Index"),
         ]
         self._metric_vars: dict = {}
         for col, (key, label) in enumerate(metrics):
@@ -290,15 +330,16 @@ class _FinancialCalcSubTab:
         self._results_tree.pack(fill=tk.BOTH, expand=True)
 
         self._results_tree.heading("metric", text="Metric")
-        self._results_tree.heading("value",  text="Value")
+        self._results_tree.heading("value", text="Value")
         self._results_tree.heading("interpretation", text="Interpretation")
-        self._results_tree.column("metric",         width=180, minwidth=120)
-        self._results_tree.column("value",          width=120, minwidth=80,
-                                   anchor=tk.E)
+        self._results_tree.column("metric", width=180, minwidth=120)
+        self._results_tree.column("value", width=120, minwidth=80,
+                                  anchor=tk.E)
         self._results_tree.column("interpretation", width=300, minwidth=160)
 
         self._results_tree.tag_configure("positive", foreground="#15803d")
         self._results_tree.tag_configure("negative", foreground="#b91c1c")
+        enhance_treeview(self._results_tree)
 
     def _build_chart(self, parent: ttk.Frame):
         if not HAS_MATPLOTLIB:
@@ -306,17 +347,58 @@ class _FinancialCalcSubTab:
                       text="matplotlib not available",
                       foreground="grey").pack(expand=True)
             self._fig = None
-            self._ax  = None
+            self._ax = None
             self._canvas = None
             return
 
+        # Renderer toggle
+        if _PLOTLY_EMBED:
+            ctrl = ttk.Frame(parent)
+            ctrl.pack(fill=tk.X, padx=5, pady=(2, 0))
+            rf = ttk.LabelFrame(ctrl, text="Renderer", padding="3")
+            rf.pack(side=tk.LEFT)
+            ttk.Radiobutton(
+                rf,
+                text="Classic",
+                value="matplotlib",
+                variable=self._render_mode_var,
+                command=self._switch_renderer).pack(
+                side=tk.LEFT,
+                padx=4)
+            ttk.Radiobutton(
+                rf,
+                text="\U0001f4ca Plotly",
+                value="plotly",
+                variable=self._render_mode_var,
+                command=self._switch_renderer).pack(
+                side=tk.LEFT,
+                padx=4)
+
+        ttk.Button(
+            parent,
+            text="\U0001f50d Open Interactive",
+            command=self._open_cf_interactive).pack(
+            anchor=tk.W,
+            padx=5,
+            pady=(
+                2,
+                0))
+
+        self._mpl_chart_frame = ttk.Frame(parent)
+        self._mpl_chart_frame.pack(fill=tk.BOTH, expand=True)
         self._fig = Figure(figsize=(5, 3), dpi=90)
-        self._ax  = self._fig.add_subplot(111)
-        self._canvas = FigureCanvasTkAgg(self._fig, master=parent)
+        self._ax = self._fig.add_subplot(111)
+        self._canvas = FigureCanvasTkAgg(
+            self._fig, master=self._mpl_chart_frame)
         self._canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
         self._ax.set_title("Cumulative Cash Flows", fontsize=10)
         self._fig.tight_layout()
         self._canvas.draw()
+
+        # Plotly frame (hidden)
+        self._plotly_frame = None
+        if _PLOTLY_EMBED:
+            self._plotly_frame = PlotlyChartFrame(parent)
 
     # ── Practice panel ────────────────────────────────────────────
 
@@ -369,8 +451,26 @@ class _FinancialCalcSubTab:
     def _load_demo(self):
         demo_path = os.path.join(
             os.path.dirname(__file__),
-            "..", "..", "..", "data", "demos", "v2", "financial_demo.json")
+            "..",
+            "..",
+            "..",
+            "..",
+            "data",
+            "demos",
+            "v2",
+            "financial_demo.json")
         demo_path = os.path.normpath(demo_path)
+
+        if not os.path.exists(demo_path):
+            # Fallback: walk up from __file__ looking for data/demos/v2/
+            here = os.path.dirname(os.path.abspath(__file__))
+            for _ in range(6):
+                candidate = os.path.join(
+                    here, "data", "demos", "v2", "financial_demo.json")
+                if os.path.exists(candidate):
+                    demo_path = candidate
+                    break
+                here = os.path.dirname(here)
 
         if not os.path.exists(demo_path):
             messagebox.showerror(
@@ -428,7 +528,7 @@ class _FinancialCalcSubTab:
         self._results_tree.delete(*self._results_tree.get_children())
 
         rate_pct = inputs.discount_rate * 100
-        interps  = result.interpretation
+        interps = result.interpretation
 
         rows = [
             (
@@ -473,17 +573,21 @@ class _FinancialCalcSubTab:
         ]
 
         metric_map = {
-            "Payback Period":            "payback",
-            "ROI":                       "roi",
-            "NPV":                       "npv",
-            "IRR":                       "irr",
-            "Profitability Index":       "pi",
+            "Payback Period": "payback",
+            "ROI": "roi",
+            "NPV": "npv",
+            "IRR": "irr",
+            "Profitability Index": "pi",
         }
 
         for metric, value, interp, is_pos in rows:
             key = next(
-                (k for k in self._metric_vars
-                 if metric.lower().startswith(k.replace("_pb", "").replace("disc_", "disc"))),
+                (k for k in self._metric_vars if metric.lower().startswith(
+                    k.replace(
+                        "_pb",
+                        "").replace(
+                        "disc_",
+                        "disc"))),
                 None)
             # Always show all calculated rows for now (checkboxes filter later)
             tag = "positive" if is_pos else "negative"
@@ -491,6 +595,9 @@ class _FinancialCalcSubTab:
                                       values=(metric, value, interp))
 
     def _update_chart(self, inputs, result):
+        if self._render_mode_var.get() == "plotly" and getattr(self, '_plotly_frame', None):
+            self._update_plotly_cf(inputs, result)
+            return
         self._ax.clear()
         dets = result.payback_details
         if not dets:
@@ -498,16 +605,16 @@ class _FinancialCalcSubTab:
             return
 
         periods = [d.period for d in dets]
-        cum     = [d.cumulative for d in dets]
-        dcum    = [d.discounted_cumulative for d in dets]
-        inv     = inputs.initial_investment
+        cum = [d.cumulative for d in dets]
+        dcum = [d.discounted_cumulative for d in dets]
+        inv = inputs.initial_investment
 
         width = 0.35
         x = list(range(len(periods)))
 
-        self._ax.bar([p - width/2 for p in x], cum,  width, label="Cumulative CF",
-                     color="#3b82f6", alpha=0.8)
-        self._ax.bar([p + width/2 for p in x], dcum, width,
+        self._ax.bar([p - width / 2 for p in x], cum, width,
+                     label="Cumulative CF", color="#3b82f6", alpha=0.8)
+        self._ax.bar([p + width / 2 for p in x], dcum, width,
                      label="Discounted Cumul. CF", color="#8b5cf6", alpha=0.8)
         self._ax.axhline(inv, color="red", linewidth=1.5,
                          linestyle="--", label=f"Investment = {inv:,.0f}")
@@ -543,7 +650,9 @@ class _FinancialCalcSubTab:
 
     def _toggle_practice(self):
         if self._try_var.get():
-            self._practice_frame.pack(fill=tk.X, padx=6, pady=(2, 6))
+            self._practice_frame.pack(fill=tk.X, padx=4, pady=4)
+            self._inner_frame.update_idletasks()
+            self._tiy_canvas.yview_moveto(1.0)
         else:
             self._practice_frame.pack_forget()
 
@@ -600,6 +709,42 @@ class _FinancialCalcSubTab:
             return [self._fig]
         return []
 
+    def _open_cf_interactive(self):
+        if self._result is None or self._inputs is None:
+            messagebox.showinfo("Interactive", "Run calculation first.")
+            return
+        from pmhelper.utils.interactive_charts import open_chart_in_browser
+        fig = plotly_financial_cf(
+            self._result.payback_details,
+            self._inputs.initial_investment)
+        open_chart_in_browser(fig, "Cash Flow Chart")
+
+    def _switch_renderer(self):
+        mode = self._render_mode_var.get()
+        if mode == "plotly" and getattr(self, '_plotly_frame', None):
+            self._mpl_chart_frame.pack_forget()
+            self._plotly_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        else:
+            if getattr(self, '_plotly_frame', None):
+                self._plotly_frame.pack_forget()
+            self._mpl_chart_frame.pack(fill=tk.BOTH, expand=True)
+        if self._result and self._inputs:
+            self._update_chart(self._inputs, self._result)
+
+    def _update_plotly_cf(self, inputs, result):
+        if not self._plotly_frame:
+            return
+        try:
+            fig = plotly_financial_cf(
+                result.payback_details,
+                inputs.initial_investment)
+            if fig:
+                self._plotly_frame.update_chart(fig)
+        except Exception as e:
+            self._plotly_frame.load_html(
+                f"<html><body style='font-family:sans-serif;padding:40px'>"
+                f"<h3>Error</h3><pre>{e}</pre></body></html>")
+
 
 # ════════════════════════════════════════════════════════════════════
 #  Sub-tab 2 — Factor Scoring
@@ -608,14 +753,20 @@ class _FinancialCalcSubTab:
 class _FactorScoringSubTab:
     """Factor Scoring inner sub-tab."""
 
-    _DEFAULT_CRITERIA  = ["Strategic fit", "Risk", "Cost", "Schedule", "Quality"]
-    _DEFAULT_PROJECTS  = ["Project A", "Project B", "Project C"]
+    _DEFAULT_CRITERIA = [
+        "Strategic fit",
+        "Risk",
+        "Cost",
+        "Schedule",
+        "Quality"]
+    _DEFAULT_PROJECTS = ["Project A", "Project B", "Project C"]
     _MODELS = ["0-1", "Factor", "Weighted"]
 
     def __init__(self, parent, state):
         self.parent = parent
-        self.state  = state
+        self.state = state
         self._result = None
+        self._render_mode_var = tk.StringVar(value="matplotlib")
 
         self.frame = ttk.Frame(parent)
         self._build_ui()
@@ -649,9 +800,35 @@ class _FactorScoringSubTab:
                 command=self._on_model_change,
             ).pack(side=tk.LEFT, padx=8, pady=4)
 
+        # Scrollable container
+        _scroll_outer = ttk.Frame(self.frame)
+        _scroll_outer.pack(fill=tk.BOTH, expand=True, padx=6, pady=2)
+        _vsb2 = ttk.Scrollbar(_scroll_outer, orient=tk.VERTICAL)
+        _vsb2.pack(side=tk.RIGHT, fill=tk.Y)
+        self._tiy_canvas = tk.Canvas(_scroll_outer, yscrollcommand=_vsb2.set,
+                                     highlightthickness=0)
+        self._tiy_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        _vsb2.config(command=self._tiy_canvas.yview)
+        self._inner_frame = ttk.Frame(self._tiy_canvas)
+        self._tiy_win = self._tiy_canvas.create_window(
+            (0, 0), window=self._inner_frame, anchor='nw')
+        self._inner_frame.bind('<Configure>',
+                               lambda e: self._tiy_canvas.configure(
+                                   scrollregion=self._tiy_canvas.bbox('all')))
+        self._tiy_canvas.bind(
+            '<Configure>',
+            lambda e: self._tiy_canvas.itemconfig(
+                self._tiy_win,
+                width=e.width))
+        self._tiy_canvas.bind_all('<MouseWheel>', lambda e: self._tiy_canvas.yview_scroll(
+            int(-1 * (e.delta / 120)), 'units'))
+
+        content_frame = ttk.Frame(self._inner_frame)
+        content_frame.pack(fill=tk.BOTH, expand=True)
+
         # Main horizontal pane
-        pane = ttk.PanedWindow(self.frame, orient=tk.HORIZONTAL)
-        pane.pack(fill=tk.BOTH, expand=True, padx=6, pady=2)
+        pane = ttk.PanedWindow(content_frame, orient=tk.HORIZONTAL)
+        pane.pack(fill=tk.BOTH, expand=True)
 
         # Left: criterion + project editors
         left = ttk.Frame(pane)
@@ -669,14 +846,14 @@ class _FactorScoringSubTab:
         self._build_right(right)
 
         # Edu bar
-        edu_bar = ttk.Frame(self.frame)
-        edu_bar.pack(fill=tk.X, padx=6, pady=(2, 2))
+        edu_bar = ttk.Frame(content_frame)
+        edu_bar.pack(fill=tk.X, pady=(2, 2))
         ttk.Button(edu_bar, text="📖 Show Worked Solution",
                    command=self._show_worked_solution).pack(side=tk.LEFT)
 
         # Practice frame
         self._practice_frame = ttk.LabelFrame(
-            self.frame, text="🎓 Try It Yourself")
+            self._inner_frame, text="🎓 Try It Yourself")
         self._build_practice_panel()
 
         # Seed defaults
@@ -824,9 +1001,9 @@ class _FactorScoringSubTab:
         mvsb = ttk.Scrollbar(parent, orient=tk.VERTICAL,
                              command=self._matrix_canvas.yview)
         mhsb = ttk.Scrollbar(parent, orient=tk.HORIZONTAL,
-                              command=self._matrix_canvas.xview)
+                             command=self._matrix_canvas.xview)
         self._matrix_canvas.configure(yscrollcommand=mvsb.set,
-                                       xscrollcommand=mhsb.set)
+                                      xscrollcommand=mhsb.set)
         mvsb.pack(side=tk.RIGHT, fill=tk.Y)
         mhsb.pack(side=tk.BOTTOM, fill=tk.X)
         self._matrix_canvas.pack(fill=tk.BOTH, expand=True)
@@ -848,7 +1025,8 @@ class _FactorScoringSubTab:
             w.destroy()
         self._score_vars.clear()
 
-        crits = [nv.get().strip() for nv, *_ in self._crit_rows if nv.get().strip()]
+        crits = [nv.get().strip()
+                 for nv, *_ in self._crit_rows if nv.get().strip()]
         projs = [v.get().strip() for v in self._proj_rows if v.get().strip()]
 
         if not crits or not projs:
@@ -894,15 +1072,16 @@ class _FactorScoringSubTab:
         vsb.pack(side=tk.RIGHT, fill=tk.Y)
         self._results_tree.pack(fill=tk.BOTH, expand=True)
 
-        self._results_tree.heading("rank",    text="#")
+        self._results_tree.heading("rank", text="#")
         self._results_tree.heading("project", text="Project")
-        self._results_tree.heading("total",   text="Total Score")
-        self._results_tree.column("rank",    width=40, anchor=tk.CENTER)
+        self._results_tree.heading("total", text="Total Score")
+        self._results_tree.column("rank", width=40, anchor=tk.CENTER)
         self._results_tree.column("project", width=140)
-        self._results_tree.column("total",   width=90, anchor=tk.E)
+        self._results_tree.column("total", width=90, anchor=tk.E)
 
         self._results_tree.tag_configure("winner", background="#dcfce7",
-                                          foreground="#15803d")
+                                         foreground="#15803d")
+        enhance_treeview(self._results_tree)
 
         # Chart
         chart_lf = ttk.LabelFrame(parent, text="Score Comparison")
@@ -914,17 +1093,58 @@ class _FactorScoringSubTab:
             ttk.Label(parent, text="matplotlib not available",
                       foreground="grey").pack(expand=True)
             self._fig = None
-            self._ax  = None
+            self._ax = None
             self._canvas = None
             return
 
+        # Renderer toggle
+        if _PLOTLY_EMBED:
+            ctrl = ttk.Frame(parent)
+            ctrl.pack(fill=tk.X, padx=5, pady=(2, 0))
+            rf = ttk.LabelFrame(ctrl, text="Renderer", padding="3")
+            rf.pack(side=tk.LEFT)
+            ttk.Radiobutton(
+                rf,
+                text="Classic",
+                value="matplotlib",
+                variable=self._render_mode_var,
+                command=self._switch_renderer).pack(
+                side=tk.LEFT,
+                padx=4)
+            ttk.Radiobutton(
+                rf,
+                text="\U0001f4ca Plotly",
+                value="plotly",
+                variable=self._render_mode_var,
+                command=self._switch_renderer).pack(
+                side=tk.LEFT,
+                padx=4)
+
+        ttk.Button(
+            parent,
+            text="\U0001f50d Open Interactive",
+            command=self._open_scoring_interactive).pack(
+            anchor=tk.W,
+            padx=5,
+            pady=(
+                2,
+                0))
+
+        self._mpl_chart_frame = ttk.Frame(parent)
+        self._mpl_chart_frame.pack(fill=tk.BOTH, expand=True)
         self._fig = Figure(figsize=(4, 3), dpi=90)
-        self._ax  = self._fig.add_subplot(111)
-        self._canvas = FigureCanvasTkAgg(self._fig, master=parent)
+        self._ax = self._fig.add_subplot(111)
+        self._canvas = FigureCanvasTkAgg(
+            self._fig, master=self._mpl_chart_frame)
         self._canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
         self._ax.set_title("Project Scores", fontsize=10)
         self._fig.tight_layout()
         self._canvas.draw()
+
+        # Plotly frame (hidden)
+        self._plotly_frame = None
+        if _PLOTLY_EMBED:
+            self._plotly_frame = PlotlyChartFrame(parent)
 
     # ── Practice panel ────────────────────────────────────────────
 
@@ -935,15 +1155,20 @@ class _FactorScoringSubTab:
         ttk.Label(
             inner,
             text="Calculate each project's total score using the selected model. "
-                 "Enter your answers, then click 'Check'.",
-            foreground="navy", wraplength=700,
-        ).pack(anchor=tk.W, pady=(0, 4))
+            "Enter your answers, then click 'Check'.",
+            foreground="navy",
+            wraplength=700,
+        ).pack(
+            anchor=tk.W,
+            pady=(
+                0,
+                4))
 
         self._prac_form = ttk.Frame(inner)
         self._prac_form.pack(anchor=tk.W)
         self._prac_answer_vars: dict = {}   # project_name → StringVar
         self._prac_status_vars: dict = {}
-        self._prac_correct:     dict = {}
+        self._prac_correct: dict = {}
 
         self._prac_feedback = tk.StringVar()
         ttk.Label(inner, textvariable=self._prac_feedback,
@@ -993,9 +1218,20 @@ class _FactorScoringSubTab:
     def _load_demo(self):
         demo_path = os.path.join(
             os.path.dirname(__file__),
-            "..", "..", "..", "data", "demos", "v2",
+            "..", "..", "..", "..", "data", "demos", "v2",
             "factor_scoring_demo.json")
         demo_path = os.path.normpath(demo_path)
+
+        if not os.path.exists(demo_path):
+            # Fallback: walk up from __file__ looking for data/demos/v2/
+            here = os.path.dirname(os.path.abspath(__file__))
+            for _ in range(6):
+                candidate = os.path.join(
+                    here, "data", "demos", "v2", "factor_scoring_demo.json")
+                if os.path.exists(candidate):
+                    demo_path = candidate
+                    break
+                here = os.path.dirname(here)
 
         if not os.path.exists(demo_path):
             messagebox.showerror("Load Demo",
@@ -1005,7 +1241,15 @@ class _FactorScoringSubTab:
         with open(demo_path, encoding="utf-8") as fh:
             demo = json.load(fh)
 
-        data = demo.get("data", {})
+        # Try model-specific demo from demos array first
+        current_model = self._model_var.get()
+        data = None
+        for entry in demo.get("demos", []):
+            if entry.get("model") == current_model:
+                data = entry.get("data", {})
+                break
+        if data is None:
+            data = demo.get("data", {})
         crits = data.get("criteria", [])
         projs = data.get("projects", [])
 
@@ -1045,7 +1289,7 @@ class _FactorScoringSubTab:
 
     def _collect_inputs(self):
         """Parse editors into lists for the engine. Raises ValueError."""
-        from pmhelper.core.factor_scoring import ScoringCriterion, FactorScoringEngine
+        from pmhelper.core.factor_scoring import ScoringCriterion
 
         crit_data = [
             (nv.get().strip(), wv.get().strip())
@@ -1055,14 +1299,16 @@ class _FactorScoringSubTab:
         if not crit_data:
             raise ValueError("No criteria defined.")
 
-        proj_names = [v.get().strip() for v in self._proj_rows if v.get().strip()]
+        proj_names = [v.get().strip()
+                      for v in self._proj_rows if v.get().strip()]
         if not proj_names:
             raise ValueError("No projects defined.")
 
         n_c = len(crit_data)
         n_p = len(proj_names)
         if len(self._score_vars) < n_p * n_c:
-            raise ValueError("Score matrix not built. Click 'Rebuild Grid' first.")
+            raise ValueError(
+                "Score matrix not built. Click 'Rebuild Grid' first.")
 
         criteria = []
         for cname, wstr in crit_data:
@@ -1077,7 +1323,11 @@ class _FactorScoringSubTab:
             row = []
             for c in range(n_c):
                 try:
-                    row.append(float(self._score_vars.get((r, c), tk.StringVar(value="0")).get()))
+                    row.append(
+                        float(
+                            self._score_vars.get(
+                                (r, c), tk.StringVar(
+                                    value="0")).get()))
                 except ValueError:
                     row.append(0.0)
             score_matrix.append(row)
@@ -1110,9 +1360,12 @@ class _FactorScoringSubTab:
                 ps.rank, ps.project_name, f"{ps.total:.4f}"))
 
     def _update_chart(self, result):
+        if self._render_mode_var.get() == "plotly" and getattr(self, '_plotly_frame', None):
+            self._update_plotly_fs(result)
+            return
         self._ax.clear()
         projs = sorted(result.projects, key=lambda p: p.rank)
-        names  = [ps.project_name for ps in projs]
+        names = [ps.project_name for ps in projs]
         totals = [ps.total for ps in projs]
         colors = ["#16a34a" if ps.rank == 1 else "#6b7280" for ps in projs]
 
@@ -1120,7 +1373,10 @@ class _FactorScoringSubTab:
         self._ax.bar(x, totals, color=colors, alpha=0.85)
         self._ax.set_xticks(x)
         self._ax.set_xticklabels(names, rotation=30, ha="right", fontsize=7)
-        self._ax.set_title(f"Project Scores — {result.model} Model", fontsize=10)
+        self._ax.set_title(
+            f"Project Scores — {
+                result.model} Model",
+            fontsize=10)
         self._ax.set_ylabel("Total Score", fontsize=8)
         self._ax.grid(True, axis="y", alpha=0.3, linestyle="--")
         self._fig.tight_layout()
@@ -1142,9 +1398,11 @@ class _FactorScoringSubTab:
 
     def _toggle_practice(self):
         if self._try_var.get():
-            self._practice_frame.pack(fill=tk.X, padx=6, pady=(2, 6))
+            self._practice_frame.pack(fill=tk.X, padx=4, pady=4)
             if self._result is not None:
                 self._populate_practice()
+            self._inner_frame.update_idletasks()
+            self._tiy_canvas.yview_moveto(1.0)
         else:
             self._practice_frame.pack_forget()
 
@@ -1180,6 +1438,38 @@ class _FactorScoringSubTab:
         if HAS_MATPLOTLIB and self._fig is not None:
             return [self._fig]
         return []
+
+    def _open_scoring_interactive(self):
+        if self._result is None:
+            messagebox.showinfo("Interactive", "Run scoring first.")
+            return
+        from pmhelper.utils.interactive_charts import open_chart_in_browser
+        fig = plotly_factor_scoring(self._result)
+        open_chart_in_browser(fig, "Factor Scoring")
+
+    def _switch_renderer(self):
+        mode = self._render_mode_var.get()
+        if mode == "plotly" and getattr(self, '_plotly_frame', None):
+            self._mpl_chart_frame.pack_forget()
+            self._plotly_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        else:
+            if getattr(self, '_plotly_frame', None):
+                self._plotly_frame.pack_forget()
+            self._mpl_chart_frame.pack(fill=tk.BOTH, expand=True)
+        if self._result:
+            self._update_chart(self._result)
+
+    def _update_plotly_fs(self, result):
+        if not self._plotly_frame:
+            return
+        try:
+            fig = plotly_factor_scoring(result)
+            if fig:
+                self._plotly_frame.update_chart(fig)
+        except Exception as e:
+            self._plotly_frame.load_html(
+                f"<html><body style='font-family:sans-serif;padding:40px'>"
+                f"<h3>Error</h3><pre>{e}</pre></body></html>")
 
 
 # ── Tiny helper ───────────────────────────────────────────────────────

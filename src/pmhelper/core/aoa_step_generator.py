@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from typing import List
 
-from pmhelper.core.aoa_network_builder import AOAActivity, AOAEvent, AOANetwork
+from pmhelper.core.aoa_network_builder import AOANetwork
 from pmhelper.core.step_generators_edu import Step
 
 
@@ -43,8 +43,7 @@ def event_numbering_steps(network: AOANetwork) -> List[Step]:
             "In Activity-on-Arrow (AOA) networks, activities are the ARROWS "
             "and events are the CIRCLES (nodes). Each event represents an "
             "instant when its incoming activities are complete and outgoing "
-            "activities may start."
-        ),
+            "activities may start."),
     )
 
     event_children: List[Step] = []
@@ -65,11 +64,12 @@ def event_numbering_steps(network: AOANetwork) -> List[Step]:
         ev = network.events[eid]
         incoming = network._incoming(eid)
         outgoing = network._outgoing(eid)
-        real_in  = [a for a in incoming if not a.is_dummy]
+        real_in = [a for a in incoming if not a.is_dummy]
         dummy_in = [a for a in incoming if a.is_dummy]
         note = ""
         if dummy_in:
-            note = f"  [Merge event — {len(dummy_in)} dummy arrow(s) arrive here]"
+            note = f"  [Merge event — {
+                len(dummy_in)} dummy arrow(s) arrive here]"
         event_children.append(Step(
             title=f"Event {eid}{(' — ' + ev.label) if ev.label else ''}",
             substitution=(
@@ -115,8 +115,7 @@ def dummy_activity_steps(network: AOANetwork) -> List[Step]:
         interpretation=(
             "Dummy activities (shown as dashed arrows) have ZERO duration. "
             "They carry no work — they exist purely to preserve the correct "
-            "precedence relationships that cannot be shown with real arrows alone."
-        ),
+            "precedence relationships that cannot be shown with real arrows alone."),
     )
 
     if not dummies:
@@ -133,7 +132,8 @@ def dummy_activity_steps(network: AOANetwork) -> List[Step]:
         arriving_dummies = [a for a in dummies if a.to_event == eid]
         outgoing_real = [a for a in network.activities
                          if a.from_event == eid and not a.is_dummy]
-        acts_waiting = ", ".join(a.activity_id for a in outgoing_real) or "(none)"
+        acts_waiting = ", ".join(
+            a.activity_id for a in outgoing_real) or "(none)"
         from_events = ", ".join(str(a.from_event) for a in arriving_dummies)
 
         children.append(Step(
@@ -195,7 +195,9 @@ def forward_pass_steps(network: AOANetwork) -> List[Step]:
             fe = network.events[a.from_event]
             contrib = fe.earliest_time + a.duration
             contribs.append(contrib)
-            label = a.activity_id if not a.is_dummy else f"dummy({a.from_event}->{a.to_event})"
+            label = a.activity_id if not a.is_dummy else f"dummy({
+                a.from_event}->{
+                a.to_event})"
             sub_parts.append(
                 f"ET({a.from_event}) + dur({label}) = "
                 f"{fe.earliest_time:.0f} + {a.duration:.0f} = {contrib:.0f}"
@@ -217,11 +219,12 @@ def forward_pass_steps(network: AOANetwork) -> List[Step]:
     pd = network.project_duration
     summary = Step(
         title="Forward Pass Result",
-        result=f"Project Duration = ET(Event {network.end_event_id}) = {pd:.0f}",
+        result=f"Project Duration = ET(Event {
+            network.end_event_id}) = {
+            pd:.0f}",
         interpretation=(
-            "The project's earliest possible completion date is "
-            f"{pd:.0f} time units."
-        ),
+            "The project's earliest possible completion date is " f"{
+                pd:.0f} time units."),
         rag="green",
     )
 
@@ -265,7 +268,9 @@ def backward_pass_steps(network: AOANetwork) -> List[Step]:
         for a in outgoing:
             te = network.events[a.to_event]
             contrib = te.latest_time - a.duration
-            label = a.activity_id if not a.is_dummy else f"dummy({a.from_event}->{a.to_event})"
+            label = a.activity_id if not a.is_dummy else f"dummy({
+                a.from_event}->{
+                a.to_event})"
             sub_parts.append(
                 f"LT({a.to_event}) − dur({label}) = "
                 f"{te.latest_time:.0f} − {a.duration:.0f} = {contrib:.0f}"
@@ -286,9 +291,12 @@ def backward_pass_steps(network: AOANetwork) -> List[Step]:
     summary = Step(
         title="Backward Pass Result",
         result=(
-            f"Critical events (slack = 0): "
-            + ", ".join(f"Event {e.id}" for e in sorted(cp_events, key=lambda x: x.id))
-        ),
+            "Critical events (slack = 0): " +
+            ", ".join(
+                f"Event {
+                    e.id}" for e in sorted(
+                    cp_events,
+                    key=lambda x: x.id))),
         interpretation="Events with slack = 0 lie on the critical path.",
         rag="green",
     )

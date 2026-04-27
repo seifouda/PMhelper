@@ -33,6 +33,8 @@ class SWOTFactor:
     source: SWOTSource = SWOTSource.MANUAL
     weight: float = 0.5        # 0.0–1.0 importance weight
     linked_to: str = ""       # e.g. "risk_id_42", "business_case"
+    impact_score: float = 3.0  # 1–5, drives bubble size
+    likelihood: float = 0.5    # 0.0–1.0, drives colour intensity
 
     def validate(self) -> List[str]:
         """Validate factor data. Returns list of error messages."""
@@ -41,6 +43,14 @@ class SWOTFactor:
             errors.append("SWOT factor text is required.")
         if not 0.0 <= self.weight <= 1.0:
             errors.append(f"Weight must be 0.0–1.0, got {self.weight}.")
+        if not 1.0 <= self.impact_score <= 5.0:
+            errors.append(
+                f"Impact score must be 1.0–5.0, got {
+                    self.impact_score}.")
+        if not 0.0 <= self.likelihood <= 1.0:
+            errors.append(
+                f"Likelihood must be 0.0–1.0, got {
+                    self.likelihood}.")
         return errors
 
     def to_dict(self) -> dict:
@@ -51,6 +61,8 @@ class SWOTFactor:
             "source": self.source.value,
             "weight": self.weight,
             "linked_to": self.linked_to,
+            "impact_score": self.impact_score,
+            "likelihood": self.likelihood,
         }
 
     @classmethod
@@ -61,7 +73,9 @@ class SWOTFactor:
             category=SWOTCategory(data["category"]),
             source=SWOTSource(data.get("source", "Manual")),
             weight=data.get("weight", 1.0),
-            linked_to=data.get("linked_to"),
+            linked_to=data.get("linked_to", ""),
+            impact_score=float(data.get("impact_score", 3.0)),
+            likelihood=float(data.get("likelihood", 0.5)),
         )
 
 
@@ -83,7 +97,8 @@ class SWOTAnalysis:
     @property
     def opportunities(self) -> List[SWOTFactor]:
         """All Opportunity factors."""
-        return [f for f in self.factors if f.category == SWOTCategory.OPPORTUNITY]
+        return [f for f in self.factors if f.category ==
+                SWOTCategory.OPPORTUNITY]
 
     @property
     def threats(self) -> List[SWOTFactor]:

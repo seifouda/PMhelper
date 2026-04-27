@@ -14,18 +14,18 @@ class WBSStatus(Enum):
     """Five-state status for WBS tasks."""
     NOT_STARTED = "Not Started"
     IN_PROGRESS = "In Progress"
-    COMPLETED   = "Completed"
-    DELAYED     = "Delayed"
-    ON_HOLD     = "On Hold"
+    COMPLETED = "Completed"
+    DELAYED = "Delayed"
+    ON_HOLD = "On Hold"
 
 
 # Colours for rendering each status
 WBS_STATUS_COLOURS: Dict[WBSStatus, str] = {
     WBSStatus.NOT_STARTED: "#e0e0e0",   # grey
     WBSStatus.IN_PROGRESS: "#cce5ff",   # blue
-    WBSStatus.COMPLETED:   "#d4edda",   # green
-    WBSStatus.DELAYED:     "#f8d7da",   # red
-    WBSStatus.ON_HOLD:     "#fff3cd",   # amber
+    WBSStatus.COMPLETED: "#d4edda",   # green
+    WBSStatus.DELAYED: "#f8d7da",   # red
+    WBSStatus.ON_HOLD: "#fff3cd",   # amber
 }
 
 
@@ -36,9 +36,12 @@ class WBSNode:
     wbs_code: str = ""              # e.g. "1.2.3"
     name: str = ""
     parent_id: str = ""             # empty string = root
-    duration: float = 0.0           # days (leaf: manual, summary: max of children)
-    cost: float = 0.0               # $ (leaf: manual, summary: sum of children)
-    progress: float = 0.0           # 0-100% (leaf: manual, summary: weighted avg by cost)
+    # days (leaf: manual, summary: max of children)
+    duration: float = 0.0
+    # $ (leaf: manual, summary: sum of children)
+    cost: float = 0.0
+    # 0-100% (leaf: manual, summary: weighted avg by cost)
+    progress: float = 0.0
     status: WBSStatus = WBSStatus.NOT_STARTED
     responsible: str = ""
     description: str = ""
@@ -58,11 +61,17 @@ class WBSNode:
         if not self.name.strip():
             errors.append(f"WBS node '{self.wbs_code}': Name is required.")
         if self.duration < 0:
-            errors.append(f"WBS node '{self.wbs_code}': Duration cannot be negative.")
+            errors.append(
+                f"WBS node '{
+                    self.wbs_code}': Duration cannot be negative.")
         if self.cost < 0:
-            errors.append(f"WBS node '{self.wbs_code}': Cost cannot be negative.")
+            errors.append(
+                f"WBS node '{
+                    self.wbs_code}': Cost cannot be negative.")
         if not 0 <= self.progress <= 100:
-            errors.append(f"WBS node '{self.wbs_code}': Progress must be 0-100%.")
+            errors.append(
+                f"WBS node '{
+                    self.wbs_code}': Progress must be 0-100%.")
         return errors
 
     def to_dict(self) -> dict:
@@ -264,7 +273,9 @@ class WBSTree:
         node.parent_id = new_parent_id
         # Re-assign sort order in new parent
         siblings = self.get_children(new_parent_id)
-        node.sort_order = max((s.sort_order for s in siblings if s.id != node.id), default=-1) + 1
+        node.sort_order = max(
+            (s.sort_order for s in siblings if s.id != node.id),
+            default=-1) + 1
         return True
 
     # ------------------------------------------------------------------

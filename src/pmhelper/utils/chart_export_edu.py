@@ -51,7 +51,10 @@ class ExportButton(ttk.Button):
                 messagebox.showerror("Export Error", str(exc))
 
 
-def export_all_charts(tabs: dict, output_dir: str, fmt: str = "png") -> List[str]:
+def export_all_charts(
+        tabs: dict,
+        output_dir: str,
+        fmt: str = "png") -> List[str]:
     """
     Iterate all tabs, call get_figures() where available,
     and save each figure to output_dir.
@@ -89,13 +92,13 @@ def export_all_charts(tabs: dict, output_dir: str, fmt: str = "png") -> List[str
 
 
 def export_all_charts_dialog(tabs: dict, parent: tk.Widget = None,
-                              fmt: str = "png") -> None:
+                             fmt: str = "png") -> None:
     """
     Show a directory picker, then export all charts.
     Reports a summary messagebox.
     """
-    output_dir = filedialog.askdirectory(title="Select folder for chart export",
-                                          parent=parent)
+    output_dir = filedialog.askdirectory(
+        title="Select folder for chart export", parent=parent)
     if not output_dir:
         return
 

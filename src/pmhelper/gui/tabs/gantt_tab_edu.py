@@ -13,13 +13,18 @@ from pmhelper.gui.widgets.scrollable_mpl_frame import ScrollableMatplotlibFrame
 from pmhelper.utils.interactive_network import open_interactive_gantt, PLOTLY_AVAILABLE
 
 try:
-    from matplotlib.figure import Figure
-    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
     import matplotlib.patches as mpatches
-    import matplotlib.dates as mdates
     HAS_MATPLOTLIB = True
 except ImportError:
     HAS_MATPLOTLIB = False
+
+# Plotly embed
+try:
+    from pmhelper.gui.widgets.plotly_chart_frame import PlotlyChartFrame, WEBVIEW2_AVAILABLE
+    from pmhelper.utils.plotly_charts import plotly_gantt_cpm, PLOTLY_AVAILABLE as _PLT_AVAIL
+    _PLOTLY_EMBED = WEBVIEW2_AVAILABLE and _PLT_AVAIL
+except ImportError:
+    _PLOTLY_EMBED = False
 
 
 # Colour scheme
@@ -43,7 +48,7 @@ def _evm_to_gantt_coords(evm_task, cpm_results=None):
             cpm_id = item.get("id") or item.get("task_id")
             if cpm_id == evm_task.cpm_task_id:
                 return float(item.get("ES", evm_task.planned_start)), \
-                       float(item.get("EF", evm_task.planned_finish))
+                    float(item.get("EF", evm_task.planned_finish))
     return float(evm_task.planned_start), float(evm_task.planned_finish)
 
 
@@ -60,10 +65,12 @@ class GanttTabEdu:
         self._show_today = tk.BooleanVar(value=False)
         self._results_data = None
         self._analysis_mode = None
+        self._render_mode_var = tk.StringVar(value="matplotlib")
 
         if not HAS_MATPLOTLIB:
-            ttk.Label(self.frame,
-                      text="Matplotlib not installed — Gantt chart unavailable.").pack(
+            ttk.Label(
+                self.frame,
+                text="Matplotlib not installed — Gantt chart unavailable.").pack(
                 expand=True)
             return
 
@@ -79,24 +86,51 @@ class GanttTabEdu:
 
         self._baseline_btn = ttk.Button(options_frame, text="Set Baseline",
                                         command=self._toggle_baseline)
-        self._baseline_btn.pack(side=tk.LEFT, padx=2)
-        ttk.Checkbutton(options_frame, text="Tracking Gantt",
-                        variable=self._tracking_mode,
-                        command=self._draw_gantt).pack(side=tk.LEFT, padx=8)
-        ttk.Checkbutton(options_frame, text="Show Predecessor Arrows",
-                        variable=self._show_arrows,
-                        command=self._draw_gantt).pack(side=tk.LEFT, padx=4)
-        ttk.Checkbutton(options_frame, text="Show Today Line",
-                        variable=self._show_today,
-                        command=self._draw_gantt).pack(side=tk.LEFT, padx=4)
+        self._baseline_btn.grid(row=0, column=0, padx=2, pady=2)
+        # B2.4: hidden by default; shown only when EVM Data Entry is enabled
+        self._baseline_btn.grid_remove()
+        ttk.Checkbutton(
+            options_frame,
+            text="Tracking Gantt",
+            variable=self._tracking_mode,
+            command=self._draw_gantt).grid(
+            row=0,
+            column=1,
+            padx=8,
+            pady=2)
+        ttk.Checkbutton(
+            options_frame,
+            text="Show Predecessor Arrows",
+            variable=self._show_arrows,
+            command=self._draw_gantt).grid(
+            row=0,
+            column=2,
+            padx=4,
+            pady=2)
+        ttk.Checkbutton(
+            options_frame,
+            text="Show Today Line",
+            variable=self._show_today,
+            command=self._draw_gantt).grid(
+            row=0,
+            column=3,
+            padx=4,
+            pady=2)
 
         # Date settings frame
         date_frame = ttk.LabelFrame(
             control_frame, text="Project Dates", padding="5")
         date_frame.pack(side=tk.LEFT, padx=(0, 10))
-        ttk.Label(date_frame, text="Start Date:").pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Label(
+            date_frame,
+            text="Start Date:").pack(
+            side=tk.LEFT,
+            padx=(
+                0,
+                5))
         self._start_date_var = tk.StringVar(value="")
-        self._start_date_entry = ttk.Entry(date_frame, textvariable=self._start_date_var, width=12)
+        self._start_date_entry = ttk.Entry(
+            date_frame, textvariable=self._start_date_var, width=12)
         self._start_date_entry.pack(side=tk.LEFT, padx=(0, 10))
         ttk.Button(date_frame, text="Update",
                    command=self._draw_gantt).pack(side=tk.LEFT, padx=5)
@@ -104,19 +138,53 @@ class GanttTabEdu:
         # Action buttons
         button_frame = ttk.Frame(control_frame)
         button_frame.pack(side=tk.RIGHT)
-        ttk.Button(button_frame, text="Save Chart",
-                   command=lambda: self._export("png")).pack(side=tk.LEFT, padx=5)
+        ttk.Button(
+            button_frame,
+            text="Refresh",
+            command=self._draw_gantt).pack(
+            side=tk.LEFT,
+            padx=5)
+        ttk.Button(
+            button_frame,
+            text="Save Chart",
+            command=lambda: self._export("png")).pack(
+            side=tk.LEFT,
+            padx=5)
         ttk.Button(button_frame, text="Export Data",
                    command=self._export_data).pack(side=tk.LEFT, padx=5)
         if PLOTLY_AVAILABLE:
-            ttk.Button(button_frame, text="\U0001f310 Interactive View",
-                       command=self._open_interactive_gantt).pack(side=tk.LEFT, padx=5)
+            ttk.Button(
+                button_frame,
+                text="\U0001f310 Interactive View",
+                command=self._open_interactive_gantt).pack(
+                side=tk.LEFT,
+                padx=5)
+
+        # Renderer toggle
+        if _PLOTLY_EMBED:
+            render_frame = ttk.LabelFrame(
+                control_frame, text="Renderer", padding="3")
+            render_frame.pack(side=tk.LEFT, padx=(0, 10))
+            ttk.Radiobutton(
+                render_frame,
+                text="Classic",
+                value="matplotlib",
+                variable=self._render_mode_var,
+                command=self._switch_renderer).pack(
+                side=tk.LEFT,
+                padx=4)
+            ttk.Radiobutton(
+                render_frame,
+                text="\U0001f4ca Plotly",
+                value="plotly",
+                variable=self._render_mode_var,
+                command=self._switch_renderer).pack(
+                side=tk.LEFT,
+                padx=4)
 
         # Toolbar row 2: CPM Worked Solution buttons
         toolbar2 = ttk.Frame(self.frame)
         toolbar2.pack(fill=tk.X, padx=5, pady=(2, 2))
-        ttk.Button(toolbar2, text="Refresh", command=self._draw_gantt).pack(
-            side=tk.LEFT, padx=2)
 
         # CPM Worked Solution buttons (UG only)
         self._cpm_fwd_btn = ttk.Button(
@@ -137,6 +205,11 @@ class GanttTabEdu:
         self._canvas = self._scroll_frame.canvas
         self._toolbar = self._scroll_frame.toolbar
 
+        # Plotly frame (hidden)
+        self._plotly_frame = None
+        if _PLOTLY_EMBED:
+            self._plotly_frame = PlotlyChartFrame(self.frame)
+
         self._baseline_set = False
 
     # ----------------------------------------------------------------
@@ -146,7 +219,8 @@ class GanttTabEdu:
     def _toggle_baseline(self):
         tasks = self.state.evm_project.tasks
         if not tasks:
-            messagebox.showinfo("Baseline", "No EVM tasks to set baseline for.")
+            messagebox.showinfo(
+                "Baseline", "No EVM tasks to set baseline for.")
             return
         if not self._baseline_set:
             for t in tasks:
@@ -159,7 +233,7 @@ class GanttTabEdu:
                                 f"Use 'Reset Baseline' to undo.")
         else:
             if messagebox.askyesno("Reset Baseline",
-                                  "Clear baseline data for all tasks?"):
+                                   "Clear baseline data for all tasks?"):
                 for t in tasks:
                     t.baseline_start = None
                     t.baseline_finish = None
@@ -173,6 +247,9 @@ class GanttTabEdu:
     # ----------------------------------------------------------------
 
     def _draw_gantt(self):
+        if self._render_mode_var.get() == "plotly" and self._plotly_frame:
+            self._update_plotly_gantt()
+            return
         if not HAS_MATPLOTLIB:
             return
         ax = self._ax
@@ -187,11 +264,35 @@ class GanttTabEdu:
             # Fall back to EVM task data
             self._draw_evm_gantt(ax, tracking)
 
-        # Adaptive margins: shrink left margin for wider figures
-        n_acts = len(self._results_data.get('activities', [])) if self._results_data else 0
-        left_margin = 0.22 if n_acts <= 50 else max(0.06, min(0.22, 3.0 / max(1, self._fig.get_figwidth())))
-        self._fig.subplots_adjust(left=left_margin, right=0.96, top=0.95, bottom=0.06)
+        # First draw to initialise renderer so we can measure tick-label widths
+        self._fig.subplots_adjust(left=0.15, right=0.96, top=0.90, bottom=0.08)
         self._canvas.draw()
+
+        # Dynamic left margin: measure actual rendered y-tick label widths
+        try:
+            renderer = self._canvas.get_renderer()
+            labels = ax.get_yticklabels()
+            if labels:
+                max_px = max(
+                    lbl.get_window_extent(renderer).width
+                    for lbl in labels if lbl.get_text()
+                )
+                fig_w_px = self._fig.get_figwidth() * self._fig.dpi
+                # add 30 px for tick mark + axis line padding
+                left_margin = max(0.04, min(0.40, (max_px + 30) / fig_w_px))
+            else:
+                left_margin = 0.10
+        except Exception:
+            left_margin = 0.12
+
+        self._fig.subplots_adjust(
+            left=left_margin,
+            right=0.96,
+            top=0.90,
+            bottom=0.08)
+        self._canvas.draw()
+        # Fit to viewport AFTER axis limits and draw so full chart is visible
+        self._scroll_frame.fit_to_viewport()
 
     def _draw_cpm_gantt(self, ax, tracking):
         """Draw Gantt chart from CPM/PERT analysis results (professional style)."""
@@ -206,10 +307,8 @@ class GanttTabEdu:
 
         # Adaptive figure sizing for large projects
         n = len(activities)
-        max_lf = max(float(a.get('LF', 0)) for a in activities) if activities else 10
-
-        # Always fit to viewport so the full chart is visible on screen.
-        self._scroll_frame.fit_to_viewport()
+        max_lf = max(float(a.get('LF', 0))
+                     for a in activities) if activities else 10
 
         bar_height = 0.6
         label_fs = 10 if n <= 50 else (8 if n <= 200 else 6)
@@ -272,7 +371,8 @@ class GanttTabEdu:
 
         # Predecessor arrows
         if self._show_arrows.get():
-            self._draw_predecessor_arrows(ax, activities, id_to_y, id_to_ef, bar_height)
+            self._draw_predecessor_arrows(
+                ax, activities, id_to_y, id_to_ef, bar_height)
 
         # Today line
         if self._show_today.get():
@@ -286,7 +386,8 @@ class GanttTabEdu:
             today_position = (today - project_start).days
             if today_position < 0:
                 today_position = 0
-            max_lf = max(float(a.get('LF', 0)) for a in activities) if activities else 0
+            max_lf = max(float(a.get('LF', 0))
+                         for a in activities) if activities else 0
             if today_position > max_lf:
                 today_position = max_lf
             ax.axvline(x=today_position, color='green', linestyle='-',
@@ -301,17 +402,33 @@ class GanttTabEdu:
         # Alternating row background (edu enhancement)
         for i in range(len(activities)):
             if i % 2 == 0:
-                ax.axhspan(i - 0.5, i + 0.5, color='#f8f9fa', zorder=0, alpha=0.5)
+                ax.axhspan(
+                    i - 0.5,
+                    i + 0.5,
+                    color='#f8f9fa',
+                    zorder=0,
+                    alpha=0.5)
 
         # Y-axis: activity IDs (matching original professional style)
         ax.set_yticks(y_pos)
-        ax.set_yticklabels(activity_labels, fontsize=label_fs, fontweight='bold')
-        ax.set_xlabel('Time Units', fontsize=12, fontweight='bold', color='darkgreen')
-        ax.set_ylabel('Activities', fontsize=12, fontweight='bold', color='darkgreen')
+        ax.set_yticklabels(
+            activity_labels,
+            fontsize=label_fs,
+            fontweight='bold')
+        ax.set_xlabel(
+            'Time Units',
+            fontsize=12,
+            fontweight='bold',
+            color='darkgreen')
+        ax.set_ylabel(
+            'Activities',
+            fontsize=12,
+            fontweight='bold',
+            color='darkgreen')
         title = "Project Gantt Chart"
         if tracking:
             title += " + Tracking"
-        ax.set_title(title, fontsize=14, fontweight="bold", pad=20)
+        ax.set_title(title, fontsize=14, fontweight="bold", pad=5)
 
         # Set proper axis limits
         if activities:
@@ -321,9 +438,18 @@ class GanttTabEdu:
 
         # Legend — matching original style
         legend_elements = [
-            mpatches.Patch(color='red', alpha=0.7, label='Critical Activities'),
-            mpatches.Patch(color='lightblue', alpha=0.7, label='Non-Critical Activities'),
-            mpatches.Patch(color='lightgrey', alpha=0.5, label='Available Slack/Float'),
+            mpatches.Patch(
+                color='red',
+                alpha=0.7,
+                label='Critical Activities'),
+            mpatches.Patch(
+                color='lightblue',
+                alpha=0.7,
+                label='Non-Critical Activities'),
+            mpatches.Patch(
+                color='lightgrey',
+                alpha=0.5,
+                label='Available Slack/Float'),
         ]
         if tracking:
             legend_elements.append(
@@ -336,7 +462,13 @@ class GanttTabEdu:
                               linewidth=2, label='Today'))
         ax.legend(handles=legend_elements, loc='lower left')
 
-    def _draw_predecessor_arrows(self, ax, activities, id_to_y, id_to_ef, bar_height):
+    def _draw_predecessor_arrows(
+            self,
+            ax,
+            activities,
+            id_to_y,
+            id_to_ef,
+            bar_height):
         """Draw dependency arrows from predecessor EF to successor ES (professional style)."""
         for act in activities:
             act_id = act.get('id', '')
@@ -457,8 +589,8 @@ class GanttTabEdu:
     def _open_interactive_gantt(self):
         """Open interactive Plotly Gantt chart in the default browser."""
         if not self._results_data:
-            messagebox.showwarning("Warning",
-                                   "No chart to display. Please run analysis first.")
+            messagebox.showwarning(
+                "Warning", "No chart to display. Please run analysis first.")
             return
         html_path = open_interactive_gantt(
             self._results_data, analysis_mode=self._analysis_mode)
@@ -496,7 +628,9 @@ class GanttTabEdu:
             return
         try:
             G = self._results_data['graph']
-            critical_set = set(self._results_data.get('critical_activities', []))
+            critical_set = set(
+                self._results_data.get(
+                    'critical_activities', []))
             # Parse project start date
             try:
                 project_start = datetime.strptime(
@@ -536,10 +670,14 @@ class GanttTabEdu:
             import pandas as pd
             df = pd.DataFrame(rows)
             if filepath.lower().endswith('.xlsx'):
-                df.to_excel(filepath, index=False, sheet_name='Project_Schedule')
+                df.to_excel(
+                    filepath,
+                    index=False,
+                    sheet_name='Project_Schedule')
             else:
                 df.to_csv(filepath, index=False)
-            messagebox.showinfo("Export", f"Schedule data exported to {filepath}")
+            messagebox.showinfo(
+                "Export", f"Schedule data exported to {filepath}")
         except Exception as e:
             messagebox.showerror("Error", f"Export failed: {e}")
 
@@ -558,6 +696,15 @@ class GanttTabEdu:
                 else:
                     btn.pack_forget()
 
+    def set_evm_visible(self, visible: bool):
+        """Show or hide the Set Baseline button (B2.4 — mirrors EVM Data Entry toggle)."""
+        if not HAS_MATPLOTLIB or not hasattr(self, '_baseline_btn'):
+            return
+        if visible:
+            self._baseline_btn.grid()
+        else:
+            self._baseline_btn.grid_remove()
+
     def _show_cpm_forward(self):
         """Open CPM forward-pass worked solution."""
         rd = self._results_data
@@ -567,7 +714,10 @@ class GanttTabEdu:
                                 parent=self.frame)
             return
         steps = cpm_forward_steps(rd)
-        WorkedSolutionWindow(self.frame, "CPM Forward Pass — Worked Solution", steps)
+        WorkedSolutionWindow(
+            self.frame,
+            "CPM Forward Pass — Worked Solution",
+            steps)
 
     def _show_cpm_backward(self):
         """Open CPM backward-pass worked solution."""
@@ -578,7 +728,10 @@ class GanttTabEdu:
                                 parent=self.frame)
             return
         steps = cpm_backward_steps(rd)
-        WorkedSolutionWindow(self.frame, "CPM Backward Pass — Worked Solution", steps)
+        WorkedSolutionWindow(
+            self.frame,
+            "CPM Backward Pass — Worked Solution",
+            steps)
 
     def get_figures(self):
         """Return list of (name, Figure) for batch export."""
@@ -590,3 +743,34 @@ class GanttTabEdu:
     def on_tab_selected(self):
         """Refresh chart when tab is selected."""
         self._draw_gantt()
+
+    # ----------------------------------------------------------------
+    # Plotly embedded renderer
+    # ----------------------------------------------------------------
+
+    def _switch_renderer(self):
+        mode = self._render_mode_var.get()
+        if mode == "plotly" and self._plotly_frame:
+            self._scroll_frame.pack_forget()
+            self._plotly_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        else:
+            if self._plotly_frame:
+                self._plotly_frame.pack_forget()
+            self._scroll_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self._draw_gantt()
+
+    def _update_plotly_gantt(self):
+        if not self._plotly_frame or not self._results_data:
+            return
+        try:
+            fig = plotly_gantt_cpm(self._results_data)
+            if fig:
+                self._plotly_frame.update_chart(fig)
+            else:
+                self._plotly_frame.load_html(
+                    "<html><body style='font-family:sans-serif;padding:40px'>"
+                    "<h3>No data to display</h3></body></html>")
+        except Exception as e:
+            self._plotly_frame.load_html(
+                f"<html><body style='font-family:sans-serif;padding:40px'>"
+                f"<h3>Error</h3><pre>{e}</pre></body></html>")

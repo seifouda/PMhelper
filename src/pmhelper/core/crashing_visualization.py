@@ -14,8 +14,6 @@ Functions:
 # Visualization dependencies
 import matplotlib.pyplot as plt
 import networkx as nx
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from typing import Any
 import copy
 
 from pmhelper.utils.network_layout import sugiyama_layout, cleanup_virtual_nodes, draw_edges_polyline
@@ -46,7 +44,8 @@ def draw_network_diagram_on_ax(ax, G: nx.DiGraph, initial=False):
             'START', 'END'] and node not in virtual_nodes]
 
     def critical_check(u, v):
-        return (u in critical_activities or u == 'START') and (v in critical_activities or v == 'END')
+        return (u in critical_activities or u == 'START') and (
+            v in critical_activities or v == 'END')
 
     draw_edges_polyline(ax, G, pos, all_pos, virtual_nodes, edge_paths,
                         node_radius=node_radius, critical_check=critical_check)
@@ -67,7 +66,7 @@ def draw_network_diagram_on_ax(ax, G: nx.DiGraph, initial=False):
             color = 'lightblue'
 
         circle = plt.Circle(
-            (x, y), node_radius, fill=True, color=color, alpha=0.7,
+            (x, y), node_radius, fill=True, color=color, alpha=1.0,
             edgecolor='black', linewidth=1.5)
         ax.add_patch(circle)
 
@@ -106,7 +105,8 @@ def draw_network_diagram_on_ax_small(ax, G: nx.DiGraph):
             'START', 'END'] and node not in virtual_nodes]
 
     def critical_check(u, v):
-        return (u in critical_activities or u == 'START') and (v in critical_activities or v == 'END')
+        return (u in critical_activities or u == 'START') and (
+            v in critical_activities or v == 'END')
 
     draw_edges_polyline(ax, G, pos, all_pos, virtual_nodes, edge_paths,
                         node_radius=node_radius, critical_check=critical_check)
@@ -127,7 +127,7 @@ def draw_network_diagram_on_ax_small(ax, G: nx.DiGraph):
             color = 'lightblue'
 
         circle = plt.Circle(
-            (x, y), node_radius, fill=True, color=color, alpha=0.7,
+            (x, y), node_radius, fill=True, color=color, alpha=1.0,
             edgecolor='black', linewidth=1)
         ax.add_patch(circle)
 

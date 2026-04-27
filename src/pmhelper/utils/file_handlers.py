@@ -8,26 +8,25 @@ Supports CSV, Excel, and other data formats commonly used in project management.
 
 import csv
 import pandas as pd
-import os
 from typing import List, Dict, Any, Optional
 
 
 class FileHandler:
     """Handles file operations for project data"""
-    
+
     @staticmethod
     def load_csv(file_path: str) -> List[Dict[str, Any]]:
         """
         Load activities from CSV file
-        
+
         Args:
             file_path (str): Path to the CSV file
-            
+
         Returns:
             List[Dict]: List of activity dictionaries
         """
         activities_data = []
-        
+
         try:
             with open(file_path, 'r', newline='', encoding='utf-8') as file:
                 # Try to detect delimiter
@@ -35,29 +34,31 @@ class FileHandler:
                 file.seek(0)
                 sniffer = csv.Sniffer()
                 delimiter = sniffer.sniff(sample).delimiter
-                
+
                 reader = csv.DictReader(file, delimiter=delimiter)
                 for row in reader:
                     # Convert keys to lowercase and strip whitespace
-                    cleaned_row = {k.lower().strip(): v.strip() if isinstance(v, str) else v 
-                                 for k, v in row.items() if k}
+                    cleaned_row = {
+                        k.lower().strip(): v.strip() if isinstance(
+                            v, str) else v for k, v in row.items() if k}
                     if cleaned_row:  # Skip empty rows
                         activities_data.append(cleaned_row)
-                        
+
         except Exception as e:
             raise ValueError(f"Error reading CSV file {file_path}: {str(e)}")
-        
+
         return activities_data
-    
+
     @staticmethod
-    def load_excel(file_path: str, sheet_name: Optional[str] = None) -> List[Dict[str, Any]]:
+    def load_excel(file_path: str,
+                   sheet_name: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         Load activities from Excel file
-        
+
         Args:
             file_path (str): Path to the Excel file
             sheet_name (str, optional): Name of the sheet to read. If None, reads first sheet.
-            
+
         Returns:
             List[Dict]: List of activity dictionaries
         """
@@ -67,7 +68,7 @@ class FileHandler:
                 df = pd.read_excel(file_path, sheet_name=sheet_name)
             else:
                 df = pd.read_excel(file_path)
-            
+
             # Convert to list of dictionaries
             activities_data = []
             for _, row in df.iterrows():
@@ -80,20 +81,21 @@ class FileHandler:
                     else:
                         value = str(v).strip()
                     cleaned_row[key] = value
-                
+
                 if any(cleaned_row.values()):  # Skip completely empty rows
                     activities_data.append(cleaned_row)
-                    
+
         except Exception as e:
             raise ValueError(f"Error reading Excel file {file_path}: {str(e)}")
-        
+
         return activities_data
-    
+
     @staticmethod
-    def save_csv(data: List[Dict[str, Any]], file_path: str, fieldnames: Optional[List[str]] = None) -> None:
+    def save_csv(data: List[Dict[str, Any]], file_path: str,
+                 fieldnames: Optional[List[str]] = None) -> None:
         """
         Save activities data to CSV file
-        
+
         Args:
             data (List[Dict]): List of activity dictionaries
             file_path (str): Path where to save the CSV file
@@ -101,25 +103,26 @@ class FileHandler:
         """
         if not data:
             raise ValueError("No data to save")
-        
+
         # Infer fieldnames if not provided
         if fieldnames is None:
             fieldnames = list(data[0].keys())
-        
+
         try:
             with open(file_path, 'w', newline='', encoding='utf-8') as file:
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
                 writer.writeheader()
                 writer.writerows(data)
-                
+
         except Exception as e:
             raise ValueError(f"Error writing CSV file {file_path}: {str(e)}")
-    
+
     @staticmethod
-    def save_excel(data: List[Dict[str, Any]], file_path: str, sheet_name: str = 'Activities') -> None:
+    def save_excel(data: List[Dict[str, Any]], file_path: str,
+                   sheet_name: str = 'Activities') -> None:
         """
         Save activities data to Excel file
-        
+
         Args:
             data (List[Dict]): List of activity dictionaries
             file_path (str): Path where to save the Excel file
@@ -127,45 +130,48 @@ class FileHandler:
         """
         if not data:
             raise ValueError("No data to save")
-        
+
         try:
             df = pd.DataFrame(data)
             df.to_excel(file_path, sheet_name=sheet_name, index=False)
-            
+
         except Exception as e:
             raise ValueError(f"Error writing Excel file {file_path}: {str(e)}")
-    
+
     @staticmethod
-    def validate_required_columns(data: List[Dict[str, Any]], required_columns: List[str]) -> bool:
+    def validate_required_columns(
+            data: List[Dict[str, Any]], required_columns: List[str]) -> bool:
         """
         Validate that data contains required columns
-        
+
         Args:
             data (List[Dict]): List of activity dictionaries
             required_columns (List[str]): List of required column names
-            
+
         Returns:
             bool: True if all required columns are present
-            
+
         Raises:
             ValueError: If required columns are missing
         """
         if not data:
             raise ValueError("No data provided for validation")
-        
+
         available_columns = set(data[0].keys())
         missing_columns = set(required_columns) - available_columns
-        
+
         if missing_columns:
-            raise ValueError(f"Missing required columns: {', '.join(missing_columns)}")
-        
+            raise ValueError(
+                f"Missing required columns: {
+                    ', '.join(missing_columns)}")
+
         return True
-    
+
     @staticmethod
     def get_sample_cpm_data() -> List[Dict[str, Any]]:
         """
         Get sample CPM data for testing and demonstrations
-        
+
         Returns:
             List[Dict]: Sample activity data
         """
@@ -261,13 +267,13 @@ class FileHandler:
                 "resource_demand": "2"
             }
         ]
-    
+
     @staticmethod
     def get_sample_rcps_data() -> List[Dict[str, Any]]:
         """
         Get sample RCPS data for testing and demonstrations
         Same structure as CPM data but optimized for resource scheduling
-        
+
         Returns:
             List[Dict]: Sample RCPS activity data
         """
@@ -283,7 +289,7 @@ class FileHandler:
                 "resource_demand": "2"
             },
             {
-                "id": "B", 
+                "id": "B",
                 "activity": "System Analysis",
                 "duration": "6",
                 "predecessors": "",
@@ -297,14 +303,14 @@ class FileHandler:
                 "activity": "Database Setup",
                 "duration": "5",
                 "predecessors": "A",
-                "min_duration": "3", 
+                "min_duration": "3",
                 "crash_cost": "500",
                 "normal_cost": "180",
                 "resource_demand": "2"
             },
             {
                 "id": "D",
-                "activity": "Interface Design", 
+                "activity": "Interface Design",
                 "duration": "8",
                 "predecessors": "A, B",
                 "min_duration": "4",
@@ -316,7 +322,7 @@ class FileHandler:
                 "id": "E",
                 "activity": "Core Development",
                 "duration": "10",
-                "predecessors": "C, D", 
+                "predecessors": "C, D",
                 "min_duration": "6",
                 "crash_cost": "1000",
                 "normal_cost": "400",
@@ -363,12 +369,12 @@ class FileHandler:
                 "resource_demand": "1"
             }
         ]
-    
+
     @staticmethod
     def get_sample_pert_data() -> List[Dict[str, Any]]:
         """
         Get sample PERT data for testing and demonstrations
-        
+
         Returns:
             List[Dict]: Sample PERT activity data
         """
@@ -432,5 +438,53 @@ class FileHandler:
                 "crash_cost": "300",
                 "resource_demand": "4",
                 "normal_cost": "900"
+            },
+            {
+                "id": "F",
+                "activity": "Backend Development",
+                "optimistic": "5",
+                "most_likely": "8",
+                "pessimistic": "12",
+                "predecessors": "C",
+                "min_duration": "5",
+                "crash_cost": "200",
+                "resource_demand": "5",
+                "normal_cost": "1100"
+            },
+            {
+                "id": "G",
+                "activity": "Testing",
+                "optimistic": "2",
+                "most_likely": "3",
+                "pessimistic": "5",
+                "predecessors": "D",
+                "min_duration": "2",
+                "crash_cost": "800",
+                "resource_demand": "2",
+                "normal_cost": "600"
+            },
+            {
+                "id": "H",
+                "activity": "Deployment",
+                "optimistic": "3",
+                "most_likely": "4",
+                "pessimistic": "6",
+                "predecessors": "E, F",
+                "min_duration": "2",
+                "crash_cost": "1000",
+                "resource_demand": "1",
+                "normal_cost": "500"
+            },
+            {
+                "id": "I",
+                "activity": "Documentation",
+                "optimistic": "2",
+                "most_likely": "3",
+                "pessimistic": "5",
+                "predecessors": "G, H",
+                "min_duration": "2",
+                "crash_cost": "250",
+                "resource_demand": "2",
+                "normal_cost": "400"
             }
         ]

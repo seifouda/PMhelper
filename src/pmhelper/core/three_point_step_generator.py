@@ -53,9 +53,13 @@ def three_point_steps(result: ThreePointResult) -> List[Step]:
     # ── Step 1: Expected Duration per activity ───────────────────
     te_children: List[Step] = []
     for act in activities:
-        label = f"{'★ ' if act.is_critical else ''}{act.activity_id}: {act.name}"
+        label = f"{
+            '★ ' if act.is_critical else ''}{
+            act.activity_id}: {
+            act.name}"
         if result.formula == "PERT":
-            sub = (f"= ({act.optimistic} + 4×{act.most_likely} + {act.pessimistic}) / 6")
+            sub = (
+                f"= ({act.optimistic} + 4×{act.most_likely} + {act.pessimistic}) / 6")
         else:
             sub = f"= ({act.optimistic} + {act.most_likely} + {act.pessimistic}) / 3"
 
@@ -135,16 +139,18 @@ def three_point_steps(result: ThreePointResult) -> List[Step]:
     # ── Step 5: Project Expected Duration ────────────────────────
     cp_te_vals = [str(a.expected) for a in cp_activities]
     te_sub = " + ".join(cp_te_vals) if cp_te_vals else "0"
-    steps.append(Step(
-        title="Step 5 — Project Expected Duration",
-        formula="T_project = Σ tₑ(critical-path activities)",
-        substitution=f"= {te_sub}",
-        result=f"= {result.project_expected}",
-        interpretation=(
-            "The project's expected completion time, based on the sum of expected "
-            "durations along the critical path."
-        ),
-        rag="green" if result.project_std_dev < result.project_expected * 0.1 else "amber",
-    ))
+    steps.append(
+        Step(
+            title="Step 5 — Project Expected Duration",
+            formula="T_project = Σ tₑ(critical-path activities)",
+            substitution=f"= {te_sub}",
+            result=f"= {
+                result.project_expected}",
+            interpretation=(
+                "The project's expected completion time, based on the sum of expected "
+                "durations along the critical path."),
+            rag="green" if result.project_std_dev < result.project_expected *
+            0.1 else "amber",
+        ))
 
     return steps

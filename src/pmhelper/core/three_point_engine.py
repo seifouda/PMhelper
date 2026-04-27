@@ -122,7 +122,9 @@ class ThreePointEngine:
         ThreePointResult
         """
         if formula not in (cls.PERT, cls.TRIANGULAR):
-            raise ValueError(f"formula must be 'PERT' or 'Triangular', got {formula!r}")
+            raise ValueError(
+                f"formula must be 'PERT' or 'Triangular', got {
+                    formula!r}")
 
         cp_set = set(critical_path_ids or []) - {"START", "END"}
         estimates: List[ActivityEstimate] = []

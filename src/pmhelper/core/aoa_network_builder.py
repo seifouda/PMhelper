@@ -10,7 +10,7 @@ Provides:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List
 
 
 # ---------------------------------------------------------------------------
@@ -137,7 +137,8 @@ class AOANetwork:
         end_ids = [eid for eid in self.events
                    if not self._outgoing(eid)]
         if end_ids:
-            self.end_event_id = max(end_ids, key=lambda e: self.events[e].earliest_time)
+            self.end_event_id = max(
+                end_ids, key=lambda e: self.events[e].earliest_time)
         self.project_duration = self.events[self.end_event_id].earliest_time
 
     def _backward_pass(self) -> None:

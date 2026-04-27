@@ -30,20 +30,20 @@ class RiskCategory(str, Enum):
 class ResponseStrategy(str, Enum):
     """Standard PM risk response strategies (threats + opportunities)."""
     # Threats
-    AVOID    = "Avoid"
+    AVOID = "Avoid"
     TRANSFER = "Transfer"
     MITIGATE = "Mitigate"
-    ACCEPT   = "Accept"
+    ACCEPT = "Accept"
     # Opportunities
-    EXPLOIT  = "Exploit"
-    SHARE    = "Share"
-    ENHANCE  = "Enhance"
+    EXPLOIT = "Exploit"
+    SHARE = "Share"
+    ENHANCE = "Enhance"
 
 
 # 5x5 matrix zone boundaries
 _ZONE_CRITICAL = 16   # 16-25  → red
-_ZONE_HIGH     = 10   # 10-15  → orange
-_ZONE_MEDIUM   =  5   #  5-9   → yellow
+_ZONE_HIGH = 10   # 10-15  → orange
+_ZONE_MEDIUM = 5  # 5-9   → yellow
 # < 5          → green (low)
 
 
@@ -82,30 +82,34 @@ class Risk:
 
     # ── Phase 6 additions ────────────────────────────────────
     # 5×5 matrix scores (1=Very Low ... 5=Very High)
-    prob_score:   int = 3        # probability rating  1-5
+    prob_score: int = 3        # probability rating  1-5
     impact_score: int = 3        # impact rating       1-5
-    risk_score:   float = 0.0    # auto: prob_score × impact_score (1-25)
-    risk_rank:    int   = 0      # ordinal rank in register (set by update_ranks)
+    risk_score: float = 0.0    # auto: prob_score × impact_score (1-25)
+    risk_rank: int = 0      # ordinal rank in register (set by update_ranks)
 
     # Response planning
-    response_strategy:   Optional[ResponseStrategy] = None
-    response_description: str   = ""
-    response_owner:       str   = ""
-    response_cost:        float = 0.0
+    response_strategy: Optional[ResponseStrategy] = None
+    response_description: str = ""
+    response_owner: str = ""
+    response_cost: float = 0.0
 
     # Residual risk (post-response)
     residual_probability: float = 3.0   # 1-5
-    residual_impact:      float = 3.0   # 1-5
-    residual_score:       float = 0.0   # auto: residual_probability × residual_impact
+    residual_impact: float = 3.0   # 1-5
+    residual_score: float = 0.0   # auto: residual_probability × residual_impact
 
     # Narrative fields
     trigger_conditions: str = ""
-    contingency_plan:   str = ""
+    contingency_plan: str = ""
+
+    # Extended response fields
+    budget_impact: float = 0.0  # estimated budget impact ($)
+    stakeholder_owner: str = ""   # additional stakeholder owner
 
     def __post_init__(self):
         self.validate()
-        self.exposure       = self.probability * self.impact
-        self.risk_score     = self.prob_score * self.impact_score
+        self.exposure = self.probability * self.impact
+        self.risk_score = self.prob_score * self.impact_score
         self.residual_score = self.residual_probability * self.residual_impact
 
     def validate(self) -> None:
@@ -126,6 +130,9 @@ class Risk:
         if self.response_cost < 0:
             raise ValueError(
                 f"Risk '{self.name}': response_cost must be >= 0")
+        if self.budget_impact < 0:
+            raise ValueError(
+                f"Risk '{self.name}': budget_impact must be >= 0")
 
     @property
     def zone(self) -> str:
@@ -140,27 +147,29 @@ class Risk:
     def to_dict(self) -> dict:
         return {
             # original fields
-            "id":          self.id,
-            "name":        self.name,
+            "id": self.id,
+            "name": self.name,
             "description": self.description,
             "probability": self.probability,
-            "impact":      self.impact,
-            "category":    self.category.value,
-            "exposure":    self.exposure,
+            "impact": self.impact,
+            "category": self.category.value,
+            "exposure": self.exposure,
             # Phase 6 fields
-            "prob_score":            self.prob_score,
-            "impact_score":          self.impact_score,
-            "risk_score":            self.risk_score,
-            "risk_rank":             self.risk_rank,
-            "response_strategy":     self.response_strategy.value if self.response_strategy else None,
-            "response_description":  self.response_description,
-            "response_owner":        self.response_owner,
-            "response_cost":         self.response_cost,
-            "residual_probability":  self.residual_probability,
-            "residual_impact":       self.residual_impact,
-            "residual_score":        self.residual_score,
-            "trigger_conditions":    self.trigger_conditions,
-            "contingency_plan":      self.contingency_plan,
+            "prob_score": self.prob_score,
+            "impact_score": self.impact_score,
+            "risk_score": self.risk_score,
+            "risk_rank": self.risk_rank,
+            "response_strategy": self.response_strategy.value if self.response_strategy else None,
+            "response_description": self.response_description,
+            "response_owner": self.response_owner,
+            "response_cost": self.response_cost,
+            "residual_probability": self.residual_probability,
+            "residual_impact": self.residual_impact,
+            "residual_score": self.residual_score,
+            "trigger_conditions": self.trigger_conditions,
+            "contingency_plan": self.contingency_plan,
+            "budget_impact": self.budget_impact,
+            "stakeholder_owner": self.stakeholder_owner,
         }
 
     @classmethod
@@ -178,6 +187,7 @@ class Risk:
         # Strip any unexpected keys from older project files gracefully
         known_fields = {
             "id", "name", "description", "probability", "impact",
+            "budget_impact", "stakeholder_owner",
             "category", "prob_score", "impact_score", "risk_rank",
             "response_strategy", "response_description", "response_owner",
             "response_cost", "residual_probability", "residual_impact",
@@ -201,7 +211,7 @@ class RiskRegister:
     def recompute_scores(self) -> None:
         """Recompute risk_score and residual_score for every risk."""
         for r in self.risks:
-            r.risk_score     = r.prob_score * r.impact_score
+            r.risk_score = r.prob_score * r.impact_score
             r.residual_score = r.residual_probability * r.residual_impact
 
     def update_ranks(self) -> None:
@@ -239,7 +249,7 @@ class RiskRegister:
         """Overall % score reduction: (original − residual) / original × 100."""
         self.recompute_scores()
         original = sum(r.risk_score for r in self.risks)
-        residual  = sum(r.residual_score for r in self.risks)
+        residual = sum(r.residual_score for r in self.risks)
         if original == 0:
             return 0.0
         return (original - residual) / original * 100.0
@@ -302,7 +312,6 @@ class RiskRegister:
     def from_dict(cls, data: dict) -> "RiskRegister":
         risks = [Risk.from_dict(r) for r in data.get("risks", [])]
         return cls(
-            risks=risks,
-            bac=data.get("bac", 0.0),
-            high_exposure_threshold_pct=data.get("high_exposure_threshold_pct", 0.05),
-        )
+            risks=risks, bac=data.get(
+                "bac", 0.0), high_exposure_threshold_pct=data.get(
+                "high_exposure_threshold_pct", 0.05), )

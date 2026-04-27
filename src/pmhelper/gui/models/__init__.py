@@ -5,7 +5,7 @@ from .template_model import Template, TemplateSection, TemplateField
 
 __all__ = [
     'Charter',
-    'CharterMetadata', 
+    'CharterMetadata',
     'CharterStatus',
     'Template',
     'TemplateSection',

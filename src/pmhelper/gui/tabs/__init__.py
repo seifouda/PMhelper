@@ -14,7 +14,7 @@ from .probability_tab import ProbabilityTab
 
 __all__ = [
     'InputTab',
-    'ResultsTab', 
+    'ResultsTab',
     'NetworkTab',
     'GanttTab',
     'ProbabilityTab'

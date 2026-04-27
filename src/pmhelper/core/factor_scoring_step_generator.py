@@ -43,7 +43,7 @@ def factor_scoring_steps(result: FactorScoringResult) -> List[Step]:
     else:
         crit_list = ", ".join(c.name for c in result.criteria)
         model_desc = {
-            FactorScoringEngine.MODEL_01:     "Binary 0-1 scoring: Yes(1) or No(0) per criterion.",
+            FactorScoringEngine.MODEL_01: "Binary 0-1 scoring: Yes(1) or No(0) per criterion.",
             FactorScoringEngine.MODEL_FACTOR: "Factor scoring: rate each criterion 1–5 (or custom).",
         }.get(result.model, "")
         steps.append(Step(
@@ -60,9 +60,13 @@ def factor_scoring_steps(result: FactorScoringResult) -> List[Step]:
     for ps in projects:
         if result.model == FactorScoringEngine.MODEL_WEIGHTED:
             crit_breakdown = "  |  ".join(
-                f"{c.name}: {ps.scores[i]:.2f} × {result.criteria[i].weight:.3f} = {ps.weighted_scores[i]:.4f}"
-                for i, c in enumerate(result.criteria)
-            )
+                f"{
+                    c.name}: {
+                    ps.scores[i]:.2f} × {
+                    result.criteria[i].weight:.3f} = {
+                    ps.weighted_scores[i]:.4f}" for i,
+                c in enumerate(
+                    result.criteria))
             formula = "score × weight per criterion"
         else:
             crit_breakdown = "  |  ".join(

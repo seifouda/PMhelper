@@ -8,7 +8,6 @@ and topological analysis.
 """
 
 import networkx as nx
-import numpy as np
 
 
 class NetworkBuilder:

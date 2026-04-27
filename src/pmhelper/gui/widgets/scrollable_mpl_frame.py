@@ -10,7 +10,6 @@ Two modes:
   appear when the figure is larger than the viewport.
 """
 
-import sys
 import tkinter as tk
 from tkinter import ttk
 
@@ -81,7 +80,8 @@ class ScrollableMatplotlibFrame(ttk.Frame):
 
         # ----- toolbar -----
         if toolbar:
-            self.toolbar = NavigationToolbar2Tk(self.canvas, self._toolbar_frame)
+            self.toolbar = NavigationToolbar2Tk(
+                self.canvas, self._toolbar_frame)
             self.toolbar.update()
         else:
             self.toolbar = None
@@ -100,7 +100,8 @@ class ScrollableMatplotlibFrame(ttk.Frame):
         h_px = int(height_in * dpi)
         self.figure.set_size_inches(width_in, height_in, forward=True)
         # Explicitly resize the tk widget and scroll region so the viewport
-        # knows the new content size immediately (avoids Tk idle-scheduling lag).
+        # knows the new content size immediately (avoids Tk idle-scheduling
+        # lag).
         self._mpl_widget.configure(width=w_px, height=h_px)
         self._viewport.configure(scrollregion=(0, 0, w_px, h_px))
         self.canvas.draw_idle()
@@ -109,6 +110,8 @@ class ScrollableMatplotlibFrame(ttk.Frame):
         """Reset to auto-fit mode (figure fills the viewport, no scrollbars)."""
         self._auto_fit = True
         self._resize_to_viewport()
+        # Deferred resize to handle Tk idle timing on first render
+        self.after_idle(self._resize_to_viewport)
 
     # ------------------------------------------------------------------
     # Internal
@@ -123,6 +126,9 @@ class ScrollableMatplotlibFrame(ttk.Frame):
             if w > 10 and h > 10:
                 dpi = self.figure.dpi
                 self.figure.set_size_inches(w / dpi, h / dpi, forward=True)
+                # Ensure the mpl widget fills the viewport exactly
+                self._mpl_widget.configure(width=w, height=h)
+                self._viewport.configure(scrollregion=(0, 0, w, h))
                 self.canvas.draw_idle()
 
     def _resize_to_viewport(self):
@@ -131,6 +137,10 @@ class ScrollableMatplotlibFrame(ttk.Frame):
         if w > 10 and h > 10:
             dpi = self.figure.dpi
             self.figure.set_size_inches(w / dpi, h / dpi, forward=True)
+            # Explicitly size the tk widget to match the viewport so there
+            # is no gap that makes the chart look "higher and to the right".
+            self._mpl_widget.configure(width=w, height=h)
+            self._viewport.configure(scrollregion=(0, 0, w, h))
             self.canvas.draw_idle()
 
     def _on_mousewheel(self, event):

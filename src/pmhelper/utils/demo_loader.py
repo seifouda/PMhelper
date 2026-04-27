@@ -17,13 +17,13 @@ Each demo JSON has the schema::
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 
 # Resolve once at import time
-_DEMO_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "demos" / "v2"
+_DEMO_DIR = Path(__file__).resolve(
+).parent.parent.parent.parent / "data" / "demos" / "v2"
 
 
 def demo_dir() -> Path:

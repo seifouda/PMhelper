@@ -28,7 +28,9 @@ class WBSBuilder:
         return tree
 
     @staticmethod
-    def import_csv(source: str | TextIO, project_name: str = "Imported") -> WBSTree:
+    def import_csv(
+            source: str | TextIO,
+            project_name: str = "Imported") -> WBSTree:
         """Import WBS from CSV.
 
         Expected columns (flexible ordering):
@@ -50,7 +52,8 @@ class WBSBuilder:
         # Normalise column names
         rows = []
         for row in reader:
-            norm = {k.strip().lower().replace(" ", "_"): v.strip() for k, v in row.items() if k}
+            norm = {k.strip().lower().replace(" ", "_"): v.strip()
+                    for k, v in row.items() if k}
             rows.append(norm)
 
         if not rows:
@@ -62,8 +65,15 @@ class WBSBuilder:
 
         for i, row in enumerate(rows):
             wbs_code = row.get("wbs_code", row.get("code", ""))
-            name = row.get("name", row.get("task_name", row.get("task", f"Task {i+1}")))
-            parent_code = row.get("parent_wbs_code", row.get("parent_code", row.get("parent", "")))
+            name = row.get(
+                "name", row.get(
+                    "task_name", row.get(
+                        "task", f"Task {
+                            i + 1}")))
+            parent_code = row.get(
+                "parent_wbs_code", row.get(
+                    "parent_code", row.get(
+                        "parent", "")))
 
             # Parse optional fields
             try:
@@ -172,7 +182,9 @@ class WBSAggregator:
         max_depth = max(depths.values()) if depths else 0
 
         for d in range(max_depth, -1, -1):
-            nodes_at_depth = [n for n in tree.nodes if depths.get(n.id, 0) == d]
+            nodes_at_depth = [
+                n for n in tree.nodes if depths.get(
+                    n.id, 0) == d]
             for node in nodes_at_depth:
                 children = tree.get_children(node.id)
                 if not children:
@@ -188,10 +200,12 @@ class WBSAggregator:
                 # Progress → cost-weighted average
                 total_cost = sum(c.cost for c in children)
                 if total_cost > 0:
-                    node.progress = sum(c.progress * c.cost for c in children) / total_cost
+                    node.progress = sum(
+                        c.progress * c.cost for c in children) / total_cost
                 else:
                     # Equal weight if no costs assigned
-                    node.progress = sum(c.progress for c in children) / len(children)
+                    node.progress = sum(
+                        c.progress for c in children) / len(children)
 
                 # Status → derived
                 node.status = WBSAggregator._derive_status(children)

@@ -1,0 +1,5294 @@
+{
+  "version": 1,
+  "evm_project": {
+    "schema_version": 1,
+    "project_name": "Digital Transformation (PG Demo — 150 tasks)",
+    "bac": 2866000.0,
+    "bac_auto_compute": false,
+    "currency_symbol": "$",
+    "tasks": [
+      {
+        "task_id": "DT1",
+        "name": "Programme Charter",
+        "budget": 20000.0,
+        "pct_complete": 100.0,
+        "planned_start": 0,
+        "planned_finish": 2,
+        "actual_start": 0,
+        "actual_finish": 2,
+        "baseline_start": 0,
+        "baseline_finish": 2,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": []
+      },
+      {
+        "task_id": "DT2",
+        "name": "Executive Sponsorship",
+        "budget": 10000.0,
+        "pct_complete": 100.0,
+        "planned_start": 0,
+        "planned_finish": 3,
+        "actual_start": 0,
+        "actual_finish": 3,
+        "baseline_start": 0,
+        "baseline_finish": 3,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": []
+      },
+      {
+        "task_id": "DT3",
+        "name": "Programme Business Case",
+        "budget": 35000.0,
+        "pct_complete": 100.0,
+        "planned_start": 2,
+        "planned_finish": 6,
+        "actual_start": 2,
+        "actual_finish": 6,
+        "baseline_start": 2,
+        "baseline_finish": 6,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT1",
+          "DT2"
+        ]
+      },
+      {
+        "task_id": "DT4",
+        "name": "Benefits Realisation Framework",
+        "budget": 18000.0,
+        "pct_complete": 100.0,
+        "planned_start": 3,
+        "planned_finish": 6,
+        "actual_start": 3,
+        "actual_finish": 6,
+        "baseline_start": 3,
+        "baseline_finish": 6,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT2"
+        ]
+      },
+      {
+        "task_id": "DT5",
+        "name": "Stakeholder Analysis",
+        "budget": 14000.0,
+        "pct_complete": 100.0,
+        "planned_start": 2,
+        "planned_finish": 5,
+        "actual_start": 2,
+        "actual_finish": 5,
+        "baseline_start": 2,
+        "baseline_finish": 5,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT1"
+        ]
+      },
+      {
+        "task_id": "DT6",
+        "name": "Current State Assessment",
+        "budget": 25000.0,
+        "pct_complete": 100.0,
+        "planned_start": 4,
+        "planned_finish": 8,
+        "actual_start": 4,
+        "actual_finish": 8,
+        "baseline_start": 4,
+        "baseline_finish": 8,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT3"
+        ]
+      },
+      {
+        "task_id": "DT7",
+        "name": "Technology Landscape Review",
+        "budget": 22000.0,
+        "pct_complete": 100.0,
+        "planned_start": 4,
+        "planned_finish": 8,
+        "actual_start": 4,
+        "actual_finish": 8,
+        "baseline_start": 4,
+        "baseline_finish": 8,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT3"
+        ]
+      },
+      {
+        "task_id": "DT8",
+        "name": "Programme Governance Setup",
+        "budget": 16000.0,
+        "pct_complete": 100.0,
+        "planned_start": 4,
+        "planned_finish": 7,
+        "actual_start": 4,
+        "actual_finish": 7,
+        "baseline_start": 4,
+        "baseline_finish": 7,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT3"
+        ]
+      },
+      {
+        "task_id": "DT9",
+        "name": "Change Management Strategy",
+        "budget": 20000.0,
+        "pct_complete": 100.0,
+        "planned_start": 5,
+        "planned_finish": 8,
+        "actual_start": 5,
+        "actual_finish": 8,
+        "baseline_start": 5,
+        "baseline_finish": 8,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT4",
+          "DT5"
+        ]
+      },
+      {
+        "task_id": "DT10",
+        "name": "Programme Roadmap",
+        "budget": 18000.0,
+        "pct_complete": 100.0,
+        "planned_start": 7,
+        "planned_finish": 10,
+        "actual_start": 7,
+        "actual_finish": 10,
+        "baseline_start": 7,
+        "baseline_finish": 10,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT6",
+          "DT7",
+          "DT8"
+        ]
+      },
+      {
+        "task_id": "DT11",
+        "name": "Resource Plan",
+        "budget": 15000.0,
+        "pct_complete": 100.0,
+        "planned_start": 8,
+        "planned_finish": 11,
+        "actual_start": 8,
+        "actual_finish": 11,
+        "baseline_start": 8,
+        "baseline_finish": 11,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT8"
+        ]
+      },
+      {
+        "task_id": "DT12",
+        "name": "Vendor Selection Strategy",
+        "budget": 12000.0,
+        "pct_complete": 100.0,
+        "planned_start": 8,
+        "planned_finish": 11,
+        "actual_start": 8,
+        "actual_finish": 11,
+        "baseline_start": 8,
+        "baseline_finish": 11,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT7"
+        ]
+      },
+      {
+        "task_id": "DT13",
+        "name": "Programme Office Setup (PMO)",
+        "budget": 14000.0,
+        "pct_complete": 100.0,
+        "planned_start": 10,
+        "planned_finish": 13,
+        "actual_start": 10,
+        "actual_finish": 13,
+        "baseline_start": 10,
+        "baseline_finish": 13,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT10",
+          "DT11"
+        ]
+      },
+      {
+        "task_id": "DT14",
+        "name": "Legal & Compliance Review",
+        "budget": 10000.0,
+        "pct_complete": 100.0,
+        "planned_start": 10,
+        "planned_finish": 13,
+        "actual_start": 10,
+        "actual_finish": 13,
+        "baseline_start": 10,
+        "baseline_finish": 13,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT8"
+        ]
+      },
+      {
+        "task_id": "DT15",
+        "name": "Initiation Phase Sign-off",
+        "budget": 5000.0,
+        "pct_complete": 100.0,
+        "planned_start": 13,
+        "planned_finish": 14,
+        "actual_start": 13,
+        "actual_finish": 14,
+        "baseline_start": 13,
+        "baseline_finish": 14,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT13",
+          "DT14"
+        ]
+      },
+      {
+        "task_id": "DT16",
+        "name": "Enterprise Architecture Design",
+        "budget": 50000.0,
+        "pct_complete": 100.0,
+        "planned_start": 14,
+        "planned_finish": 19,
+        "actual_start": 14,
+        "actual_finish": 19,
+        "baseline_start": 14,
+        "baseline_finish": 19,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT15"
+        ]
+      },
+      {
+        "task_id": "DT17",
+        "name": "Data Architecture Blueprint",
+        "budget": 35000.0,
+        "pct_complete": 100.0,
+        "planned_start": 14,
+        "planned_finish": 19,
+        "actual_start": 14,
+        "actual_finish": 19,
+        "baseline_start": 14,
+        "baseline_finish": 19,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT15"
+        ]
+      },
+      {
+        "task_id": "DT18",
+        "name": "Integration Architecture",
+        "budget": 30000.0,
+        "pct_complete": 100.0,
+        "planned_start": 16,
+        "planned_finish": 21,
+        "actual_start": 16,
+        "actual_finish": 21,
+        "baseline_start": 16,
+        "baseline_finish": 21,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT16"
+        ]
+      },
+      {
+        "task_id": "DT19",
+        "name": "Security Architecture",
+        "budget": 28000.0,
+        "pct_complete": 100.0,
+        "planned_start": 16,
+        "planned_finish": 21,
+        "actual_start": 16,
+        "actual_finish": 21,
+        "baseline_start": 16,
+        "baseline_finish": 21,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT16"
+        ]
+      },
+      {
+        "task_id": "DT20",
+        "name": "Cloud Infrastructure Design",
+        "budget": 40000.0,
+        "pct_complete": 100.0,
+        "planned_start": 18,
+        "planned_finish": 23,
+        "actual_start": 18,
+        "actual_finish": 23,
+        "baseline_start": 18,
+        "baseline_finish": 23,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT17",
+          "DT18"
+        ]
+      },
+      {
+        "task_id": "DT21",
+        "name": "API Design Standards",
+        "budget": 20000.0,
+        "pct_complete": 100.0,
+        "planned_start": 19,
+        "planned_finish": 23,
+        "actual_start": 19,
+        "actual_finish": 23,
+        "baseline_start": 19,
+        "baseline_finish": 23,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT18"
+        ]
+      },
+      {
+        "task_id": "DT22",
+        "name": "UX / UI Design System",
+        "budget": 25000.0,
+        "pct_complete": 100.0,
+        "planned_start": 17,
+        "planned_finish": 22,
+        "actual_start": 17,
+        "actual_finish": 22,
+        "baseline_start": 17,
+        "baseline_finish": 22,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT16"
+        ]
+      },
+      {
+        "task_id": "DT23",
+        "name": "Master Data Management Design",
+        "budget": 22000.0,
+        "pct_complete": 100.0,
+        "planned_start": 19,
+        "planned_finish": 24,
+        "actual_start": 19,
+        "actual_finish": 24,
+        "baseline_start": 19,
+        "baseline_finish": 24,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT17"
+        ]
+      },
+      {
+        "task_id": "DT24",
+        "name": "DevSecOps Pipeline Design",
+        "budget": 18000.0,
+        "pct_complete": 100.0,
+        "planned_start": 20,
+        "planned_finish": 24,
+        "actual_start": 20,
+        "actual_finish": 24,
+        "baseline_start": 20,
+        "baseline_finish": 24,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT19",
+          "DT20"
+        ]
+      },
+      {
+        "task_id": "DT25",
+        "name": "Disaster Recovery Design",
+        "budget": 15000.0,
+        "pct_complete": 100.0,
+        "planned_start": 21,
+        "planned_finish": 25,
+        "actual_start": 21,
+        "actual_finish": 25,
+        "baseline_start": 21,
+        "baseline_finish": 25,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT19",
+          "DT20"
+        ]
+      },
+      {
+        "task_id": "DT26",
+        "name": "Architecture Review Board",
+        "budget": 10000.0,
+        "pct_complete": 100.0,
+        "planned_start": 24,
+        "planned_finish": 26,
+        "actual_start": 24,
+        "actual_finish": 26,
+        "baseline_start": 24,
+        "baseline_finish": 26,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT20",
+          "DT21",
+          "DT22",
+          "DT23"
+        ]
+      },
+      {
+        "task_id": "DT27",
+        "name": "Vendor Proof of Concept",
+        "budget": 30000.0,
+        "pct_complete": 100.0,
+        "planned_start": 23,
+        "planned_finish": 28,
+        "actual_start": 23,
+        "actual_finish": 28,
+        "baseline_start": 23,
+        "baseline_finish": 28,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT20",
+          "DT21",
+          "DT12"
+        ]
+      },
+      {
+        "task_id": "DT28",
+        "name": "Technology Standards Documentation",
+        "budget": 14000.0,
+        "pct_complete": 100.0,
+        "planned_start": 24,
+        "planned_finish": 28,
+        "actual_start": 24,
+        "actual_finish": 28,
+        "baseline_start": 24,
+        "baseline_finish": 28,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT26"
+        ]
+      },
+      {
+        "task_id": "DT29",
+        "name": "Architecture Cost Estimate",
+        "budget": 12000.0,
+        "pct_complete": 100.0,
+        "planned_start": 26,
+        "planned_finish": 29,
+        "actual_start": 26,
+        "actual_finish": 29,
+        "baseline_start": 26,
+        "baseline_finish": 29,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT26"
+        ]
+      },
+      {
+        "task_id": "DT30",
+        "name": "Architecture Sign-off",
+        "budget": 6000.0,
+        "pct_complete": 100.0,
+        "planned_start": 28,
+        "planned_finish": 30,
+        "actual_start": 28,
+        "actual_finish": 30,
+        "baseline_start": 28,
+        "baseline_finish": 30,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT27",
+          "DT28",
+          "DT29"
+        ]
+      },
+      {
+        "task_id": "DT31",
+        "name": "Cloud Account Setup",
+        "budget": 15000.0,
+        "pct_complete": 100.0,
+        "planned_start": 30,
+        "planned_finish": 32,
+        "actual_start": 30,
+        "actual_finish": 32,
+        "baseline_start": 30,
+        "baseline_finish": 32,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT30"
+        ]
+      },
+      {
+        "task_id": "DT32",
+        "name": "Networking & Connectivity",
+        "budget": 30000.0,
+        "pct_complete": 100.0,
+        "planned_start": 30,
+        "planned_finish": 35,
+        "actual_start": 30,
+        "actual_finish": 35,
+        "baseline_start": 30,
+        "baseline_finish": 35,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT30"
+        ]
+      },
+      {
+        "task_id": "DT33",
+        "name": "Identity & Access Management",
+        "budget": 25000.0,
+        "pct_complete": 100.0,
+        "planned_start": 31,
+        "planned_finish": 36,
+        "actual_start": 31,
+        "actual_finish": 36,
+        "baseline_start": 31,
+        "baseline_finish": 36,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT31"
+        ]
+      },
+      {
+        "task_id": "DT34",
+        "name": "Kubernetes Cluster Provisioning",
+        "budget": 35000.0,
+        "pct_complete": 100.0,
+        "planned_start": 32,
+        "planned_finish": 37,
+        "actual_start": 32,
+        "actual_finish": 37,
+        "baseline_start": 32,
+        "baseline_finish": 37,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT31",
+          "DT32"
+        ]
+      },
+      {
+        "task_id": "DT35",
+        "name": "CI/CD Pipeline Implementation",
+        "budget": 28000.0,
+        "pct_complete": 100.0,
+        "planned_start": 33,
+        "planned_finish": 38,
+        "actual_start": 33,
+        "actual_finish": 38,
+        "baseline_start": 33,
+        "baseline_finish": 38,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT33",
+          "DT34",
+          "DT24"
+        ]
+      },
+      {
+        "task_id": "DT36",
+        "name": "Monitoring & Observability Stack",
+        "budget": 22000.0,
+        "pct_complete": 100.0,
+        "planned_start": 34,
+        "planned_finish": 39,
+        "actual_start": 34,
+        "actual_finish": 39,
+        "baseline_start": 34,
+        "baseline_finish": 39,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT34"
+        ]
+      },
+      {
+        "task_id": "DT37",
+        "name": "Security Baseline Configuration",
+        "budget": 20000.0,
+        "pct_complete": 100.0,
+        "planned_start": 34,
+        "planned_finish": 38,
+        "actual_start": 34,
+        "actual_finish": 38,
+        "baseline_start": 34,
+        "baseline_finish": 38,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT33"
+        ]
+      },
+      {
+        "task_id": "DT38",
+        "name": "Backup & Disaster Recovery Build",
+        "budget": 18000.0,
+        "pct_complete": 95.0,
+        "planned_start": 35,
+        "planned_finish": 40,
+        "actual_start": 35,
+        "actual_finish": 40,
+        "baseline_start": 35,
+        "baseline_finish": 40,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT32",
+          "DT36",
+          "DT25"
+        ]
+      },
+      {
+        "task_id": "DT39",
+        "name": "Database Platform Provisioning",
+        "budget": 32000.0,
+        "pct_complete": 95.0,
+        "planned_start": 36,
+        "planned_finish": 41,
+        "actual_start": 36,
+        "actual_finish": 41,
+        "baseline_start": 36,
+        "baseline_finish": 41,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT34",
+          "DT35"
+        ]
+      },
+      {
+        "task_id": "DT40",
+        "name": "API Gateway Setup",
+        "budget": 18000.0,
+        "pct_complete": 90.0,
+        "planned_start": 38,
+        "planned_finish": 43,
+        "actual_start": 38,
+        "actual_finish": 43,
+        "baseline_start": 38,
+        "baseline_finish": 43,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT35",
+          "DT36"
+        ]
+      },
+      {
+        "task_id": "DT41",
+        "name": "Service Mesh Implementation",
+        "budget": 15000.0,
+        "pct_complete": 85.0,
+        "planned_start": 39,
+        "planned_finish": 44,
+        "actual_start": 39,
+        "actual_finish": 44,
+        "baseline_start": 39,
+        "baseline_finish": 44,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT35"
+        ]
+      },
+      {
+        "task_id": "DT42",
+        "name": "Data Lake Foundation",
+        "budget": 40000.0,
+        "pct_complete": 80.0,
+        "planned_start": 39,
+        "planned_finish": 45,
+        "actual_start": 39,
+        "actual_finish": 45,
+        "baseline_start": 39,
+        "baseline_finish": 45,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT39"
+        ]
+      },
+      {
+        "task_id": "DT43",
+        "name": "Environment Provisioning (Dev/UAT)",
+        "budget": 20000.0,
+        "pct_complete": 80.0,
+        "planned_start": 40,
+        "planned_finish": 45,
+        "actual_start": 40,
+        "actual_finish": 45,
+        "baseline_start": 40,
+        "baseline_finish": 45,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT35",
+          "DT37",
+          "DT38"
+        ]
+      },
+      {
+        "task_id": "DT44",
+        "name": "Platform Security Audit",
+        "budget": 15000.0,
+        "pct_complete": 75.0,
+        "planned_start": 43,
+        "planned_finish": 47,
+        "actual_start": 43,
+        "actual_finish": 47,
+        "baseline_start": 43,
+        "baseline_finish": 47,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT37",
+          "DT40",
+          "DT41"
+        ]
+      },
+      {
+        "task_id": "DT45",
+        "name": "Cloud Platform Sign-off",
+        "budget": 6000.0,
+        "pct_complete": 75.0,
+        "planned_start": 47,
+        "planned_finish": 48,
+        "actual_start": 47,
+        "actual_finish": 48,
+        "baseline_start": 47,
+        "baseline_finish": 48,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT42",
+          "DT43",
+          "DT44"
+        ]
+      },
+      {
+        "task_id": "DT46",
+        "name": "Core ERP Module — Finance",
+        "budget": 70000.0,
+        "pct_complete": 70.0,
+        "planned_start": 48,
+        "planned_finish": 57,
+        "actual_start": 48,
+        "actual_finish": null,
+        "baseline_start": 48,
+        "baseline_finish": 57,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT45"
+        ]
+      },
+      {
+        "task_id": "DT47",
+        "name": "Core ERP Module — HR",
+        "budget": 55000.0,
+        "pct_complete": 65.0,
+        "planned_start": 48,
+        "planned_finish": 57,
+        "actual_start": 48,
+        "actual_finish": null,
+        "baseline_start": 48,
+        "baseline_finish": 57,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT45"
+        ]
+      },
+      {
+        "task_id": "DT48",
+        "name": "Core ERP Module — SCM",
+        "budget": 60000.0,
+        "pct_complete": 60.0,
+        "planned_start": 50,
+        "planned_finish": 59,
+        "actual_start": 50,
+        "actual_finish": null,
+        "baseline_start": 50,
+        "baseline_finish": 59,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT46"
+        ]
+      },
+      {
+        "task_id": "DT49",
+        "name": "CRM Platform Development",
+        "budget": 65000.0,
+        "pct_complete": 55.0,
+        "planned_start": 50,
+        "planned_finish": 59,
+        "actual_start": 50,
+        "actual_finish": null,
+        "baseline_start": 50,
+        "baseline_finish": 59,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT45"
+        ]
+      },
+      {
+        "task_id": "DT50",
+        "name": "Customer Portal Development",
+        "budget": 45000.0,
+        "pct_complete": 50.0,
+        "planned_start": 52,
+        "planned_finish": 61,
+        "actual_start": 52,
+        "actual_finish": null,
+        "baseline_start": 52,
+        "baseline_finish": 61,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT49"
+        ]
+      },
+      {
+        "task_id": "DT51",
+        "name": "Employee Self-Service Portal",
+        "budget": 35000.0,
+        "pct_complete": 50.0,
+        "planned_start": 52,
+        "planned_finish": 60,
+        "actual_start": 52,
+        "actual_finish": null,
+        "baseline_start": 52,
+        "baseline_finish": 60,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT47"
+        ]
+      },
+      {
+        "task_id": "DT52",
+        "name": "Data Migration Tool Development",
+        "budget": 30000.0,
+        "pct_complete": 45.0,
+        "planned_start": 54,
+        "planned_finish": 62,
+        "actual_start": 54,
+        "actual_finish": null,
+        "baseline_start": 54,
+        "baseline_finish": 62,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT46",
+          "DT48"
+        ]
+      },
+      {
+        "task_id": "DT53",
+        "name": "Reporting & Analytics Engine",
+        "budget": 40000.0,
+        "pct_complete": 40.0,
+        "planned_start": 55,
+        "planned_finish": 63,
+        "actual_start": 55,
+        "actual_finish": null,
+        "baseline_start": 55,
+        "baseline_finish": 63,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT42",
+          "DT46"
+        ]
+      },
+      {
+        "task_id": "DT54",
+        "name": "Mobile App Development",
+        "budget": 38000.0,
+        "pct_complete": 35.0,
+        "planned_start": 55,
+        "planned_finish": 64,
+        "actual_start": 55,
+        "actual_finish": null,
+        "baseline_start": 55,
+        "baseline_finish": 64,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT49",
+          "DT50"
+        ]
+      },
+      {
+        "task_id": "DT55",
+        "name": "Integration Middleware",
+        "budget": 42000.0,
+        "pct_complete": 30.0,
+        "planned_start": 56,
+        "planned_finish": 65,
+        "actual_start": 56,
+        "actual_finish": null,
+        "baseline_start": 56,
+        "baseline_finish": 65,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT40",
+          "DT46",
+          "DT47",
+          "DT48"
+        ]
+      },
+      {
+        "task_id": "DT56",
+        "name": "Legacy System Connectors",
+        "budget": 30000.0,
+        "pct_complete": 25.0,
+        "planned_start": 58,
+        "planned_finish": 66,
+        "actual_start": 58,
+        "actual_finish": null,
+        "baseline_start": 58,
+        "baseline_finish": 66,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT55"
+        ]
+      },
+      {
+        "task_id": "DT57",
+        "name": "Business Intelligence Dashboards",
+        "budget": 25000.0,
+        "pct_complete": 20.0,
+        "planned_start": 59,
+        "planned_finish": 66,
+        "actual_start": 59,
+        "actual_finish": null,
+        "baseline_start": 59,
+        "baseline_finish": 66,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT53"
+        ]
+      },
+      {
+        "task_id": "DT58",
+        "name": "Automated Testing Framework",
+        "budget": 22000.0,
+        "pct_complete": 20.0,
+        "planned_start": 57,
+        "planned_finish": 64,
+        "actual_start": 57,
+        "actual_finish": null,
+        "baseline_start": 57,
+        "baseline_finish": 64,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT35",
+          "DT46"
+        ]
+      },
+      {
+        "task_id": "DT59",
+        "name": "Performance Testing",
+        "budget": 16000.0,
+        "pct_complete": 15.0,
+        "planned_start": 62,
+        "planned_finish": 67,
+        "actual_start": 62,
+        "actual_finish": null,
+        "baseline_start": 62,
+        "baseline_finish": 67,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT58"
+        ]
+      },
+      {
+        "task_id": "DT60",
+        "name": "Core Development Code Review",
+        "budget": 10000.0,
+        "pct_complete": 15.0,
+        "planned_start": 66,
+        "planned_finish": 68,
+        "actual_start": 66,
+        "actual_finish": null,
+        "baseline_start": 66,
+        "baseline_finish": 68,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT52",
+          "DT53",
+          "DT54",
+          "DT55",
+          "DT56",
+          "DT57",
+          "DT58",
+          "DT59",
+          "DT51"
+        ]
+      },
+      {
+        "task_id": "DT61",
+        "name": "Data Audit & Profiling",
+        "budget": 20000.0,
+        "pct_complete": 15.0,
+        "planned_start": 68,
+        "planned_finish": 72,
+        "actual_start": 68,
+        "actual_finish": null,
+        "baseline_start": 68,
+        "baseline_finish": 72,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT60"
+        ]
+      },
+      {
+        "task_id": "DT62",
+        "name": "Data Cleansing — Master Data",
+        "budget": 35000.0,
+        "pct_complete": 10.0,
+        "planned_start": 70,
+        "planned_finish": 76,
+        "actual_start": 70,
+        "actual_finish": null,
+        "baseline_start": 70,
+        "baseline_finish": 76,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT61"
+        ]
+      },
+      {
+        "task_id": "DT63",
+        "name": "Data Cleansing — Transactional",
+        "budget": 30000.0,
+        "pct_complete": 10.0,
+        "planned_start": 72,
+        "planned_finish": 78,
+        "actual_start": 72,
+        "actual_finish": null,
+        "baseline_start": 72,
+        "baseline_finish": 78,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT61"
+        ]
+      },
+      {
+        "task_id": "DT64",
+        "name": "Data Mapping Design",
+        "budget": 18000.0,
+        "pct_complete": 10.0,
+        "planned_start": 70,
+        "planned_finish": 74,
+        "actual_start": 70,
+        "actual_finish": null,
+        "baseline_start": 70,
+        "baseline_finish": 74,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT52",
+          "DT61"
+        ]
+      },
+      {
+        "task_id": "DT65",
+        "name": "ETL Pipeline Development",
+        "budget": 45000.0,
+        "pct_complete": 8.0,
+        "planned_start": 74,
+        "planned_finish": 82,
+        "actual_start": 74,
+        "actual_finish": null,
+        "baseline_start": 74,
+        "baseline_finish": 82,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT64"
+        ]
+      },
+      {
+        "task_id": "DT66",
+        "name": "Data Migration Trial 1",
+        "budget": 15000.0,
+        "pct_complete": 8.0,
+        "planned_start": 76,
+        "planned_finish": 80,
+        "actual_start": 76,
+        "actual_finish": null,
+        "baseline_start": 76,
+        "baseline_finish": 80,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT62",
+          "DT63",
+          "DT65"
+        ]
+      },
+      {
+        "task_id": "DT67",
+        "name": "Data Validation Framework",
+        "budget": 20000.0,
+        "pct_complete": 5.0,
+        "planned_start": 78,
+        "planned_finish": 83,
+        "actual_start": 78,
+        "actual_finish": null,
+        "baseline_start": 78,
+        "baseline_finish": 83,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT65"
+        ]
+      },
+      {
+        "task_id": "DT68",
+        "name": "Data Migration Trial 2",
+        "budget": 15000.0,
+        "pct_complete": 5.0,
+        "planned_start": 80,
+        "planned_finish": 84,
+        "actual_start": 80,
+        "actual_finish": null,
+        "baseline_start": 80,
+        "baseline_finish": 84,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT66",
+          "DT67"
+        ]
+      },
+      {
+        "task_id": "DT69",
+        "name": "Data Quality Reporting",
+        "budget": 12000.0,
+        "pct_complete": 5.0,
+        "planned_start": 82,
+        "planned_finish": 86,
+        "actual_start": 82,
+        "actual_finish": null,
+        "baseline_start": 82,
+        "baseline_finish": 86,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT67",
+          "DT68"
+        ]
+      },
+      {
+        "task_id": "DT70",
+        "name": "Data Governance Framework",
+        "budget": 18000.0,
+        "pct_complete": 5.0,
+        "planned_start": 78,
+        "planned_finish": 83,
+        "actual_start": 78,
+        "actual_finish": null,
+        "baseline_start": 78,
+        "baseline_finish": 83,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT61"
+        ]
+      },
+      {
+        "task_id": "DT71",
+        "name": "Archive Strategy",
+        "budget": 10000.0,
+        "pct_complete": 0.0,
+        "planned_start": 80,
+        "planned_finish": 84,
+        "actual_start": 80,
+        "actual_finish": null,
+        "baseline_start": 80,
+        "baseline_finish": 84,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT70"
+        ]
+      },
+      {
+        "task_id": "DT72",
+        "name": "Full Dress Rehearsal Migration",
+        "budget": 20000.0,
+        "pct_complete": 0.0,
+        "planned_start": 84,
+        "planned_finish": 88,
+        "actual_start": 84,
+        "actual_finish": null,
+        "baseline_start": 84,
+        "baseline_finish": 88,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT68",
+          "DT69",
+          "DT70"
+        ]
+      },
+      {
+        "task_id": "DT73",
+        "name": "Migration Rollback Plan",
+        "budget": 8000.0,
+        "pct_complete": 0.0,
+        "planned_start": 84,
+        "planned_finish": 87,
+        "actual_start": 84,
+        "actual_finish": null,
+        "baseline_start": 84,
+        "baseline_finish": 87,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT68"
+        ]
+      },
+      {
+        "task_id": "DT74",
+        "name": "Production Migration Readiness",
+        "budget": 10000.0,
+        "pct_complete": 0.0,
+        "planned_start": 87,
+        "planned_finish": 90,
+        "actual_start": 87,
+        "actual_finish": null,
+        "baseline_start": 87,
+        "baseline_finish": 90,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT72",
+          "DT73"
+        ]
+      },
+      {
+        "task_id": "DT75",
+        "name": "Data Migration Sign-off",
+        "budget": 5000.0,
+        "pct_complete": 0.0,
+        "planned_start": 90,
+        "planned_finish": 91,
+        "actual_start": 90,
+        "actual_finish": null,
+        "baseline_start": 90,
+        "baseline_finish": 91,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT71",
+          "DT74"
+        ]
+      },
+      {
+        "task_id": "DT76",
+        "name": "System Integration Testing Plan",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 91,
+        "planned_finish": 93,
+        "actual_start": 91,
+        "actual_finish": null,
+        "baseline_start": 91,
+        "baseline_finish": 93,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT75"
+        ]
+      },
+      {
+        "task_id": "DT77",
+        "name": "SIT — Finance Module",
+        "budget": 20000.0,
+        "pct_complete": 0.0,
+        "planned_start": 91,
+        "planned_finish": 96,
+        "actual_start": 91,
+        "actual_finish": null,
+        "baseline_start": 91,
+        "baseline_finish": 96,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT75"
+        ]
+      },
+      {
+        "task_id": "DT78",
+        "name": "SIT — HR Module",
+        "budget": 18000.0,
+        "pct_complete": 0.0,
+        "planned_start": 91,
+        "planned_finish": 96,
+        "actual_start": 91,
+        "actual_finish": null,
+        "baseline_start": 91,
+        "baseline_finish": 96,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT75"
+        ]
+      },
+      {
+        "task_id": "DT79",
+        "name": "SIT — SCM Module",
+        "budget": 20000.0,
+        "pct_complete": 0.0,
+        "planned_start": 93,
+        "planned_finish": 98,
+        "actual_start": 93,
+        "actual_finish": null,
+        "baseline_start": 93,
+        "baseline_finish": 98,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT77"
+        ]
+      },
+      {
+        "task_id": "DT80",
+        "name": "SIT — CRM & Portal",
+        "budget": 18000.0,
+        "pct_complete": 0.0,
+        "planned_start": 93,
+        "planned_finish": 98,
+        "actual_start": 93,
+        "actual_finish": null,
+        "baseline_start": 93,
+        "baseline_finish": 98,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT78"
+        ]
+      },
+      {
+        "task_id": "DT81",
+        "name": "End-to-End Integration Testing",
+        "budget": 25000.0,
+        "pct_complete": 0.0,
+        "planned_start": 96,
+        "planned_finish": 101,
+        "actual_start": 96,
+        "actual_finish": null,
+        "baseline_start": 96,
+        "baseline_finish": 101,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT77",
+          "DT78",
+          "DT79",
+          "DT80"
+        ]
+      },
+      {
+        "task_id": "DT82",
+        "name": "Security Penetration Testing",
+        "budget": 20000.0,
+        "pct_complete": 0.0,
+        "planned_start": 96,
+        "planned_finish": 101,
+        "actual_start": 96,
+        "actual_finish": null,
+        "baseline_start": 96,
+        "baseline_finish": 101,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT76"
+        ]
+      },
+      {
+        "task_id": "DT83",
+        "name": "Performance & Load Testing",
+        "budget": 18000.0,
+        "pct_complete": 0.0,
+        "planned_start": 97,
+        "planned_finish": 102,
+        "actual_start": 97,
+        "actual_finish": null,
+        "baseline_start": 97,
+        "baseline_finish": 102,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT59",
+          "DT81"
+        ]
+      },
+      {
+        "task_id": "DT84",
+        "name": "Accessibility Testing",
+        "budget": 10000.0,
+        "pct_complete": 0.0,
+        "planned_start": 98,
+        "planned_finish": 102,
+        "actual_start": 98,
+        "actual_finish": null,
+        "baseline_start": 98,
+        "baseline_finish": 102,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT80"
+        ]
+      },
+      {
+        "task_id": "DT85",
+        "name": "Regression Testing",
+        "budget": 14000.0,
+        "pct_complete": 0.0,
+        "planned_start": 99,
+        "planned_finish": 103,
+        "actual_start": 99,
+        "actual_finish": null,
+        "baseline_start": 99,
+        "baseline_finish": 103,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT81"
+        ]
+      },
+      {
+        "task_id": "DT86",
+        "name": "User Acceptance Testing — Pilot",
+        "budget": 22000.0,
+        "pct_complete": 0.0,
+        "planned_start": 101,
+        "planned_finish": 106,
+        "actual_start": 101,
+        "actual_finish": null,
+        "baseline_start": 101,
+        "baseline_finish": 106,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT81",
+          "DT82",
+          "DT83"
+        ]
+      },
+      {
+        "task_id": "DT87",
+        "name": "UAT Defect Remediation",
+        "budget": 20000.0,
+        "pct_complete": 0.0,
+        "planned_start": 104,
+        "planned_finish": 109,
+        "actual_start": 104,
+        "actual_finish": null,
+        "baseline_start": 104,
+        "baseline_finish": 109,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT86"
+        ]
+      },
+      {
+        "task_id": "DT88",
+        "name": "UAT Sign-off",
+        "budget": 8000.0,
+        "pct_complete": 0.0,
+        "planned_start": 109,
+        "planned_finish": 111,
+        "actual_start": 109,
+        "actual_finish": null,
+        "baseline_start": 109,
+        "baseline_finish": 111,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT84",
+          "DT85",
+          "DT87"
+        ]
+      },
+      {
+        "task_id": "DT89",
+        "name": "Operational Readiness Assessment",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 109,
+        "planned_finish": 113,
+        "actual_start": 109,
+        "actual_finish": null,
+        "baseline_start": 109,
+        "baseline_finish": 113,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT87"
+        ]
+      },
+      {
+        "task_id": "DT90",
+        "name": "QA Phase Sign-off",
+        "budget": 5000.0,
+        "pct_complete": 0.0,
+        "planned_start": 113,
+        "planned_finish": 114,
+        "actual_start": 113,
+        "actual_finish": null,
+        "baseline_start": 113,
+        "baseline_finish": 114,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT88",
+          "DT89"
+        ]
+      },
+      {
+        "task_id": "DT91",
+        "name": "Training Needs Analysis",
+        "budget": 15000.0,
+        "pct_complete": 0.0,
+        "planned_start": 114,
+        "planned_finish": 117,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 114,
+        "baseline_finish": 117,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT90",
+          "DT9"
+        ]
+      },
+      {
+        "task_id": "DT92",
+        "name": "Training Material Development",
+        "budget": 30000.0,
+        "pct_complete": 0.0,
+        "planned_start": 114,
+        "planned_finish": 120,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 114,
+        "baseline_finish": 120,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT90"
+        ]
+      },
+      {
+        "task_id": "DT93",
+        "name": "E-learning Content Creation",
+        "budget": 22000.0,
+        "pct_complete": 0.0,
+        "planned_start": 116,
+        "planned_finish": 122,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 116,
+        "baseline_finish": 122,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT92"
+        ]
+      },
+      {
+        "task_id": "DT94",
+        "name": "Train-the-Trainer Programme",
+        "budget": 18000.0,
+        "pct_complete": 0.0,
+        "planned_start": 119,
+        "planned_finish": 123,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 119,
+        "baseline_finish": 123,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT91",
+          "DT92"
+        ]
+      },
+      {
+        "task_id": "DT95",
+        "name": "Change Champions Network",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 114,
+        "planned_finish": 118,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 114,
+        "baseline_finish": 118,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT90"
+        ]
+      },
+      {
+        "task_id": "DT96",
+        "name": "Communication Plan Execution",
+        "budget": 8000.0,
+        "pct_complete": 0.0,
+        "planned_start": 115,
+        "planned_finish": 120,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 115,
+        "baseline_finish": 120,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT95"
+        ]
+      },
+      {
+        "task_id": "DT97",
+        "name": "Super-user Training — Finance",
+        "budget": 16000.0,
+        "pct_complete": 0.0,
+        "planned_start": 123,
+        "planned_finish": 127,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 123,
+        "baseline_finish": 127,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT94"
+        ]
+      },
+      {
+        "task_id": "DT98",
+        "name": "Super-user Training — HR",
+        "budget": 14000.0,
+        "pct_complete": 0.0,
+        "planned_start": 123,
+        "planned_finish": 127,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 123,
+        "baseline_finish": 127,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT94"
+        ]
+      },
+      {
+        "task_id": "DT99",
+        "name": "Super-user Training — SCM",
+        "budget": 14000.0,
+        "pct_complete": 0.0,
+        "planned_start": 124,
+        "planned_finish": 128,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 124,
+        "baseline_finish": 128,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT97"
+        ]
+      },
+      {
+        "task_id": "DT100",
+        "name": "Super-user Training — CRM",
+        "budget": 14000.0,
+        "pct_complete": 0.0,
+        "planned_start": 124,
+        "planned_finish": 128,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 124,
+        "baseline_finish": 128,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT98"
+        ]
+      },
+      {
+        "task_id": "DT101",
+        "name": "End-user Training Rollout",
+        "budget": 40000.0,
+        "pct_complete": 0.0,
+        "planned_start": 127,
+        "planned_finish": 134,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 127,
+        "baseline_finish": 134,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT97",
+          "DT98",
+          "DT99",
+          "DT100"
+        ]
+      },
+      {
+        "task_id": "DT102",
+        "name": "Resistance Management",
+        "budget": 10000.0,
+        "pct_complete": 0.0,
+        "planned_start": 128,
+        "planned_finish": 132,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 128,
+        "baseline_finish": 132,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT96"
+        ]
+      },
+      {
+        "task_id": "DT103",
+        "name": "Hypercare Support Planning",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 130,
+        "planned_finish": 134,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 130,
+        "baseline_finish": 134,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT101"
+        ]
+      },
+      {
+        "task_id": "DT104",
+        "name": "Knowledge Base Setup",
+        "budget": 14000.0,
+        "pct_complete": 0.0,
+        "planned_start": 132,
+        "planned_finish": 136,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 132,
+        "baseline_finish": 136,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT93",
+          "DT101"
+        ]
+      },
+      {
+        "task_id": "DT105",
+        "name": "Training & Change Sign-off",
+        "budget": 5000.0,
+        "pct_complete": 0.0,
+        "planned_start": 136,
+        "planned_finish": 137,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 136,
+        "baseline_finish": 137,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT102",
+          "DT103",
+          "DT104"
+        ]
+      },
+      {
+        "task_id": "DT106",
+        "name": "Production Environment Hardening",
+        "budget": 22000.0,
+        "pct_complete": 0.0,
+        "planned_start": 137,
+        "planned_finish": 141,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 137,
+        "baseline_finish": 141,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT105"
+        ]
+      },
+      {
+        "task_id": "DT107",
+        "name": "Operational Runbook Development",
+        "budget": 18000.0,
+        "pct_complete": 0.0,
+        "planned_start": 137,
+        "planned_finish": 141,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 137,
+        "baseline_finish": 141,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT105"
+        ]
+      },
+      {
+        "task_id": "DT108",
+        "name": "Monitoring & Alerting Configuration",
+        "budget": 16000.0,
+        "pct_complete": 0.0,
+        "planned_start": 138,
+        "planned_finish": 142,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 138,
+        "baseline_finish": 142,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT106"
+        ]
+      },
+      {
+        "task_id": "DT109",
+        "name": "Incident & Problem Management Setup",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 139,
+        "planned_finish": 143,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 139,
+        "baseline_finish": 143,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT107"
+        ]
+      },
+      {
+        "task_id": "DT110",
+        "name": "Service Desk Configuration",
+        "budget": 14000.0,
+        "pct_complete": 0.0,
+        "planned_start": 139,
+        "planned_finish": 143,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 139,
+        "baseline_finish": 143,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT107"
+        ]
+      },
+      {
+        "task_id": "DT111",
+        "name": "SLA & KPI Framework",
+        "budget": 10000.0,
+        "pct_complete": 0.0,
+        "planned_start": 140,
+        "planned_finish": 144,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 140,
+        "baseline_finish": 144,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT107"
+        ]
+      },
+      {
+        "task_id": "DT112",
+        "name": "Backup & Recovery Testing",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 141,
+        "planned_finish": 145,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 141,
+        "baseline_finish": 145,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT106",
+          "DT108"
+        ]
+      },
+      {
+        "task_id": "DT113",
+        "name": "Capacity Planning",
+        "budget": 10000.0,
+        "pct_complete": 0.0,
+        "planned_start": 141,
+        "planned_finish": 145,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 141,
+        "baseline_finish": 145,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT106"
+        ]
+      },
+      {
+        "task_id": "DT114",
+        "name": "IT Ops Handover Training",
+        "budget": 14000.0,
+        "pct_complete": 0.0,
+        "planned_start": 142,
+        "planned_finish": 146,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 142,
+        "baseline_finish": 146,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT108",
+          "DT109"
+        ]
+      },
+      {
+        "task_id": "DT115",
+        "name": "Security Ops Certification",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 143,
+        "planned_finish": 147,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 143,
+        "baseline_finish": 147,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT109",
+          "DT110"
+        ]
+      },
+      {
+        "task_id": "DT116",
+        "name": "Hypercare Team Mobilisation",
+        "budget": 10000.0,
+        "pct_complete": 0.0,
+        "planned_start": 144,
+        "planned_finish": 147,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 144,
+        "baseline_finish": 147,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT111",
+          "DT113"
+        ]
+      },
+      {
+        "task_id": "DT117",
+        "name": "Go-live Readiness Checklist",
+        "budget": 8000.0,
+        "pct_complete": 0.0,
+        "planned_start": 145,
+        "planned_finish": 148,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 145,
+        "baseline_finish": 148,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT112",
+          "DT114",
+          "DT115"
+        ]
+      },
+      {
+        "task_id": "DT118",
+        "name": "Cutover Plan Finalisation",
+        "budget": 10000.0,
+        "pct_complete": 0.0,
+        "planned_start": 146,
+        "planned_finish": 149,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 146,
+        "baseline_finish": 149,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT116",
+          "DT117"
+        ]
+      },
+      {
+        "task_id": "DT119",
+        "name": "Rollback Decision Framework",
+        "budget": 6000.0,
+        "pct_complete": 0.0,
+        "planned_start": 147,
+        "planned_finish": 150,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 147,
+        "baseline_finish": 150,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT117"
+        ]
+      },
+      {
+        "task_id": "DT120",
+        "name": "Operations Readiness Sign-off",
+        "budget": 5000.0,
+        "pct_complete": 0.0,
+        "planned_start": 150,
+        "planned_finish": 151,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 150,
+        "baseline_finish": 151,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT118",
+          "DT119"
+        ]
+      },
+      {
+        "task_id": "DT121",
+        "name": "Pre Cutover Freeze",
+        "budget": 5000.0,
+        "pct_complete": 0.0,
+        "planned_start": 151,
+        "planned_finish": 152,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 151,
+        "baseline_finish": 152,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT120"
+        ]
+      },
+      {
+        "task_id": "DT122",
+        "name": "Legacy System Shutdown",
+        "budget": 8000.0,
+        "pct_complete": 0.0,
+        "planned_start": 152,
+        "planned_finish": 153,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 152,
+        "baseline_finish": 153,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT121"
+        ]
+      },
+      {
+        "task_id": "DT123",
+        "name": "Production Data Migration",
+        "budget": 25000.0,
+        "pct_complete": 0.0,
+        "planned_start": 152,
+        "planned_finish": 155,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 152,
+        "baseline_finish": 155,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT121"
+        ]
+      },
+      {
+        "task_id": "DT124",
+        "name": "Production Cutover",
+        "budget": 15000.0,
+        "pct_complete": 0.0,
+        "planned_start": 155,
+        "planned_finish": 157,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 155,
+        "baseline_finish": 157,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT122",
+          "DT123"
+        ]
+      },
+      {
+        "task_id": "DT125",
+        "name": "Day 1 Hypercare Support",
+        "budget": 20000.0,
+        "pct_complete": 0.0,
+        "planned_start": 157,
+        "planned_finish": 162,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 157,
+        "baseline_finish": 162,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT124"
+        ]
+      },
+      {
+        "task_id": "DT126",
+        "name": "Week 1 Incident Resolution",
+        "budget": 18000.0,
+        "pct_complete": 0.0,
+        "planned_start": 162,
+        "planned_finish": 165,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 162,
+        "baseline_finish": 165,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT125"
+        ]
+      },
+      {
+        "task_id": "DT127",
+        "name": "Performance Monitoring — Week 1",
+        "budget": 10000.0,
+        "pct_complete": 0.0,
+        "planned_start": 162,
+        "planned_finish": 165,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 162,
+        "baseline_finish": 165,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT125"
+        ]
+      },
+      {
+        "task_id": "DT128",
+        "name": "Stabilisation Report",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 165,
+        "planned_finish": 168,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 165,
+        "baseline_finish": 168,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT126",
+          "DT127"
+        ]
+      },
+      {
+        "task_id": "DT129",
+        "name": "Finance Module Stabilisation",
+        "budget": 14000.0,
+        "pct_complete": 0.0,
+        "planned_start": 162,
+        "planned_finish": 168,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 162,
+        "baseline_finish": 168,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT125"
+        ]
+      },
+      {
+        "task_id": "DT130",
+        "name": "HR Module Stabilisation",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 162,
+        "planned_finish": 167,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 162,
+        "baseline_finish": 167,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT125"
+        ]
+      },
+      {
+        "task_id": "DT131",
+        "name": "SCM Module Stabilisation",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 163,
+        "planned_finish": 168,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 163,
+        "baseline_finish": 168,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT129"
+        ]
+      },
+      {
+        "task_id": "DT132",
+        "name": "CRM Stabilisation",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 163,
+        "planned_finish": 168,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 163,
+        "baseline_finish": 168,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT130"
+        ]
+      },
+      {
+        "task_id": "DT133",
+        "name": "Enhanced Training — Struggling Users",
+        "budget": 16000.0,
+        "pct_complete": 0.0,
+        "planned_start": 166,
+        "planned_finish": 171,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 166,
+        "baseline_finish": 171,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT128"
+        ]
+      },
+      {
+        "task_id": "DT134",
+        "name": "Hypercare Review Meeting",
+        "budget": 6000.0,
+        "pct_complete": 0.0,
+        "planned_start": 170,
+        "planned_finish": 172,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 170,
+        "baseline_finish": 172,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT129",
+          "DT130",
+          "DT131",
+          "DT132",
+          "DT133"
+        ]
+      },
+      {
+        "task_id": "DT135",
+        "name": "Go-live Phase Sign-off",
+        "budget": 5000.0,
+        "pct_complete": 0.0,
+        "planned_start": 172,
+        "planned_finish": 173,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 172,
+        "baseline_finish": 173,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT134"
+        ]
+      },
+      {
+        "task_id": "DT136",
+        "name": "Operational KPI Baseline",
+        "budget": 14000.0,
+        "pct_complete": 0.0,
+        "planned_start": 173,
+        "planned_finish": 177,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 173,
+        "baseline_finish": 177,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT135"
+        ]
+      },
+      {
+        "task_id": "DT137",
+        "name": "Benefits Tracking Dashboard",
+        "budget": 18000.0,
+        "pct_complete": 0.0,
+        "planned_start": 173,
+        "planned_finish": 178,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 173,
+        "baseline_finish": 178,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT135"
+        ]
+      },
+      {
+        "task_id": "DT138",
+        "name": "Process Optimisation Review",
+        "budget": 20000.0,
+        "pct_complete": 0.0,
+        "planned_start": 175,
+        "planned_finish": 180,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 175,
+        "baseline_finish": 180,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT136"
+        ]
+      },
+      {
+        "task_id": "DT139",
+        "name": "Advanced Analytics Enablement",
+        "budget": 25000.0,
+        "pct_complete": 0.0,
+        "planned_start": 177,
+        "planned_finish": 183,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 177,
+        "baseline_finish": 183,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT137"
+        ]
+      },
+      {
+        "task_id": "DT140",
+        "name": "Lessons Learned Workshop",
+        "budget": 10000.0,
+        "pct_complete": 0.0,
+        "planned_start": 179,
+        "planned_finish": 182,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 179,
+        "baseline_finish": 182,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT136"
+        ]
+      },
+      {
+        "task_id": "DT141",
+        "name": "Post-implementation Review Report",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 181,
+        "planned_finish": 185,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 181,
+        "baseline_finish": 185,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT138",
+          "DT140"
+        ]
+      },
+      {
+        "task_id": "DT142",
+        "name": "Phase 2 Roadmap Planning",
+        "budget": 18000.0,
+        "pct_complete": 0.0,
+        "planned_start": 183,
+        "planned_finish": 188,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 183,
+        "baseline_finish": 188,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT139"
+        ]
+      },
+      {
+        "task_id": "DT143",
+        "name": "Vendor Contract Closure",
+        "budget": 8000.0,
+        "pct_complete": 0.0,
+        "planned_start": 182,
+        "planned_finish": 186,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 182,
+        "baseline_finish": 186,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT141"
+        ]
+      },
+      {
+        "task_id": "DT144",
+        "name": "Knowledge Transfer to Operations",
+        "budget": 14000.0,
+        "pct_complete": 0.0,
+        "planned_start": 183,
+        "planned_finish": 187,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 183,
+        "baseline_finish": 187,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT141"
+        ]
+      },
+      {
+        "task_id": "DT145",
+        "name": "GDPR & Compliance Certification",
+        "budget": 10000.0,
+        "pct_complete": 0.0,
+        "planned_start": 185,
+        "planned_finish": 189,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 185,
+        "baseline_finish": 189,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT141"
+        ]
+      },
+      {
+        "task_id": "DT146",
+        "name": "Financial Benefit Verification",
+        "budget": 12000.0,
+        "pct_complete": 0.0,
+        "planned_start": 186,
+        "planned_finish": 190,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 186,
+        "baseline_finish": 190,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT142",
+          "DT143"
+        ]
+      },
+      {
+        "task_id": "DT147",
+        "name": "Benefits Realisation Report",
+        "budget": 15000.0,
+        "pct_complete": 0.0,
+        "planned_start": 188,
+        "planned_finish": 192,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 188,
+        "baseline_finish": 192,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT144",
+          "DT145",
+          "DT146"
+        ]
+      },
+      {
+        "task_id": "DT148",
+        "name": "Programme Archive & Documentation",
+        "budget": 8000.0,
+        "pct_complete": 0.0,
+        "planned_start": 190,
+        "planned_finish": 193,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 190,
+        "baseline_finish": 193,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT147"
+        ]
+      },
+      {
+        "task_id": "DT149",
+        "name": "Steering Committee Final Review",
+        "budget": 10000.0,
+        "pct_complete": 0.0,
+        "planned_start": 192,
+        "planned_finish": 195,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 192,
+        "baseline_finish": 195,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT147"
+        ]
+      },
+      {
+        "task_id": "DT150",
+        "name": "Programme Closure & Sign-off",
+        "budget": 5000.0,
+        "pct_complete": 0.0,
+        "planned_start": 195,
+        "planned_finish": 196,
+        "actual_start": null,
+        "actual_finish": null,
+        "baseline_start": 195,
+        "baseline_finish": 196,
+        "pv_spread": "uniform",
+        "cpm_task_id": null,
+        "predecessors": [
+          "DT148",
+          "DT149"
+        ]
+      }
+    ],
+    "periods": [
+      {
+        "index": 0,
+        "label": "Sprint 1",
+        "pv_cumulative": 16400.0,
+        "ev_cumulative": 0.0,
+        "ac_cumulative": 0.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 1,
+        "label": "Sprint 2",
+        "pv_cumulative": 46500.0,
+        "ev_cumulative": 0.0,
+        "ac_cumulative": 0.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 2,
+        "label": "Sprint 3",
+        "pv_cumulative": 85300.0,
+        "ev_cumulative": 0.0,
+        "ac_cumulative": 0.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 3,
+        "label": "Sprint 4",
+        "pv_cumulative": 131100.0,
+        "ev_cumulative": 0.0,
+        "ac_cumulative": 0.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 4,
+        "label": "Sprint 5",
+        "pv_cumulative": 182700.0,
+        "ev_cumulative": 9300.0,
+        "ac_cumulative": 10000.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 5,
+        "label": "Sprint 6",
+        "pv_cumulative": 239500.0,
+        "ev_cumulative": 26400.0,
+        "ac_cumulative": 28200.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 6,
+        "label": "Sprint 7",
+        "pv_cumulative": 300800.0,
+        "ev_cumulative": 48400.0,
+        "ac_cumulative": 51800.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 7,
+        "label": "Sprint 8",
+        "pv_cumulative": 366100.0,
+        "ev_cumulative": 74300.0,
+        "ac_cumulative": 79500.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 8,
+        "label": "Sprint 9",
+        "pv_cumulative": 435000.0,
+        "ev_cumulative": 103600.0,
+        "ac_cumulative": 110900.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 9,
+        "label": "Sprint 10",
+        "pv_cumulative": 507000.0,
+        "ev_cumulative": 135800.0,
+        "ac_cumulative": 145300.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 10,
+        "label": "Sprint 11",
+        "pv_cumulative": 581700.0,
+        "ev_cumulative": 170600.0,
+        "ac_cumulative": 182500.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 11,
+        "label": "Sprint 12",
+        "pv_cumulative": 658900.0,
+        "ev_cumulative": 207600.0,
+        "ac_cumulative": 222100.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 12,
+        "label": "Sprint 13",
+        "pv_cumulative": 738100.0,
+        "ev_cumulative": 246500.0,
+        "ac_cumulative": 263800.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 13,
+        "label": "Sprint 14",
+        "pv_cumulative": 819100.0,
+        "ev_cumulative": 287300.0,
+        "ac_cumulative": 307400.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 14,
+        "label": "Sprint 15",
+        "pv_cumulative": 901600.0,
+        "ev_cumulative": 329500.0,
+        "ac_cumulative": 352600.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 15,
+        "label": "Sprint 16",
+        "pv_cumulative": 985200.0,
+        "ev_cumulative": 373200.0,
+        "ac_cumulative": 399300.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 16,
+        "label": "Sprint 17",
+        "pv_cumulative": 1069700.0,
+        "ev_cumulative": 417900.0,
+        "ac_cumulative": 447200.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 17,
+        "label": "Sprint 18",
+        "pv_cumulative": 1154800.0,
+        "ev_cumulative": 463700.0,
+        "ac_cumulative": 496200.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 18,
+        "label": "Sprint 19",
+        "pv_cumulative": 1240200.0,
+        "ev_cumulative": 510200.0,
+        "ac_cumulative": 545900.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 19,
+        "label": "Sprint 20",
+        "pv_cumulative": 1325700.0,
+        "ev_cumulative": 557300.0,
+        "ac_cumulative": 596300.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 20,
+        "label": "Sprint 21",
+        "pv_cumulative": 1411000.0,
+        "ev_cumulative": 604900.0,
+        "ac_cumulative": 647200.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 21,
+        "label": "Sprint 22",
+        "pv_cumulative": 1495800.0,
+        "ev_cumulative": 652800.0,
+        "ac_cumulative": 698500.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 22,
+        "label": "Sprint 23",
+        "pv_cumulative": 1579900.0,
+        "ev_cumulative": 700700.0,
+        "ac_cumulative": 749700.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 23,
+        "label": "Sprint 24",
+        "pv_cumulative": 1663000.0,
+        "ev_cumulative": 748700.0,
+        "ac_cumulative": 801100.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 24,
+        "label": "Sprint 25",
+        "pv_cumulative": 1744900.0,
+        "ev_cumulative": 796500.0,
+        "ac_cumulative": 852300.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 25,
+        "label": "Sprint 26",
+        "pv_cumulative": 1825400.0,
+        "ev_cumulative": 843900.0,
+        "ac_cumulative": 903000.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 26,
+        "label": "Sprint 27",
+        "pv_cumulative": 1904300.0,
+        "ev_cumulative": 890900.0,
+        "ac_cumulative": 953300.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 27,
+        "label": "Sprint 28",
+        "pv_cumulative": 1981300.0,
+        "ev_cumulative": 937300.0,
+        "ac_cumulative": 1002900.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 28,
+        "label": "Sprint 29",
+        "pv_cumulative": 2056200.0,
+        "ev_cumulative": 982900.0,
+        "ac_cumulative": 1051700.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 29,
+        "label": "Sprint 30",
+        "pv_cumulative": 2128800.0,
+        "ev_cumulative": 1027600.0,
+        "ac_cumulative": 1099500.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 30,
+        "label": "Sprint 31",
+        "pv_cumulative": 2198900.0,
+        "ev_cumulative": 1071300.0,
+        "ac_cumulative": 1146300.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 31,
+        "label": "Sprint 32",
+        "pv_cumulative": 2266400.0,
+        "ev_cumulative": 1113900.0,
+        "ac_cumulative": 1191900.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 32,
+        "label": "Sprint 33",
+        "pv_cumulative": 2331000.0,
+        "ev_cumulative": 1155200.0,
+        "ac_cumulative": 1236100.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 33,
+        "label": "Sprint 34",
+        "pv_cumulative": 2392600.0,
+        "ev_cumulative": 1195100.0,
+        "ac_cumulative": 1278800.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 34,
+        "label": "Sprint 35",
+        "pv_cumulative": 2451000.0,
+        "ev_cumulative": 1233500.0,
+        "ac_cumulative": 1319800.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 35,
+        "label": "Sprint 36",
+        "pv_cumulative": 2506000.0,
+        "ev_cumulative": 1270400.0,
+        "ac_cumulative": 1359300.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 36,
+        "label": "Sprint 37",
+        "pv_cumulative": 2557600.0,
+        "ev_cumulative": 1305500.0,
+        "ac_cumulative": 1396900.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 37,
+        "label": "Sprint 38",
+        "pv_cumulative": 2605600.0,
+        "ev_cumulative": 1338900.0,
+        "ac_cumulative": 1432600.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 38,
+        "label": "Sprint 39",
+        "pv_cumulative": 2649800.0,
+        "ev_cumulative": 1370300.0,
+        "ac_cumulative": 1466200.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 39,
+        "label": "Sprint 40",
+        "pv_cumulative": 2690200.0,
+        "ev_cumulative": 1399800.0,
+        "ac_cumulative": 1497800.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 40,
+        "label": "Sprint 41",
+        "pv_cumulative": 2726600.0,
+        "ev_cumulative": 1427200.0,
+        "ac_cumulative": 1527100.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 41,
+        "label": "Sprint 42",
+        "pv_cumulative": 2758900.0,
+        "ev_cumulative": 1452500.0,
+        "ac_cumulative": 1554200.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 42,
+        "label": "Sprint 43",
+        "pv_cumulative": 2787100.0,
+        "ev_cumulative": 1475600.0,
+        "ac_cumulative": 1578900.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 43,
+        "label": "Sprint 44",
+        "pv_cumulative": 2811100.0,
+        "ev_cumulative": 1496400.0,
+        "ac_cumulative": 1601100.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 44,
+        "label": "Sprint 45",
+        "pv_cumulative": 2830800.0,
+        "ev_cumulative": 1514900.0,
+        "ac_cumulative": 1620900.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 45,
+        "label": "Sprint 46",
+        "pv_cumulative": 2846200.0,
+        "ev_cumulative": 1531100.0,
+        "ac_cumulative": 1638300.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 46,
+        "label": "Sprint 47",
+        "pv_cumulative": 2857200.0,
+        "ev_cumulative": 1544800.0,
+        "ac_cumulative": 1652900.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 47,
+        "label": "Sprint 48",
+        "pv_cumulative": 2863800.0,
+        "ev_cumulative": 1556100.0,
+        "ac_cumulative": 1665000.0,
+        "ev_source": "manual"
+      },
+      {
+        "index": 48,
+        "label": "Sprint 49",
+        "pv_cumulative": 2866000.0,
+        "ev_cumulative": 1564900.0,
+        "ac_cumulative": 1674400.0,
+        "ev_source": "manual"
+      }
+    ]
+  },
+  "risk_register": {
+    "bac": 2866000.0,
+    "high_exposure_threshold_pct": 0.05,
+    "risks": [
+      {
+        "id": "SR1",
+        "name": "Scope Creep",
+        "description": "Business units continuously expanding requirements post-sign-off",
+        "probability": 0.55,
+        "impact": 350000.0,
+        "category": "Scope"
+      },
+      {
+        "id": "SR2",
+        "name": "Key Personnel Attrition",
+        "description": "Programme manager or enterprise architect leaves mid-programme",
+        "probability": 0.3,
+        "impact": 200000.0,
+        "category": "Schedule"
+      },
+      {
+        "id": "SR3",
+        "name": "Vendor Delivery Failure",
+        "description": "Major SaaS vendor fails to deliver contracted functionality",
+        "probability": 0.25,
+        "impact": 500000.0,
+        "category": "Cost"
+      },
+      {
+        "id": "SR4",
+        "name": "Data Quality Issues",
+        "description": "Legacy data quality far worse than expected, delaying migration",
+        "probability": 0.5,
+        "impact": 280000.0,
+        "category": "Schedule"
+      },
+      {
+        "id": "SR5",
+        "name": "Change Resistance",
+        "description": "Low adoption rates requiring extended hypercare & retraining",
+        "probability": 0.4,
+        "impact": 180000.0,
+        "category": "Scope"
+      },
+      {
+        "id": "SR6",
+        "name": "Integration Complexity",
+        "description": "Legacy system integration more complex than architected",
+        "probability": 0.45,
+        "impact": 220000.0,
+        "category": "Schedule"
+      },
+      {
+        "id": "SR7",
+        "name": "Security Breach",
+        "description": "Cyber incident during migration exposing sensitive data",
+        "probability": 0.15,
+        "impact": 600000.0,
+        "category": "Cost"
+      },
+      {
+        "id": "SR8",
+        "name": "Regulatory Change",
+        "description": "New data protection requirements requiring design rework",
+        "probability": 0.2,
+        "impact": 150000.0,
+        "category": "Scope"
+      },
+      {
+        "id": "SR9",
+        "name": "Cloud Cost Overrun",
+        "description": "Cloud infrastructure costs significantly exceed estimates",
+        "probability": 0.4,
+        "impact": 120000.0,
+        "category": "Cost"
+      },
+      {
+        "id": "SR10",
+        "name": "Business Continuity Disruption",
+        "description": "Go-live causes operational disruption affecting revenue",
+        "probability": 0.3,
+        "impact": 400000.0,
+        "category": "Cost"
+      }
+    ]
+  },
+  "mc_results": null,
+  "app_config": {
+    "mode": "PG",
+    "currency_symbol": "$"
+  },
+  "cpm_activities": [
+    {
+      "id": "DT1",
+      "activity": "Programme Charter",
+      "optimistic": "1",
+      "most_likely": "2",
+      "pessimistic": "4",
+      "predecessors": "",
+      "min_duration": "1",
+      "crash_cost": "30000",
+      "resource_demand": "2",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "DT2",
+      "activity": "Executive Sponsorship",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "",
+      "min_duration": "2",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT3",
+      "activity": "Programme Business Case",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT1,DT2",
+      "min_duration": "3",
+      "crash_cost": "52000",
+      "resource_demand": "4",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "DT4",
+      "activity": "Benefits Realisation Framework",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT2",
+      "min_duration": "2",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "DT5",
+      "activity": "Stakeholder Analysis",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT1",
+      "min_duration": "2",
+      "crash_cost": "21000",
+      "resource_demand": "2",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "DT6",
+      "activity": "Current State Assessment",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT3",
+      "min_duration": "3",
+      "crash_cost": "37000",
+      "resource_demand": "3",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "DT7",
+      "activity": "Technology Landscape Review",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT3",
+      "min_duration": "3",
+      "crash_cost": "33000",
+      "resource_demand": "3",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "DT8",
+      "activity": "Programme Governance Setup",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT3",
+      "min_duration": "2",
+      "crash_cost": "24000",
+      "resource_demand": "3",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "DT9",
+      "activity": "Change Management Strategy",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT4,DT5",
+      "min_duration": "2",
+      "crash_cost": "30000",
+      "resource_demand": "3",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "DT10",
+      "activity": "Programme Roadmap",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT6,DT7,DT8",
+      "min_duration": "2",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "DT11",
+      "activity": "Resource Plan",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT8",
+      "min_duration": "2",
+      "crash_cost": "22000",
+      "resource_demand": "2",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "DT12",
+      "activity": "Vendor Selection Strategy",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT7",
+      "min_duration": "2",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT13",
+      "activity": "Programme Office Setup (PMO)",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT10,DT11",
+      "min_duration": "2",
+      "crash_cost": "21000",
+      "resource_demand": "2",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "DT14",
+      "activity": "Legal & Compliance Review",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT8",
+      "min_duration": "2",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT15",
+      "activity": "Initiation Phase Sign-off",
+      "optimistic": "1",
+      "most_likely": "1",
+      "pessimistic": "2",
+      "predecessors": "DT13,DT14",
+      "min_duration": "1",
+      "crash_cost": "7500",
+      "resource_demand": "1",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "DT16",
+      "activity": "Enterprise Architecture Design",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT15",
+      "min_duration": "4",
+      "crash_cost": "75000",
+      "resource_demand": "5",
+      "normal_cost": "50000"
+    },
+    {
+      "id": "DT17",
+      "activity": "Data Architecture Blueprint",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT15",
+      "min_duration": "4",
+      "crash_cost": "52000",
+      "resource_demand": "4",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "DT18",
+      "activity": "Integration Architecture",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT16",
+      "min_duration": "4",
+      "crash_cost": "45000",
+      "resource_demand": "4",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "DT19",
+      "activity": "Security Architecture",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT16",
+      "min_duration": "3",
+      "crash_cost": "42000",
+      "resource_demand": "3",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "DT20",
+      "activity": "Cloud Infrastructure Design",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT17,DT18",
+      "min_duration": "4",
+      "crash_cost": "60000",
+      "resource_demand": "5",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "DT21",
+      "activity": "API Design Standards",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT18",
+      "min_duration": "3",
+      "crash_cost": "30000",
+      "resource_demand": "3",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "DT22",
+      "activity": "UX / UI Design System",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT16",
+      "min_duration": "4",
+      "crash_cost": "37000",
+      "resource_demand": "3",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "DT23",
+      "activity": "Master Data Management Design",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT17",
+      "min_duration": "4",
+      "crash_cost": "33000",
+      "resource_demand": "3",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "DT24",
+      "activity": "DevSecOps Pipeline Design",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT19,DT20",
+      "min_duration": "3",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "DT25",
+      "activity": "Disaster Recovery Design",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT19,DT20",
+      "min_duration": "3",
+      "crash_cost": "22000",
+      "resource_demand": "2",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "DT26",
+      "activity": "Architecture Review Board",
+      "optimistic": "1",
+      "most_likely": "2",
+      "pessimistic": "3",
+      "predecessors": "DT20,DT21,DT22,DT23",
+      "min_duration": "1",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT27",
+      "activity": "Vendor Proof of Concept",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT20,DT21,DT12",
+      "min_duration": "4",
+      "crash_cost": "45000",
+      "resource_demand": "4",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "DT28",
+      "activity": "Technology Standards Documentation",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT26",
+      "min_duration": "3",
+      "crash_cost": "21000",
+      "resource_demand": "2",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "DT29",
+      "activity": "Architecture Cost Estimate",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT26",
+      "min_duration": "2",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT30",
+      "activity": "Architecture Sign-off",
+      "optimistic": "1",
+      "most_likely": "2",
+      "pessimistic": "3",
+      "predecessors": "DT27,DT28,DT29",
+      "min_duration": "1",
+      "crash_cost": "9000",
+      "resource_demand": "1",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "DT31",
+      "activity": "Cloud Account Setup",
+      "optimistic": "1",
+      "most_likely": "2",
+      "pessimistic": "3",
+      "predecessors": "DT30",
+      "min_duration": "1",
+      "crash_cost": "22000",
+      "resource_demand": "2",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "DT32",
+      "activity": "Networking & Connectivity",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT30",
+      "min_duration": "4",
+      "crash_cost": "45000",
+      "resource_demand": "4",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "DT33",
+      "activity": "Identity & Access Management",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT31",
+      "min_duration": "4",
+      "crash_cost": "37000",
+      "resource_demand": "3",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "DT34",
+      "activity": "Kubernetes Cluster Provisioning",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT31,DT32",
+      "min_duration": "4",
+      "crash_cost": "52000",
+      "resource_demand": "5",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "DT35",
+      "activity": "CI/CD Pipeline Implementation",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT33,DT34,DT24",
+      "min_duration": "4",
+      "crash_cost": "42000",
+      "resource_demand": "4",
+      "normal_cost": "28000"
+    },
+    {
+      "id": "DT36",
+      "activity": "Monitoring & Observability Stack",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT34",
+      "min_duration": "4",
+      "crash_cost": "33000",
+      "resource_demand": "3",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "DT37",
+      "activity": "Security Baseline Configuration",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT33",
+      "min_duration": "3",
+      "crash_cost": "30000",
+      "resource_demand": "3",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "DT38",
+      "activity": "Backup & Disaster Recovery Build",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT32,DT36,DT25",
+      "min_duration": "4",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "DT39",
+      "activity": "Database Platform Provisioning",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT34,DT35",
+      "min_duration": "4",
+      "crash_cost": "48000",
+      "resource_demand": "4",
+      "normal_cost": "32000"
+    },
+    {
+      "id": "DT40",
+      "activity": "API Gateway Setup",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT35,DT36",
+      "min_duration": "4",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "DT41",
+      "activity": "Service Mesh Implementation",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT35",
+      "min_duration": "4",
+      "crash_cost": "22000",
+      "resource_demand": "3",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "DT42",
+      "activity": "Data Lake Foundation",
+      "optimistic": "5",
+      "most_likely": "6",
+      "pessimistic": "10",
+      "predecessors": "DT39",
+      "min_duration": "5",
+      "crash_cost": "60000",
+      "resource_demand": "5",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "DT43",
+      "activity": "Environment Provisioning (Dev/UAT)",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT35,DT37,DT38",
+      "min_duration": "4",
+      "crash_cost": "30000",
+      "resource_demand": "3",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "DT44",
+      "activity": "Platform Security Audit",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT37,DT40,DT41",
+      "min_duration": "3",
+      "crash_cost": "22000",
+      "resource_demand": "2",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "DT45",
+      "activity": "Cloud Platform Sign-off",
+      "optimistic": "1",
+      "most_likely": "1",
+      "pessimistic": "2",
+      "predecessors": "DT42,DT43,DT44",
+      "min_duration": "1",
+      "crash_cost": "9000",
+      "resource_demand": "1",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "DT46",
+      "activity": "Core ERP Module — Finance",
+      "optimistic": "7",
+      "most_likely": "9",
+      "pessimistic": "14",
+      "predecessors": "DT45",
+      "min_duration": "7",
+      "crash_cost": "105000",
+      "resource_demand": "7",
+      "normal_cost": "70000"
+    },
+    {
+      "id": "DT47",
+      "activity": "Core ERP Module — HR",
+      "optimistic": "7",
+      "most_likely": "9",
+      "pessimistic": "14",
+      "predecessors": "DT45",
+      "min_duration": "7",
+      "crash_cost": "82000",
+      "resource_demand": "6",
+      "normal_cost": "55000"
+    },
+    {
+      "id": "DT48",
+      "activity": "Core ERP Module — SCM",
+      "optimistic": "7",
+      "most_likely": "9",
+      "pessimistic": "14",
+      "predecessors": "DT46",
+      "min_duration": "7",
+      "crash_cost": "90000",
+      "resource_demand": "6",
+      "normal_cost": "60000"
+    },
+    {
+      "id": "DT49",
+      "activity": "CRM Platform Development",
+      "optimistic": "8",
+      "most_likely": "9",
+      "pessimistic": "14",
+      "predecessors": "DT45",
+      "min_duration": "7",
+      "crash_cost": "97000",
+      "resource_demand": "6",
+      "normal_cost": "65000"
+    },
+    {
+      "id": "DT50",
+      "activity": "Customer Portal Development",
+      "optimistic": "8",
+      "most_likely": "9",
+      "pessimistic": "14",
+      "predecessors": "DT49",
+      "min_duration": "7",
+      "crash_cost": "67000",
+      "resource_demand": "5",
+      "normal_cost": "45000"
+    },
+    {
+      "id": "DT51",
+      "activity": "Employee Self-Service Portal",
+      "optimistic": "7",
+      "most_likely": "8",
+      "pessimistic": "13",
+      "predecessors": "DT47",
+      "min_duration": "7",
+      "crash_cost": "52000",
+      "resource_demand": "5",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "DT52",
+      "activity": "Data Migration Tool Development",
+      "optimistic": "7",
+      "most_likely": "8",
+      "pessimistic": "13",
+      "predecessors": "DT46,DT48",
+      "min_duration": "7",
+      "crash_cost": "45000",
+      "resource_demand": "4",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "DT53",
+      "activity": "Reporting & Analytics Engine",
+      "optimistic": "7",
+      "most_likely": "8",
+      "pessimistic": "13",
+      "predecessors": "DT42,DT46",
+      "min_duration": "7",
+      "crash_cost": "60000",
+      "resource_demand": "5",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "DT54",
+      "activity": "Mobile App Development",
+      "optimistic": "8",
+      "most_likely": "9",
+      "pessimistic": "14",
+      "predecessors": "DT49,DT50",
+      "min_duration": "7",
+      "crash_cost": "57000",
+      "resource_demand": "4",
+      "normal_cost": "38000"
+    },
+    {
+      "id": "DT55",
+      "activity": "Integration Middleware",
+      "optimistic": "8",
+      "most_likely": "9",
+      "pessimistic": "15",
+      "predecessors": "DT40,DT46,DT47,DT48",
+      "min_duration": "7",
+      "crash_cost": "63000",
+      "resource_demand": "5",
+      "normal_cost": "42000"
+    },
+    {
+      "id": "DT56",
+      "activity": "Legacy System Connectors",
+      "optimistic": "7",
+      "most_likely": "8",
+      "pessimistic": "13",
+      "predecessors": "DT55",
+      "min_duration": "7",
+      "crash_cost": "45000",
+      "resource_demand": "4",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "DT57",
+      "activity": "Business Intelligence Dashboards",
+      "optimistic": "6",
+      "most_likely": "7",
+      "pessimistic": "11",
+      "predecessors": "DT53",
+      "min_duration": "6",
+      "crash_cost": "37000",
+      "resource_demand": "3",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "DT58",
+      "activity": "Automated Testing Framework",
+      "optimistic": "6",
+      "most_likely": "7",
+      "pessimistic": "11",
+      "predecessors": "DT35,DT46",
+      "min_duration": "6",
+      "crash_cost": "33000",
+      "resource_demand": "3",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "DT59",
+      "activity": "Performance Testing",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT58",
+      "min_duration": "4",
+      "crash_cost": "24000",
+      "resource_demand": "3",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "DT60",
+      "activity": "Core Development Code Review",
+      "optimistic": "1",
+      "most_likely": "2",
+      "pessimistic": "3",
+      "predecessors": "DT52,DT53,DT54,DT55,DT56,DT57,DT58,DT59,DT51",
+      "min_duration": "1",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT61",
+      "activity": "Data Audit & Profiling",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT60",
+      "min_duration": "3",
+      "crash_cost": "30000",
+      "resource_demand": "3",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "DT62",
+      "activity": "Data Cleansing — Master Data",
+      "optimistic": "5",
+      "most_likely": "6",
+      "pessimistic": "10",
+      "predecessors": "DT61",
+      "min_duration": "5",
+      "crash_cost": "52000",
+      "resource_demand": "4",
+      "normal_cost": "35000"
+    },
+    {
+      "id": "DT63",
+      "activity": "Data Cleansing — Transactional",
+      "optimistic": "5",
+      "most_likely": "6",
+      "pessimistic": "10",
+      "predecessors": "DT61",
+      "min_duration": "5",
+      "crash_cost": "45000",
+      "resource_demand": "4",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "DT64",
+      "activity": "Data Mapping Design",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT52,DT61",
+      "min_duration": "3",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "DT65",
+      "activity": "ETL Pipeline Development",
+      "optimistic": "7",
+      "most_likely": "8",
+      "pessimistic": "13",
+      "predecessors": "DT64",
+      "min_duration": "7",
+      "crash_cost": "67000",
+      "resource_demand": "5",
+      "normal_cost": "45000"
+    },
+    {
+      "id": "DT66",
+      "activity": "Data Migration Trial 1",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT62,DT63,DT65",
+      "min_duration": "3",
+      "crash_cost": "22000",
+      "resource_demand": "3",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "DT67",
+      "activity": "Data Validation Framework",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT65",
+      "min_duration": "4",
+      "crash_cost": "30000",
+      "resource_demand": "3",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "DT68",
+      "activity": "Data Migration Trial 2",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT66,DT67",
+      "min_duration": "3",
+      "crash_cost": "22000",
+      "resource_demand": "3",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "DT69",
+      "activity": "Data Quality Reporting",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT67,DT68",
+      "min_duration": "3",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT70",
+      "activity": "Data Governance Framework",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT61",
+      "min_duration": "4",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "DT71",
+      "activity": "Archive Strategy",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT70",
+      "min_duration": "3",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT72",
+      "activity": "Full Dress Rehearsal Migration",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT68,DT69,DT70",
+      "min_duration": "3",
+      "crash_cost": "30000",
+      "resource_demand": "3",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "DT73",
+      "activity": "Migration Rollback Plan",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT68",
+      "min_duration": "2",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "DT74",
+      "activity": "Production Migration Readiness",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT72,DT73",
+      "min_duration": "2",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT75",
+      "activity": "Data Migration Sign-off",
+      "optimistic": "1",
+      "most_likely": "1",
+      "pessimistic": "2",
+      "predecessors": "DT71,DT74",
+      "min_duration": "1",
+      "crash_cost": "7500",
+      "resource_demand": "1",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "DT76",
+      "activity": "System Integration Testing Plan",
+      "optimistic": "1",
+      "most_likely": "2",
+      "pessimistic": "3",
+      "predecessors": "DT75",
+      "min_duration": "1",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT77",
+      "activity": "SIT — Finance Module",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT75",
+      "min_duration": "4",
+      "crash_cost": "30000",
+      "resource_demand": "3",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "DT78",
+      "activity": "SIT — HR Module",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT75",
+      "min_duration": "4",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "DT79",
+      "activity": "SIT — SCM Module",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT77",
+      "min_duration": "4",
+      "crash_cost": "30000",
+      "resource_demand": "3",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "DT80",
+      "activity": "SIT — CRM & Portal",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT78",
+      "min_duration": "4",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "DT81",
+      "activity": "End-to-End Integration Testing",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT77,DT78,DT79,DT80",
+      "min_duration": "4",
+      "crash_cost": "37000",
+      "resource_demand": "4",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "DT82",
+      "activity": "Security Penetration Testing",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT76",
+      "min_duration": "4",
+      "crash_cost": "30000",
+      "resource_demand": "3",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "DT83",
+      "activity": "Performance & Load Testing",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT59,DT81",
+      "min_duration": "4",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "DT84",
+      "activity": "Accessibility Testing",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT80",
+      "min_duration": "3",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT85",
+      "activity": "Regression Testing",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT81",
+      "min_duration": "3",
+      "crash_cost": "21000",
+      "resource_demand": "3",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "DT86",
+      "activity": "User Acceptance Testing — Pilot",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT81,DT82,DT83",
+      "min_duration": "4",
+      "crash_cost": "33000",
+      "resource_demand": "3",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "DT87",
+      "activity": "UAT Defect Remediation",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT86",
+      "min_duration": "4",
+      "crash_cost": "30000",
+      "resource_demand": "4",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "DT88",
+      "activity": "UAT Sign-off",
+      "optimistic": "1",
+      "most_likely": "2",
+      "pessimistic": "3",
+      "predecessors": "DT84,DT85,DT87",
+      "min_duration": "1",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "DT89",
+      "activity": "Operational Readiness Assessment",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT87",
+      "min_duration": "3",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT90",
+      "activity": "QA Phase Sign-off",
+      "optimistic": "1",
+      "most_likely": "1",
+      "pessimistic": "2",
+      "predecessors": "DT88,DT89",
+      "min_duration": "1",
+      "crash_cost": "7500",
+      "resource_demand": "1",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "DT91",
+      "activity": "Training Needs Analysis",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT90,DT9",
+      "min_duration": "2",
+      "crash_cost": "22000",
+      "resource_demand": "2",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "DT92",
+      "activity": "Training Material Development",
+      "optimistic": "5",
+      "most_likely": "6",
+      "pessimistic": "10",
+      "predecessors": "DT90",
+      "min_duration": "5",
+      "crash_cost": "45000",
+      "resource_demand": "3",
+      "normal_cost": "30000"
+    },
+    {
+      "id": "DT93",
+      "activity": "E-learning Content Creation",
+      "optimistic": "5",
+      "most_likely": "6",
+      "pessimistic": "10",
+      "predecessors": "DT92",
+      "min_duration": "5",
+      "crash_cost": "33000",
+      "resource_demand": "3",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "DT94",
+      "activity": "Train-the-Trainer Programme",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT91,DT92",
+      "min_duration": "3",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "DT95",
+      "activity": "Change Champions Network",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT90",
+      "min_duration": "3",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT96",
+      "activity": "Communication Plan Execution",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT95",
+      "min_duration": "4",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "DT97",
+      "activity": "Super-user Training — Finance",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT94",
+      "min_duration": "3",
+      "crash_cost": "24000",
+      "resource_demand": "3",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "DT98",
+      "activity": "Super-user Training — HR",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT94",
+      "min_duration": "3",
+      "crash_cost": "21000",
+      "resource_demand": "3",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "DT99",
+      "activity": "Super-user Training — SCM",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT97",
+      "min_duration": "3",
+      "crash_cost": "21000",
+      "resource_demand": "3",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "DT100",
+      "activity": "Super-user Training — CRM",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT98",
+      "min_duration": "3",
+      "crash_cost": "21000",
+      "resource_demand": "3",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "DT101",
+      "activity": "End-user Training Rollout",
+      "optimistic": "6",
+      "most_likely": "7",
+      "pessimistic": "11",
+      "predecessors": "DT97,DT98,DT99,DT100",
+      "min_duration": "6",
+      "crash_cost": "60000",
+      "resource_demand": "5",
+      "normal_cost": "40000"
+    },
+    {
+      "id": "DT102",
+      "activity": "Resistance Management",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT96",
+      "min_duration": "3",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT103",
+      "activity": "Hypercare Support Planning",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT101",
+      "min_duration": "3",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT104",
+      "activity": "Knowledge Base Setup",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT93,DT101",
+      "min_duration": "3",
+      "crash_cost": "21000",
+      "resource_demand": "2",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "DT105",
+      "activity": "Training & Change Sign-off",
+      "optimistic": "1",
+      "most_likely": "1",
+      "pessimistic": "2",
+      "predecessors": "DT102,DT103,DT104",
+      "min_duration": "1",
+      "crash_cost": "7500",
+      "resource_demand": "1",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "DT106",
+      "activity": "Production Environment Hardening",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT105",
+      "min_duration": "3",
+      "crash_cost": "33000",
+      "resource_demand": "3",
+      "normal_cost": "22000"
+    },
+    {
+      "id": "DT107",
+      "activity": "Operational Runbook Development",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT105",
+      "min_duration": "3",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "DT108",
+      "activity": "Monitoring & Alerting Configuration",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT106",
+      "min_duration": "3",
+      "crash_cost": "24000",
+      "resource_demand": "3",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "DT109",
+      "activity": "Incident & Problem Management Setup",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT107",
+      "min_duration": "3",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT110",
+      "activity": "Service Desk Configuration",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT107",
+      "min_duration": "3",
+      "crash_cost": "21000",
+      "resource_demand": "2",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "DT111",
+      "activity": "SLA & KPI Framework",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT107",
+      "min_duration": "3",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT112",
+      "activity": "Backup & Recovery Testing",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT106,DT108",
+      "min_duration": "3",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT113",
+      "activity": "Capacity Planning",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT106",
+      "min_duration": "3",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT114",
+      "activity": "IT Ops Handover Training",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT108,DT109",
+      "min_duration": "3",
+      "crash_cost": "21000",
+      "resource_demand": "2",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "DT115",
+      "activity": "Security Ops Certification",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT109,DT110",
+      "min_duration": "3",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT116",
+      "activity": "Hypercare Team Mobilisation",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT111,DT113",
+      "min_duration": "2",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT117",
+      "activity": "Go-live Readiness Checklist",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT112,DT114,DT115",
+      "min_duration": "2",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "DT118",
+      "activity": "Cutover Plan Finalisation",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT116,DT117",
+      "min_duration": "2",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT119",
+      "activity": "Rollback Decision Framework",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT117",
+      "min_duration": "2",
+      "crash_cost": "9000",
+      "resource_demand": "1",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "DT120",
+      "activity": "Operations Readiness Sign-off",
+      "optimistic": "1",
+      "most_likely": "1",
+      "pessimistic": "2",
+      "predecessors": "DT118,DT119",
+      "min_duration": "1",
+      "crash_cost": "7500",
+      "resource_demand": "1",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "DT121",
+      "activity": "Pre Cutover Freeze",
+      "optimistic": "1",
+      "most_likely": "1",
+      "pessimistic": "2",
+      "predecessors": "DT120",
+      "min_duration": "1",
+      "crash_cost": "7500",
+      "resource_demand": "1",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "DT122",
+      "activity": "Legacy System Shutdown",
+      "optimistic": "1",
+      "most_likely": "1",
+      "pessimistic": "2",
+      "predecessors": "DT121",
+      "min_duration": "1",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "DT123",
+      "activity": "Production Data Migration",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT121",
+      "min_duration": "2",
+      "crash_cost": "37000",
+      "resource_demand": "4",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "DT124",
+      "activity": "Production Cutover",
+      "optimistic": "1",
+      "most_likely": "2",
+      "pessimistic": "3",
+      "predecessors": "DT122,DT123",
+      "min_duration": "1",
+      "crash_cost": "22000",
+      "resource_demand": "3",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "DT125",
+      "activity": "Day 1 Hypercare Support",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT124",
+      "min_duration": "4",
+      "crash_cost": "30000",
+      "resource_demand": "4",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "DT126",
+      "activity": "Week 1 Incident Resolution",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT125",
+      "min_duration": "2",
+      "crash_cost": "27000",
+      "resource_demand": "4",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "DT127",
+      "activity": "Performance Monitoring — Week 1",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT125",
+      "min_duration": "2",
+      "crash_cost": "15000",
+      "resource_demand": "3",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT128",
+      "activity": "Stabilisation Report",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT126,DT127",
+      "min_duration": "2",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT129",
+      "activity": "Finance Module Stabilisation",
+      "optimistic": "5",
+      "most_likely": "6",
+      "pessimistic": "10",
+      "predecessors": "DT125",
+      "min_duration": "5",
+      "crash_cost": "21000",
+      "resource_demand": "3",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "DT130",
+      "activity": "HR Module Stabilisation",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT125",
+      "min_duration": "4",
+      "crash_cost": "18000",
+      "resource_demand": "3",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT131",
+      "activity": "SCM Module Stabilisation",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT129",
+      "min_duration": "4",
+      "crash_cost": "18000",
+      "resource_demand": "3",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT132",
+      "activity": "CRM Stabilisation",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT130",
+      "min_duration": "4",
+      "crash_cost": "18000",
+      "resource_demand": "3",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT133",
+      "activity": "Enhanced Training — Struggling Users",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT128",
+      "min_duration": "4",
+      "crash_cost": "24000",
+      "resource_demand": "3",
+      "normal_cost": "16000"
+    },
+    {
+      "id": "DT134",
+      "activity": "Hypercare Review Meeting",
+      "optimistic": "1",
+      "most_likely": "2",
+      "pessimistic": "3",
+      "predecessors": "DT129,DT130,DT131,DT132,DT133",
+      "min_duration": "1",
+      "crash_cost": "9000",
+      "resource_demand": "2",
+      "normal_cost": "6000"
+    },
+    {
+      "id": "DT135",
+      "activity": "Go-live Phase Sign-off",
+      "optimistic": "1",
+      "most_likely": "1",
+      "pessimistic": "2",
+      "predecessors": "DT134",
+      "min_duration": "1",
+      "crash_cost": "7500",
+      "resource_demand": "1",
+      "normal_cost": "5000"
+    },
+    {
+      "id": "DT136",
+      "activity": "Operational KPI Baseline",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT135",
+      "min_duration": "3",
+      "crash_cost": "21000",
+      "resource_demand": "2",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "DT137",
+      "activity": "Benefits Tracking Dashboard",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT135",
+      "min_duration": "4",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "DT138",
+      "activity": "Process Optimisation Review",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT136",
+      "min_duration": "4",
+      "crash_cost": "30000",
+      "resource_demand": "3",
+      "normal_cost": "20000"
+    },
+    {
+      "id": "DT139",
+      "activity": "Advanced Analytics Enablement",
+      "optimistic": "5",
+      "most_likely": "6",
+      "pessimistic": "10",
+      "predecessors": "DT137",
+      "min_duration": "5",
+      "crash_cost": "37000",
+      "resource_demand": "3",
+      "normal_cost": "25000"
+    },
+    {
+      "id": "DT140",
+      "activity": "Lessons Learned Workshop",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT136",
+      "min_duration": "2",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT141",
+      "activity": "Post-implementation Review Report",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT138,DT140",
+      "min_duration": "3",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT142",
+      "activity": "Phase 2 Roadmap Planning",
+      "optimistic": "4",
+      "most_likely": "5",
+      "pessimistic": "8",
+      "predecessors": "DT139",
+      "min_duration": "4",
+      "crash_cost": "27000",
+      "resource_demand": "3",
+      "normal_cost": "18000"
+    },
+    {
+      "id": "DT143",
+      "activity": "Vendor Contract Closure",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT141",
+      "min_duration": "3",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "DT144",
+      "activity": "Knowledge Transfer to Operations",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT141",
+      "min_duration": "3",
+      "crash_cost": "21000",
+      "resource_demand": "2",
+      "normal_cost": "14000"
+    },
+    {
+      "id": "DT145",
+      "activity": "GDPR & Compliance Certification",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT141",
+      "min_duration": "3",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT146",
+      "activity": "Financial Benefit Verification",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT142,DT143",
+      "min_duration": "3",
+      "crash_cost": "18000",
+      "resource_demand": "2",
+      "normal_cost": "12000"
+    },
+    {
+      "id": "DT147",
+      "activity": "Benefits Realisation Report",
+      "optimistic": "3",
+      "most_likely": "4",
+      "pessimistic": "7",
+      "predecessors": "DT144,DT145,DT146",
+      "min_duration": "3",
+      "crash_cost": "22000",
+      "resource_demand": "2",
+      "normal_cost": "15000"
+    },
+    {
+      "id": "DT148",
+      "activity": "Programme Archive & Documentation",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT147",
+      "min_duration": "2",
+      "crash_cost": "12000",
+      "resource_demand": "2",
+      "normal_cost": "8000"
+    },
+    {
+      "id": "DT149",
+      "activity": "Steering Committee Final Review",
+      "optimistic": "2",
+      "most_likely": "3",
+      "pessimistic": "5",
+      "predecessors": "DT147",
+      "min_duration": "2",
+      "crash_cost": "15000",
+      "resource_demand": "2",
+      "normal_cost": "10000"
+    },
+    {
+      "id": "DT150",
+      "activity": "Programme Closure & Sign-off",
+      "optimistic": "1",
+      "most_likely": "1",
+      "pessimistic": "2",
+      "predecessors": "DT148,DT149",
+      "min_duration": "1",
+      "crash_cost": "7500",
+      "resource_demand": "1",
+      "normal_cost": "5000"
+    }
+  ],
+  "cpm_mode": "probabilistic",
+  "swot_analysis": {
+    "factors": [
+      {
+        "text": "Strong executive sponsorship with C-suite commitment to digital strategy",
+        "category": "Strength",
+        "source": "Charter",
+        "weight": 0.9,
+        "linked_to": "business_case"
+      },
+      {
+        "text": "Cross-functional programme team with enterprise architecture expertise",
+        "category": "Strength",
+        "source": "Charter",
+        "weight": 0.85,
+        "linked_to": "team_capability"
+      },
+      {
+        "text": "CPI > 1.0 — programme running under budget at current reporting period",
+        "category": "Strength",
+        "source": "EVM",
+        "weight": 0.7,
+        "linked_to": "evm_cpi"
+      },
+      {
+        "text": "Clear benefits realisation framework with measurable KPIs",
+        "category": "Strength",
+        "source": "EVM",
+        "weight": 0.65,
+        "linked_to": "evm_spi"
+      },
+      {
+        "text": "Legacy system complexity — 20+ systems with undocumented integrations",
+        "category": "Weakness",
+        "source": "Charter",
+        "weight": 0.85,
+        "linked_to": "skill_gap"
+      },
+      {
+        "text": "Limited internal cloud-native and DevOps capability",
+        "category": "Weakness",
+        "source": "Charter",
+        "weight": 0.7,
+        "linked_to": "budget_constraint"
+      },
+      {
+        "text": "Organisational change fatigue from concurrent transformation initiatives",
+        "category": "Weakness",
+        "source": "Manual",
+        "weight": 0.6,
+        "linked_to": ""
+      },
+      {
+        "text": "Cloud-first strategy enables scalability and reduces infrastructure costs by 30%",
+        "category": "Opportunity",
+        "source": "Charter",
+        "weight": 0.8,
+        "linked_to": "business_case"
+      },
+      {
+        "text": "AI and automation capabilities can deliver additional 25% efficiency gains",
+        "category": "Opportunity",
+        "source": "Manual",
+        "weight": 0.75,
+        "linked_to": ""
+      },
+      {
+        "text": "Unified data platform enables advanced analytics and data-driven decisions",
+        "category": "Opportunity",
+        "source": "Manual",
+        "weight": 0.7,
+        "linked_to": ""
+      },
+      {
+        "text": "Scope Creep — business units continuously expanding requirements post-sign-off",
+        "category": "Threat",
+        "source": "Risk Register",
+        "weight": 0.9,
+        "linked_to": "SR1"
+      },
+      {
+        "text": "Vendor Delivery Failure — major SaaS vendor fails to deliver contracted functionality",
+        "category": "Threat",
+        "source": "Risk Register",
+        "weight": 0.8,
+        "linked_to": "SR3"
+      },
+      {
+        "text": "Change Resistance — low adoption rates requiring extended hypercare & retraining",
+        "category": "Threat",
+        "source": "Risk Register",
+        "weight": 0.7,
+        "linked_to": "SR5"
+      },
+      {
+        "text": "Security Breach — cyber incident during migration exposing sensitive data",
+        "category": "Threat",
+        "source": "Risk Register",
+        "weight": 0.6,
+        "linked_to": "SR7"
+      }
+    ]
+  },
+  "pestel_analysis": {
+    "factors": [
+      {
+        "category": "Political",
+        "description": "Government digital-first mandates accelerate public-sector transformation funding",
+        "impact_score": 3.0,
+        "probability": 0.7,
+        "timeframe": "Medium-term",
+        "mitigation": "Align programme deliverables with eligibility criteria for digital grants",
+        "linked_to": ""
+      },
+      {
+        "category": "Political",
+        "description": "Data sovereignty regulations require all citizen data hosted within national borders",
+        "impact_score": -2.0,
+        "probability": 0.5,
+        "timeframe": "Long-term",
+        "mitigation": "Ensure cloud provider offers in-country data centres and residency controls",
+        "linked_to": "SR8"
+      },
+      {
+        "category": "Economic",
+        "description": "Rising cloud infrastructure and SaaS subscription costs exceeding estimates",
+        "impact_score": -3.0,
+        "probability": 0.6,
+        "timeframe": "Short-term",
+        "mitigation": "Negotiate multi-year enterprise agreements with volume discounts",
+        "linked_to": "SR9"
+      },
+      {
+        "category": "Economic",
+        "description": "Digital transformation ROI projected at 200%+ through legacy decommissioning",
+        "impact_score": 4.0,
+        "probability": 0.85,
+        "timeframe": "Long-term",
+        "mitigation": "Track benefits realisation quarterly against business case baseline",
+        "linked_to": ""
+      },
+      {
+        "category": "Social",
+        "description": "Workforce increasingly expects modern, mobile-first digital tools",
+        "impact_score": 3.0,
+        "probability": 0.8,
+        "timeframe": "Short-term",
+        "mitigation": "Prioritise user-experience design sprints for high-adoption platforms",
+        "linked_to": ""
+      },
+      {
+        "category": "Social",
+        "description": "Resistance to new ways of working from long-tenured operational staff",
+        "impact_score": -2.5,
+        "probability": 0.6,
+        "timeframe": "Medium-term",
+        "mitigation": "Deploy change champions and targeted coaching for resistant teams",
+        "linked_to": "SR5"
+      },
+      {
+        "category": "Technological",
+        "description": "Low-code/no-code platforms accelerate delivery of citizen-developer applications",
+        "impact_score": 3.5,
+        "probability": 0.7,
+        "timeframe": "Short-term",
+        "mitigation": "Establish governance framework for citizen-developer outputs",
+        "linked_to": ""
+      },
+      {
+        "category": "Technological",
+        "description": "Legacy system APIs lack modern authentication and use deprecated protocols",
+        "impact_score": -3.0,
+        "probability": 0.55,
+        "timeframe": "Medium-term",
+        "mitigation": "Build API gateway with adapter layer and retry logic for legacy connectors",
+        "linked_to": "SR6"
+      },
+      {
+        "category": "Environmental",
+        "description": "Cloud migration reduces on-premise data centre energy consumption and carbon footprint",
+        "impact_score": 2.0,
+        "probability": 0.8,
+        "timeframe": "Long-term",
+        "mitigation": "Include green-cloud metrics in ESG reporting dashboard",
+        "linked_to": ""
+      },
+      {
+        "category": "Environmental",
+        "description": "ESG reporting now requires tracking digital carbon footprint of SaaS workloads",
+        "impact_score": -1.0,
+        "probability": 0.35,
+        "timeframe": "Long-term",
+        "mitigation": "Select carbon-neutral cloud regions and enable usage monitoring",
+        "linked_to": ""
+      },
+      {
+        "category": "Legal",
+        "description": "GDPR and data protection compliance requires encryption and data processing agreements",
+        "impact_score": -2.5,
+        "probability": 0.9,
+        "timeframe": "Short-term",
+        "mitigation": "Implement AES-256 encryption at rest/in transit; execute DPAs with all vendors",
+        "linked_to": "SR8"
+      },
+      {
+        "category": "Legal",
+        "description": "Open-source license compliance needed for all third-party libraries in platform",
+        "impact_score": -1.5,
+        "probability": 0.5,
+        "timeframe": "Medium-term",
+        "mitigation": "Run automated SBOM and license scanner in CI/CD pipeline",
+        "linked_to": ""
+      }
+    ]
+  },
+  "wbs_tree": {
+    "project_name": "Digital Transformation (PG Demo)",
+    "nodes": [
+      {
+        "id": "wbs-root",
+        "wbs_code": "1",
+        "name": "Digital Transformation Programme",
+        "parent_id": "",
+        "duration": 96,
+        "cost": 2866000,
+        "progress": 40.0,
+        "status": "In Progress",
+        "responsible": "Programme Manager",
+        "description": "Enterprise-wide digital transformation programme",
+        "linked_task_id": "",
+        "sort_order": 0
+      },
+      {
+        "id": "wbs-init",
+        "wbs_code": "1.1",
+        "name": "Programme Initiation",
+        "parent_id": "wbs-root",
+        "duration": 8,
+        "cost": 97000,
+        "progress": 100.0,
+        "status": "Completed",
+        "responsible": "Programme Director",
+        "description": "Charter, sponsorship, business case, and stakeholder analysis",
+        "linked_task_id": "",
+        "sort_order": 0
+      },
+      {
+        "id": "wbs-assess",
+        "wbs_code": "1.2",
+        "name": "Current State Assessment",
+        "parent_id": "wbs-root",
+        "duration": 12,
+        "cost": 180000,
+        "progress": 100.0,
+        "status": "Completed",
+        "responsible": "Enterprise Architect",
+        "description": "Technology audit, process mapping, and digital maturity assessment",
+        "linked_task_id": "",
+        "sort_order": 1
+      },
+      {
+        "id": "wbs-strategy",
+        "wbs_code": "1.3",
+        "name": "Strategy & Roadmap",
+        "parent_id": "wbs-root",
+        "duration": 10,
+        "cost": 210000,
+        "progress": 100.0,
+        "status": "Completed",
+        "responsible": "Strategy Lead",
+        "description": "Digital strategy formulation and transformation roadmap",
+        "linked_task_id": "",
+        "sort_order": 2
+      },
+      {
+        "id": "wbs-cloud",
+        "wbs_code": "1.4",
+        "name": "Cloud & Infrastructure",
+        "parent_id": "wbs-root",
+        "duration": 18,
+        "cost": 420000,
+        "progress": 65.0,
+        "status": "In Progress",
+        "responsible": "Cloud Architect",
+        "description": "Cloud platform setup, migration, and infrastructure modernisation",
+        "linked_task_id": "",
+        "sort_order": 3
+      },
+      {
+        "id": "wbs-apps",
+        "wbs_code": "1.5",
+        "name": "Application Modernisation",
+        "parent_id": "wbs-root",
+        "duration": 22,
+        "cost": 550000,
+        "progress": 45.0,
+        "status": "In Progress",
+        "responsible": "App Modernisation Lead",
+        "description": "Legacy application re-platforming and SaaS adoption",
+        "linked_task_id": "",
+        "sort_order": 4
+      },
+      {
+        "id": "wbs-data",
+        "wbs_code": "1.6",
+        "name": "Data & Analytics Platform",
+        "parent_id": "wbs-root",
+        "duration": 16,
+        "cost": 380000,
+        "progress": 30.0,
+        "status": "In Progress",
+        "responsible": "Data Architect",
+        "description": "Unified data lake, analytics dashboards, and AI/ML foundations",
+        "linked_task_id": "",
+        "sort_order": 5
+      },
+      {
+        "id": "wbs-integrate",
+        "wbs_code": "1.7",
+        "name": "Integration & Automation",
+        "parent_id": "wbs-root",
+        "duration": 14,
+        "cost": 340000,
+        "progress": 20.0,
+        "status": "In Progress",
+        "responsible": "Integration Lead",
+        "description": "API gateway, process automation, and system integration",
+        "linked_task_id": "",
+        "sort_order": 6
+      },
+      {
+        "id": "wbs-change",
+        "wbs_code": "1.8",
+        "name": "Change Management & Training",
+        "parent_id": "wbs-root",
+        "duration": 20,
+        "cost": 350000,
+        "progress": 10.0,
+        "status": "In Progress",
+        "responsible": "Change Manager",
+        "description": "Organisational change management, training, and adoption",
+        "linked_task_id": "",
+        "sort_order": 7
+      },
+      {
+        "id": "wbs-govern",
+        "wbs_code": "1.9",
+        "name": "Governance & Closeout",
+        "parent_id": "wbs-root",
+        "duration": 8,
+        "cost": 339000,
+        "progress": 0.0,
+        "status": "Not Started",
+        "responsible": "PMO Lead",
+        "description": "Benefits realisation, lessons learned, and programme closeout",
+        "linked_task_id": "",
+        "sort_order": 8
+      }
+    ]
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "name": "PESTEL Analysis Demo — Office Renovation Project",
+  "description": "12 PESTEL factors (2 per category) for a commercial office renovation project. Covers Political, Economic, Social, Technological, Environmental, and Legal dimensions with varied impact scores and probabilities.",
+  "version": 1,
+  "feature": "pestel",
+  "data": {
+    "factors": [
+      {
+        "category": "Political",
+        "description": "City council fast-track building permits for green renovations",
+        "impact_score": 3.0,
+        "probability": 0.7,
+        "timeframe": "Short-term",
+        "mitigation": "Apply for green renovation incentive programme",
+        "linked_to": ""
+      },
+      {
+        "category": "Political",
+        "description": "Zoning changes may restrict construction noise hours",
+        "impact_score": -2.0,
+        "probability": 0.4,
+        "timeframe": "Medium-term",
+        "mitigation": "Schedule noisy work during permitted hours; coordinate with council",
+        "linked_to": ""
+      },
+      {
+        "category": "Economic",
+        "description": "Rising material costs due to supply-chain inflation (+10%)",
+        "impact_score": -3.0,
+        "probability": 0.8,
+        "timeframe": "Short-term",
+        "mitigation": "Lock in fixed-price material contracts with key suppliers",
+        "linked_to": ""
+      },
+      {
+        "category": "Economic",
+        "description": "Tax rebate available for energy-efficient building upgrades",
+        "impact_score": 4.0,
+        "probability": 0.6,
+        "timeframe": "Medium-term",
+        "mitigation": "Ensure HVAC and lighting upgrades meet rebate criteria",
+        "linked_to": ""
+      },
+      {
+        "category": "Social",
+        "description": "Employee demand for collaborative open-plan workspaces",
+        "impact_score": 2.0,
+        "probability": 0.9,
+        "timeframe": "Short-term",
+        "mitigation": "Include flexible meeting pods and hot-desk areas in design",
+        "linked_to": ""
+      },
+      {
+        "category": "Social",
+        "description": "Neighbouring businesses may complain about renovation disruption",
+        "impact_score": -2.0,
+        "probability": 0.5,
+        "timeframe": "Short-term",
+        "mitigation": "Communicate timeline to neighbours; minimise weekend work",
+        "linked_to": ""
+      },
+      {
+        "category": "Technological",
+        "description": "Smart building IoT systems reduce long-term maintenance costs",
+        "impact_score": 4.0,
+        "probability": 0.7,
+        "timeframe": "Long-term",
+        "mitigation": "Integrate IoT sensors during electrical rough-in phase",
+        "linked_to": ""
+      },
+      {
+        "category": "Technological",
+        "description": "Legacy HVAC ductwork incompatible with new smart thermostats",
+        "impact_score": -2.5,
+        "probability": 0.5,
+        "timeframe": "Medium-term",
+        "mitigation": "Budget for adapter kits or partial duct replacement",
+        "linked_to": ""
+      },
+      {
+        "category": "Environmental",
+        "description": "Green building certification (LEED) improves property value",
+        "impact_score": 3.5,
+        "probability": 0.6,
+        "timeframe": "Long-term",
+        "mitigation": "Target LEED Silver by using recycled materials and efficient systems",
+        "linked_to": ""
+      },
+      {
+        "category": "Environmental",
+        "description": "Asbestos survey required before demolition phase",
+        "impact_score": -3.0,
+        "probability": 0.3,
+        "timeframe": "Short-term",
+        "mitigation": "Engage certified asbestos assessor before demolition begins",
+        "linked_to": ""
+      },
+      {
+        "category": "Legal",
+        "description": "Updated fire safety regulations require additional sprinkler zones",
+        "impact_score": -2.0,
+        "probability": 0.8,
+        "timeframe": "Short-term",
+        "mitigation": "Include fire suppression upgrade in scope and budget",
+        "linked_to": ""
+      },
+      {
+        "category": "Legal",
+        "description": "Accessibility compliance (ADA) requires restroom modifications",
+        "impact_score": -1.5,
+        "probability": 0.9,
+        "timeframe": "Short-term",
+        "mitigation": "Add ADA-compliant restroom to renovation scope",
+        "linked_to": ""
+      }
+    ]
+  }
+}

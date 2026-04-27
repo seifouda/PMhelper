@@ -99,7 +99,8 @@ def sugiyama_layout(G, x_spacing=3.5, y_spacing=4.0, num_passes=4):
                     neighbors = list(G.successors(node))
                 connected = [n for n in neighbors if n in pos]
                 if connected:
-                    bary_values[node] = sum(pos[n][1] for n in connected) / len(connected)
+                    bary_values[node] = sum(pos[n][1]
+                                            for n in connected) / len(connected)
                 else:
                     bary_values[node] = pos[node][1]
             layer.sort(key=lambda n: bary_values.get(n, 0))
@@ -166,7 +167,8 @@ def draw_edges_polyline(ax, G, pos, all_pos, virtual_nodes, edge_paths,
     for (u_orig, v_orig), path in edge_paths.items():
         if len(path) < 2:
             continue
-        is_critical = critical_check(u_orig, v_orig) if critical_check else False
+        is_critical = critical_check(
+            u_orig, v_orig) if critical_check else False
         edge_color = 'red' if is_critical else 'black'
         edge_lw = 2.0 if is_critical else 1.5
 
@@ -179,7 +181,8 @@ def draw_edges_polyline(ax, G, pos, all_pos, virtual_nodes, edge_paths,
         if path[0] not in virtual_nodes and len(processed) >= 2:
             processed[0] = _offset(*processed[0], *processed[1], node_radius)
         if path[-1] not in virtual_nodes and len(processed) >= 2:
-            processed[-1] = _offset(*processed[-1], *processed[-2], node_radius)
+            processed[-1] = _offset(*processed[-1], *
+                                    processed[-2], node_radius)
 
         # Intermediate segments → batch buffer
         if len(processed) > 2:

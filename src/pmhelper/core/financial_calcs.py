@@ -20,9 +20,8 @@ Supported metrics
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -51,10 +50,12 @@ class PaybackDetail:
 class FinancialResult:
     """All six metric values + supporting detail rows."""
     payback_period: Optional[float]            # periods; None if never recovered
-    discounted_payback: Optional[float]        # periods; None if never recovered
+    # periods; None if never recovered
+    discounted_payback: Optional[float]
     roi: float                                 # %
     npv: float
-    irr: Optional[float]                       # decimal rate; None if not found
+    # decimal rate; None if not found
+    irr: Optional[float]
     profitability_index: float
 
     payback_details: List[PaybackDetail] = field(default_factory=list)
@@ -202,7 +203,8 @@ class FinancialCalcs:
         total_cf = sum(cash_flows)
         if initial_investment == 0:
             return 0.0
-        return round(((total_cf - initial_investment) / initial_investment) * 100.0, 4)
+        return round(((total_cf - initial_investment) /
+                     initial_investment) * 100.0, 4)
 
     # ── Profitability Index ───────────────────────────────────────
 
@@ -242,18 +244,19 @@ class FinancialCalcs:
         FinancialResult
         """
         rate = inputs.discount_rate
-        inv  = inputs.initial_investment
-        cfs  = inputs.cash_flows
+        inv = inputs.initial_investment
+        cfs = inputs.cash_flows
 
-        # Build payback detail table (used by multiple metrics + step generator)
+        # Build payback detail table (used by multiple metrics + step
+        # generator)
         details = cls._payback_details(inv, cfs, rate)
 
-        pb  = cls.payback_period(inv, cfs, details)
+        pb = cls.payback_period(inv, cfs, details)
         dpb = cls.discounted_payback(inv, cfs, rate)
         roi = cls.roi(inv, cfs)
         npv_val = cls.npv(inv, cfs, rate)
         irr_val = cls.irr(inv, cfs)
-        pi  = cls.profitability_index(inv, cfs, rate)
+        pi = cls.profitability_index(inv, cfs, rate)
 
         # Build plain-English interpretations
         interp: dict = {}
@@ -271,8 +274,9 @@ class FinancialCalcs:
             )
         else:
             interp["discounted_payback"] = (
-                f"Discounted payback: {dpb:.2f} periods at {rate*100:.1f}% discount rate."
-            )
+                f"Discounted payback: {
+                    dpb:.2f} periods at {
+                    rate * 100:.1f}% discount rate.")
 
         interp["roi"] = (
             f"ROI of {roi:.2f}% — "
@@ -291,10 +295,10 @@ class FinancialCalcs:
             interp["irr"] = "IRR could not be computed (no real root found)."
         else:
             interp["irr"] = (
-                f"IRR = {irr_val*100:.2f}%. "
-                + (f"Exceeds hurdle rate ({rate*100:.1f}%) — ACCEPT."
+                f"IRR = {irr_val * 100:.2f}%. "
+                + (f"Exceeds hurdle rate ({rate * 100:.1f}%) — ACCEPT."
                    if irr_val > rate
-                   else f"Below hurdle rate ({rate*100:.1f}%) — REJECT.")
+                   else f"Below hurdle rate ({rate * 100:.1f}%) — REJECT.")
             )
 
         interp["pi"] = (

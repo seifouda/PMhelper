@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import tkinter as tk
 from tkinter import ttk
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, List
 
 from pmhelper.gui.widgets.worked_solution_window import WorkedSolutionWindow
 
@@ -166,4 +166,5 @@ class EducationalCalculatorTab:
                 "Run a calculation first to generate the worked solution.")
             return
         WorkedSolutionWindow(
-            self.frame, f"{self.TAB_TITLE} — Worked Solution", self._last_steps)
+            self.frame, f"{
+                self.TAB_TITLE} — Worked Solution", self._last_steps)
