@@ -53,6 +53,9 @@ scipy_datas, scipy_binaries, scipy_hiddenimports = collect_all('scipy')
 # ---- Data files to bundle ----
 datas_list = [
     (DEMOS_DIR, os.path.join('pmhelper', 'demos_edu')),
+    # Z-table used by the PERT/probability features (loader looks for it next to
+    # the pmhelper package)
+    (os.path.join(SRC_DIR, 'ztable.csv'), 'pmhelper'),
 ]
 datas_list.extend(scipy_datas)
 # Bundle assets directory (CSV examples, templates) if it exists

@@ -105,9 +105,9 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 pmhelper = [
-    "assets/*.csv",
-    "assets/*.xlsx", 
+    "ztable.csv",          # Z-table used by PERT/probability features
     "config/*.ini",
+    "demos_edu/*.json",
 ]
 
 [tool.black]

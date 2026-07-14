@@ -48,9 +48,9 @@ setup(
     include_package_data=True,
     package_data={
         "pmhelper": [
-            "assets/*.csv",
-            "assets/*.xlsx",
+            "ztable.csv",
             "config/*.ini",
+            "demos_edu/*.json",
         ],
     },
     classifiers=[

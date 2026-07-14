@@ -79,11 +79,11 @@ class ZLookupResult:
 
 def _default_csv_path() -> str:
     """Return the path to ``ztable.csv`` shipped with the package."""
-    # Try package-relative first (normal install / dev layout)
+    # ztable.csv ships inside the package (src/pmhelper/ztable.csv)
     pkg_dir = os.path.dirname(os.path.abspath(__file__))
     candidates = [
-        os.path.join(pkg_dir, "..", "..", "..", "ztable.csv"),   # src layout
-        os.path.join(pkg_dir, "..", "ztable.csv"),               # flat layout
+        os.path.join(pkg_dir, "..", "ztable.csv"),               # packaged (pmhelper/ztable.csv)
+        os.path.join(pkg_dir, "..", "..", "..", "ztable.csv"),   # legacy: repo root
         os.path.join(os.getcwd(), "ztable.csv"),                 # CWD fallback
     ]
     for p in candidates:

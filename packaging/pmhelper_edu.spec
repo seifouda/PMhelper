@@ -23,6 +23,9 @@ a = Analysis(
     binaries=[],
     datas=[
         (DEMOS_DIR, os.path.join('pmhelper', 'demos_edu')),
+        # Z-table used by the PERT/probability features (loader looks for it
+        # next to the pmhelper package)
+        (os.path.join(SRC_DIR, 'ztable.csv'), 'pmhelper'),
     ],
     hiddenimports=[
         'pmhelper',

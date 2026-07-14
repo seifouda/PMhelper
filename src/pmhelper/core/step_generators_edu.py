@@ -167,12 +167,9 @@ def pert_steps(results_data: Dict[str, Any],
         # Step 5b — Z-table lookup (best-effort; non-fatal if CSV missing)
         try:
             from pmhelper.core.ztable_loader import load_ztable, lookup_forward
-            import os
-            csv_path = os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
-                "..", "..", "..", "ztable.csv")
-            if os.path.isfile(csv_path):
-                _zt = load_ztable(csv_path)
+            # No path: the loader resolves ztable.csv shipped with the package
+            _zt = load_ztable()
+            if _zt is not None:
                 _res = lookup_forward(_zt, z)
                 if _res is not None:
                     steps.append(

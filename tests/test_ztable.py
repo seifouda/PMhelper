@@ -1,7 +1,6 @@
 """Tests for the Z-score table loader (Phase 10)."""
 from __future__ import annotations
 
-import os
 import pytest
 from pmhelper.core.ztable_loader import (
     ZTableData, ZLookupResult, load_ztable,
@@ -13,13 +12,12 @@ from pmhelper.core.ztable_loader import (
 
 @pytest.fixture(scope="module")
 def ztable() -> ZTableData:
-    """Load the shipped ztable.csv."""
-    # Walk up from this file to find the project root where ztable.csv lives
-    here = os.path.dirname(os.path.abspath(__file__))
-    csv_path = os.path.join(here, "..", "ztable.csv")
-    if not os.path.isfile(csv_path):
-        csv_path = os.path.join(here, "..", "..", "ztable.csv")
-    return load_ztable(csv_path)
+    """Load the shipped ztable.csv.
+
+    No path is passed: this exercises the loader's own resolution of the CSV
+    that ships inside the package (src/pmhelper/ztable.csv).
+    """
+    return load_ztable()
 
 
 # ════════════════════════════════════════════════════════════════════
