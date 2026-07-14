@@ -1,0 +1,165 @@
+{
+  "_meta": {
+    "document": "PMHE-2025-PESTEL-001",
+    "project": "PMHelper_Edu Development Project",
+    "format": "pmproj_pestel_analysis_v1",
+    "note": "PESTEL analysis for the PMHelper_Edu project environment. Impact score: -5 (very negative) to +5 (very positive). Load via .pmproj or PESTEL tab."
+  },
+  "title": "PMHelper_Edu — PESTEL Environmental Analysis",
+  "description": "Analysis of Political, Economic, Social, Technological, Environmental, and Legal factors affecting the PMHelper_Edu project and product. Assessed July 2026.",
+  "factors": [
+    {
+      "category": "Political",
+      "description": "Egyptian government 'Digital Egypt' initiative actively promotes educational technology adoption in universities, creating a favorable policy environment for EdTech startups.",
+      "impact_score": 3.5,
+      "probability": 0.8,
+      "timeframe": "Medium-term",
+      "mitigation": "",
+      "linked_to": "B4"
+    },
+    {
+      "category": "Political",
+      "description": "Egyptian export restrictions and international payment processing limitations (Visa/Mastercard constraints) complicate collecting institutional licensing fees from regional institutions.",
+      "impact_score": -2.0,
+      "probability": 0.4,
+      "timeframe": "Short-term",
+      "mitigation": "Offer EGP payments via local transfer for Egyptian institutions; USD wire transfer for international. Explore Stripe MENA options.",
+      "linked_to": "B1"
+    },
+    {
+      "category": "Economic",
+      "description": "EGP/USD exchange rate depreciation increases the real cost of USD-denominated services (GitHub Copilot ~USD 19/mo, Render.com ~USD 25/mo, domain ~USD 12/yr), eroding budget efficiency.",
+      "impact_score": -2.5,
+      "probability": 0.7,
+      "timeframe": "Short-term",
+      "mitigation": "Monitor exchange rate monthly. Budget includes 20% buffer for subscription costs. USD-denominated costs represent < 5% of total BAC.",
+      "linked_to": "BR-3"
+    },
+    {
+      "category": "Economic",
+      "description": "Rising interest in project management certifications (CAPM, PMP) among Egyptian engineering graduates as a differentiator in a competitive job market drives demand for PM education tools.",
+      "impact_score": 4.0,
+      "probability": 0.85,
+      "timeframe": "Medium-term",
+      "mitigation": "",
+      "linked_to": "SR-011"
+    },
+    {
+      "category": "Economic",
+      "description": "University education budget constraints in Egypt limit per-seat software spending; free/open-source approach directly addresses this barrier.",
+      "impact_score": 3.0,
+      "probability": 0.9,
+      "timeframe": "Long-term",
+      "mitigation": "",
+      "linked_to": "BR-002"
+    },
+    {
+      "category": "Social",
+      "description": "Growing 'learning by doing' pedagogy in engineering education — students and faculty increasingly prefer interactive tools over static textbook exercises.",
+      "impact_score": 4.0,
+      "probability": 0.8,
+      "timeframe": "Medium-term",
+      "mitigation": "",
+      "linked_to": "EDU-001"
+    },
+    {
+      "category": "Social",
+      "description": "Increasing hybrid learning adoption post-COVID: students expect both offline (desktop) and online (web) access to educational tools, validating the dual-distribution strategy.",
+      "impact_score": 3.5,
+      "probability": 0.85,
+      "timeframe": "Short-term",
+      "mitigation": "",
+      "linked_to": "FR-049"
+    },
+    {
+      "category": "Social",
+      "description": "Arabic-language preference in MENA academic settings means an English-only tool faces a language barrier that could limit deep penetration beyond English-medium universities.",
+      "impact_score": -2.0,
+      "probability": 0.6,
+      "timeframe": "Medium-term",
+      "mitigation": "Deferred to V3: Arabic UI localisation. Frame as a future enhancement rather than a current gap.",
+      "linked_to": "E3"
+    },
+    {
+      "category": "Technological",
+      "description": "AI-assisted development revolution (GitHub Copilot, Claude, GPT-4): enables a single-developer project to achieve output historically requiring 3-4 developers, validating the project's resource model.",
+      "impact_score": 5.0,
+      "probability": 1.0,
+      "timeframe": "Short-term",
+      "mitigation": "",
+      "linked_to": "A1"
+    },
+    {
+      "category": "Technological",
+      "description": "Python ecosystem maturity: NumPy, SciPy, Pandas, NetworkX, Matplotlib, Plotly are stable, well-maintained libraries that significantly accelerate educational PM software development.",
+      "impact_score": 4.0,
+      "probability": 1.0,
+      "timeframe": "Long-term",
+      "mitigation": "",
+      "linked_to": "TR-001"
+    },
+    {
+      "category": "Technological",
+      "description": "WebView2 (Chromium) distribution inconsistency: not all Windows lab computers have WebView2 pre-installed, affecting Plotly interactive chart rendering in the desktop application.",
+      "impact_score": -1.5,
+      "probability": 0.5,
+      "timeframe": "Short-term",
+      "mitigation": "Graceful fallback to Matplotlib implemented. Issue I-003 partially resolved. Optional: include WebView2 bootstrapper in GitHub Release package.",
+      "linked_to": "R-007"
+    },
+    {
+      "category": "Technological",
+      "description": "Angular and web framework rapid evolution creates maintenance burden: major version releases with breaking changes require periodic migration effort for the web frontend.",
+      "impact_score": -2.0,
+      "probability": 0.4,
+      "timeframe": "Long-term",
+      "mitigation": "Pin to LTS Angular version. Review upgrade path annually.",
+      "linked_to": "R-011"
+    },
+    {
+      "category": "Environmental",
+      "description": "Cloud-based deployment (Render.com) inherits the data center's energy efficiency; Render's infrastructure uses renewable energy in key data centers, aligning with ESG expectations of university partners.",
+      "impact_score": 1.0,
+      "probability": 0.7,
+      "timeframe": "Long-term",
+      "mitigation": "",
+      "linked_to": "1.5.4"
+    },
+    {
+      "category": "Environmental",
+      "description": "Desktop-first strategy reduces per-user server carbon footprint vs. cloud-only EdTech solutions — all computation runs locally, zero cloud resources consumed per student session.",
+      "impact_score": 2.0,
+      "probability": 1.0,
+      "timeframe": "Short-term",
+      "mitigation": "",
+      "linked_to": "NFR-004"
+    },
+    {
+      "category": "Legal",
+      "description": "MIT License permissiveness: allows any party to use, modify, and distribute without restriction. This maximises adoption but provides no legal protection against competitors who copy the codebase.",
+      "impact_score": 2.0,
+      "probability": 1.0,
+      "timeframe": "Long-term",
+      "mitigation": "Competitive advantage lies in community, documentation, and first-mover adoption — not in legal exclusivity. MIT is the correct license for an educational tool.",
+      "linked_to": "C6"
+    },
+    {
+      "category": "Legal",
+      "description": "Egyptian data protection law (Law No. 151 of 2020 on Personal Data Protection) may apply if any user data is collected by the web application. Current design collects no personal data.",
+      "impact_score": -1.0,
+      "probability": 0.3,
+      "timeframe": "Medium-term",
+      "mitigation": "Desktop application: no data collected, fully local. Web application: no user accounts, no PII collected. Privacy policy published stating no personal data collection.",
+      "linked_to": "NFR-006"
+    },
+    {
+      "category": "Legal",
+      "description": "PMI trademark restrictions: the terms 'PMP' and 'CAPM' are trademarked by PMI. Any marketing material claiming official PMI endorsement would require formal PMI authorization.",
+      "impact_score": -1.0,
+      "probability": 0.2,
+      "timeframe": "Short-term",
+      "mitigation": "All marketing says 'aligned with PMBOK 6th Edition' — not 'PMI-approved' or 'official PMP preparation'. Legal review of all public-facing copy before launch.",
+      "linked_to": "SR-017"
+    }
+  ]
+}

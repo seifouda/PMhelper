@@ -1,0 +1,75 @@
+id,name,duration,predecessors,optimistic,most_likely,pessimistic,min_duration,crash_cost,resource
+A01,Project Charter Development,10,,7,10,16,7,800,PM
+A02,Stakeholder Register and Benefits Plan,10,A01,8,10,14,7,600,PM
+A03,Development Environment and Repository Setup,5,A01,3,5,8,3,1500,Lead Dev
+A04,Requirements Analysis and Documentation,15,A01,11,15,22,10,1800,PM;Lead Dev
+A05,Module Architecture Design,10,A04,7,10,15,7,2000,Lead Dev
+A06,Data Model and pmproj Schema Design,8,A05,6,8,12,5,2000,Lead Dev
+A07,GUI Architecture and Component Design,5,A05,4,5,8,3,2000,Lead Dev
+A08,CI/CD Pipeline Configuration,5,A03,3,5,9,3,1500,Lead Dev
+A09,Project Management Baseline Planning,15,A05,11,15,22,10,800,PM
+A10,CPM and PERT Calculation Engines,25,A06;A07,18,25,38,17,2000,Lead Dev
+A11,EVM Engine and 16-KPI Module,20,A06,15,20,30,14,2000,Lead Dev
+A12,Risk Register Engine,15,A06,11,15,22,10,2000,Lead Dev
+A13,Monte Carlo Simulation Engine,15,A12,11,15,24,10,2000,Lead Dev
+A14,Project Crashing Engine,12,A10,9,12,18,8,2000,Lead Dev
+A15,Resource Leveling Engine,18,A10,13,18,27,12,2000,Lead Dev
+A16,Input Activities Tab,10,A10;A07,7,10,15,7,2000,Lead Dev
+A17,Results and Analysis Tab,8,A16,6,8,12,5,2000,Lead Dev
+A18,Network Diagram Tab - AON with Sugiyama Layout,12,A10;A07,9,12,18,8,2000,Lead Dev
+A19,PERT Diagram Tab,8,A10;A07,6,8,12,5,2000,Lead Dev
+A20,Gantt Chart Tab with Tracking Gantt,12,A10;A07,9,12,18,8,2000,Lead Dev
+A21,Project Crashing Tab,12,A14,9,12,18,8,2000,Lead Dev
+A22,EVM Dashboard Tab - KPI Cards and S-Curve,20,A11;A07,15,20,30,14,2000,Lead Dev
+A23,Risk Analysis Tab - 4 Sub-tabs,15,A12;A07,11,15,22,10,2000,Lead Dev
+A24,Probability and Monte Carlo Tab,15,A13;A07,11,15,23,10,2000,Lead Dev
+A25,RCPS and Resource Management Tab,18,A15;A07,13,18,27,12,2000,Lead Dev
+A26,Project File Management - save/load pmproj,12,A06,9,12,18,8,2000,Lead Dev
+A27,CSV and Excel Import Handlers,8,A06,6,8,12,5,1500,Lead Dev
+A28,Small Demo Datasets - UG and PG Small,10,A26;A22;A23,7,10,15,7,1200,Lead Dev;Jr Dev
+A29,Interactive Network Viewer - vis.js,12,A10;A18,9,12,20,8,2000,Lead Dev
+A30,Interactive Gantt and S-Curve - Plotly WebView2,10,A22;A20,7,10,16,7,2000,Lead Dev
+A31,Unit Tests - Core Calculation Engines,20,A10;A11;A12;A13;A14;A15,15,20,30,14,1800,Lead Dev;QA
+A32,Unit Tests - GUI Binding and Data Models,15,A16;A22;A23;A24;A25;A26;A27,11,15,22,10,1400,Jr Dev;QA
+A33,V1 Integration Testing and Phase Completion,15,A31;A32;A28;A29;A30,11,15,23,10,2000,Lead Dev;QA
+A34,Large-Scale Demo Support and Performance Test,10,A33,7,10,16,7,1500,Lead Dev;Jr Dev
+A35,FastAPI Backend and SQLAlchemy Database,20,A06;A03,15,20,30,14,2000,Lead Dev
+A36,API Endpoints for CPM and EVM Analysis,15,A35;A10;A11,11,15,22,10,2000,Lead Dev
+A37,Angular Frontend UI Development,25,A35,18,25,38,17,2500,Lead Dev;Jr Dev
+A38,Web API Integration and Testing,12,A36;A37,9,12,18,8,1800,Lead Dev;QA
+A39,Render.com Configuration and Deployment,8,A38,6,8,13,5,2000,Lead Dev
+A40,Domain Registration and SSL Certificate,2,A39,1,2,4,1,1000,Lead Dev
+A41,Production Verification and Health Monitoring,5,A40,3,5,9,3,1500,Lead Dev
+A42,CI/CD Build and Release Automation,8,A08;A33,6,8,13,5,1500,Lead Dev
+A43,Tab Group Refactor - TabGroupNotebook,15,A33,11,15,23,10,2000,Lead Dev
+A44,V2 Educational Infrastructure - DemoLoader,8,A43,6,8,13,5,2000,Lead Dev
+A45,Three-Point Estimation Tab,12,A44,9,12,18,8,2000,Lead Dev
+A46,Financial Analysis Tab - NPV IRR Payback ROI PI,14,A44,10,14,21,9,2000,Lead Dev
+A47,Factor Scoring Tab - 3 Models,8,A44,6,8,12,5,2000,Lead Dev
+A48,RACI Matrix Tab,12,A44,9,12,18,8,2000,Lead Dev
+A49,Cost Estimation Tab - 7 Techniques,12,A44,9,12,18,8,2000,Lead Dev
+A50,AON AOA Dual Network Mode,10,A44;A18,7,10,16,7,2000,Lead Dev
+A51,Risk Response Planning Sub-tab,10,A44;A23,7,10,15,7,2000,Lead Dev
+A52,Resource Leveling Educational Walkthrough,12,A44;A25,9,12,18,8,2000,Lead Dev
+A53,Charter and Charter Manager Tabs,15,A44,11,15,23,10,2000,Lead Dev
+A54,SWOT Analysis Tab,12,A44,9,12,18,8,2000,Lead Dev
+A55,PESTEL Analysis Tab,10,A44,7,10,16,7,2000,Lead Dev
+A56,WBS Tab,12,A44,9,12,18,8,2000,Lead Dev
+A57,Dashboard Health Summary Tab,15,A53;A30;A22,11,15,23,10,2000,Lead Dev
+A58,Foundations and PM Role Reference Tabs,8,A44,6,8,12,5,1500,Lead Dev
+A59,V2 Integration Testing and Regression Suite,25,A45;A46;A47;A48;A49;A50;A51;A52;A53;A54;A55;A56;A57;A58;A70,18,25,38,17,2000,Lead Dev;QA
+A60,V2 Calculator Demo Datasets - 11 JSON Files,10,A45;A46;A47;A48;A49;A52,7,10,15,7,1200,Jr Dev;Lead Dev
+A61,Large-Scale Demo Projects - UG PG 600-task,10,A34,7,10,15,7,1000,Jr Dev
+A62,PyInstaller Build and AV-Safe Manifest,10,A59,7,10,16,7,2000,Lead Dev
+A63,Build Testing on Clean Windows 10 VM,5,A62,4,5,8,3,1800,Lead Dev;QA
+A64,PyPI Package Configuration and Submission,5,A62,4,5,8,3,1500,Lead Dev
+A65,GitHub Release Package Preparation,5,A63;A64,4,5,8,3,1500,Lead Dev
+A66,All Worked Solution Generators,20,A10;A11;A45;A46;A47;A48;A49,15,20,30,14,2000,Lead Dev
+A67,V2 Demo Datasets Validation and Correction,8,A60,6,8,12,5,1000,Jr Dev;Technical Advisor
+A68,Reference Sample Project Document Set,30,A59;A67;A61,22,30,46,20,1500,PM;Technical Advisor
+A69,User Documentation - README Deployment Quick-Start,12,A62;A68,9,12,18,8,1200,Lead Dev;PM
+A70,DPCI Assessment Tab,10,A44,7,10,16,7,2000,Lead Dev
+A71,Faculty Partner Beta Testing - UAT,15,A57;A60;A66,10,15,24,10,1500,PM;QA
+A72,UAT Defect Resolution,10,A71,7,10,16,7,2000,Lead Dev;QA
+A73,Final Regression Testing and QA Sign-off,15,A68;A69;A72;A65,10,15,23,10,1800,QA
+A74,Project Closure Lessons Learned and Archive,30,A73,22,30,46,20,1000,PM;Sponsor

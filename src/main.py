@@ -7,7 +7,6 @@ Launch the Project Management application with full CPM and PERT analysis capabi
 """
 
 import sys
-import os
 from pathlib import Path
 
 # Add the current src directory to the path

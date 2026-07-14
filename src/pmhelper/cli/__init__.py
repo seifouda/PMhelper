@@ -4,6 +4,8 @@ Command-line interface modules for PMHelper.
 Contains CLI tools for CPM, PERT analysis, and Project Selection.
 """
 
-from pmhelper.cli.selection_cli import selection
-
-__all__ = ['selection']
+try:
+    from pmhelper.cli.selection_cli import selection  # noqa: F401
+    __all__ = ['selection']
+except ImportError:
+    __all__ = []

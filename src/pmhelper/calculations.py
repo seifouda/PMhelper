@@ -12,7 +12,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def validate_calculation_input(value: float, parameters: Dict[str, Any]) -> None:
+def validate_calculation_input(
+        value: float, parameters: Dict[str, Any]) -> None:
     """
     Validate input data before calculation.
 
@@ -33,7 +34,8 @@ def validate_calculation_input(value: float, parameters: Dict[str, Any]) -> None
         raise ValueError("Parameters must be a dictionary")
 
 
-def calculate_pm_value(value: float, parameters: Dict[str, Any]) -> Dict[str, Any]:
+def calculate_pm_value(
+        value: float, parameters: Dict[str, Any]) -> Dict[str, Any]:
     """
     Perform PM calculation synchronously.
 
@@ -62,7 +64,9 @@ def calculate_pm_value(value: float, parameters: Dict[str, Any]) -> Dict[str, An
 
     execution_time_ms = (time.perf_counter() - start) * 1000
 
-    logger.debug(f"Calculated value={value}, result={result}, time={execution_time_ms:.2f}ms")
+    logger.debug(
+        f"Calculated value={value}, result={result}, time={
+            execution_time_ms:.2f}ms")
 
     return {
         "result": result,
@@ -76,7 +80,8 @@ def calculate_pm_value(value: float, parameters: Dict[str, Any]) -> Dict[str, An
 
 
 # If you need async wrapper for API integration:
-async def calculate_pm_value_async(value: float, parameters: Dict[str, Any]) -> Dict[str, Any]:
+async def calculate_pm_value_async(
+        value: float, parameters: Dict[str, Any]) -> Dict[str, Any]:
     """
     Async wrapper for heavy calculations.
     Runs calculation in thread pool to avoid blocking event loop.

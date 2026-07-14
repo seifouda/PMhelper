@@ -7,7 +7,7 @@ Supports both PostgreSQL (production) and SQLite (local development).
 from typing import AsyncGenerator
 from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.pool import StaticPool, NullPool
+from sqlalchemy.pool import StaticPool
 
 from .models import Base
 from ..config import config
@@ -96,7 +96,8 @@ class DatabaseManager:
             finally:
                 await session.close()
 
-    async def get_session_dependency(self) -> AsyncGenerator[AsyncSession, None]:
+    async def get_session_dependency(
+            self) -> AsyncGenerator[AsyncSession, None]:
         """FastAPI dependency for database sessions."""
         async with self.get_session() as session:
             yield session
@@ -124,4 +125,9 @@ async def close_database():
     await db_manager.close()
 
 
-__all__ = ["DatabaseManager", "db_manager", "get_db_session", "init_database", "close_database"]
+__all__ = [
+    "DatabaseManager",
+    "db_manager",
+    "get_db_session",
+    "init_database",
+    "close_database"]

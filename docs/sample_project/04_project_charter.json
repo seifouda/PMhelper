@@ -1,0 +1,279 @@
+{
+  "metadata": {
+    "charter_id": "pmhe-2025-charter-001",
+    "created_date": "2025-09-01T09:00:00.000000",
+    "modified_date": "2025-09-01T09:00:00.000000",
+    "status": "approved",
+    "version": "1.0",
+    "template_id": "standard_charter_v1",
+    "template_version": "1.0"
+  },
+  "data": {
+    "identification": {
+      "project_name": "PMHelper_Edu — Educational Project Management Software",
+      "project_code": "PMHE-2025",
+      "project_manager": "Ahmed Samir Khalil, PMP",
+      "sponsor": "Dr. Karim Naguib — Co-Founder & CTO, EduTech Dynamics",
+      "start_date": "2025-09-01",
+      "end_date": "2026-09-30"
+    },
+    "objectives": {
+      "business_case": "EduTech Dynamics has identified a significant gap in project management education. University students, postgraduate candidates, and CAPM/PMP exam candidates lack access to an integrated, interactive tool that covers the full quantitative PM curriculum with step-by-step educational scaffolding.\n\nCommercial alternatives (Microsoft Project, Oracle Primavera P6) are prohibitively expensive and operationally complex for educational settings. Free tools are fragmented and cover single techniques only. No existing open-source tool provides the complete PM curriculum with worked solutions and dual UG/PG learning modes.\n\nThe total investment of EGP 1,195,000 delivers an estimated 5-year NPV of +EGP 85,480 at a 10% discount rate (IRR ≈ 12.4%, Payback Period ≈ 3.8 years). Non-financial benefits include brand establishment in the MENA academic market, academic publication opportunities, and internal technical capability building.\n\nFull analysis: PMHE-2025-BC-001",
+      "objectives": "O1: Deliver a fully operational desktop application covering all planned PM topic areas by 2026-08-15 (24 functional tabs, all tests passing).\n\nO2: Support UG and PG learning modes with educational scaffolding in all calculation tabs by 2026-08-15 (worked solutions and Try It Yourself mode).\n\nO3: Deploy a production web application at a stable public URL by 2026-07-31 (<3s load time, 99%+ uptime over 30-day measurement).\n\nO4: Publish a standalone Windows executable and PyPI package by 2026-08-31 (both distribution channels verified).\n\nO5: Achieve a comprehensive automated test suite by 2026-09-15 (≥ 800 passing tests, zero critical defects).\n\nO6: Deliver a complete reference sample project by 2026-09-30 (loadable in-app, consistent across all 24 tabs).",
+      "success_criteria": "1. All 24 application tabs function correctly in both UG and PG modes.\n2. All EVM KPIs produce verified correct results matching manual calculations.\n3. The reference sample project loads without errors and populates all tabs.\n4. The Windows executable launches on a clean Windows 10 machine without Python.\n5. PyPI package installs and launches without errors.\n6. Web application health endpoint returns 200.\n7. Automated test suite reports ≥ 800 passing tests with zero critical failures.\n8. All worked solution generators produce educationally correct step-by-step outputs.\n9. Project is formally closed with lessons learned captured and approved."
+    },
+    "scope": {
+      "in_scope": "Desktop Application:\n• Python/Tkinter application with 24 educational tabs in 5 collapsible groups\n• Calculation engines: CPM, PERT, EVM (16 KPIs), Risk Analysis, Monte Carlo Simulation, Project Crashing, Resource Leveling, RCPS, Financial Analysis (6 metrics), Cost Estimation (7 techniques), Factor Scoring (3 models), Three-Point Estimation, AON/AOA Networks\n• Strategic tools: SWOT, PESTEL, WBS, RACI Matrix, Project Charter, DPCI Assessment, Dashboard\n• Educational features: worked solutions, Try It Yourself, RAG KPI coding, UG/PG mode toggle\n• Project file management (.pmproj format), demo datasets, chart export\n\nWeb Application:\n• Angular frontend with core calculation access\n• FastAPI backend with SQLAlchemy database\n• Render.com cloud deployment\n\nDistribution:\n• Windows executable via PyInstaller (--onedir, AV-safe manifest)\n• PyPI package (pip install pmhelper)\n• GitHub Actions CI/CD pipeline\n\nEducational Content:\n• Reference sample project (PMHelper_Edu Development Project — this document set)\n• In-app demos: UG Small/Medium/Large, PG Small/Medium/Large\n• Standalone V2 calculator demonstrations for all individual tabs",
+      "out_of_scope": "• Mobile application (iOS or Android)\n• LMS integration (Moodle, Canvas, Blackboard)\n• Arabic-language user interface\n• Premium subscription or paid feature tiers in initial release\n• Dedicated server infrastructure (cloud only)\n• macOS or Linux installer packages\n• Real-time multi-user collaboration\n• Database-backed project storage for the desktop edition",
+      "deliverables": "D1: Desktop application v1.0 — 2026-08-15\nD2: Web application v1.0 — 2026-07-31\nD3: Windows executable — 2026-08-31\nD4: PyPI package — 2026-08-31\nD5: Reference sample project — 2026-09-30\nD6: Test suite (≥ 800 tests) — 2026-09-15\nD7: User documentation — 2026-09-30\nD8: Educational content (worked solutions) — 2026-08-15",
+      "assumptions": "A1: GitHub Copilot licence available throughout the project.\nA2: Render.com starter tier is sufficient for initial deployment.\nA3: Python 3.8+ compatibility is sufficient for target academic environments.\nA4: Windows 10+ remains the dominant OS in university computer labs.\nA5: PyPI publication approval is straightforward for an open-source educational package.\nA6: The lead developer can sustain the required development pace with AI assistance.\nA7: The Angular frontend can reuse Python logic via the FastAPI backend.",
+      "constraints": "C1: Product must be usable by the 2026–2027 academic year — hard deadline 2026-09-30.\nC2: Total expenditure cannot exceed EGP 1,195,000 (all reserves included).\nC3: Maximum 2.0 FTE equivalent — no additional full-time hires.\nC4: Desktop application must use Python 3.8+ and Tkinter only.\nC5: Primary target platform is Windows 10+ 64-bit.\nC6: Must be released under the MIT Licence.\nC7: Desktop application must function fully offline."
+    },
+    "budget": {
+      "resource_requirements": "Personnel:\n• 1 Lead Developer (full-time, 100%, 13 months): EGP 494,000\n• 1 Junior Developer (part-time, 50%, 8 months): EGP 144,000\n• 1 Project Manager / BA (part-time, 30%, 13 months): EGP 130,000\n• 1 QA Engineer (part-time, 25%, 7 months): EGP 52,500\n• 1 Technical Advisor (part-time, 15%, 13 months): EGP 65,000\n\nInfrastructure and Tools:\n• Software subscriptions (GitHub Copilot, Render.com, domain, SSL, Plotly): EGP 41,600\n• Hardware (development laptops, testing devices): EGP 73,000\n• Training and certification materials: EGP 22,000\n\nReserves:\n• Contingency Reserve (12%): EGP 122,652\n• Management Reserve (held by Sponsor): EGP 50,248",
+      "total_budget": "EGP 1,195,000",
+      "currency": "EGP",
+      "budget_breakdown": [
+        {
+          "category": "Personnel — Lead Developer",
+          "amount": "EGP 494,000",
+          "notes": "Full-time, 13 months at EGP 38,000/month"
+        },
+        {
+          "category": "Personnel — Junior Developer",
+          "amount": "EGP 144,000",
+          "notes": "50% allocation, 8 months at EGP 18,000/month full rate"
+        },
+        {
+          "category": "Personnel — Project Manager / BA",
+          "amount": "EGP 130,000",
+          "notes": "30% allocation, 13 months at EGP 10,000/month effective"
+        },
+        {
+          "category": "Personnel — QA Engineer",
+          "amount": "EGP 52,500",
+          "notes": "25% allocation, 7 months at EGP 7,500/month effective"
+        },
+        {
+          "category": "Personnel — Technical Advisor",
+          "amount": "EGP 65,000",
+          "notes": "15% allocation, 13 months at EGP 5,000/month effective"
+        },
+        {
+          "category": "Software Subscriptions",
+          "amount": "EGP 41,600",
+          "notes": "GitHub Copilot, Render.com, domain, SSL certificate, tools — EGP 3,200/month × 13"
+        },
+        {
+          "category": "Hardware",
+          "amount": "EGP 73,000",
+          "notes": "Development laptops and testing equipment"
+        },
+        {
+          "category": "Training and Materials",
+          "amount": "EGP 22,000",
+          "notes": "PM certification, documentation tools, educational resources"
+        },
+        {
+          "category": "Contingency Reserve",
+          "amount": "EGP 122,652",
+          "notes": "12% of direct costs — controlled by Project Manager"
+        },
+        {
+          "category": "Management Reserve",
+          "amount": "EGP 50,248",
+          "notes": "Held by Project Sponsor — not in BAC; released only by sponsor decision"
+        }
+      ]
+    },
+    "schedule": {
+      "phases": "Phase 1 — Initiation (2025-09-01 to 2025-09-08): Project kickoff, team mobilisation, environment setup.\n\nPhase 2 — Planning (2025-09-08 to 2025-10-15): Requirements, architecture design, project management plan.\n\nPhase 3 — V1 Development (2025-10-15 to 2026-03-25): Core calculation engines, GUI tabs (CPM, EVM, Risk, PERT, Crashing, Resources, Monte Carlo), test suite, Phase 3–7 of V1 plan.\n\nPhase 4 — Web Development (2026-03-25 to 2026-05-15): Angular frontend, FastAPI backend, Render.com deployment.\n\nPhase 5 — V2 Development (2026-05-15 to 2026-06-30): Three-Point, Financial, RACI, Cost Estimation, Risk Response, AOA, Resource Leveling walkthrough tabs.\n\nPhase 6 — Distribution and Testing (2026-06-30 to 2026-08-31): PyInstaller build, PyPI publication, final QA, performance testing.\n\nPhase 7 — Documentation and Reference Project (2026-08-31 to 2026-09-30): User documentation, reference sample project, lessons learned, project closure.",
+      "milestones": [
+        {
+          "milestone": "M1 — Project Kickoff Complete",
+          "date": "2025-09-08",
+          "deliverable": "Signed charter; team onboarded; repositories initialised"
+        },
+        {
+          "milestone": "M2 — Core Architecture Established",
+          "date": "2025-10-15",
+          "deliverable": "Data models, module structure, CI/CD pipeline operational"
+        },
+        {
+          "milestone": "M3 — V1 Desktop Feature-Complete",
+          "date": "2026-03-25",
+          "deliverable": "18 tabs functional; EVM, Risk, Monte Carlo, Crashing, PERT complete"
+        },
+        {
+          "milestone": "M4 — Web Frontend Deployed to Production",
+          "date": "2026-05-15",
+          "deliverable": "Angular app live at production URL; API tested; D2 accepted"
+        },
+        {
+          "milestone": "M5 — V2 Desktop Feature-Complete (all 24 tabs)",
+          "date": "2026-06-30",
+          "deliverable": "All 24 tabs functional; 845+ tests passing"
+        },
+        {
+          "milestone": "M6 — Production Distribution Verified",
+          "date": "2026-08-31",
+          "deliverable": "Windows exe verified; PyPI package published; D3 and D4 accepted"
+        },
+        {
+          "milestone": "M7 — Reference Sample Project Complete",
+          "date": "2026-09-30",
+          "deliverable": "All 32 sample project documents generated and validated; D5 accepted"
+        },
+        {
+          "milestone": "M8 — Project Closure",
+          "date": "2026-09-30",
+          "deliverable": "Closure report; lessons learned; final financial reconciliation"
+        }
+      ]
+    },
+    "team": {
+      "organizational_structure": "EduTech Dynamics operates as a projectised organisation for this project. The Project Manager reports directly to the Project Sponsor (CTO). There are no functional departments — all team members are assigned to this project for the duration of their involvement.\n\nAuthority structure:\n• Dr. Karim Naguib (Sponsor): Final authority on scope, budget, and strategic decisions\n• Ahmed Samir Khalil (PM): Authority on day-to-day schedule, cost, and scope within charter limits\n• Omar Hassan El-Rashidy (Lead Dev): Technical authority on all development decisions\n• External advisor (Prof. Youssef): Advisory only — no decision-making authority",
+      "team_members": [
+        {
+          "name": "Dr. Karim Naguib",
+          "role": "Project Sponsor / CTO",
+          "responsibility": "Strategic direction; final approval authority; Management Reserve holder; benefits realisation owner post-project. Participates in weekly steering calls and key milestone reviews."
+        },
+        {
+          "name": "Ahmed Samir Khalil, PMP",
+          "role": "Project Manager",
+          "responsibility": "Overall project planning, execution oversight, and control. Manages schedule, cost, risk register, stakeholder communications, and change requests. Prepares status reports and facilitates steering meetings."
+        },
+        {
+          "name": "Omar Hassan El-Rashidy",
+          "role": "Lead Developer",
+          "responsibility": "Full-stack development of desktop and web application. Architecture decisions, code review, CI/CD pipeline, performance optimisation, and technical documentation. Primary contributor to the codebase and test suite."
+        },
+        {
+          "name": "Nour Ahmed Fawzy",
+          "role": "Junior Developer",
+          "responsibility": "Feature development support, unit test authoring, demo dataset creation, and documentation. Works under technical direction of Lead Developer. Available for 8 months at 50% allocation (Phases 3–6)."
+        },
+        {
+          "name": "Sara Mostafa Abdel-Fattah",
+          "role": "QA Engineer",
+          "responsibility": "Test plan design, test case authoring, test execution, defect tracking, and regression testing. Maintains the automated test suite. Available at 25% allocation from Phase 3 onward."
+        },
+        {
+          "name": "Prof. Youssef Ibrahim Tawfik",
+          "role": "Technical Advisor (External)",
+          "responsibility": "Validates educational content accuracy against PM curriculum standards. Reviews worked solutions and sample project artifacts. Advises on CAPM/PMP exam alignment. Available 15% throughout the project."
+        }
+      ]
+    },
+    "stakeholders": {
+      "communication_plan": "Weekly:\n• Development standup: Lead Developer + PM — 15 min — Slack/Teams\n• Test status update: QA Engineer → PM — written report\n\nBi-weekly:\n• Sprint review: Full team — 1 hour — video call — demo of completed features\n• Risk review: PM + Lead Developer — 30 min\n\nMonthly:\n• Steering committee: PM → Sponsor — 30 min — formal status report\n• Technical advisor session: Lead Developer + Prof. Youssef — 1 hour — curriculum review\n\nMilestone-triggered:\n• Phase completion review: Full team + Sponsor — milestone demo and sign-off\n• Change request meeting: Triggered on request, PM + Sponsor minimum\n\nReporting:\n• Weekly status report: PM → Sponsor (email) — schedule, budget, risk highlights\n• Monthly progress report: PM → all stakeholders — formal document\n• Milestone completion report: PM → Sponsor — formal acceptance",
+      "stakeholder_list": [
+        {
+          "name": "Dr. Karim Naguib",
+          "interest": "Product succeeds commercially; investment delivers ROI; EduTech Dynamics brand established",
+          "influence": "Very High — final approval authority on all major decisions",
+          "strategy": "Engage closely; include in all milestone reviews; provide weekly financial status"
+        },
+        {
+          "name": "Ahmed Samir Khalil, PMP",
+          "interest": "Successful delivery; team effectiveness; professional reputation",
+          "influence": "High — day-to-day project authority",
+          "strategy": "PM is also a stakeholder; self-management through structured reporting"
+        },
+        {
+          "name": "Omar Hassan El-Rashidy",
+          "interest": "Technical quality; reasonable scope; learning opportunities with AI tools",
+          "influence": "High — only person who can execute the core development",
+          "strategy": "Protect from scope creep; involve in architecture decisions; ensure work-life balance"
+        },
+        {
+          "name": "Prof. Youssef Ibrahim Tawfik",
+          "interest": "Educational correctness; academic credibility; potential publication",
+          "influence": "Medium — advisory role; can veto educational content on quality grounds",
+          "strategy": "Engage monthly; provide advance copies of educational content for review"
+        },
+        {
+          "name": "University Faculty (early adopters)",
+          "interest": "Time saving; curriculum alignment; ease of use for non-technical users",
+          "influence": "High on adoption decision — low on project decisions",
+          "strategy": "Engage 2 partner faculty as beta testers; incorporate feedback before release"
+        },
+        {
+          "name": "Undergraduate Students",
+          "interest": "Correct calculations; intuitive interface; relevant examples",
+          "influence": "Low on project; High on adoption outcome",
+          "strategy": "Include student UX testing in Phase 6; reference sample project serves their needs"
+        },
+        {
+          "name": "CAPM / PMP Candidates",
+          "interest": "Exam-relevant formulas and terminology; PMBOK alignment",
+          "influence": "Low on project; secondary market segment",
+          "strategy": "Ensure PMBOK alignment in educational content; no specific engagement during project"
+        }
+      ]
+    },
+    "risks": {
+      "known_issues": "No critical issues at project initiation. The following risks have been identified in the pre-project risk assessment and are being monitored from Day 1.",
+      "risk_register": [
+        {
+          "id": "R-001",
+          "description": "Lead developer becomes unavailable for an extended period (illness, resignation, or competing commitment). This is the single highest-impact risk given the 100% FTE dependency.",
+          "probability": "Low (0.15)",
+          "impact": "Critical — schedule and scope directly threatened",
+          "response": "Mitigate: Comprehensive code documentation, AI-readable codebase, GitHub commit history as knowledge base. All architectural decisions documented in DECISIONS.md. Junior developer progressively cross-trained from Month 6."
+        },
+        {
+          "id": "R-002",
+          "description": "Scope creep from new PM curriculum requirements added mid-project by faculty advisors or the Sponsor.",
+          "probability": "Medium (0.50)",
+          "impact": "High — threatens schedule and budget",
+          "response": "Mitigate: Formal change control process enforced. PM has authority to defer new requirements to V3. All changes require written sponsor approval if > 2 days effort."
+        },
+        {
+          "id": "R-003",
+          "description": "Institutional adoption lower than projected in Year 1–2, reducing financial returns.",
+          "probability": "Medium (0.40)",
+          "impact": "High on financial returns; low on project delivery",
+          "response": "Accept (business risk, not project risk). Monitor adoption metrics from Month 1 post-release. Free open-source model reduces adoption barrier significantly."
+        },
+        {
+          "id": "R-004",
+          "description": "GitHub Copilot becomes unavailable or its pricing increases beyond budget.",
+          "probability": "Low (0.15)",
+          "impact": "High — estimated 30–40% development velocity reduction",
+          "response": "Mitigate: Document alternative AI coding tools (Claude, GPT-4, Cursor). Budget includes subscription costs through project end."
+        },
+        {
+          "id": "R-005",
+          "description": "PyInstaller build fails to produce a clean executable due to library compatibility issues.",
+          "probability": "Medium (0.35)",
+          "impact": "Medium — D3 deliverable delayed",
+          "response": "Mitigate: Tested PyInstaller build pipeline early (Phase 2). Patch scripts prepared for known scipy/numpy issues. Fallback: GitHub Releases with source installation instructions."
+        }
+      ]
+    },
+    "approval": {
+      "approval_notes": "This charter was reviewed and approved at the formal project kickoff meeting held on 2025-09-01 at EduTech Dynamics headquarters, Cairo. All signatories confirm they have read and understood the project scope, objectives, constraints, and risk profile. The Project Manager is formally authorised to proceed with project execution.",
+      "prepared_by": "Ahmed Samir Khalil, PMP — Project Manager",
+      "prepared_date": "2025-09-01",
+      "approval_signatures": [
+        {
+          "name": "Dr. Karim Naguib",
+          "title": "Project Sponsor / Co-Founder & CTO, EduTech Dynamics",
+          "date": "2025-09-01"
+        },
+        {
+          "name": "Ahmed Samir Khalil, PMP",
+          "title": "Project Manager",
+          "date": "2025-09-01"
+        },
+        {
+          "name": "Prof. Youssef Ibrahim Tawfik",
+          "title": "Technical Advisor",
+          "date": "2025-09-01"
+        }
+      ]
+    }
+  }
+}

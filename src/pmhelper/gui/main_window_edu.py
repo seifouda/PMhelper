@@ -112,6 +112,10 @@ class MainWindowEdu:
         demo_menu.add_command(
             label="PG Demo — Large (600 tasks)",
             command=lambda: self._load_demo("pg", "large"))
+        demo_menu.add_separator()
+        demo_menu.add_command(
+            label="PMHelper_Edu Reference Project (All Features)",
+            command=lambda: self._load_demo("ref", "project"))
         file_menu.add_cascade(label="Load Demo", menu=demo_menu)
         file_menu.add_separator()
         file_menu.add_command(label="Export All Charts...",
@@ -227,6 +231,9 @@ class MainWindowEdu:
         self._build_tabs_pg()
         # Both notebooks are built; _apply_mode (called from __init__)
         # will show the correct one and swap attribute references.
+        # Initialise the tutorial overlay now that both notebooks exist.
+        self._tutorial = TutorialOverlay(
+            self.root, self._build_tutorial_steps())
 
     def _build_tabs_ug(self):
         from pmhelper.gui.widgets.tab_group_notebook import TabGroupNotebook
@@ -456,10 +463,6 @@ class MainWindowEdu:
 
         # Auto-recalculate on tab switch (any group)
         self.notebook.bind_tab_changed(self._on_tab_changed)
-
-        # ── Tutorial system ────────────────────────────────────
-        self._tutorial = TutorialOverlay(
-            self.root, self._build_tutorial_steps())
 
         # ── Save UG store for attribute-swapping in _apply_mode ──
         self._ug_store = {
@@ -691,7 +694,14 @@ class MainWindowEdu:
 
     def _build_tutorial_steps(self) -> list:
         """Return the list of TutorialStep objects for the guided tour."""
-        nb = self.notebook
+        is_pg = self.config.mode == "PG"
+        if hasattr(self, "_tab_proxy") and self._tab_proxy is not None:
+            try:
+                self._tab_proxy.place_forget()
+                self._tab_proxy.destroy()
+            except tk.TclError:
+                pass
+        nb = self.notebook_pg if is_pg else self.notebook
 
         def _sidebar_btn(group_name):
             grp = nb._groups.get(group_name)
@@ -784,11 +794,81 @@ class MainWindowEdu:
             self._tab_proxy.lower()
             return self._tab_proxy
 
+        def _inner_tab_label(inner_nb, tab_frame):
+            """Highlight the tab label of *tab_frame* within *inner_nb*."""
+            self.root.update_idletasks()
+            target_idx = None
+            for i, tab_id in enumerate(inner_nb.tabs()):
+                try:
+                    if inner_nb.nametowidget(tab_id) is tab_frame:
+                        target_idx = i
+                        break
+                except Exception:
+                    continue
+            if target_idx is None:
+                return inner_nb
+            nb_w    = inner_nb.winfo_width()
+            y_probe = 8
+            x_start = None
+            x_end   = None
+            step    = 2
+            for x in range(0, nb_w, step):
+                try:
+                    idx = inner_nb.index(f"@{x},{y_probe}")
+                except (tk.TclError, ValueError):
+                    continue
+                if idx == target_idx:
+                    if x_start is None:
+                        x_start = x
+                        for rx in range(x, max(x - step - 1, -1), -1):
+                            try:
+                                if inner_nb.index(
+                                        f"@{rx},{y_probe}") == target_idx:
+                                    x_start = rx
+                                else:
+                                    break
+                            except (tk.TclError, ValueError):
+                                break
+                    x_end = x
+                elif x_start is not None:
+                    break
+            if x_start is None:
+                return inner_nb
+            for rx in range(x_end, min(x_end + step + 1, nb_w)):
+                try:
+                    if inner_nb.index(f"@{rx},{y_probe}") == target_idx:
+                        x_end = rx
+                    else:
+                        break
+                except (tk.TclError, ValueError):
+                    break
+            label_w = x_end - x_start + 1
+            nbx = inner_nb.winfo_rootx() - self.root.winfo_rootx()
+            nby = inner_nb.winfo_rooty() - self.root.winfo_rooty()
+            self._tab_proxy.place(
+                x=nbx + x_start, y=nby,
+                width=label_w, height=_TAB_BAR_H)
+            self._tab_proxy.update_idletasks()
+            self._tab_proxy.lower()
+            return self._tab_proxy
+
         def _switch_to(tab_frame):
             """Return a callable that auto-switches to the tab containing tab_frame."""
             def _do():
                 nb.select_tab(tab_frame)
             return _do
+
+        def _switch_to_inner(outer_frame, inner_nb, inner_frame):
+            """Switch to an outer tab then select an inner sub-tab."""
+            def _do():
+                nb.select_tab(outer_frame)
+                self.root.update_idletasks()
+                inner_nb.select(inner_frame)
+            return _do
+
+        if is_pg:
+            return self._build_pg_steps(
+                nb, _sidebar_btn, _tab_label_widget, _switch_to)
 
         steps = [
             # ── Layout ──────────────────────────────────────────────
@@ -813,16 +893,6 @@ class MainWindowEdu:
                 ),
                 on_enter=lambda: nb._select_group("L1 \u00b7 Foundations"),
             ),
-            TutorialStep(
-                widget_fn=lambda: _tab_label_widget(
-                    "L1 \u00b7 Foundations", self._foundations_tab.frame),
-                title="Foundations Reference Card",
-                description=(
-                    "A scrollable reference card covering the L1 theory. "
-                    "Use it alongside lecture notes to reinforce key definitions."
-                ),
-                on_enter=_switch_to(self._foundations_tab.frame),
-            ),
 
             # ── L2 ──────────────────────────────────────────────────
             TutorialStep(
@@ -835,15 +905,34 @@ class MainWindowEdu:
                 on_enter=lambda: nb._select_group("L2 \u00b7 Selection"),
             ),
             TutorialStep(
-                widget_fn=lambda: _tab_label_widget(
-                    "L2 \u00b7 Selection", self._financial_tab.frame),
-                title="Financial Analysis",
+                widget_fn=lambda: _inner_tab_label(
+                    self._financial_tab._nb, self._financial_tab._fin.frame),
+                title="Financial Analysis \u2014 Calculators",
                 description=(
-                    "Calculate NPV, IRR, payback period, "
-                    "and benefit-cost ratio for your project\u2019s "
-                    "financial viability."
+                    "Sub-tab 1: Financial Calculators.\n"
+                    "Enter investment, discount rate, and cash flows.\n"
+                    "Calculate: Payback, NPV, IRR, Profitability Index.\n"
+                    "Chart shows cumulative cash-flow vs. investment."
                 ),
-                on_enter=_switch_to(self._financial_tab.frame),
+                on_enter=_switch_to_inner(
+                    self._financial_tab.frame,
+                    self._financial_tab._nb,
+                    self._financial_tab._fin.frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._financial_tab._nb, self._financial_tab._fs.frame),
+                title="Financial Analysis \u2014 Factor Scoring",
+                description=(
+                    "Sub-tab 2: Factor Scoring.\n"
+                    "Define criteria + weights, add competing projects,\n"
+                    "fill the score matrix, choose a model\n"
+                    "(0-1 / Weighted), Calculate \u2192 ranked bar chart."
+                ),
+                on_enter=_switch_to_inner(
+                    self._financial_tab.frame,
+                    self._financial_tab._nb,
+                    self._financial_tab._fs.frame),
             ),
 
             # ── L3 ──────────────────────────────────────────────────
@@ -856,16 +945,6 @@ class MainWindowEdu:
                     "projectised, and matrix."
                 ),
                 on_enter=lambda: nb._select_group("L3 \u00b7 PM Role"),
-            ),
-            TutorialStep(
-                widget_fn=lambda: _tab_label_widget(
-                    "L3 \u00b7 PM Role", self._org_tab.frame),
-                title="PM Role & Org Reference Card",
-                description=(
-                    "A scrollable reference card covering L3 theory on "
-                    "organisational structures and stakeholder management."
-                ),
-                on_enter=_switch_to(self._org_tab.frame),
             ),
 
             # ── L4 ──────────────────────────────────────────────────
@@ -902,15 +981,64 @@ class MainWindowEdu:
                 on_enter=_switch_to(self._wbs_tab.frame),
             ),
             TutorialStep(
-                widget_fn=lambda: _tab_label_widget(
-                    "L4 \u00b7 Planning", self._risk_tab.frame),
-                title="Risk Analysis",
+                widget_fn=lambda: _inner_tab_label(
+                    self._risk_tab._notebook, self._risk_tab._register_frame),
+                title="Risk Analysis \u2014 Risk Register",
                 description=(
-                    "Build a risk register, assign probability and "
-                    "impact scores, view the risk heat map, "
-                    "and plan responses."
+                    "Sub-tab 1: Risk Register.\n"
+                    "Add risks: description, category, owner.\n"
+                    "Score each risk: Probability (1\u20135) \u00d7 Impact (1\u20135).\n"
+                    "Export the full register as a report."
                 ),
-                on_enter=_switch_to(self._risk_tab.frame),
+                on_enter=_switch_to_inner(
+                    self._risk_tab.frame,
+                    self._risk_tab._notebook,
+                    self._risk_tab._register_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._risk_tab._notebook, self._risk_tab._matrix_frame),
+                title="Risk Analysis \u2014 Risk Matrix",
+                description=(
+                    "Sub-tab 2: Risk Matrix (Heat Map).\n"
+                    "5\u00d75 grid: rows = Probability, columns = Impact.\n"
+                    "Red = critical, yellow = medium, green = low.\n"
+                    "Each cell lists the risks that fall there."
+                ),
+                on_enter=_switch_to_inner(
+                    self._risk_tab.frame,
+                    self._risk_tab._notebook,
+                    self._risk_tab._matrix_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._risk_tab._notebook, self._risk_tab._assessment_frame),
+                title="Risk Analysis \u2014 Assessment Matrix",
+                description=(
+                    "Sub-tab 3: Assessment Matrix.\n"
+                    "Quantifies risk exposure across project objectives.\n"
+                    "Rows = risks, Columns = objectives (scope/time/cost).\n"
+                    "Weighted scores show overall risk severity."
+                ),
+                on_enter=_switch_to_inner(
+                    self._risk_tab.frame,
+                    self._risk_tab._notebook,
+                    self._risk_tab._assessment_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._risk_tab._notebook, self._risk_tab._response_frame),
+                title="Risk Analysis \u2014 Response Planning",
+                description=(
+                    "Sub-tab 4: Response Planning.\n"
+                    "Assign a response strategy per risk:\n"
+                    "Avoid, Transfer, Mitigate, or Accept.\n"
+                    "Document the action plan and responsible owner."
+                ),
+                on_enter=_switch_to_inner(
+                    self._risk_tab.frame,
+                    self._risk_tab._notebook,
+                    self._risk_tab._response_frame),
             ),
             TutorialStep(
                 widget_fn=lambda: _tab_label_widget(
@@ -1039,15 +1167,48 @@ class MainWindowEdu:
                 on_enter=_switch_to(self._three_point_tab.frame),
             ),
             TutorialStep(
-                widget_fn=lambda: _tab_label_widget(
-                    "L6 \u00b7 PERT", self._probability_tab.frame),
-                title="Probability / Monte Carlo",
+                widget_fn=lambda: _inner_tab_label(
+                    self._probability_tab._notebook, self._probability_tab._pert_frame),
+                title="Probability \u2014 PERT Analysis",
                 description=(
-                    "Run Monte Carlo simulations to estimate "
-                    "project completion probability and "
-                    "confidence intervals."
+                    "Sub-tab 1: PERT Analysis.\n"
+                    "Shows project mean duration and variance from\n"
+                    "the critical path.\n"
+                    "Enter a target T \u2192 Z-score \u2192 P(complete \u2264 T)."
                 ),
-                on_enter=_switch_to(self._probability_tab.frame),
+                on_enter=_switch_to_inner(
+                    self._probability_tab.frame,
+                    self._probability_tab._notebook,
+                    self._probability_tab._pert_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._probability_tab._notebook, self._probability_tab._mc_frame),
+                title="Probability \u2014 Monte Carlo",
+                description=(
+                    "Sub-tab 2: Monte Carlo Simulation.\n"
+                    "Runs thousands of random project durations.\n"
+                    "Histogram shows distribution of outcomes.\n"
+                    "Read P80 / P90 confidence intervals directly."
+                ),
+                on_enter=_switch_to_inner(
+                    self._probability_tab.frame,
+                    self._probability_tab._notebook,
+                    self._probability_tab._mc_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._probability_tab._notebook, self._probability_tab._ztab_frame),
+                title="Probability \u2014 Z-Score Table",
+                description=(
+                    "Sub-tab 3: Z-Score Reference Table.\n"
+                    "Standard normal distribution lookup table.\n"
+                    "Use to confirm P(Z \u2264 z) values in exam questions."
+                ),
+                on_enter=_switch_to_inner(
+                    self._probability_tab.frame,
+                    self._probability_tab._notebook,
+                    self._probability_tab._ztab_frame),
             ),
 
             # ── L7 ──────────────────────────────────────────────────
@@ -1060,17 +1221,6 @@ class MainWindowEdu:
                     "project cost estimates."
                 ),
                 on_enter=lambda: nb._select_group("L7 \u00b7 Cost Est."),
-            ),
-            TutorialStep(
-                widget_fn=lambda: _tab_label_widget(
-                    "L7 \u00b7 Cost Est.", self._cost_est_tab.frame),
-                title="Cost Estimation",
-                description=(
-                    "Use analogous, parametric, and bottom-up "
-                    "estimation techniques to build accurate "
-                    "project cost estimates."
-                ),
-                on_enter=_switch_to(self._cost_est_tab.frame),
             ),
 
             # ── L8 ──────────────────────────────────────────────────
@@ -1085,15 +1235,49 @@ class MainWindowEdu:
                 on_enter=lambda: nb._select_group("L8 \u00b7 Resources"),
             ),
             TutorialStep(
-                widget_fn=lambda: _tab_label_widget(
-                    "L8 \u00b7 Resources", self._rcps_tab.frame),
-                title="Resources (RCPS)",
+                widget_fn=lambda: _inner_tab_label(
+                    self._rcps_tab._notebook, self._rcps_tab._sched_frame),
+                title="Resources \u2014 RCPS Schedule",
                 description=(
-                    "Resource-constrained project scheduling \u2014 "
-                    "level resource usage, view histograms, "
-                    "and resolve over-allocation."
+                    "Sub-tab 1: RCPS Schedule.\n"
+                    "Define resources and assign units per activity.\n"
+                    "Click \u25b6 Level \u2014 delays activities to stay\n"
+                    "within resource limits (no over-allocation)."
                 ),
-                on_enter=_switch_to(self._rcps_tab.frame),
+                on_enter=_switch_to_inner(
+                    self._rcps_tab.frame,
+                    self._rcps_tab._notebook,
+                    self._rcps_tab._sched_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._rcps_tab._notebook, self._rcps_tab._hist_frame),
+                title="Resources \u2014 Histograms",
+                description=(
+                    "Sub-tab 2: Resource Histograms.\n"
+                    "Bar chart of daily resource usage before and\n"
+                    "after leveling. Dashed line = resource limit.\n"
+                    "Confirms the leveling result visually."
+                ),
+                on_enter=_switch_to_inner(
+                    self._rcps_tab.frame,
+                    self._rcps_tab._notebook,
+                    self._rcps_tab._hist_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._rcps_tab._notebook, self._rcps_tab._leveling_frame),
+                title="Resources \u2014 Resource Leveling",
+                description=(
+                    "Sub-tab 3: Resource Leveling walkthrough.\n"
+                    "Step-by-step explanation of the leveling algorithm.\n"
+                    "Shows which activities were delayed and why.\n"
+                    "Use \u2018Worked Solution\u2019 for a solved exam-style example."
+                ),
+                on_enter=_switch_to_inner(
+                    self._rcps_tab.frame,
+                    self._rcps_tab._notebook,
+                    self._rcps_tab._leveling_frame),
             ),
             TutorialStep(
                 widget_fn=lambda: _tab_label_widget(
@@ -1119,17 +1303,6 @@ class MainWindowEdu:
                 ),
                 on_enter=lambda: nb._select_group("L9 \u00b7 Crashing"),
             ),
-            TutorialStep(
-                widget_fn=lambda: _tab_label_widget(
-                    "L9 \u00b7 Crashing", self.crashing_tab),
-                title="Crashing",
-                description=(
-                    "Crash activities to shorten the project duration. "
-                    "Set crash costs and durations, then optimise "
-                    "the trade-off between time and cost."
-                ),
-                on_enter=_switch_to(self.crashing_tab),
-            ),
 
             # ── L10 ─────────────────────────────────────────────────
             TutorialStep(
@@ -1142,15 +1315,34 @@ class MainWindowEdu:
                 on_enter=lambda: nb._select_group("L10 \u00b7 EVM"),
             ),
             TutorialStep(
-                widget_fn=lambda: _tab_label_widget(
-                    "L10 \u00b7 EVM", self._evm_tab.frame),
-                title="EVM Dashboard",
+                widget_fn=lambda: _inner_tab_label(
+                    self._evm_tab._notebook, self._evm_tab._kpi_frame),
+                title="EVM \u2014 KPI Cards",
                 description=(
-                    "Earned Value Management \u2014 track cost and schedule "
-                    "performance with CPI, SPI, EAC, ETC, "
-                    "and variance analysis."
+                    "Sub-tab 1: KPI Cards.\n"
+                    "Enter PV, EV, AC per period \u2192 Recalculate.\n"
+                    "Coloured RAG badges show: CPI, SPI, CV, SV,\n"
+                    "EAC, ETC, VAC, TCPI."
                 ),
-                on_enter=_switch_to(self._evm_tab.frame),
+                on_enter=_switch_to_inner(
+                    self._evm_tab.frame,
+                    self._evm_tab._notebook,
+                    self._evm_tab._kpi_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._evm_tab._notebook, self._evm_tab._curve_frame),
+                title="EVM \u2014 EV S-Curve",
+                description=(
+                    "Sub-tab 2: EV S-Curve.\n"
+                    "Time-series chart of PV, EV, and AC.\n"
+                    "The gap between EV and AC shows cost variance;\n"
+                    "the gap between EV and PV shows schedule variance."
+                ),
+                on_enter=_switch_to_inner(
+                    self._evm_tab.frame,
+                    self._evm_tab._notebook,
+                    self._evm_tab._curve_frame),
             ),
 
             # ══ DASHBOARD ══════════════════════════════════════════
@@ -1167,19 +1359,7 @@ class MainWindowEdu:
             ),
 
             # ══ Wrap up ═══════════════════════════════════════════
-            TutorialStep(
-                widget_fn=lambda: nb._sidebar,
-                title="File & Mode Menus",
-                description=(
-                    "Use the File menu to open/save projects \u2003"
-                    "and load demo data.\n\n"
-                    "Use the Mode menu to switch between "
-                    "Undergraduate (UG) and Postgraduate (PG). "
-                    "PG unlocks RACI, SWOT, PESTEL, DPCI, "
-                    "Charter Mgr, and RCPS Crashing."
-                ),
-                on_enter=lambda: nb._select_group("L1 \u00b7 Foundations"),
-            ),
+
             TutorialStep(
                 widget_fn=lambda: nb._sidebar,
                 title="That's It!",
@@ -1193,20 +1373,608 @@ class MainWindowEdu:
         ]
         return steps
 
+    def _build_pg_steps(self, nb, sidebar_btn, tab_label, switch_to) -> list:
+        """PG tutorial — topic-based path (Schedule → Cost → Risk → Strategic → Dashboard)."""
+        def _switch_to_inner(outer_frame, inner_nb, inner_frame):
+            """Switch to an outer tab then select an inner sub-tab."""
+            def _do():
+                nb.select_tab(outer_frame)
+                self.root.update_idletasks()
+                inner_nb.select(inner_frame)
+            return _do
+
+        _TAB_BAR_H = 28
+
+        def _inner_tab_label(inner_nb, tab_frame):
+            """Highlight the tab label of *tab_frame* within *inner_nb*."""
+            self.root.update_idletasks()
+            target_idx = None
+            for i, tab_id in enumerate(inner_nb.tabs()):
+                try:
+                    if inner_nb.nametowidget(tab_id) is tab_frame:
+                        target_idx = i
+                        break
+                except Exception:
+                    continue
+            if target_idx is None:
+                return inner_nb
+            nb_w    = inner_nb.winfo_width()
+            y_probe = 8
+            x_start = None
+            x_end   = None
+            step    = 2
+            for x in range(0, nb_w, step):
+                try:
+                    idx = inner_nb.index(f"@{x},{y_probe}")
+                except (tk.TclError, ValueError):
+                    continue
+                if idx == target_idx:
+                    if x_start is None:
+                        x_start = x
+                        for rx in range(x, max(x - step - 1, -1), -1):
+                            try:
+                                if inner_nb.index(
+                                        f"@{rx},{y_probe}") == target_idx:
+                                    x_start = rx
+                                else:
+                                    break
+                            except (tk.TclError, ValueError):
+                                break
+                    x_end = x
+                elif x_start is not None:
+                    break
+            if x_start is None:
+                return inner_nb
+            for rx in range(x_end, min(x_end + step + 1, nb_w)):
+                try:
+                    if inner_nb.index(f"@{rx},{y_probe}") == target_idx:
+                        x_end = rx
+                    else:
+                        break
+                except (tk.TclError, ValueError):
+                    break
+            label_w = x_end - x_start + 1
+            nbx = inner_nb.winfo_rootx() - self.root.winfo_rootx()
+            nby = inner_nb.winfo_rooty() - self.root.winfo_rooty()
+            self._tab_proxy.place(
+                x=nbx + x_start, y=nby,
+                width=label_w, height=_TAB_BAR_H)
+            self._tab_proxy.update_idletasks()
+            self._tab_proxy.lower()
+            return self._tab_proxy
+
+        return [
+            # ── Welcome ─────────────────────────────────────────────
+            TutorialStep(
+                widget_fn=lambda: nb._sidebar,
+                title="Welcome — PG Mode",
+                description=(
+                    "PG mode organises all tools by project domain.\n"
+                    "Five groups: Schedule, Cost, Risk, Strategic,\n"
+                    "and Dashboard. Every advanced tool is unlocked.\n"
+                    "This tutorial walks through every tab in each group."
+                ),
+            ),
+
+            # ══ SCHEDULE ════════════════════════════════════════════
+            TutorialStep(
+                widget_fn=lambda: sidebar_btn("Schedule"),
+                title="Schedule Group",
+                description=(
+                    "The full CPM / PERT workflow:\n"
+                    "Input Activities \u2192 CPM Results \u2192 Network Diagram\n"
+                    "\u2192 PERT Diagram \u2192 Gantt Chart,\n"
+                    "plus Three-Point Estimates and Crashing."
+                ),
+                on_enter=lambda: nb._select_group("Schedule"),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Schedule", self._input_tab_edu.frame),
+                title="Input Activities",
+                description=(
+                    "1. Add rows: Activity ID, Name, Duration,\n"
+                    "   Predecessors (comma-separated), Resources.\n"
+                    "2. Use \u2018Load Demo\u2019 for a worked example.\n"
+                    "3. Click \u25b6 Analyse \u2014 all downstream views\n"
+                    "   update automatically."
+                ),
+                on_enter=switch_to(self._input_tab_edu.frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Schedule", self.results_tab.results_frame),
+                title="CPM Results",
+                description=(
+                    "For each activity:\n"
+                    "\u2022 ES / EF \u2014 forward pass\n"
+                    "\u2022 LS / LF \u2014 backward pass\n"
+                    "\u2022 TF = LS \u2212 ES (total float)\n"
+                    "Critical activities (TF = 0) are highlighted red.\n"
+                    "Use Forward / Backward Pass for worked solutions."
+                ),
+                on_enter=switch_to(self.results_tab.results_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Schedule", self.network_tab.network_frame),
+                title="Network Diagram",
+                description=(
+                    "Activity-on-Node network. Each node shows\n"
+                    "ES, EF, LS, LF in its four corners, TF centre.\n"
+                    "Critical path is red. Scroll / drag to navigate.\n"
+                    "Click \u2018Interactive View\u2019 for a Plotly browser view."
+                ),
+                on_enter=switch_to(self.network_tab.network_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Schedule", self.pert_diagram_tab.main_frame),
+                title="PERT Diagram",
+                description=(
+                    "Same network topology as the AoN diagram, but\n"
+                    "node durations show PERT expected values (te)\n"
+                    "from your three-point estimates.\n"
+                    "Shows how uncertainty propagates along the critical path."
+                ),
+                on_enter=switch_to(self.pert_diagram_tab.main_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Schedule", self._gantt_tab_edu.frame),
+                title="Gantt Chart",
+                description=(
+                    "Bars against a time axis. Red = critical, grey = float.\n"
+                    "\u2022 Set Project Start Date for real calendar dates.\n"
+                    "\u2022 Predecessor Arrows toggle to show dependencies.\n"
+                    "\u2022 Tracking Gantt overlays % complete progress.\n"
+                    "\u2022 Export Data \u2192 CSV / Excel with all CPM dates."
+                ),
+                on_enter=switch_to(self._gantt_tab_edu.frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Schedule", self._three_point_tab.frame),
+                title="Three-Point Estimates",
+                description=(
+                    "Enter O (optimistic), M (most likely), P (pessimistic)\n"
+                    "durations per activity.\n"
+                    "Results: te = (O + 4M + P) / 6\n"
+                    "and \u03c3\u00b2 = ((P \u2212 O) / 6)\u00b2.\n"
+                    "Feeds the PERT Diagram and Probability tab."
+                ),
+                on_enter=switch_to(self._three_point_tab.frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Schedule", self.crashing_tab),
+                title="Crashing",
+                description=(
+                    "Shorten the project by crashing critical activities.\n"
+                    "1. Enter Crash Duration (min) and Crash Cost.\n"
+                    "2. Click \u25b6 Run Crashing \u2014 cost slope per activity.\n"
+                    "3. Time\u2013cost curve shows total cost vs. duration.\n"
+                    "4. Identify the minimum total-cost point on the curve."
+                ),
+                on_enter=switch_to(self.crashing_tab),
+            ),
+
+            # ══ COST ════════════════════════════════════════════════
+            TutorialStep(
+                widget_fn=lambda: sidebar_btn("Cost"),
+                title="Cost Group",
+                description=(
+                    "Five cost tools:\n"
+                    "\u2022 EVM Dashboard (performance tracking)\n"
+                    "\u2022 Financial Analysis (investment appraisal)\n"
+                    "\u2022 Cost Estimation (7 techniques)\n"
+                    "\u2022 Resources / RCPS (leveling)\n"
+                    "\u2022 RCPS Crashing (advanced optimisation)"
+                ),
+                on_enter=lambda: nb._select_group("Cost"),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Cost", self._evm_tab.frame),
+                title="EVM \u2014 KPI Cards",
+                description=(
+                    "Sub-tab 1: KPI Cards.\n"
+                    "Enter PV, EV, AC per period \u2192 Recalculate.\n"
+                    "Coloured RAG badges: CPI, SPI, CV, SV,\n"
+                    "EAC, ETC, VAC, TCPI."
+                ),
+                on_enter=_switch_to_inner(
+                    self._evm_tab.frame,
+                    self._evm_tab._notebook,
+                    self._evm_tab._kpi_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._evm_tab._notebook, self._evm_tab._curve_frame),
+                title="EVM \u2014 EV S-Curve",
+                description=(
+                    "Sub-tab 2: EV S-Curve.\n"
+                    "Time-series chart of PV, EV, and AC.\n"
+                    "Gap between EV and AC = cost variance;\n"
+                    "gap between EV and PV = schedule variance."
+                ),
+                on_enter=_switch_to_inner(
+                    self._evm_tab.frame,
+                    self._evm_tab._notebook,
+                    self._evm_tab._curve_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Cost", self._financial_tab.frame),
+                title="Financial Analysis \u2014 Calculators",
+                description=(
+                    "Sub-tab 1: Financial Calculators.\n"
+                    "Enter investment, discount rate, cash flows.\n"
+                    "Calculate: Payback, Discounted Payback, ROI,\n"
+                    "NPV, IRR, Profitability Index.\n"
+                    "Chart shows cumulative cash-flow vs. investment."
+                ),
+                on_enter=_switch_to_inner(
+                    self._financial_tab.frame,
+                    self._financial_tab._nb,
+                    self._financial_tab._fin.frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._financial_tab._nb, self._financial_tab._fs.frame),
+                title="Financial Analysis \u2014 Factor Scoring",
+                description=(
+                    "Sub-tab 2: Factor Scoring.\n"
+                    "Define criteria + weights, add competing projects,\n"
+                    "fill the score matrix, choose a scoring model\n"
+                    "(0-1 / Factor / Weighted),\n"
+                    "Calculate \u2192 ranked bar chart of best project."
+                ),
+                on_enter=_switch_to_inner(
+                    self._financial_tab.frame,
+                    self._financial_tab._nb,
+                    self._financial_tab._fs.frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Cost", self._cost_est_tab.frame),
+                title="Cost Estimation",
+                description=(
+                    "7 methods in one tab. Select from the dropdown:\n"
+                    "\u2022 Analogous: ref. cost \u00d7 adjustment factors\n"
+                    "\u2022 Bottom-Up: \u03a3 work-package costs\n"
+                    "\u2022 Work Element: hours \u00d7 rate + materials\n"
+                    "\u2022 Power Sizing: C_new = C_old \u00d7 (Q_new/Q_old)^x\n"
+                    "Calculate \u22652 methods then use \u2018Compare Methods\u2019."
+                ),
+                on_enter=switch_to(self._cost_est_tab.frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Cost", self._rcps_tab.frame),
+                title="Resources \u2014 RCPS Schedule",
+                description=(
+                    "Sub-tab 1: RCPS Schedule.\n"
+                    "Define resources and assign units per activity.\n"
+                    "Click \u25b6 Level \u2014 delays activities to stay\n"
+                    "within resource limits (no over-allocation)."
+                ),
+                on_enter=_switch_to_inner(
+                    self._rcps_tab.frame,
+                    self._rcps_tab._notebook,
+                    self._rcps_tab._sched_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._rcps_tab._notebook, self._rcps_tab._hist_frame),
+                title="Resources \u2014 Histograms",
+                description=(
+                    "Sub-tab 2: Resource Histograms.\n"
+                    "Bar chart of daily resource usage before\n"
+                    "and after leveling. Dashed line = resource limit.\n"
+                    "Confirms the leveling result visually."
+                ),
+                on_enter=_switch_to_inner(
+                    self._rcps_tab.frame,
+                    self._rcps_tab._notebook,
+                    self._rcps_tab._hist_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._rcps_tab._notebook, self._rcps_tab._leveling_frame),
+                title="Resources \u2014 Resource Leveling",
+                description=(
+                    "Sub-tab 3: Resource Leveling walkthrough.\n"
+                    "Step-by-step explanation of the leveling algorithm.\n"
+                    "Shows which activities were delayed and why.\n"
+                    "Use \u2018Worked Solution\u2019 for a solved exam-style example."
+                ),
+                on_enter=_switch_to_inner(
+                    self._rcps_tab.frame,
+                    self._rcps_tab._notebook,
+                    self._rcps_tab._leveling_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Cost", self._rcps_crashing_tab),
+                title="RCPS Crashing",
+                description=(
+                    "Advanced PG tool: resource leveling + crashing.\n"
+                    "RCPS may extend the project; crashing recovers time.\n"
+                    "Enter crash durations and costs for critical activities.\n"
+                    "The combined optimisation finds the best\n"
+                    "time\u2013cost\u2013resource trade-off."
+                ),
+                on_enter=switch_to(self._rcps_crashing_tab),
+            ),
+
+            # ══ RISK ════════════════════════════════════════════════
+            TutorialStep(
+                widget_fn=lambda: sidebar_btn("Risk"),
+                title="Risk Group",
+                description=(
+                    "Qualitative and quantitative risk analysis:\n"
+                    "\u2022 Risk Analysis \u2014 register, heat map, responses\n"
+                    "\u2022 Probability \u2014 Z-score and Monte Carlo simulation"
+                ),
+                on_enter=lambda: nb._select_group("Risk"),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Risk", self._risk_tab.frame),
+                title="Risk Analysis \u2014 Risk Register",
+                description=(
+                    "Sub-tab 1: Risk Register.\n"
+                    "Add risks: description, category, owner.\n"
+                    "Score each: Probability (1\u20135) \u00d7 Impact (1\u20135).\n"
+                    "Export the full register as a report."
+                ),
+                on_enter=_switch_to_inner(
+                    self._risk_tab.frame,
+                    self._risk_tab._notebook,
+                    self._risk_tab._register_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._risk_tab._notebook, self._risk_tab._matrix_frame),
+                title="Risk Analysis \u2014 Risk Matrix",
+                description=(
+                    "Sub-tab 2: Risk Matrix (Heat Map).\n"
+                    "5\u00d75 grid: rows = Probability, columns = Impact.\n"
+                    "Red = critical, yellow = medium, green = low.\n"
+                    "Each cell lists the risks that fall there."
+                ),
+                on_enter=_switch_to_inner(
+                    self._risk_tab.frame,
+                    self._risk_tab._notebook,
+                    self._risk_tab._matrix_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._risk_tab._notebook, self._risk_tab._assessment_frame),
+                title="Risk Analysis \u2014 Assessment Matrix",
+                description=(
+                    "Sub-tab 3: Assessment Matrix.\n"
+                    "Quantifies risk exposure across project objectives.\n"
+                    "Rows = risks, Columns = objectives (scope/time/cost).\n"
+                    "Weighted scores show overall risk severity."
+                ),
+                on_enter=_switch_to_inner(
+                    self._risk_tab.frame,
+                    self._risk_tab._notebook,
+                    self._risk_tab._assessment_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._risk_tab._notebook, self._risk_tab._response_frame),
+                title="Risk Analysis \u2014 Response Planning",
+                description=(
+                    "Sub-tab 4: Response Planning.\n"
+                    "Assign a response strategy per risk:\n"
+                    "Avoid, Transfer, Mitigate, or Accept.\n"
+                    "Document the action plan and responsible owner."
+                ),
+                on_enter=_switch_to_inner(
+                    self._risk_tab.frame,
+                    self._risk_tab._notebook,
+                    self._risk_tab._response_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Risk", self._probability_tab.frame),
+                title="Probability \u2014 PERT Analysis",
+                description=(
+                    "Sub-tab 1: PERT Analysis.\n"
+                    "Shows project mean duration and variance from\n"
+                    "the critical path.\n"
+                    "Enter a target T \u2192 Z-score \u2192 P(complete \u2264 T)."
+                ),
+                on_enter=_switch_to_inner(
+                    self._probability_tab.frame,
+                    self._probability_tab._notebook,
+                    self._probability_tab._pert_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._probability_tab._notebook, self._probability_tab._mc_frame),
+                title="Probability \u2014 Monte Carlo",
+                description=(
+                    "Sub-tab 2: Monte Carlo Simulation.\n"
+                    "Runs thousands of random project durations.\n"
+                    "Histogram shows distribution of outcomes.\n"
+                    "Read P80 / P90 confidence intervals directly."
+                ),
+                on_enter=_switch_to_inner(
+                    self._probability_tab.frame,
+                    self._probability_tab._notebook,
+                    self._probability_tab._mc_frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: _inner_tab_label(
+                    self._probability_tab._notebook, self._probability_tab._ztab_frame),
+                title="Probability \u2014 Z-Score Table",
+                description=(
+                    "Sub-tab 3: Z-Score Reference Table.\n"
+                    "Standard normal distribution lookup table.\n"
+                    "Use to confirm P(Z \u2264 z) values in exam questions."
+                ),
+                on_enter=_switch_to_inner(
+                    self._probability_tab.frame,
+                    self._probability_tab._notebook,
+                    self._probability_tab._ztab_frame),
+            ),
+
+            # ══ STRATEGIC ═══════════════════════════════════════════
+            TutorialStep(
+                widget_fn=lambda: sidebar_btn("Strategic"),
+                title="Strategic Group",
+                description=(
+                    "Nine tabs covering the strategic and planning layer:\n"
+                    "Foundations, PM Role & Org, Charter, WBS,\n"
+                    "RACI, Charter Manager, DPCI, SWOT, PESTEL."
+                ),
+                on_enter=lambda: nb._select_group("Strategic"),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Strategic", self._foundations_tab.frame),
+                title="Foundations Reference Card",
+                description=(
+                    "Scrollable theory reference: project definition,\n"
+                    "triple constraint (scope / time / cost),\n"
+                    "lifecycle phases, and PMI process groups.\n"
+                    "Use as a quick reference during study and revision."
+                ),
+                on_enter=switch_to(self._foundations_tab.frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Strategic", self._org_tab.frame),
+                title="PM Role & Org Reference Card",
+                description=(
+                    "Reference for organisational structures\n"
+                    "(functional, matrix, projectised),\n"
+                    "PM authority level in each, and\n"
+                    "stakeholder management principles."
+                ),
+                on_enter=switch_to(self._org_tab.frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Strategic", self._charter_tab),
+                title="Project Charter",
+                description=(
+                    "1. Enter project name, objectives, scope,\n"
+                    "   sponsor, and key stakeholders.\n"
+                    "2. Add milestones with target dates.\n"
+                    "3. Enter the high-level budget.\n"
+                    "4. Save with the project or Export to PDF/Word.\n"
+                    "The charter formally authorises the project."
+                ),
+                on_enter=switch_to(self._charter_tab),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Strategic", self._wbs_tab.frame),
+                title="Work Breakdown Structure",
+                description=(
+                    "1. Root node = project name.\n"
+                    "2. Add child deliverables; decompose to leaf\n"
+                    "   work packages (1\u20132 weeks each).\n"
+                    "3. 100 % rule: WBS captures all scope, nothing more.\n"
+                    "4. Bottom-Up cost estimation can import WBS leaf nodes."
+                ),
+                on_enter=switch_to(self._wbs_tab.frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Strategic", self._raci_tab.frame),
+                title="Responsibility Matrix (RACI)",
+                description=(
+                    "Define who is Responsible, Accountable, Consulted,\n"
+                    "and Informed for each work package.\n"
+                    "Rows = activities, Columns = stakeholders / roles.\n"
+                    "Rule: every row must have exactly one Accountable (A)."
+                ),
+                on_enter=switch_to(self._raci_tab.frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Strategic", self.charter_manager),
+                title="Charter Manager",
+                description=(
+                    "Manage multiple charter versions across project phases.\n"
+                    "\u2022 Open and compare saved charter files.\n"
+                    "\u2022 Duplicate a charter as a new version baseline.\n"
+                    "\u2022 Track scope changes and re-baseline events."
+                ),
+                on_enter=switch_to(self.charter_manager),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Strategic", self._dpci_tab),
+                title="DPCI Assessment",
+                description=(
+                    "Design-Complexity Project Index.\n"
+                    "Four dimensions: Design, Planning, Control, Improvement.\n"
+                    "1. Fill project info and the questionnaire.\n"
+                    "2. Calculate \u2192 DPCI index, risk level, dimension scores.\n"
+                    "3. Export a full PDF assessment report."
+                ),
+                on_enter=switch_to(self._dpci_tab),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Strategic", self._swot_tab.frame),
+                title="SWOT Analysis",
+                description=(
+                    "Strategic project environment analysis.\n"
+                    "Enter items in each quadrant:\n"
+                    "Strengths, Weaknesses, Opportunities, Threats.\n"
+                    "Link SO and WT strategies.\n"
+                    "Export as a formatted 2\u00d72 matrix report."
+                ),
+                on_enter=switch_to(self._swot_tab.frame),
+            ),
+            TutorialStep(
+                widget_fn=lambda: tab_label("Strategic", self._pestel_tab.frame),
+                title="PESTEL Analysis",
+                description=(
+                    "External-environment analysis:\n"
+                    "Political, Economic, Social, Technological,\n"
+                    "Environmental, Legal.\n"
+                    "Rate each factor\u2019s impact and export a report."
+                ),
+                on_enter=switch_to(self._pestel_tab.frame),
+            ),
+
+            # ══ DASHBOARD ═══════════════════════════════════════════
+            TutorialStep(
+                widget_fn=lambda: tab_label("Dashboard", self._dashboard_tab.frame),
+                title="Project Dashboard",
+                description=(
+                    "Consolidated KPI view across all tools:\n"
+                    "\u2022 Schedule: critical path length, float summary\n"
+                    "\u2022 Cost: CPI, SPI, EAC indicators\n"
+                    "\u2022 Risk: top risks by score\n"
+                    "Use as a daily health-check once data is entered."
+                ),
+                on_enter=switch_to(self._dashboard_tab.frame),
+            ),
+
+            # ══ Wrap-up ══════════════════════════════════════════════
+            TutorialStep(
+                widget_fn=lambda: nb._sidebar,
+                title="File & Mode Menus",
+                description=(
+                    "File menu: open/save projects (.pmh),\n"
+                    "Load Demo, Export to PDF/Excel.\n\n"
+                    "Mode menu: switch to UG for the lecture-based\n"
+                    "tutorial path (L1\u2013L10)."
+                ),
+                on_enter=lambda: nb._select_group("Strategic"),
+            ),
+            TutorialStep(
+                widget_fn=lambda: nb._sidebar,
+                title="You\u2019re Ready!",
+                description=(
+                    "You\u2019ve seen every PG feature.\n\n"
+                    "Tips:\n"
+                    "\u2022 Load a demo to see real project data.\n"
+                    "\u2022 Every tool has a \u2018Worked Solution\u2019 button.\n"
+                    "\u2022 Use \u2018Try It Yourself\u2019 for exam practice.\n"
+                    "\u2022 Press F1 to replay this tutorial."
+                ),
+            ),
+        ]
+
     def _start_tutorial(self) -> None:
-        """Launch the interactive tutorial overlay (UG mode only)."""
-        if self.config.mode == "PG":
-            messagebox.showinfo(
-                "Tutorial",
-                "The tutorial is designed for UG mode.\n"
-                "Switch to Mode → Undergraduate to use it.")
-            return
-        is_pg = self.config.mode == "PG"
+        """Launch the interactive tutorial overlay for the current mode."""
         self._tutorial = TutorialOverlay(
             self.root, self._build_tutorial_steps())
-        self._tutorial.start(
-            filter_fn=lambda s: s.group != "pg" or is_pg
-        )
+        if self.config.mode != "PG":
+            # Filter out PG-tagged steps when running in UG mode
+            self._tutorial.start(filter_fn=lambda s: s.group != "pg")
+        else:
+            self._tutorial.start()
 
     def _apply_mode(self, mode: str):
         """Swap UG ↔ PG notebooks and update all tab-instance references."""
@@ -1419,6 +2187,8 @@ class MainWindowEdu:
         ("pg", "small"): "software_development_pg.pmproj",
         ("pg", "medium"): "digital_transformation_pg_medium.pmproj",
         ("pg", "large"): "erp_implementation_pg_large.pmproj",
+        # Reference sample project — covers all 24 tabs
+        ("ref", "project"): "pmhelper_edu_reference.pmproj",
     }
 
     def _load_demo(self, level: str, size: str = "small"):
@@ -1470,7 +2240,11 @@ class MainWindowEdu:
         if cpm_activities:
             self._input_tab_edu.load_activities(cpm_activities, cpm_mode)
 
-        target_mode = "UG" if level.lower() == "ug" else "PG"
+        # Reference project always loads in PG mode (uses all features)
+        if level.lower() == "ref":
+            target_mode = "PG"
+        else:
+            target_mode = "UG" if level.lower() == "ug" else "PG"
         self._apply_mode(target_mode)
         self._refresh_all_edu_tabs()
 

@@ -1,0 +1,183 @@
+{
+  "_meta": {
+    "document": "PMHE-2025-SWOT-001",
+    "project": "PMHelper_Edu Development Project",
+    "format": "pmproj_swot_analysis_v1",
+    "note": "SWOT analysis for PMHelper_Edu as a product and project. Sources link to project artifacts. Load via .pmproj or SWOT tab."
+  },
+  "title": "PMHelper_Edu — Product and Project SWOT Analysis",
+  "description": "Strategic assessment of PMHelper_Edu as both a product (educational PM software) and a project (EduTech Dynamics development initiative). Status: July 2026 — project at 80% completion.",
+  "factors": [
+    {
+      "text": "Comprehensive coverage: 24 PM topic areas in a single integrated application — no competitor combines CPM, EVM, Risk, Monte Carlo, RACI, SWOT, PESTEL, and educational scaffolding in one free tool.",
+      "category": "Strength",
+      "source": "Manual",
+      "weight": 0.9,
+      "linked_to": "BR-001",
+      "impact_score": 5.0,
+      "likelihood": 1.0
+    },
+    {
+      "text": "Free and open-source (MIT License): zero adoption cost barrier for universities and individual students; creates a sustainable community-driven development model.",
+      "category": "Strength",
+      "source": "Charter",
+      "weight": 0.85,
+      "linked_to": "BR-002",
+      "impact_score": 4.5,
+      "likelihood": 1.0
+    },
+    {
+      "text": "AI-assisted development (GitHub Copilot): enables a single developer to produce a codebase equivalent to a 3-person team; demonstrated by 845+ tests and 178 Python files in 13 months.",
+      "category": "Strength",
+      "source": "Manual",
+      "weight": 0.75,
+      "linked_to": "A1",
+      "impact_score": 4.0,
+      "likelihood": 1.0
+    },
+    {
+      "text": "Dual UG/PG educational modes with worked solutions and Try It Yourself: unique pedagogical design that serves multiple audience levels from one product.",
+      "category": "Strength",
+      "source": "Manual",
+      "weight": 0.8,
+      "linked_to": "EDU-001",
+      "impact_score": 4.5,
+      "likelihood": 1.0
+    },
+    {
+      "text": "Technical Advisory from Prof. Youssef: ensures educational accuracy and PMBOK alignment, providing academic credibility that commercial tools lack.",
+      "category": "Strength",
+      "source": "Manual",
+      "weight": 0.7,
+      "linked_to": "SR-006",
+      "impact_score": 4.0,
+      "likelihood": 0.9
+    },
+    {
+      "text": "Lead developer single-point-of-failure: Omar Hassan El-Rashidy is the only person with full technical knowledge; unavailability directly threatens delivery.",
+      "category": "Weakness",
+      "source": "Risk Register",
+      "weight": 0.85,
+      "linked_to": "R-001",
+      "impact_score": 5.0,
+      "likelihood": 0.9
+    },
+    {
+      "text": "Cost overrun at Month 10 (CPI = 0.92): educational content complexity was underestimated; approximately EGP 80,000 over plan requires contingency reserve utilisation.",
+      "category": "Weakness",
+      "source": "EVM",
+      "weight": 0.7,
+      "linked_to": "R-009",
+      "impact_score": 3.5,
+      "likelihood": 1.0
+    },
+    {
+      "text": "English-only interface: limits adoption in Arabic-speaking university environments where students and faculty prefer Arabic instruction.",
+      "category": "Weakness",
+      "source": "Manual",
+      "weight": 0.6,
+      "linked_to": "E3",
+      "impact_score": 3.0,
+      "likelihood": 0.8
+    },
+    {
+      "text": "No mobile application: growing student preference for mobile learning tools means a desktop-only strategy limits reach among students who use tablets or smartphones for study.",
+      "category": "Weakness",
+      "source": "Manual",
+      "weight": 0.5,
+      "linked_to": "E1",
+      "impact_score": 2.5,
+      "likelihood": 0.7
+    },
+    {
+      "text": "Limited marketing budget: no dedicated marketing spend in the project budget; adoption depends on organic discovery (PyPI, GitHub), word-of-mouth, and Prof. Youssef's network.",
+      "category": "Weakness",
+      "source": "Manual",
+      "weight": 0.65,
+      "linked_to": "SR-007",
+      "impact_score": 3.0,
+      "likelihood": 0.85
+    },
+    {
+      "text": "Growing CAPM/PMP examination interest in Egypt and MENA: PMI reports 18% annual growth in exam registrations; each candidate is a potential user and community contributor.",
+      "category": "Opportunity",
+      "source": "Manual",
+      "weight": 0.75,
+      "linked_to": "BR-004",
+      "impact_score": 4.0,
+      "likelihood": 0.8
+    },
+    {
+      "text": "University curriculum reform trend: post-COVID digital transformation in Egyptian higher education creates receptive conditions for adopting interactive digital PM tools.",
+      "category": "Opportunity",
+      "source": "Manual",
+      "weight": 0.7,
+      "linked_to": "B4",
+      "impact_score": 4.0,
+      "likelihood": 0.75
+    },
+    {
+      "text": "Open-source community contribution: MIT license invites global developers to add features, translate the UI, and create new sample projects — multiplying impact at zero cost.",
+      "category": "Opportunity",
+      "source": "Manual",
+      "weight": 0.65,
+      "linked_to": "B8",
+      "impact_score": 3.5,
+      "likelihood": 0.6
+    },
+    {
+      "text": "Academic paper publication potential: the unique educational approach (dual-mode, worked solutions, integrated project narrative) is a publishable contribution to PM education research.",
+      "category": "Opportunity",
+      "source": "Manual",
+      "weight": 0.55,
+      "linked_to": "B5",
+      "impact_score": 3.0,
+      "likelihood": 0.6
+    },
+    {
+      "text": "Foundation for premium products: the proven codebase, educational framework, and user base create a platform for Arabic version, LMS integration, or premium course modules.",
+      "category": "Opportunity",
+      "source": "Charter",
+      "weight": 0.7,
+      "linked_to": "B7",
+      "impact_score": 4.5,
+      "likelihood": 0.65
+    },
+    {
+      "text": "Microsoft or Oracle offers free educational PM software tier: if a major vendor targets the educational market with a free offering, it could instantly absorb the target audience.",
+      "category": "Threat",
+      "source": "Manual",
+      "weight": 0.8,
+      "linked_to": "R-010",
+      "impact_score": 5.0,
+      "likelihood": 0.25
+    },
+    {
+      "text": "Open-source competitive fork: under the MIT license, any party can fork PMHelper_Edu and release a competing version; a well-funded fork with Arabic UI could surpass the original.",
+      "category": "Threat",
+      "source": "Manual",
+      "weight": 0.6,
+      "linked_to": "BA4",
+      "impact_score": 4.0,
+      "likelihood": 0.15
+    },
+    {
+      "text": "EGP/USD exchange rate depreciation: GitHub Copilot, Render.com, and domain costs are USD-denominated; EGP depreciation increases the effective cost of maintaining the product.",
+      "category": "Threat",
+      "source": "Risk Register",
+      "weight": 0.55,
+      "linked_to": "BR-3",
+      "impact_score": 3.0,
+      "likelihood": 0.5
+    },
+    {
+      "text": "Academic adoption inertia: university IT and curriculum approval processes can take 1-2 academic years; even a successful product may see delayed adoption due to bureaucratic timelines.",
+      "category": "Threat",
+      "source": "Manual",
+      "weight": 0.65,
+      "linked_to": "SR-012",
+      "impact_score": 3.5,
+      "likelihood": 0.45
+    }
+  ]
+}

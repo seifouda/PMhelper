@@ -9,8 +9,10 @@ import os
 random.seed(42)  # Reproducible
 
 # ---------------------------------------------------------------------------
-# Shared predecessor-network builder  (Constraints #1–#19)
+# Shared predecessor-network builder  (Constraints #1–#20)
 # ---------------------------------------------------------------------------
+
+MAX_SUCCESSOR_DISTANCE = 15  # Constraint #20: successor ≤ 15 positions away
 
 def _build_ancestor_sets(pred_map, all_ids):
     """Compute ancestor sets in topological order for transitive reduction.
@@ -50,7 +52,7 @@ def _transitive_reduce(pred_map, all_ids):
 
 
 def _build_predecessors_map(phase_codes, phase_task_ids, rng):
-    """Build a well-formed predecessor network satisfying all 19 DAG constraints.
+    """Build a well-formed predecessor network satisfying all 20 DAG constraints.
 
     Constraint coverage
     -------------------
@@ -70,6 +72,7 @@ def _build_predecessors_map(phase_codes, phase_task_ids, rng):
     #17 No dead-ends : spine + phase-end links guarantee paths to the finish
     #18 Reachability : every task reachable from at least one spine start task
     #19 Path to end  : spine threads through to the last task of the last phase
+    #20 Succ. dist.  : every successor is at most MAX_SUCCESSOR_DISTANCE positions away
     """
     # Flatten task IDs in sequence order — this IS the topological order
     all_ids = []
@@ -137,6 +140,30 @@ def _build_predecessors_map(phase_codes, phase_task_ids, rng):
             preds = [preds[0]] + preds[-2:]
             preds = sorted(set(preds), key=lambda x: id_to_idx[x])
         pred_map[tid] = preds
+
+    # ── Step 7: Successor distance cap  (constraint #20) ──────────────────
+    # Every successor must be at most MAX_SUCCESSOR_DISTANCE positions away.
+    # E.g. task at index 6 can only be a predecessor of tasks at index ≤ 21.
+    # If a link P→S violates this, drop it and (if S loses all predecessors)
+    # substitute the closest valid predecessor within the distance window.
+    for tid in all_ids:
+        succ_idx = id_to_idx[tid]
+        valid = []
+        for p in pred_map[tid]:
+            pred_idx = id_to_idx[p]
+            if succ_idx - pred_idx <= MAX_SUCCESSOR_DISTANCE:
+                valid.append(p)
+        if valid:
+            pred_map[tid] = valid
+        elif pred_map[tid]:
+            # All predecessors were too far — pick the closest valid task
+            # within the distance window as a fallback.
+            window_start = max(0, succ_idx - MAX_SUCCESSOR_DISTANCE)
+            fallback = all_ids[succ_idx - 1] if succ_idx > 0 else None
+            for candidate_idx in range(succ_idx - 1, window_start - 1, -1):
+                fallback = all_ids[candidate_idx]
+                break
+            pred_map[tid] = [fallback] if fallback else []
 
     return pred_map
 
@@ -459,10 +486,11 @@ def generate_ug_demo():
     # - Within a phase: each task depends on 1-3 earlier tasks in the same phase
     # - Between phases: first ~5 tasks of a new phase depend on last ~5 tasks of previous phase
     # - Some cross-phase dependencies for realism
+    # - Successor distance capped at 15 positions
 
     phase_codes = [p[0] for p in phases]
 
-    # Build predecessor network — all 19 DAG constraints applied
+    # Build predecessor network — all 20 DAG constraints applied
     predecessors_map = _build_predecessors_map(phase_codes, phase_task_ids, random)
 
     # Build activities with realistic durations and costs
@@ -839,7 +867,7 @@ def generate_pg_demo():
 
     phase_codes = [p[0] for p in phases]
 
-    # Build predecessor network — all 19 DAG constraints applied
+    # Build predecessor network — all 20 DAG constraints applied
     predecessors_map = _build_predecessors_map(phase_codes, phase_task_ids, random)
 
     # Build activities with PERT estimates

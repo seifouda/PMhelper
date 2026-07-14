@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import io
 import json
-import os
 import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -45,7 +44,7 @@ class ActivitiesRequest(BaseModel):
     activities: List[ActivityIn]
 
 
-# ── CPM ───────────────────────────────────────────────────────────────────────
+# ── CPM ─────────────────────────────────────────────────────────────────
 
 
 @router.post("/analysis/cpm")
@@ -98,10 +97,12 @@ async def run_cpm(request: Request, req: ActivitiesRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.exception("CPM analysis failed")
-        raise HTTPException(status_code=500, detail=f"CPM analysis failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"CPM analysis failed: {e}")
 
 
-# ── PERT ──────────────────────────────────────────────────────────────────────
+# ── PERT ────────────────────────────────────────────────────────────────
 
 
 class PERTRequest(BaseModel):
@@ -151,10 +152,12 @@ async def run_pert(request: Request, req: PERTRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.exception("PERT analysis failed")
-        raise HTTPException(status_code=500, detail=f"PERT analysis failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"PERT analysis failed: {e}")
 
 
-# ── Crashing ──────────────────────────────────────────────────────────────────
+# ── Crashing ────────────────────────────────────────────────────────────
 
 
 class CrashingRequest(BaseModel):
@@ -164,7 +167,8 @@ class CrashingRequest(BaseModel):
 
 @router.post("/analysis/crashing")
 @limiter.limit("30/minute")
-async def run_crashing(request: Request, req: CrashingRequest) -> Dict[str, Any]:
+async def run_crashing(
+        request: Request, req: CrashingRequest) -> Dict[str, Any]:
     """Run time-cost trade-off (crashing) analysis."""
     try:
         from pmhelper.core.cost_optimization import TimeCostOptimizer, IndirectCostModel
@@ -200,10 +204,11 @@ async def run_crashing(request: Request, req: CrashingRequest) -> Dict[str, Any]
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.exception("Crashing analysis failed")
-        raise HTTPException(status_code=500, detail=f"Crashing analysis failed: {e}")
+        raise HTTPException(status_code=500,
+                            detail=f"Crashing analysis failed: {e}")
 
 
-# ── EVM ───────────────────────────────────────────────────────────────────────
+# ── EVM ─────────────────────────────────────────────────────────────────
 
 
 class EVMPeriodIn(BaseModel):
@@ -242,14 +247,14 @@ async def run_evm(request: Request, req: EVMRequest) -> Dict[str, Any]:
     """Compute EVM KPIs from period data."""
     try:
         from pmhelper.core.evm_calculations_edu import EVMCalculator
-        from pmhelper.core.evm_models_edu import EVMProject as _EVMProject, EVMTask as _EVMTask
 
         proj_data = req.project
         periods = [p.model_dump() for p in proj_data.periods]
         tasks = [t.model_dump() for t in proj_data.tasks]
 
         # Use the last period if no current_period_index given
-        idx = req.current_period_index if req.current_period_index is not None else len(periods) - 1
+        idx = req.current_period_index if req.current_period_index is not None else len(
+            periods) - 1
         idx = min(idx, len(periods) - 1)
         period = periods[idx]
 
@@ -266,10 +271,12 @@ async def run_evm(request: Request, req: EVMRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.exception("EVM analysis failed")
-        raise HTTPException(status_code=500, detail=f"EVM analysis failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"EVM analysis failed: {e}")
 
 
-# ── Risk ──────────────────────────────────────────────────────────────────────
+# ── Risk ────────────────────────────────────────────────────────────────
 
 
 class RiskIn(BaseModel):
@@ -303,7 +310,7 @@ async def run_risk(request: Request, req: RiskRequest) -> Dict[str, Any]:
     }
 
 
-# ── Monte Carlo ───────────────────────────────────────────────────────────────
+# ── Monte Carlo ─────────────────────────────────────────────────────────
 
 
 class MCRequest(BaseModel):
@@ -348,7 +355,7 @@ async def run_monte_carlo(request: Request, req: MCRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"Monte Carlo failed: {e}")
 
 
-# ── RCPS ──────────────────────────────────────────────────────────────────────
+# ── RCPS ────────────────────────────────────────────────────────────────
 
 
 class RCPSRequest(BaseModel):
@@ -381,15 +388,18 @@ async def run_rcps(request: Request, req: RCPSRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.exception("RCPS analysis failed")
-        raise HTTPException(status_code=500, detail=f"RCPS analysis failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"RCPS analysis failed: {e}")
 
 
-# ── Calculation steps (Learn Mode) ────────────────────────────────────────────
+# ── Calculation steps (Learn Mode) ──────────────────────────────────────
 
 
 @router.post("/analysis/steps/cpm")
 @limiter.limit("30/minute")
-async def get_cpm_steps(request: Request, req: ActivitiesRequest) -> List[Dict[str, Any]]:
+async def get_cpm_steps(
+        request: Request, req: ActivitiesRequest) -> List[Dict[str, Any]]:
     """Return step-by-step CPM calculation walkthrough for Learn Mode."""
     try:
         from pmhelper.core.step_generators_edu import generate_cpm_steps
@@ -402,12 +412,14 @@ async def get_cpm_steps(request: Request, req: ActivitiesRequest) -> List[Dict[s
         return steps
     except Exception as e:
         logger.exception("CPM steps generation failed")
-        raise HTTPException(status_code=500, detail=f"Steps generation failed: {e}")
+        raise HTTPException(status_code=500,
+                            detail=f"Steps generation failed: {e}")
 
 
 @router.post("/analysis/steps/pert")
 @limiter.limit("30/minute")
-async def get_pert_steps(request: Request, req: ActivitiesRequest) -> List[Dict[str, Any]]:
+async def get_pert_steps(
+        request: Request, req: ActivitiesRequest) -> List[Dict[str, Any]]:
     """Return step-by-step PERT calculation walkthrough for Learn Mode."""
     try:
         from pmhelper.core.step_generators_edu import generate_pert_steps
@@ -420,18 +432,21 @@ async def get_pert_steps(request: Request, req: ActivitiesRequest) -> List[Dict[
         return steps
     except Exception as e:
         logger.exception("PERT steps generation failed")
-        raise HTTPException(status_code=500, detail=f"Steps generation failed: {e}")
+        raise HTTPException(status_code=500,
+                            detail=f"Steps generation failed: {e}")
 
 
 @router.post("/analysis/steps/evm")
 @limiter.limit("30/minute")
-async def get_evm_steps(request: Request, req: EVMRequest) -> List[Dict[str, Any]]:
+async def get_evm_steps(
+        request: Request, req: EVMRequest) -> List[Dict[str, Any]]:
     """Return step-by-step EVM KPI walkthrough for Learn Mode."""
     try:
         from pmhelper.core.step_generators_edu import generate_evm_steps
 
         proj = req.project
-        idx = req.current_period_index if req.current_period_index is not None else len(proj.periods) - 1
+        idx = req.current_period_index if req.current_period_index is not None else len(
+            proj.periods) - 1
         period = proj.periods[min(idx, len(proj.periods) - 1)]
         steps = generate_evm_steps(
             bac=proj.bac,
@@ -442,44 +457,53 @@ async def get_evm_steps(request: Request, req: EVMRequest) -> List[Dict[str, Any
         return steps
     except Exception as e:
         logger.exception("EVM steps generation failed")
-        raise HTTPException(status_code=500, detail=f"Steps generation failed: {e}")
+        raise HTTPException(status_code=500,
+                            detail=f"Steps generation failed: {e}")
 
 
-# ── Samples ───────────────────────────────────────────────────────────────────
+# ── Samples ─────────────────────────────────────────────────────────────
 
 # Locate demo project files
 _DEMOS_DIR = Path(__file__).parent.parent.parent.parent / "demos_edu"
 
-_SAMPLE_CATALOG: List[Dict[str, Any]] = [
-    {
-        "id": "office_renovation_ug",
-        "name": "Office Renovation",
-        "description": "15-task office renovation project — UG demo",
-        "level": "ug",
-        "task_count": 15,
-    },
-    {
-        "id": "software_project_pg",
-        "name": "Software Project",
-        "description": "12-task software development project — PG demo",
-        "level": "pg",
-        "task_count": 12,
-    },
-    {
-        "id": "campus_construction_ug_large",
-        "name": "Campus Construction (Large)",
-        "description": "600-task campus construction — large UG demo",
-        "level": "ug",
-        "task_count": 600,
-    },
-    {
-        "id": "erp_implementation_pg_large",
-        "name": "ERP Implementation (Large)",
-        "description": "600-task ERP implementation — large PG demo",
-        "level": "pg",
-        "task_count": 600,
-    },
-]
+_SAMPLE_CATALOG: List[Dict[str,
+                           Any]] = [{"id": "office_renovation_ug",
+                                     "name": "Office Renovation",
+                                     "description": "15-task office renovation project — UG demo",
+                                     "level": "ug",
+                                     "task_count": 15,
+                                     },
+                                    {"id": "hospital_construction_ug_medium",
+                                     "name": "Hospital Construction (Medium)",
+                                     "description": "150-task hospital construction project — medium UG demo",
+                                     "level": "ug",
+                                     "task_count": 150,
+                                     },
+                                    {"id": "campus_construction_ug_large",
+                                     "name": "Campus Construction (Large)",
+                                     "description": "600-task campus construction — large UG demo",
+                                     "level": "ug",
+                                     "task_count": 600,
+                                     },
+                                    {"id": "software_project_pg",
+                                     "name": "Software Project",
+                                     "description": "13-task software development project — PG demo",
+                                     "level": "pg",
+                                     "task_count": 13,
+                                     },
+                                    {"id": "digital_transformation_pg_medium",
+                                     "name": "Digital Transformation (Medium)",
+                                     "description": "150-task digital transformation programme — medium PG demo",
+                                     "level": "pg",
+                                     "task_count": 150,
+                                     },
+                                    {"id": "erp_implementation_pg_large",
+                                     "name": "ERP Implementation (Large)",
+                                     "description": "600-task ERP implementation — large PG demo",
+                                     "level": "pg",
+                                     "task_count": 600,
+                                     },
+                                    ]
 
 
 @router.get("/samples")
@@ -494,11 +518,14 @@ async def get_sample(sample_id: str) -> Dict[str, Any]:
     # Validate sample_id is in catalog (prevent path traversal)
     known_ids = {s["id"] for s in _SAMPLE_CATALOG}
     if sample_id not in known_ids:
-        raise HTTPException(status_code=404, detail=f"Sample '{sample_id}' not found")
+        raise HTTPException(status_code=404,
+                            detail=f"Sample '{sample_id}' not found")
 
     demo_file = _DEMOS_DIR / f"{sample_id}.pmproj"
     if not demo_file.exists():
-        raise HTTPException(status_code=404, detail=f"Demo file for '{sample_id}' not found on server")
+        raise HTTPException(
+            status_code=404,
+            detail=f"Demo file for '{sample_id}' not found on server")
 
     try:
         with open(demo_file, "r", encoding="utf-8") as f:
@@ -508,7 +535,7 @@ async def get_sample(sample_id: str) -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"Invalid demo file: {e}")
 
 
-# ── CSV Import ────────────────────────────────────────────────────────────────
+# ── CSV Import ──────────────────────────────────────────────────────────
 
 
 @router.post("/import/csv")
@@ -549,8 +576,11 @@ async def import_csv(file: UploadFile = File(...)) -> Dict[str, Any]:
         if missing:
             raise HTTPException(
                 status_code=422,
-                detail=f"Missing required columns: {', '.join(sorted(missing))}. "
-                       f"Found: {', '.join(df.columns)}",
+                detail=f"Missing required columns: {
+                    ', '.join(
+                        sorted(missing))}. " f"Found: {
+                    ', '.join(
+                        df.columns)}",
             )
 
         # Parse predecessors
@@ -576,8 +606,14 @@ async def import_csv(file: UploadFile = File(...)) -> Dict[str, Any]:
                     "predecessors": parse_preds(row.get("predecessors")),
                 }
                 # Optional columns
-                for col in ["min_duration", "crash_cost", "resource_demand", "normal_cost",
-                            "optimistic", "most_likely", "pessimistic"]:
+                for col in [
+                    "min_duration",
+                    "crash_cost",
+                    "resource_demand",
+                    "normal_cost",
+                    "optimistic",
+                    "most_likely",
+                        "pessimistic"]:
                     if col in df.columns and not pd.isna(row.get(col)):
                         try:
                             act[col] = float(row[col])
@@ -587,7 +623,10 @@ async def import_csv(file: UploadFile = File(...)) -> Dict[str, Any]:
             except (ValueError, TypeError) as e:
                 errors.append(f"Row {row_num}: {e}")
 
-        return {"activities": activities, "errors": errors, "row_count": len(activities)}
+        return {
+            "activities": activities,
+            "errors": errors,
+            "row_count": len(activities)}
     except HTTPException:
         raise
     except Exception as e:
@@ -595,7 +634,7 @@ async def import_csv(file: UploadFile = File(...)) -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"CSV import failed: {e}")
 
 
-# ── Telemetry ─────────────────────────────────────────────────────────────────
+# ── Telemetry ───────────────────────────────────────────────────────────
 
 
 class TelemetryError(BaseModel):

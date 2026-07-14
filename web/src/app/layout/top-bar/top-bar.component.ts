@@ -9,6 +9,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { viewMode, academicLevel } from '../../core/store/project.store';
 import { ProjectIOService } from '../../core/services/project-io.service';
+import { TutorialService } from '../../shared/services/tutorial.service';
+import { GLOBAL_TUTORIAL_STEPS } from '../../shared/constants/tutorial-steps';
 
 @Component({
   selector: 'app-top-bar',
@@ -28,10 +30,15 @@ import { ProjectIOService } from '../../core/services/project-io.service';
 })
 export class TopBarComponent {
   private readonly io = inject(ProjectIOService);
+  private readonly tutorialService = inject(TutorialService);
   readonly mode = viewMode;
   readonly level = academicLevel;
   readonly sidebarCollapsed = input(false);
   readonly toggleSidebar = output();
+
+  constructor() {
+    this.tutorialService.registerSteps(GLOBAL_TUTORIAL_STEPS);
+  }
 
   onToggleSidebar(): void {
     this.toggleSidebar.emit();
@@ -55,5 +62,9 @@ export class TopBarComponent {
 
   exportCsv(): void {
     this.io.exportCsv();
+  }
+
+  startTutorial(): void {
+    this.tutorialService.start();
   }
 }

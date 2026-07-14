@@ -4,12 +4,19 @@ import { RouterOutlet } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { TopBarComponent } from '../top-bar/top-bar.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { TutorialOverlayComponent } from '../../shared/components/tutorial/tutorial-overlay.component';
 
 @Component({
   selector: 'app-app-shell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterOutlet, TopBarComponent, SidebarComponent],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    TopBarComponent,
+    SidebarComponent,
+    TutorialOverlayComponent,
+  ],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
 })

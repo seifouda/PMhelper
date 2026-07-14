@@ -4,14 +4,13 @@ Project API Routes
 REST API endpoints for project management operations.
 """
 
-from typing import List, Optional
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 
 from ..models.schemas import (
-    ProjectCreate, ProjectUpdate, ProjectResponse, ProjectList,
-    ErrorResponse, ValidationErrorResponse
+    ProjectCreate, ProjectUpdate, ProjectResponse, ProjectList
 )
 from ...database.connection import get_db_session
 from ...services.project_service import ProjectService
@@ -35,7 +34,8 @@ async def create_project(
     """Create a new project."""
     try:
         # Validate activities data
-        is_valid, validation_errors = ProjectService.validate_activities_data(project.activities)
+        is_valid, validation_errors = ProjectService.validate_activities_data(
+            project.activities)
         if not is_valid:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -45,10 +45,10 @@ async def create_project(
                     "errors": validation_errors
                 }
             )
-        
+
         # Create project
         db_project = await ProjectService.create_project(db, project)
-        
+
         # Convert to response format
         return ProjectResponse(
             id=str(db_project.id),
@@ -59,7 +59,7 @@ async def create_project(
             created_at=db_project.created_at,
             updated_at=db_project.updated_at
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -81,18 +81,26 @@ async def create_project(
     description="Retrieve a paginated list of projects with optional search."
 )
 async def list_projects(
-    page: int = Query(1, ge=1, description="Page number"),
-    page_size: int = Query(50, ge=1, le=100, description="Number of items per page"),
-    search: Optional[str] = Query(None, description="Search term for project names"),
-    db: AsyncSession = Depends(get_db_session)
-):
+        page: int = Query(
+            1,
+            ge=1,
+            description="Page number"),
+    page_size: int = Query(
+            50,
+            ge=1,
+            le=100,
+            description="Number of items per page"),
+        search: Optional[str] = Query(
+            None,
+            description="Search term for project names"),
+        db: AsyncSession = Depends(get_db_session)):
     """List projects with pagination and search."""
     try:
         skip = (page - 1) * page_size
         projects, total_count = await ProjectService.get_projects(
             db, skip=skip, limit=page_size, search=search
         )
-        
+
         # Convert to response format
         project_responses = [
             ProjectResponse(
@@ -106,14 +114,14 @@ async def list_projects(
             )
             for project in projects
         ]
-        
+
         return ProjectList(
             projects=project_responses,
             total=total_count,
             page=page,
             page_size=page_size
         )
-        
+
     except Exception as e:
         logger.error(f"Error listing projects: {e}")
         raise HTTPException(
@@ -139,7 +147,7 @@ async def get_project(
     """Get a project by ID."""
     try:
         db_project = await ProjectService.get_project(db, project_id)
-        
+
         if not db_project:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -148,7 +156,7 @@ async def get_project(
                     "message": f"Project with ID {project_id} not found"
                 }
             )
-        
+
         return ProjectResponse(
             id=str(db_project.id),
             name=db_project.name,
@@ -158,7 +166,7 @@ async def get_project(
             created_at=db_project.created_at,
             updated_at=db_project.updated_at
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -188,7 +196,8 @@ async def update_project(
     try:
         # Validate activities if provided
         if project_update.activities is not None:
-            is_valid, validation_errors = ProjectService.validate_activities_data(project_update.activities)
+            is_valid, validation_errors = ProjectService.validate_activities_data(
+                project_update.activities)
             if not is_valid:
                 raise HTTPException(
                     status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -198,10 +207,10 @@ async def update_project(
                         "errors": validation_errors
                     }
                 )
-        
+
         # Update project
         updated_project = await ProjectService.update_project(db, project_id, project_update)
-        
+
         if not updated_project:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -210,7 +219,7 @@ async def update_project(
                     "message": f"Project with ID {project_id} not found"
                 }
             )
-        
+
         return ProjectResponse(
             id=str(updated_project.id),
             name=updated_project.name,
@@ -220,7 +229,7 @@ async def update_project(
             created_at=updated_project.created_at,
             updated_at=updated_project.updated_at
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -248,7 +257,7 @@ async def delete_project(
     """Delete a project."""
     try:
         success = await ProjectService.delete_project(db, project_id)
-        
+
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -257,10 +266,10 @@ async def delete_project(
                     "message": f"Project with ID {project_id} not found"
                 }
             )
-        
+
         # Return 204 No Content on successful deletion
         return None
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -268,7 +277,7 @@ async def delete_project(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
-                "error": "Internal Server Error", 
+                "error": "Internal Server Error",
                 "message": "Failed to delete project",
                 "detail": str(e)
             }
@@ -287,26 +296,25 @@ async def get_project_activities(
     """Get activities for a specific project."""
     try:
         activities = await ProjectService.get_project_activities(db, project_id)
-        
+
         if activities is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={
                     "error": "Not Found",
-                    "message": f"Project with ID {project_id} not found or has no activities"
-                }
-            )
-        
+                    "message": f"Project with ID {project_id} not found or has no activities"})
+
         return {
             "project_id": project_id,
             "activities": activities,
             "count": len(activities)
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error retrieving activities for project {project_id}: {e}")
+        logger.error(
+            f"Error retrieving activities for project {project_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
@@ -338,9 +346,9 @@ async def get_project_analysis_jobs(
                     "message": f"Project with ID {project_id} not found"
                 }
             )
-        
+
         jobs = await ProjectService.get_project_analysis_jobs(db, project_id)
-        
+
         # Convert jobs to response format
         job_responses = []
         for job in jobs:
@@ -354,17 +362,18 @@ async def get_project_analysis_jobs(
                 "completed_at": job.completed_at,
                 "error_message": job.error_message
             })
-        
+
         return {
             "project_id": project_id,
             "analysis_jobs": job_responses,
             "count": len(job_responses)
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error retrieving analysis jobs for project {project_id}: {e}")
+        logger.error(
+            f"Error retrieving analysis jobs for project {project_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={

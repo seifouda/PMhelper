@@ -118,6 +118,13 @@ if (Test-Path $patchScript) {
 # --- Step 3: Clean Previous Build ---
 Write-Host '[3/8] Cleaning previous build artifacts...' -ForegroundColor Yellow
 
+# Stop running app instances to release locked files in dist\_internal.
+$runningApp = Get-Process -Name $AppName -ErrorAction SilentlyContinue
+if ($runningApp) {
+    $runningApp | Stop-Process -Force
+    Write-Host "  Stopped running process: $AppName" -ForegroundColor Gray
+}
+
 if (Test-Path $BuildDir) {
     Remove-Item -Recurse -Force $BuildDir
     Write-Host "  Removed: $BuildDir" -ForegroundColor Gray
@@ -162,6 +169,15 @@ if (-not (Test-Path $exePath)) {
 $exeSize = (Get-Item $exePath).Length
 $exeSizeMB = [math]::Round($exeSize / 1MB, 1)
 Write-Host "  Build successful: $exePath - $exeSizeMB MB" -ForegroundColor Green
+
+# Remove misleading intermediate EXE in build folder.
+# It points to temporary artifacts and can fail with missing python312.dll.
+$intermediateExe = Join-Path $BuildDir "$AppName.exe"
+if (Test-Path $intermediateExe) {
+    Remove-Item -Force $intermediateExe
+    Write-Host "  Removed intermediate EXE: $intermediateExe" -ForegroundColor Gray
+}
+Write-Host "  Launch from dist only: $exePath" -ForegroundColor Gray
 
 # --- Step 5: Post-Build Validation ---
 Write-Host '[5/8] Post-build validation...' -ForegroundColor Yellow
@@ -274,7 +290,43 @@ Write-Host '  Created: README_FIRST.txt' -ForegroundColor Gray
 $timestamp = Get-Date -Format 'yyyyMMdd'
 $zipName = "dist\${AppName}_v${Version}_${timestamp}.zip"
 if (Test-Path $zipName) { Remove-Item $zipName -Force }
-Compress-Archive -Path $DistDir -DestinationPath $zipName -CompressionLevel Optimal
+
+# Build zip with .NET API so we can skip locked/temp files instead of failing the whole build.
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+$distRoot = (Resolve-Path $DistDir).Path
+$zip = [System.IO.Compression.ZipFile]::Open($zipName, [System.IO.Compression.ZipArchiveMode]::Create)
+$skippedFiles = @()
+
+try {
+    $filesToArchive = Get-ChildItem -Path $DistDir -Recurse -File | Where-Object {
+        $_.Name -notlike '~*' -and $_.FullName -notmatch '\\~'
+    }
+
+    foreach ($file in $filesToArchive) {
+        $relativePath = $file.FullName.Substring($distRoot.Length).TrimStart('\\')
+        try {
+            [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+                $zip,
+                $file.FullName,
+                $relativePath,
+                [System.IO.Compression.CompressionLevel]::Optimal
+            ) | Out-Null
+        } catch {
+            $skippedFiles += $relativePath
+            Write-Host "  WARNING: Skipped locked file: $relativePath" -ForegroundColor Yellow
+        }
+    }
+}
+finally {
+    $zip.Dispose()
+}
+
+if ($skippedFiles.Count -gt 0) {
+    Write-Host "  WARNING: $($skippedFiles.Count) file(s) were skipped during archiving." -ForegroundColor Yellow
+}
+
 $zipSize = [math]::Round((Get-Item $zipName).Length / 1MB, 1)
 Write-Host "  Archive: $zipName - $zipSize MB" -ForegroundColor Gray
 Write-Host "  Hash file: $hashFile" -ForegroundColor Gray

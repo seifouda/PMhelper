@@ -34,9 +34,9 @@ async def lifespan(app: FastAPI):
     await init_database()
     logger.info(f"Server running at {config.get_server_url()}")
     logger.info(f"API documentation at {config.get_docs_url()}")
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down PMHelper Server...")
     await close_database()
@@ -50,8 +50,7 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
-    lifespan=lifespan
-)
+    lifespan=lifespan)
 
 # Configure CORS
 app.add_middleware(
@@ -68,17 +67,17 @@ app.add_middleware(
 async def log_requests(request: Request, call_next):
     """Log all incoming requests."""
     start_time = time.time()
-    
+
     # Log request
     logger.info(f"Request: {request.method} {request.url}")
-    
+
     # Process request
     response = await call_next(request)
-    
+
     # Log response
     process_time = time.time() - start_time
     logger.info(f"Response: {response.status_code} - {process_time:.3f}s")
-    
+
     return response
 
 
@@ -86,7 +85,10 @@ async def log_requests(request: Request, call_next):
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
     """Handle uncaught exceptions."""
-    logger.error(f"Unhandled exception for {request.method} {request.url}: {exc}")
+    logger.error(
+        f"Unhandled exception for {
+            request.method} {
+            request.url}: {exc}")
     return JSONResponse(
         status_code=500,
         content={
@@ -151,8 +153,14 @@ async def api_version() -> Dict[str, str]:
     return {
         "api_version": "1.0.0",
         "pmhelper_version": "1.0.0",
-        "supported_analyses": ["cpm", "pert", "rcps", "ahp", "linear_scoring", "benefit_cost", "portfolio"]
-    }
+        "supported_analyses": [
+            "cpm",
+            "pert",
+            "rcps",
+            "ahp",
+            "linear_scoring",
+            "benefit_cost",
+            "portfolio"]}
 
 
 # Include routers

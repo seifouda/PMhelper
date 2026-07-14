@@ -15,7 +15,6 @@ Coverage:
 import pytest
 from pmhelper.core.raci_model import (
     RACIMatrix,
-    ValidationIssue,
     CELL_COLORS,
     ROLE_DESCRIPTIONS,
     VALID_VALUES,
@@ -44,12 +43,18 @@ def valid_matrix():
         cols=["PM", "Team Lead", "Sponsor"],
     )
     # Planning: PM=A, Team Lead=R, Sponsor=C
-    m.set_cell(0, 0, "A"); m.set_cell(0, 1, "R"); m.set_cell(0, 2, "C")
+    m.set_cell(0, 0, "A")
+    m.set_cell(0, 1, "R")
+    m.set_cell(0, 2, "C")
     # Execution: PM=C, Team Lead=A, Sponsor=I  → Team Lead has R too? No, add R
-    m.set_cell(1, 0, "C"); m.set_cell(1, 1, "A"); m.set_cell(1, 2, "I")
+    m.set_cell(1, 0, "C")
+    m.set_cell(1, 1, "A")
+    m.set_cell(1, 2, "I")
     m.set_cell(1, 0, "R")  # overwrite PM with R, Team Lead still A
     # Closure: PM=A, Team Lead=R, Sponsor=I
-    m.set_cell(2, 0, "A"); m.set_cell(2, 1, "R"); m.set_cell(2, 2, "I")
+    m.set_cell(2, 0, "A")
+    m.set_cell(2, 1, "R")
+    m.set_cell(2, 2, "I")
     return m
 
 
@@ -103,7 +108,9 @@ class TestCellAccess:
 class TestRowColAccessors:
     def test_get_row_returns_correct_values(self):
         m = RACIMatrix(rows=["Task"], cols=["PM", "Dev", "QA"])
-        m.set_cell(0, 0, "A"); m.set_cell(0, 1, "R"); m.set_cell(0, 2, "I")
+        m.set_cell(0, 0, "A")
+        m.set_cell(0, 1, "R")
+        m.set_cell(0, 2, "I")
         assert m.get_row(0) == ["A", "R", "I"]
 
     def test_get_row_unset_cells_are_empty(self):
@@ -114,7 +121,9 @@ class TestRowColAccessors:
 
     def test_get_col_returns_correct_values(self):
         m = RACIMatrix(rows=["T1", "T2", "T3"], cols=["PM"])
-        m.set_cell(0, 0, "A"); m.set_cell(1, 0, "R"); m.set_cell(2, 0, "C")
+        m.set_cell(0, 0, "A")
+        m.set_cell(1, 0, "R")
+        m.set_cell(2, 0, "C")
         assert m.get_col(0) == ["A", "R", "C"]
 
     def test_empty_matrix_get_row(self):
@@ -141,29 +150,35 @@ class TestValidation:
 
     def test_multiple_accountable_is_error(self):
         m = RACIMatrix(rows=["Design"], cols=["PM", "Dev"])
-        m.set_cell(0, 0, "A"); m.set_cell(0, 1, "A")  # two A's
+        m.set_cell(0, 0, "A")
+        m.set_cell(0, 1, "A")  # two A's
         issues = m.validate()
         errors = [i for i in issues if i.level == "error"]
-        assert any("2" in i.message or "Accountable" in i.message for i in errors)
+        assert any(
+            "2" in i.message or "Accountable" in i.message for i in errors)
 
     def test_no_responsible_is_error(self):
         m = RACIMatrix(rows=["Design"], cols=["PM", "Dev"])
-        m.set_cell(0, 0, "A"); m.set_cell(0, 1, "C")  # A and C, no R
+        m.set_cell(0, 0, "A")
+        m.set_cell(0, 1, "C")  # A and C, no R
         issues = m.validate()
         errors = [i for i in issues if i.level == "error"]
         assert any("Responsible" in i.message for i in errors)
 
     def test_empty_column_is_warning(self):
         m = RACIMatrix(rows=["Task1", "Task2"], cols=["PM", "Ghost"])
-        m.set_cell(0, 0, "A"); m.set_cell(0, 1, "")
-        m.set_cell(1, 0, "R"); m.set_cell(1, 1, "")
+        m.set_cell(0, 0, "A")
+        m.set_cell(0, 1, "")
+        m.set_cell(1, 0, "R")
+        m.set_cell(1, 1, "")
         issues = m.validate()
         warnings = [i for i in issues if i.level == "warning"]
         assert any("Ghost" in i.message for i in warnings)
 
     def test_valid_activity_no_issues_for_that_row(self):
         m = RACIMatrix(rows=["Task"], cols=["PM", "Dev"])
-        m.set_cell(0, 0, "A"); m.set_cell(0, 1, "R")
+        m.set_cell(0, 0, "A")
+        m.set_cell(0, 1, "R")
         issues = m.validate()
         row_errors = [i for i in issues if i.level == "error" and i.row == 0]
         assert row_errors == []
@@ -206,7 +221,8 @@ class TestIsValid:
 
     def test_warning_only_still_valid(self):
         m = RACIMatrix(rows=["T"], cols=["PM", "Ghost"])
-        m.set_cell(0, 0, "A"); m.set_cell(0, 1, "R")
+        m.set_cell(0, 0, "A")
+        m.set_cell(0, 1, "R")
         # Ghost col empty → warning, but no errors
         assert m.is_valid is True
 
@@ -221,8 +237,10 @@ class TestIsValid:
 class TestStatistics:
     def test_count_by_type_correct(self):
         m = RACIMatrix(rows=["T1", "T2"], cols=["PM", "Dev"])
-        m.set_cell(0, 0, "R"); m.set_cell(0, 1, "A")
-        m.set_cell(1, 0, "C"); m.set_cell(1, 1, "I")
+        m.set_cell(0, 0, "R")
+        m.set_cell(0, 1, "A")
+        m.set_cell(1, 0, "C")
+        m.set_cell(1, 1, "I")
         counts = m.count_by_type()
         assert counts["R"] == 1
         assert counts["A"] == 1
@@ -237,8 +255,10 @@ class TestStatistics:
 
     def test_summary_text_all_types(self):
         m = RACIMatrix(rows=["T1", "T2"], cols=["P", "D"])
-        m.set_cell(0, 0, "R"); m.set_cell(0, 1, "A")
-        m.set_cell(1, 0, "C"); m.set_cell(1, 1, "I")
+        m.set_cell(0, 0, "R")
+        m.set_cell(0, 1, "A")
+        m.set_cell(1, 0, "C")
+        m.set_cell(1, 1, "I")
         s = m.summary_text()
         assert "R=1" in s and "A=1" in s and "C=1" in s and "I=1" in s
 
@@ -264,7 +284,8 @@ class TestPersistence:
 
     def test_round_trip_preserves_cells(self):
         m = RACIMatrix(rows=["T"], cols=["PM", "Dev"])
-        m.set_cell(0, 0, "A"); m.set_cell(0, 1, "R")
+        m.set_cell(0, 0, "A")
+        m.set_cell(0, 1, "R")
         restored = RACIMatrix.from_dict(m.to_dict())
         assert restored.get_cell(0, 0) == "A"
         assert restored.get_cell(0, 1) == "R"
@@ -292,9 +313,17 @@ class TestPersistence:
         assert restored.get_cell(0, 0) == ""
 
     def test_demo_file_loads_correctly(self):
-        import json, os
+        import json
+        import os
         demo_path = os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "data", "demos", "v2", "raci_demo.json")
+            os.path.dirname(__file__),
+            "..",
+            "..",
+            "..",
+            "data",
+            "demos",
+            "v2",
+            "raci_demo.json")
         demo_path = os.path.normpath(demo_path)
         with open(demo_path, encoding="utf-8") as fh:
             demo = json.load(fh)

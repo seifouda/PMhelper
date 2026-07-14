@@ -25,9 +25,11 @@ class ConnectionManager:
 
     def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
-        logger.info(f"Client disconnected. Total: {len(self.active_connections)}")
+        logger.info(
+            f"Client disconnected. Total: {len(self.active_connections)}")
 
-    async def send_message(self, websocket: WebSocket, message: Dict[str, Any]):
+    async def send_message(self, websocket: WebSocket,
+                           message: Dict[str, Any]):
         await websocket.send_json(message)
 
 

@@ -276,8 +276,8 @@ Both SWOT and PESTEL tabs have:
 | ---- | ----------------------------------------------------------------- | -------- | -------- | ------------------------------------ |
 | 10.1 | Recent files list in File menu                                    | 0.5 days | Low      | ✅ Done                              |
 | 10.2 | Step-by-step walkthrough panel visible by default (not collapsed) | 0.5 days | Low      | ✅ Superseded by Phase 11 Worked Sol |
-| 10.3 | PyInstaller `--onedir` build actually run and tested              | 1 day    | Low      | ➡️ Deferred to V2 (manual QA)       |
-| 10.4 | UI smoke test — all 30 checklist items manually verified          | 1 day    | Low      | ➡️ Deferred to V2 (manual QA)       |
+| 10.3 | PyInstaller `--onedir` build actually run and tested              | 1 day    | Low      | ➡️ Deferred to V2 (manual QA)        |
+| 10.4 | UI smoke test — all 30 checklist items manually verified          | 1 day    | Low      | ➡️ Deferred to V2 (manual QA)        |
 | 10.5 | Excel export for KPI table                                        | 1 day    | Low      | ✅ Done (EVM tab Export Excel btn)   |
 
 ---
@@ -2632,15 +2632,15 @@ Each activity node displays:
 
 #### Phase 17 — Tasks
 
-| #    | Task                                                     | Files Changed                               | Status      |
-| ---- | -------------------------------------------------------- | ------------------------------------------- | ----------- |
-| 17.1 | Add `pyvis` to `requirements.txt`                        | `requirements.txt`                          | ✅ Done     |
-| 17.2 | Create `interactive_network.py` module                   | `src/pmhelper/utils/interactive_network.py` | ✅ Done     |
-| 17.3 | Add "Interactive View" button to `NetworkTab`            | `src/pmhelper/gui/tabs/network_tab.py`      | ✅ Done     |
-| 17.4 | Add "Interactive View" button to `PertDiagramTab`        | `src/pmhelper/gui/tabs/pert_diagram_tab.py` | ✅ Done     |
-| 17.5 | Test with small project (≤15 tasks) — verify layout      | Manual test                                 | ✅ Done     |
+| #    | Task                                                     | Files Changed                               | Status                        |
+| ---- | -------------------------------------------------------- | ------------------------------------------- | ----------------------------- |
+| 17.1 | Add `pyvis` to `requirements.txt`                        | `requirements.txt`                          | ✅ Done                       |
+| 17.2 | Create `interactive_network.py` module                   | `src/pmhelper/utils/interactive_network.py` | ✅ Done                       |
+| 17.3 | Add "Interactive View" button to `NetworkTab`            | `src/pmhelper/gui/tabs/network_tab.py`      | ✅ Done                       |
+| 17.4 | Add "Interactive View" button to `PertDiagramTab`        | `src/pmhelper/gui/tabs/pert_diagram_tab.py` | ✅ Done                       |
+| 17.5 | Test with small project (≤15 tasks) — verify layout      | Manual test                                 | ✅ Done                       |
 | 17.6 | Test with large project (600 tasks) — verify performance | Manual test                                 | ➡️ Deferred to V2 (manual QA) |
-| 17.7 | Run full test suite — verify zero regressions            | All test files                              | ✅ Done     |
+| 17.7 | Run full test suite — verify zero regressions            | All test files                              | ✅ Done                       |
 
 ---
 
@@ -3574,17 +3574,17 @@ Sprint 5 claimed "production hardening" but review uncovered several real gaps:
 
 ### 19.2 Ship Tasks (After Fixes)
 
-| #    | Task                                   | What to Do                                                                                                   | Status     |
-| ---- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ---------- |
-| 19.6 | `npm install` in `web/`                | Updates `package-lock.json` with Cypress + http-server + wait-on.                                            | ✅ Done    |
-| 19.7 | Create PR `feat/web-v1` → `production` | 156+ files. Title: "feat: PMHelper Edu Web v1.0.0". Include summary of Sprints 0–5.                          | ✅ Done (PR #3) |
+| #    | Task                                   | What to Do                                                                                                   | Status            |
+| ---- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------- |
+| 19.6 | `npm install` in `web/`                | Updates `package-lock.json` with Cypress + http-server + wait-on.                                            | ✅ Done           |
+| 19.7 | Create PR `feat/web-v1` → `production` | 156+ files. Title: "feat: PMHelper Edu Web v1.0.0". Include summary of Sprints 0–5.                          | ✅ Done (PR #3)   |
 | 19.8 | Set `RENDER_DEPLOY_HOOK_URL` secret    | GitHub → Settings → Secrets → Actions. Get value from Render dashboard → service → Settings → Deploy Hook.   | ➡️ Deferred to V2 |
 | 19.9 | Wait for CI green, merge PR            | All 7 CI jobs must pass (test, lint, angular-lint, angular-build, angular-test, angular-e2e, build-package). | ➡️ Deferred to V2 |
 
 ### 19.3 Post-Merge Tasks
 
-| #     | Task                              | What to Do                                                                                                                   | Status     |
-| ----- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| #     | Task                              | What to Do                                                                                                                   | Status            |
+| ----- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------- |
 | 19.10 | Update `render.yaml` branch       | Commit directly to `production`: change `branch: feat/web-v1` → `branch: production`. OR set the branch in Render dashboard. | ➡️ Deferred to V2 |
 | 19.11 | Verify live deploy                | Hit `/health`, navigate core routes, test PG guard redirect, verify sample data loads.                                       | ➡️ Deferred to V2 |
 | 19.12 | Document rollback plan            | Add to README: "To roll back, revert the last merge on `production` and push."                                               | ➡️ Deferred to V2 |
@@ -3621,28 +3621,28 @@ Sprint 5 claimed "production hardening" but review uncovered several real gaps:
 
 ### Final Metrics
 
-| Metric | Value |
-|--------|-------|
-| Desktop Python tests | 797+ passing |
-| Angular unit tests | 28/28 passing |
-| Phases completed (desktop) | 20/20 (code-complete) |
-| Web sprints completed | 5/5 + Phase 19 pre-merge fixes |
-| Total features delivered | ~50 (per FEATURES_LIST_EDU.md) |
-| Lines of Python (src/) | ~25,000 |
-| Lines of TypeScript (web/) | ~12,000 |
-| Key decisions documented | 12 |
-| Calendar time (actual) | March 8 – March 25, 2026 (~2.5 weeks) |
+| Metric                     | Value                                 |
+| -------------------------- | ------------------------------------- |
+| Desktop Python tests       | 797+ passing                          |
+| Angular unit tests         | 28/28 passing                         |
+| Phases completed (desktop) | 20/20 (code-complete)                 |
+| Web sprints completed      | 5/5 + Phase 19 pre-merge fixes        |
+| Total features delivered   | ~50 (per FEATURES_LIST_EDU.md)        |
+| Lines of Python (src/)     | ~25,000                               |
+| Lines of TypeScript (web/) | ~12,000                               |
+| Key decisions documented   | 12                                    |
+| Calendar time (actual)     | March 8 – March 25, 2026 (~2.5 weeks) |
 
 ### Items Deferred to V2
 
-| ID | Item | Type | Reason |
-|----|------|------|--------|
-| 10.3 | PyInstaller `--onedir` test | Manual QA | Requires clean Windows machine without Python |
-| 10.4 | 30-item UI smoke test | Manual QA | Manual checklist execution |
-| 17.6 | 600-task interactive network test | Manual QA | Manual browser validation |
-| 19.8–19.9 | Render deploy secret + PR merge | Ops | Web shipping pipeline |
-| 19.10–19.15 | Post-merge deployment tasks | Ops | Blocked on PR merge |
-| 19.16–19.20 | Web hardening (CSP, budgets, E2E) | Tech debt | P2/P3 priority |
+| ID          | Item                              | Type      | Reason                                        |
+| ----------- | --------------------------------- | --------- | --------------------------------------------- |
+| 10.3        | PyInstaller `--onedir` test       | Manual QA | Requires clean Windows machine without Python |
+| 10.4        | 30-item UI smoke test             | Manual QA | Manual checklist execution                    |
+| 17.6        | 600-task interactive network test | Manual QA | Manual browser validation                     |
+| 19.8–19.9   | Render deploy secret + PR merge   | Ops       | Web shipping pipeline                         |
+| 19.10–19.15 | Post-merge deployment tasks       | Ops       | Blocked on PR merge                           |
+| 19.16–19.20 | Web hardening (CSP, budgets, E2E) | Tech debt | P2/P3 priority                                |
 
 ### Lessons Learned
 

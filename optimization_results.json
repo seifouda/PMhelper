@@ -1,0 +1,71 @@
+{
+  "curve_data": [
+    {
+      "duration": 17,
+      "direct_cost": 5000.0,
+      "indirect_cost": 8500.0,
+      "total_cost": 13500.0,
+      "activities_crashed": []
+    },
+    {
+      "duration": 16,
+      "direct_cost": 5200.0,
+      "indirect_cost": 8000.0,
+      "total_cost": 13200.0,
+      "activities_crashed": [
+        "A"
+      ]
+    },
+    {
+      "duration": 15,
+      "direct_cost": 5400.0,
+      "indirect_cost": 7500.0,
+      "total_cost": 12900.0,
+      "activities_crashed": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "duration": 14,
+      "direct_cost": 5600.0,
+      "indirect_cost": 7000.0,
+      "total_cost": 12600.0,
+      "activities_crashed": [
+        "A",
+        "D",
+        "E"
+      ]
+    },
+    {
+      "duration": 13,
+      "direct_cost": 5850.0,
+      "indirect_cost": 6500.0,
+      "total_cost": 12350.0,
+      "activities_crashed": [
+        "A",
+        "D",
+        "E",
+        "B"
+      ]
+    }
+  ],
+  "optimal_point": {
+    "optimal_duration": 13,
+    "optimal_total_cost": 12350.0,
+    "direct_cost": 5850.0,
+    "indirect_cost": 6500.0,
+    "activities_crashed": [
+      "A",
+      "D",
+      "E",
+      "B"
+    ],
+    "normal_duration": 17,
+    "normal_total": 13500.0,
+    "normal_direct": 5000.0,
+    "normal_indirect": 8500.0,
+    "savings_vs_normal": 1150.0,
+    "savings_pct": 8.518518518518519
+  }
+}

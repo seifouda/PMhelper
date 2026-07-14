@@ -4,7 +4,7 @@ Analysis API Routes
 REST API endpoints for running CPM, PERT, and RCPS analyses and managing analysis jobs.
 """
 
-from typing import List, Optional
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
@@ -26,10 +26,10 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-async def create_analysis_job(db: AsyncSession, 
-                            analysis_type: AnalysisType,
-                            input_data: dict,
-                            project_id: Optional[str] = None) -> AnalysisJob:
+async def create_analysis_job(db: AsyncSession,
+                              analysis_type: AnalysisType,
+                              input_data: dict,
+                              project_id: Optional[str] = None) -> AnalysisJob:
     """Create a new analysis job in the database."""
     job = AnalysisJob(
         analysis_type=analysis_type.value,
@@ -37,36 +37,36 @@ async def create_analysis_job(db: AsyncSession,
         project_id=UUID(project_id) if project_id else None,
         status=JobStatus.PENDING.value
     )
-    
+
     db.add(job)
     await db.commit()
     await db.refresh(job)
-    
+
     return job
 
 
-async def update_job_status(db: AsyncSession, 
-                          job_id: str, 
-                          status: JobStatus,
-                          results: Optional[dict] = None,
-                          error_message: Optional[str] = None):
+async def update_job_status(db: AsyncSession,
+                            job_id: str,
+                            status: JobStatus,
+                            results: Optional[dict] = None,
+                            error_message: Optional[str] = None):
     """Update analysis job status and results."""
     try:
         job_uuid = UUID(job_id)
-        
+
         # Get the job
         from sqlalchemy import select, update
         query = select(AnalysisJob).where(AnalysisJob.job_id == job_uuid)
         result = await db.execute(query)
         job = result.scalar_one_or_none()
-        
+
         if not job:
             logger.error(f"Job not found for status update: {job_id}")
             return
-        
+
         # Update job based on status
         update_data = {"status": status.value}
-        
+
         if status == JobStatus.RUNNING:
             update_data["started_at"] = datetime.now(timezone.utc)
         elif status == JobStatus.COMPLETED:
@@ -76,12 +76,14 @@ async def update_job_status(db: AsyncSession,
         elif status == JobStatus.FAILED:
             update_data["completed_at"] = datetime.now(timezone.utc)
             update_data["error_message"] = error_message
-        
+
         # Perform update
-        update_query = update(AnalysisJob).where(AnalysisJob.job_id == job_uuid).values(**update_data)
+        update_query = update(AnalysisJob).where(
+            AnalysisJob.job_id == job_uuid).values(
+            **update_data)
         await db.execute(update_query)
         await db.commit()
-        
+
     except Exception as e:
         logger.error(f"Error updating job status for {job_id}: {e}")
         await db.rollback()
@@ -93,54 +95,57 @@ async def run_analysis_background(job_id: str, analysis_type: AnalysisType):
         try:
             # Mark job as running
             await update_job_status(db, job_id, JobStatus.RUNNING)
-            
+
             # Get job details
             job_uuid = UUID(job_id)
             from sqlalchemy import select
             query = select(AnalysisJob).where(AnalysisJob.job_id == job_uuid)
             result = await db.execute(query)
             job = result.scalar_one_or_none()
-            
+
             if not job:
                 logger.error(f"Job not found for analysis: {job_id}")
                 return
-            
+
             # Run the appropriate analysis
             input_data = job.input_data
-            
+
             if analysis_type == AnalysisType.CPM:
                 from ..models.schemas import CPMActivity
-                activities = [CPMActivity(**activity) for activity in input_data["activities"]]
+                activities = [CPMActivity(**activity)
+                              for activity in input_data["activities"]]
                 results = await analysis_service._run_cpm_analysis({
                     "activities": input_data["activities"],
                     "options": input_data.get("options", {})
                 })
-            
+
             elif analysis_type == AnalysisType.PERT:
                 from ..models.schemas import PERTActivity
-                activities = [PERTActivity(**activity) for activity in input_data["activities"]]
+                activities = [PERTActivity(**activity)
+                              for activity in input_data["activities"]]
                 results = await analysis_service._run_pert_analysis({
                     "activities": input_data["activities"],
                     "target_duration": input_data.get("target_duration"),
                     "confidence_level": input_data.get("confidence_level", 0.95),
                     "options": input_data.get("options", {})
                 })
-            
+
             elif analysis_type == AnalysisType.RCPS:
                 from ..models.schemas import RCPSActivity
-                activities = [RCPSActivity(**activity) for activity in input_data["activities"]]
+                activities = [RCPSActivity(**activity)
+                              for activity in input_data["activities"]]
                 results = await analysis_service._run_rcps_analysis({
                     "activities": input_data["activities"],
                     "resource_limits": input_data["resource_limits"],
                     "options": input_data.get("options", {})
                 })
-            
+
             else:
                 raise ValueError(f"Unknown analysis type: {analysis_type}")
-            
+
             # Mark job as completed with results
             await update_job_status(db, job_id, JobStatus.COMPLETED, results=results)
-            
+
         except Exception as e:
             logger.error(f"Analysis failed for job {job_id}: {e}")
             await update_job_status(db, job_id, JobStatus.FAILED, error_message=str(e))
@@ -168,24 +173,24 @@ async def analyze_cpm(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Project {request.project_id} not found"
                 )
-        
+
         # Create job in database
         input_data = {
             "activities": [activity.dict() for activity in request.activities],
             "options": request.options or {}
         }
-        
+
         job = await create_analysis_job(
             db, AnalysisType.CPM, input_data, request.project_id
         )
-        
+
         # Add background task
         background_tasks.add_task(
             run_analysis_background,
             str(job.job_id),
             AnalysisType.CPM
         )
-        
+
         return AnalysisJobResponse(
             job_id=str(job.job_id),
             project_id=str(job.project_id) if job.project_id else None,
@@ -197,7 +202,7 @@ async def analyze_cpm(
             completed_at=None,
             error_message=None
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -230,7 +235,7 @@ async def analyze_pert(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Project {request.project_id} not found"
                 )
-        
+
         # Create job in database
         input_data = {
             "activities": [activity.dict() for activity in request.activities],
@@ -238,18 +243,18 @@ async def analyze_pert(
             "confidence_level": request.confidence_level,
             "options": request.options or {}
         }
-        
+
         job = await create_analysis_job(
             db, AnalysisType.PERT, input_data, request.project_id
         )
-        
+
         # Add background task
         background_tasks.add_task(
             run_analysis_background,
             str(job.job_id),
             AnalysisType.PERT
         )
-        
+
         return AnalysisJobResponse(
             job_id=str(job.job_id),
             project_id=str(job.project_id) if job.project_id else None,
@@ -261,7 +266,7 @@ async def analyze_pert(
             completed_at=None,
             error_message=None
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -294,25 +299,25 @@ async def analyze_rcps(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Project {request.project_id} not found"
                 )
-        
+
         # Create job in database
         input_data = {
             "activities": [activity.dict() for activity in request.activities],
             "resource_limits": request.resource_limits,
             "options": request.options or {}
         }
-        
+
         job = await create_analysis_job(
             db, AnalysisType.RCPS, input_data, request.project_id
         )
-        
+
         # Add background task
         background_tasks.add_task(
             run_analysis_background,
             str(job.job_id),
             AnalysisType.RCPS
         )
-        
+
         return AnalysisJobResponse(
             job_id=str(job.job_id),
             project_id=str(job.project_id) if job.project_id else None,
@@ -324,7 +329,7 @@ async def analyze_rcps(
             completed_at=None,
             error_message=None
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -348,18 +353,18 @@ async def get_job_status(
     """Get analysis job status."""
     try:
         job_uuid = UUID(job_id)
-        
+
         from sqlalchemy import select
         query = select(AnalysisJob).where(AnalysisJob.job_id == job_uuid)
         result = await db.execute(query)
         job = result.scalar_one_or_none()
-        
+
         if not job:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Job {job_id} not found"
             )
-        
+
         return AnalysisJobResponse(
             job_id=str(job.job_id),
             project_id=str(job.project_id) if job.project_id else None,
@@ -371,7 +376,7 @@ async def get_job_status(
             completed_at=job.completed_at,
             error_message=job.error_message
         )
-        
+
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -400,24 +405,24 @@ async def get_job_results(
     """Get analysis job results."""
     try:
         job_uuid = UUID(job_id)
-        
+
         from sqlalchemy import select
         query = select(AnalysisJob).where(AnalysisJob.job_id == job_uuid)
         result = await db.execute(query)
         job = result.scalar_one_or_none()
-        
+
         if not job:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Job {job_id} not found"
             )
-        
+
         if job.status != JobStatus.COMPLETED.value:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Job {job_id} is not completed (status: {job.status})"
             )
-        
+
         return AnalysisResultResponse(
             job_id=str(job.job_id),
             project_id=str(job.project_id) if job.project_id else None,
@@ -428,7 +433,7 @@ async def get_job_results(
             created_at=job.created_at,
             completed_at=job.completed_at
         )
-        
+
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -451,21 +456,33 @@ async def get_job_results(
     description="List analysis jobs with optional filtering."
 )
 async def list_jobs(
-    page: int = Query(1, ge=1, description="Page number"),
-    page_size: int = Query(50, ge=1, le=100, description="Number of items per page"),
-    status: Optional[JobStatus] = Query(None, description="Filter by job status"),
-    analysis_type: Optional[AnalysisType] = Query(None, description="Filter by analysis type"),
-    project_id: Optional[str] = Query(None, description="Filter by project ID"),
-    db: AsyncSession = Depends(get_db_session)
-):
+        page: int = Query(
+            1,
+            ge=1,
+            description="Page number"),
+    page_size: int = Query(
+            50,
+            ge=1,
+            le=100,
+            description="Number of items per page"),
+        status: Optional[JobStatus] = Query(
+            None,
+            description="Filter by job status"),
+        analysis_type: Optional[AnalysisType] = Query(
+            None,
+            description="Filter by analysis type"),
+        project_id: Optional[str] = Query(
+            None,
+            description="Filter by project ID"),
+        db: AsyncSession = Depends(get_db_session)):
     """List analysis jobs with filtering and pagination."""
     try:
         from sqlalchemy import select, func, and_
-        
+
         # Build base queries
         query = select(AnalysisJob)
         count_query = select(func.count(AnalysisJob.job_id))
-        
+
         # Apply filters
         filters = []
         if status:
@@ -481,23 +498,24 @@ async def list_jobs(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"Invalid project ID format: {project_id}"
                 )
-        
+
         if filters:
             filter_condition = and_(*filters)
             query = query.where(filter_condition)
             count_query = count_query.where(filter_condition)
-        
+
         # Add pagination and ordering
         skip = (page - 1) * page_size
-        query = query.offset(skip).limit(page_size).order_by(AnalysisJob.created_at.desc())
-        
+        query = query.offset(skip).limit(page_size).order_by(
+            AnalysisJob.created_at.desc())
+
         # Execute queries
         jobs_result = await db.execute(query)
         count_result = await db.execute(count_query)
-        
+
         jobs = jobs_result.scalars().all()
         total_count = count_result.scalar()
-        
+
         # Convert to response format
         job_responses = [
             AnalysisJobResponse(
@@ -513,14 +531,14 @@ async def list_jobs(
             )
             for job in jobs
         ]
-        
+
         return JobListResponse(
             jobs=job_responses,
             total=total_count,
             page=page,
             page_size=page_size
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:

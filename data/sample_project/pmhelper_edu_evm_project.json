@@ -1,0 +1,241 @@
+{
+  "_meta": {
+    "document": "PMHE-2025-EVM-001",
+    "project": "PMHelper_Edu Development Project",
+    "format": "pmproj_evm_project_v1",
+    "status_date": "2026-07-09",
+    "note": "This is the evm_project section of the .pmproj master file. Load via File > Open > pmhelper_edu_reference.pmproj. EVM snapshot: CPI=0.92, SPI=1.02, status at end of Period 9 (Month 10 / June 2026). BAC=1,150,000 EGP."
+  },
+  "project_name": "PMHelper_Edu Development Project",
+  "bac": 1150000,
+  "currency_symbol": "EGP",
+  "status_period": 9,
+  "tasks": [
+    {
+      "task_id": "EVM-01",
+      "name": "1.1 Project Management",
+      "budget": 130000,
+      "pct_complete": 75.0,
+      "planned_start": 0,
+      "planned_finish": 12,
+      "actual_start": 0,
+      "actual_finish": null,
+      "baseline_start": 0,
+      "baseline_finish": 12,
+      "pv_spread": "uniform",
+      "cpm_task_id": "A01",
+      "predecessors": []
+    },
+    {
+      "task_id": "EVM-02",
+      "name": "1.2 Architecture and Infrastructure",
+      "budget": 60000,
+      "pct_complete": 100.0,
+      "planned_start": 0,
+      "planned_finish": 1,
+      "actual_start": 0,
+      "actual_finish": 1,
+      "baseline_start": 0,
+      "baseline_finish": 1,
+      "pv_spread": "uniform",
+      "cpm_task_id": "A05",
+      "predecessors": ["EVM-01"]
+    },
+    {
+      "task_id": "EVM-03",
+      "name": "1.3 Desktop Application — V1 Features",
+      "budget": 280000,
+      "pct_complete": 100.0,
+      "planned_start": 1,
+      "planned_finish": 6,
+      "actual_start": 1,
+      "actual_finish": 6,
+      "baseline_start": 1,
+      "baseline_finish": 6,
+      "pv_spread": "uniform",
+      "cpm_task_id": "A10",
+      "predecessors": ["EVM-02"]
+    },
+    {
+      "task_id": "EVM-04",
+      "name": "1.4 Desktop Application — V2 Features",
+      "budget": 200000,
+      "pct_complete": 90.0,
+      "planned_start": 6,
+      "planned_finish": 9,
+      "actual_start": 6,
+      "actual_finish": null,
+      "baseline_start": 6,
+      "baseline_finish": 9,
+      "pv_spread": "uniform",
+      "cpm_task_id": "A43",
+      "predecessors": ["EVM-03"]
+    },
+    {
+      "task_id": "EVM-05",
+      "name": "1.5 Web Application",
+      "budget": 120000,
+      "pct_complete": 90.0,
+      "planned_start": 5,
+      "planned_finish": 8,
+      "actual_start": 5,
+      "actual_finish": null,
+      "baseline_start": 5,
+      "baseline_finish": 8,
+      "pv_spread": "uniform",
+      "cpm_task_id": "A35",
+      "predecessors": ["EVM-02"]
+    },
+    {
+      "task_id": "EVM-06",
+      "name": "1.6 Distribution and Packaging",
+      "budget": 40000,
+      "pct_complete": 60.0,
+      "planned_start": 9,
+      "planned_finish": 11,
+      "actual_start": 9,
+      "actual_finish": null,
+      "baseline_start": 9,
+      "baseline_finish": 11,
+      "pv_spread": "uniform",
+      "cpm_task_id": "A62",
+      "predecessors": ["EVM-04"]
+    },
+    {
+      "task_id": "EVM-07",
+      "name": "1.7 Educational Content",
+      "budget": 140000,
+      "pct_complete": 25.0,
+      "planned_start": 4,
+      "planned_finish": 12,
+      "actual_start": 4,
+      "actual_finish": null,
+      "baseline_start": 4,
+      "baseline_finish": 12,
+      "pv_spread": "back",
+      "cpm_task_id": "A66",
+      "predecessors": ["EVM-03"]
+    },
+    {
+      "task_id": "EVM-08",
+      "name": "1.8 Testing and Quality Assurance",
+      "budget": 180000,
+      "pct_complete": 75.0,
+      "planned_start": 3,
+      "planned_finish": 12,
+      "actual_start": 3,
+      "actual_finish": null,
+      "baseline_start": 3,
+      "baseline_finish": 12,
+      "pv_spread": "uniform",
+      "cpm_task_id": "A31",
+      "predecessors": ["EVM-02"]
+    }
+  ],
+  "periods": [
+    {
+      "index": 0,
+      "label": "Month 1 (Sep 2025)",
+      "pv_cumulative": 23000.0,
+      "ev_cumulative": 23500.0,
+      "ac_cumulative": 24000.0,
+      "ev_source": "manual"
+    },
+    {
+      "index": 1,
+      "label": "Month 2 (Oct 2025)",
+      "pv_cumulative": 80500.0,
+      "ev_cumulative": 87000.0,
+      "ac_cumulative": 89700.0,
+      "ev_source": "manual"
+    },
+    {
+      "index": 2,
+      "label": "Month 3 (Nov 2025)",
+      "pv_cumulative": 161000.0,
+      "ev_cumulative": 178000.0,
+      "ac_cumulative": 185400.0,
+      "ev_source": "manual"
+    },
+    {
+      "index": 3,
+      "label": "Month 4 (Dec 2025)",
+      "pv_cumulative": 276000.0,
+      "ev_cumulative": 298000.0,
+      "ac_cumulative": 313700.0,
+      "ev_source": "manual"
+    },
+    {
+      "index": 4,
+      "label": "Month 5 (Jan 2026)",
+      "pv_cumulative": 414000.0,
+      "ev_cumulative": 430000.0,
+      "ac_cumulative": 457400.0,
+      "ev_source": "manual"
+    },
+    {
+      "index": 5,
+      "label": "Month 6 (Feb 2026)",
+      "pv_cumulative": 575000.0,
+      "ev_cumulative": 590000.0,
+      "ac_cumulative": 634400.0,
+      "ev_source": "manual"
+    },
+    {
+      "index": 6,
+      "label": "Month 7 (Mar 2026)",
+      "pv_cumulative": 713000.0,
+      "ev_cumulative": 735000.0,
+      "ac_cumulative": 790300.0,
+      "ev_source": "manual"
+    },
+    {
+      "index": 7,
+      "label": "Month 8 (Apr 2026)",
+      "pv_cumulative": 805000.0,
+      "ev_cumulative": 815000.0,
+      "ac_cumulative": 885900.0,
+      "ev_source": "manual"
+    },
+    {
+      "index": 8,
+      "label": "Month 9 (May 2026)",
+      "pv_cumulative": 874000.0,
+      "ev_cumulative": 878000.0,
+      "ac_cumulative": 954300.0,
+      "ev_source": "manual"
+    },
+    {
+      "index": 9,
+      "label": "Month 10 (Jun 2026)",
+      "pv_cumulative": 901500.0,
+      "ev_cumulative": 919500.0,
+      "ac_cumulative": 999500.0,
+      "ev_source": "manual"
+    },
+    {
+      "index": 10,
+      "label": "Month 11 (Jul 2026)",
+      "pv_cumulative": 977500.0,
+      "ev_cumulative": 0.0,
+      "ac_cumulative": 0.0,
+      "ev_source": "manual"
+    },
+    {
+      "index": 11,
+      "label": "Month 12 (Aug 2026)",
+      "pv_cumulative": 1069500.0,
+      "ev_cumulative": 0.0,
+      "ac_cumulative": 0.0,
+      "ev_source": "manual"
+    },
+    {
+      "index": 12,
+      "label": "Month 13 (Sep 2026)",
+      "pv_cumulative": 1150000.0,
+      "ev_cumulative": 0.0,
+      "ac_cumulative": 0.0,
+      "ev_source": "manual"
+    }
+  ]
+}

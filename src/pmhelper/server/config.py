@@ -27,7 +27,7 @@ class Config:
         # Render.com specific
         self.IS_RENDER = os.getenv("RENDER", "false").lower() == "true"
         self.PORT = int(os.getenv("PORT", "8000"))
-        
+
         # Server settings (for backward compatibility with old api/main.py)
         self.HOST = os.getenv("PMHELPER_HOST", "127.0.0.1")
         self.LOG_LEVEL = os.getenv("PMHELPER_LOG_LEVEL", "INFO")
@@ -41,9 +41,11 @@ class Config:
         """
         if self._database_url:
             # Render.com provides DATABASE_URL
-            # Fix: Render uses 'postgres://' but SQLAlchemy needs 'postgresql://'
+            # Fix: Render uses 'postgres://' but SQLAlchemy needs
+            # 'postgresql://'
             if self._database_url.startswith("postgres://"):
-                return self._database_url.replace("postgres://", "postgresql+asyncpg://", 1)
+                return self._database_url.replace(
+                    "postgres://", "postgresql+asyncpg://", 1)
             return self._database_url
 
         # Local development: Use SQLite
@@ -51,16 +53,16 @@ class Config:
         data_dir.mkdir(exist_ok=True)
         db_path = data_dir / "pmhelper.db"
         return f"sqlite+aiosqlite:///{db_path}"
-    
+
     def get_server_url(self) -> str:
         """Get the complete server URL."""
         host = "localhost" if self.HOST == "127.0.0.1" else self.HOST
         return f"http://{host}:{self.PORT}"
-    
+
     def get_docs_url(self) -> str:
         """Get the API documentation URL."""
         return f"{self.get_server_url()}/docs"
-    
+
     def is_network_mode(self) -> bool:
         """Check if server is configured for network access."""
         return self.HOST == "0.0.0.0"

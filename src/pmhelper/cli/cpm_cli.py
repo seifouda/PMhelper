@@ -11,7 +11,6 @@ from pmhelper.utils.file_handlers import FileHandler
 from pmhelper.core.cpm_analyzer import CPMAnalyzer
 import argparse
 import sys
-import os
 from pathlib import Path
 
 # Add src to path for imports
@@ -68,7 +67,7 @@ def analyze_project(
         # Network metrics
         if verbose:
             metrics = NetworkMetrics.calculate_network_complexity(G)
-            print(f"\\nNetwork Complexity:")
+            print("\\nNetwork Complexity:")
             print(f"  - Total Activities: {metrics['num_nodes']}")
             print(f"  - Dependencies: {metrics['num_edges']}")
             print(f"  - Network Density: {metrics['density']:.3f}")
@@ -173,7 +172,7 @@ def crash_optimization(
         efficiency = CostCalculations.calculate_crash_efficiency(
             initial_duration, final_duration, total_crash_cost
         )
-        print(f"\\nCost Efficiency:")
+        print("\\nCost Efficiency:")
         print(
             f"  - Time Reduction: {efficiency['time_reduction_percent']:.1f}%")
         print(

@@ -41,6 +41,17 @@
     {{ level() === 'ug' ? 'UG' : 'PG' }}
   </button>
 
+  <!-- Tutorial button -->
+  <button
+    mat-icon-button
+    class="pm-topbar__tutorial"
+    matTooltip="App Tutorial"
+    (click)="startTutorial()"
+    aria-label="Start tutorial"
+  >
+    <mat-icon>help_outline</mat-icon>
+  </button>
+
   <!-- Actions menu -->
   <button mat-icon-button [matMenuTriggerFor]="actionsMenu" matTooltip="Project actions">
     <mat-icon>more_vert</mat-icon>

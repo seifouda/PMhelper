@@ -2568,7 +2568,10 @@ class CPMDesktopApp:
                             "E", "Frontend Development", "6", "C", "3", "300", "4", "180"], [
                                 "F", "Backend Development", "8", "C", "5", "200", "5", "250"], [
                                     "G", "Testing", "3", "D", "3", "800", "2", "90"], [
-                                        "H", "Deployment", "4", "E,F", "2", "1000", "1", "110"], ]
+                                        "H", "Deployment", "4", "E,F", "2", "1000", "1", "110"], [
+                                        "I", "Documentation", "3", "G,H", "2", "250", "2", "80"], [
+                                        "J", "User Training", "4", "I", "2", "250", "1", "100"], [
+                                        "K", "Post-Deployment Review", "2", "J", "1", "500", "1", "75"], ]
 
                 # Write to CSV file
                 with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:

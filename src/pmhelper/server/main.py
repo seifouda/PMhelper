@@ -7,7 +7,6 @@ Serves the Angular Edu web app from /static and the API from /api/*.
 
 from fastapi import FastAPI, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -121,7 +120,8 @@ if STATIC_DIR.is_dir():
     async def spa_fallback(request: Request, full_path: str):
         """Serve static files or fall back to index.html for SPA routing."""
         file_path = (STATIC_DIR / full_path).resolve()
-        if full_path and file_path.is_relative_to(STATIC_DIR) and file_path.is_file():
+        if full_path and file_path.is_relative_to(
+                STATIC_DIR) and file_path.is_file():
             return FileResponse(file_path)
         return FileResponse(STATIC_DIR / "index.html")
 else:
