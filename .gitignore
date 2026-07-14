@@ -84,3 +84,10 @@ desktop.ini
 # Project specific
 verify_cicd_workflow.py
 cleanup_agent.py
+
+# Generated demo/analysis outputs (charts, reports, result data)
+/outputs/
+
+# Runtime databases (created on first run; not source)
+*.db
+data/*.db

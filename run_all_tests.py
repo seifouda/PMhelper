@@ -9,10 +9,10 @@ print('FINAL COMPREHENSIVE TEST SUITE')
 print('='*70)
 
 tests = [
-    ('Structure Validation', 'test_examples_comprehensive.py'),
-    ('Edge Cases', 'test_edge_cases.py'),
-    ('GUI Integration', 'test_gui_integration.py'),
-    ('Original Tests', 'test_examples.py'),
+    ('Structure Validation', 'manual_tests/test_examples_comprehensive.py'),
+    ('Edge Cases', 'manual_tests/test_edge_cases.py'),
+    ('GUI Integration', 'manual_tests/test_gui_integration.py'),
+    ('Original Tests', 'manual_tests/test_examples.py'),
 ]
 
 results = []

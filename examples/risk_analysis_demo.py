@@ -10,7 +10,7 @@ This script demonstrates all four risk analysis capabilities:
 """
 
 import pandas as pd
-from src.pmhelper.core.pert_analyzer import PERTAnalyzer
+from pmhelper.core.pert_analyzer import PERTAnalyzer
 
 
 def main():

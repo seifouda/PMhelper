@@ -12,14 +12,14 @@ Shows how to:
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from src.pmhelper.core.resource_leveling import (
+from pmhelper.core.resource_leveling import (
     Activity,
     ResourceProfile,
     MinimumMomentLeveling,
     BurgessLeveling,
     ResourceLevelingFactory
 )
-from src.pmhelper.core.resource_visualizations import (
+from pmhelper.core.resource_visualizations import (
     plot_resource_profile,
     plot_leveling_metrics,
     plot_gantt_comparison,

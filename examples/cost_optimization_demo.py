@@ -11,13 +11,13 @@ This example shows how to:
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from src.pmhelper.core.cpm_analyzer import CPMAnalyzer
-from src.pmhelper.core.cost_optimization import (
+from pmhelper.core.cpm_analyzer import CPMAnalyzer
+from pmhelper.core.cost_optimization import (
     IndirectCostModel,
     TimeCostOptimizer,
     integrate_cost_optimization_with_cpm
 )
-from src.pmhelper.core.cost_visualizations import (
+from pmhelper.core.cost_visualizations import (
     plot_time_cost_curve,
     generate_cost_report,
     plot_cost_breakdown,
