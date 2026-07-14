@@ -172,6 +172,15 @@ C,5,7,10,A
 D,3,4,6,"B,C"
 ```
 
+For project crashing, add the crash columns:
+
+```csv
+Activity,Duration,Predecessors,Min Duration,Crash Cost,Normal Cost
+A,5,,2,300,1000
+B,3,A,1,200,600
+C,4,A,2,150,800
+```
+
 ### Resource Constraints (optional columns)
 
 ```csv
@@ -312,39 +321,60 @@ python -m pytest --cov=src/pmhelper --cov-report=html
 git clone https://github.com/seifouda/PMhelper.git
 cd PMhelper
 
-# Install development dependencies (pytest, coverage, linters)
+# Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+
+# Install with development dependencies (pytest, coverage, linters)
 pip install -e ".[dev]"
 
 # Install pre-commit hooks
 pre-commit install
 
-# Run development server
-python launch_app.py
+# Launch the app
+python -m pmhelper.edu_main
+```
+
+### Making & Submitting Changes
+
+```bash
+# Create a feature branch
+git checkout -b feature/your-feature-name
+
+# ...make your changes, add tests, update documentation...
+
+# Run tests and quality checks
+pytest
+black src/
+flake8 src/
+
+# Commit, push, then open a pull request on GitHub
+git commit -m "feat: meaningful message"
+git push origin feature/your-feature-name
 ```
 
 ### Code Standards
 
 - **Style**: Black formatting, PEP 8 compliance
 - **Documentation**: Comprehensive docstrings (Google style)
-- **Testing**: 90%+ coverage requirement
+- **Testing**: Add tests for new features; keep the suite green
 - **Type Hints**: Full typing annotation
-
-### Pull Request Process
-
-1. Create feature branch from `develop`
-2. Implement changes with tests
-3. Update documentation as needed
-4. Ensure all checks pass
-5. Submit PR with detailed description
+- **Performance**: Consider the impact on large projects
+- **Backward Compatibility**: Maintain API compatibility when possible
 
 ## 📈 Performance Specifications
 
 ### Scalability Benchmarks
 
-- **Project Size**: 1000+ activities supported
-- **Network Complexity**: 5000+ dependencies handled efficiently
-- **Analysis Speed**: <1 second for typical projects (50 activities)
-- **Memory Usage**: <100MB for large projects (500 activities)
+| Project Size     | Load Time   | Analysis Time | Memory Usage |
+| ---------------- | ----------- | ------------- | ------------ |
+| 50 activities    | <1 second   | <1 second     | 45 MB        |
+| 200 activities   | <3 seconds  | <2 seconds    | 85 MB        |
+| 500 activities   | <8 seconds  | <5 seconds    | 150 MB       |
+| 1000+ activities | <15 seconds | <10 seconds   | 280 MB       |
+
+_Benchmarks on Intel i5-8400, 16GB RAM, Windows 11._ Network complexity: 5000+
+dependencies handled efficiently.
 
 ### Algorithm Complexity
 
@@ -359,6 +389,16 @@ python launch_app.py
 - **No Internet Required**: Fully offline operation
 - **Secure File Handling**: Input validation and sanitization
 - **Access Control**: File permission respect and validation
+
+### Reporting a Vulnerability
+
+PMHelper handles project data locally and does not transmit sensitive information.
+If you discover a security vulnerability, please:
+
+1. **Do not** create a public issue
+2. Email the maintainers directly
+3. Provide detailed information about the vulnerability
+4. Allow time for the issue to be addressed before public disclosure
 
 ### Important Security Notice
 
@@ -378,10 +418,10 @@ Some antivirus software, including Windows Defender, may flag PMHelper.exe as su
 
 ### Getting Help
 
-- **📖 Documentation**: Comprehensive guides in `docs/` folder
-- **🐛 Bug Reports**: GitHub Issues with detailed templates
-- **💡 Feature Requests**: GitHub Discussions for enhancements
-- **❓ Questions**: Stack Overflow tag `pmhelper`
+- **📖 Documentation**: [Documentation index](docs/README.md) — guides, references, reports
+- **🐛 Bug Reports**: [GitHub Issues](https://github.com/seifouda/PMhelper/issues)
+- **💡 Feature Requests**: [GitHub Discussions](https://github.com/seifouda/PMhelper/discussions)
+- **📧 Email**: `support@pmhelper.dev`
 
 ### Professional Support
 
@@ -390,161 +430,7 @@ Some antivirus software, including Windows Defender, may flag PMHelper.exe as su
 - **Integration**: API development for enterprise systems
 - **Consulting**: Project management methodology guidance
 
-## 📄 License & Legal
-
-**MIT License** - Free for commercial and personal use.
-
-### Third-Party Dependencies
-
-- **NetworkX**: Graph algorithms and network analysis
-- **Matplotlib**: Professional-quality visualizations
-- **NumPy/SciPy**: High-performance numerical computing
-- **Pandas**: Data manipulation and analysis
-- **Tkinter**: Cross-platform GUI framework
-
-### Citing PMHelper
-
-```bibtex
-@software{pmhelper2024,
-  title={PMHelper: Professional Project Management Analysis Tool},
-  author={PMHelper Development Team},
-  year={2024},
-  version={1.0},
-  url={https://github.com/seifouda/PMhelper}
-}
-```
-
----
-
-**🎯 PMHelper v1.0** - Bringing professional project management analysis to everyone, everywhere.
-
-_Built with ❤️ for project managers, engineers, and researchers worldwide._
-
-### Data Format
-
-#### CPM Data Format (CSV)
-
-```csv
-Activity,Duration,Predecessors,Min Duration,Crash Cost,Normal Cost
-A,5,,2,300,1000
-B,3,A,1,200,600
-C,4,A,2,150,800
-```
-
-#### PERT Data Format (CSV)
-
-```csv
-Activity,Optimistic,Most Likely,Pessimistic,Predecessors
-A,3,5,8,
-B,2,3,5,A
-C,3,4,6,A
-```
-
-## 🔧 Advanced Features
-
-### Project Crashing
-
-- Optimize project duration by increasing resource allocation
-- Multiple optimization strategies available
-- Cost-benefit analysis for crashing decisions
-
-### Resource-Constrained Scheduling
-
-- Account for limited resource availability
-- Priority-based activity scheduling
-- Resource utilization analysis
-
-### Probability Analysis
-
-- Project completion probability calculations
-- Risk assessment and Monte Carlo simulation
-- Statistical confidence intervals
-
-## Testing
-
-PMHelper includes a comprehensive test suite to ensure reliability:
-
-```bash
-# Install with development dependencies
-pip install pmhelper[dev]
-
-# Run complete test suite
-python -m pytest
-
-# Run tests with coverage report
-python -m pytest --cov=pmhelper --cov-report=html
-
-# Run a specific area (tests are organized by module)
-python -m pytest tests/test_evm_calculations_edu.py
-python -m pytest tests/server/       # API / database / integration tests
-```
-
-## Contributing
-
-We welcome contributions from the community! Here's how to get started:
-
-### 1. Development Setup
-
-```bash
-# Fork and clone the repository
-git clone https://github.com/seifouda/PMhelper.git
-cd PMhelper
-
-# Create a virtual environment
-python -m venv dev-env
-source dev-env/bin/activate  # On Windows: dev-env\Scripts\activate
-
-# Install in development mode with dev dependencies
-pip install -e .[dev]
-```
-
-### 2. Making Changes
-
-```bash
-# Create a feature branch
-git checkout -b feature/your-feature-name
-
-# Make your changes
-# Add tests for new functionality
-# Update documentation as needed
-
-# Run tests and quality checks
-pytest
-black src/
-flake8 src/
-```
-
-### 3. Submitting Changes
-
-```bash
-# Commit your changes
-git add .
-git commit -m "Add your meaningful commit message"
-
-# Push to your fork
-git push origin feature/your-feature-name
-
-# Create a pull request on GitHub
-```
-
-### Contribution Guidelines
-
-- **Code Style**: Follow PEP 8, use black for formatting
-- **Testing**: Add tests for new features, maintain >90% coverage
-- **Documentation**: Update docstrings and user documentation
-- **Performance**: Consider performance impact for large projects
-- **Backward Compatibility**: Maintain API compatibility when possible
-
-## Security
-
-PMHelper handles project data locally and does not transmit sensitive information. However, if you discover a security vulnerability, please:
-
-1. **Do not** create a public issue
-2. Email the maintainers directly
-3. Provide detailed information about the vulnerability
-4. Allow time for the issue to be addressed before public disclosure
-
-## Roadmap
+## 🗺️ Roadmap
 
 ### Upcoming Features (v1.1.0)
 
@@ -560,38 +446,7 @@ PMHelper handles project data locally and does not transmit sensitive informatio
 - **Mobile App**: iOS and Android companion applications
 - **Cloud Sync**: Project synchronization across devices
 
-## Performance Benchmarks
-
-PMHelper is optimized for professional use:
-
-| Project Size     | Load Time   | Analysis Time | Memory Usage |
-| ---------------- | ----------- | ------------- | ------------ |
-| 50 activities    | <1 second   | <1 second     | 45 MB        |
-| 200 activities   | <3 seconds  | <2 seconds    | 85 MB        |
-| 500 activities   | <8 seconds  | <5 seconds    | 150 MB       |
-| 1000+ activities | <15 seconds | <10 seconds   | 280 MB       |
-
-_Benchmarks on Intel i5-8400, 16GB RAM, Windows 11_
-
-## License
-
-PMHelper is licensed under the MIT License. See the [LICENSE](LICENSE) file for full details.
-
-```
-MIT License
-
-Copyright (c) 2025 PMHelper Team
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-[...]
-```
-
-## Acknowledgments
+## 🙏 Acknowledgments
 
 PMHelper is built on the shoulders of giants. Special thanks to:
 
@@ -602,29 +457,32 @@ PMHelper is built on the shoulders of giants. Special thanks to:
 - **Open Source Contributors**: Everyone who has contributed code, bug reports, and feedback
 - **Academic Institutions**: Universities and schools that have adopted PMHelper for education
 
-## Citation
+## 📄 License & Legal
 
-If you use PMHelper in academic research, please cite:
+**MIT License** - Free for commercial and personal use. See [LICENSE](LICENSE) for full details.
+
+### Third-Party Dependencies
+
+- **NetworkX**: Graph algorithms and network analysis
+- **Matplotlib**: Professional-quality visualizations
+- **NumPy/SciPy**: High-performance numerical computing
+- **Pandas**: Data manipulation and analysis
+- **Tkinter**: Cross-platform GUI framework
+
+### Citing PMHelper
 
 ```bibtex
 @software{pmhelper2025,
   title={PMHelper: Professional Project Management Analysis Tool},
   author={PMHelper Team},
   year={2025},
-  url={https://github.com/seifouda/PMhelper},
-  version={1.0.0}
+  version={1.0.0},
+  url={https://github.com/seifouda/PMhelper}
 }
 ```
 
-## Support and Community
-
-- **GitHub Issues**: [Report bugs and request features](https://github.com/seifouda/PMhelper/issues)
-- **Discussions**: [Community forum for questions and ideas](https://github.com/seifouda/PMhelper/discussions)
-- **Documentation**: Comprehensive guides in the `docs/` directory
-- **Email**: Contact the maintainers at `support@pmhelper.dev`
-
 ---
 
-**PMHelper v1.0.0** - Empowering project managers with professional-grade analysis tools.
+**🎯 PMHelper v1.0** - Bringing professional project management analysis to everyone, everywhere.
 
-_Made with ❤️ by the PMHelper community_
+_Built with ❤️ for project managers, engineers, and researchers worldwide._
