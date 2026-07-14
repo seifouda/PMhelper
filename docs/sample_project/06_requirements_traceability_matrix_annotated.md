@@ -293,4 +293,4 @@
 
 ---
 
-_Document ends. Proceed to:_ [07_scope_statement.md](07_scope_statement.md)
+_Document ends. Proceed to:_ [07_scope_statement_wbs.md](07_scope_statement_wbs.md)

@@ -720,8 +720,8 @@ python risk_gui_demo.py
 
 **Step 5: Read Documentation**
 
-- Review [`docs/RISK_ANALYSIS_USER_GUIDE.md`](docs/RISK_ANALYSIS_USER_GUIDE.md)
-- Check [`docs/RISK_CLI_GUIDE.md`](docs/RISK_CLI_GUIDE.md) for CLI usage
+- Review [`docs/RISK_ANALYSIS_USER_GUIDE.md`](../guides/RISK_ANALYSIS_USER_GUIDE.md)
+- Check [`docs/RISK_CLI_GUIDE.md`](../guides/RISK_CLI_GUIDE.md) for CLI usage
 
 ---
 
@@ -899,14 +899,14 @@ See [LICENSE](LICENSE) file for details.
 
 ### Documentation
 
-- [Risk Analysis User Guide](docs/RISK_ANALYSIS_USER_GUIDE.md)
-- [Risk Analysis Quick Reference](docs/RISK_ANALYSIS_QUICK_REFERENCE.md)
-- [Risk GUI Implementation](docs/RISK_GUI_IMPLEMENTATION.md)
-- [Risk CLI Guide](docs/RISK_CLI_GUIDE.md)
+- [Risk Analysis User Guide](../guides/RISK_ANALYSIS_USER_GUIDE.md)
+- [Risk Analysis Quick Reference](../guides/RISK_ANALYSIS_QUICK_REFERENCE.md)
+- [Risk GUI Implementation](../reports/RISK_GUI_IMPLEMENTATION.md)
+- [Risk CLI Guide](../guides/RISK_CLI_GUIDE.md)
 
 ### Examples
 
-- Sample datasets: [`assets/risk_examples/`](assets/risk_examples/)
+- Sample datasets: [`assets/risk_examples/`](../../assets/risk_examples/)
 - Demo scripts: `risk_analysis_demo.py`, `risk_gui_demo.py`
 
 ### Support

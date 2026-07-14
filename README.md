@@ -276,7 +276,7 @@ multi-objective), see the [`examples/`](examples/) directory.
 - **[🔧 Technical Documentation](docs/TECHNICAL.md)**: Architecture and implementation details
 - **[🔌 API Reference](docs/API.md)**: Complete developer reference
 - **[🏗️ Build Guide](docs/BUILD.md)**: Executable creation and distribution
-- **[📝 Changelog](docs/CHANGELOG.md)**: Version history and release notes
+- **[📝 Changelog](CHANGELOG.md)**: Version history and release notes
 
 ### Quick Reference
 

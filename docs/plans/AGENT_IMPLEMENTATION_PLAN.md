@@ -1,7 +1,7 @@
 # PMHelper Server - CORRECTED Implementation Plan for AI Agent
 
 > **Version 2.0** - Simplified, pragmatic, and production-ready based on critical review feedback  
-> **📄 See Also**: [`CRITICAL_FIXES_APPLIED.md`](./CRITICAL_FIXES_APPLIED.md) for detailed explanation of all corrections
+> **📄 See Also**: [`CRITICAL_FIXES_APPLIED.md`](../reports/CRITICAL_FIXES_APPLIED.md) for detailed explanation of all corrections
 
 ## 🎯 Objective
 

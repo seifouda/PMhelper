@@ -155,7 +155,7 @@ PMhelper/
 
 ## Deployment Options
 
-> 💡 **Don't have an old laptop?** See [DEPLOYMENT_ALTERNATIVES.md](./DEPLOYMENT_ALTERNATIVES.md) for 10+ free and low-cost cloud options!
+> 💡 **Don't have an old laptop?** See [DEPLOYMENT_ALTERNATIVES.md](../deployment/DEPLOYMENT_ALTERNATIVES.md) for 10+ free and low-cost cloud options!
 
 ### Option 1: Self-Hosted (If you have old laptop) - **$0/month**
 
@@ -201,7 +201,7 @@ http://localhost:8000
 3. Create Web Service
 4. Deploy!
 
-**See [DEPLOYMENT_ALTERNATIVES.md](./DEPLOYMENT_ALTERNATIVES.md) for detailed setup**
+**See [DEPLOYMENT_ALTERNATIVES.md](../deployment/DEPLOYMENT_ALTERNATIVES.md) for detailed setup**
 
 ---
 
@@ -231,7 +231,7 @@ http://localhost:8000
 
 ### More Options
 
-See [DEPLOYMENT_ALTERNATIVES.md](./DEPLOYMENT_ALTERNATIVES.md) for:
+See [DEPLOYMENT_ALTERNATIVES.md](../deployment/DEPLOYMENT_ALTERNATIVES.md) for:
 
 - PythonAnywhere
 - Google Cloud Run
@@ -483,8 +483,8 @@ Stage 4: Scale-out (6+ months)
 
 - [Full Architecture Doc](./SERVER_ARCHITECTURE.md)
 - [Implementation Guide](./IMPLEMENTATION_GUIDE.md)
-- [Database Optimizations](./DATABASE_OPTIMIZATIONS.md)
-- [Deployment Alternatives](./DEPLOYMENT_ALTERNATIVES.md) - 10+ options if you don't have an old laptop
+- [Database Optimizations](../reports/DATABASE_OPTIMIZATIONS.md)
+- [Deployment Alternatives](../deployment/DEPLOYMENT_ALTERNATIVES.md) - 10+ options if you don't have an old laptop
 
 ### External Resources
 

@@ -600,8 +600,8 @@ fig.savefig('construction_leveling.png')
 ## See Also
 
 - [COST_OPTIMIZATION_GUIDE.md](COST_OPTIMIZATION_GUIDE.md) - Time-cost trade-offs
-- [RESOURCE_LEVELING_IMPLEMENTATION_SUMMARY.md](../RESOURCE_LEVELING_IMPLEMENTATION_SUMMARY.md) - Technical details
-- [resource_leveling_demo.py](../resource_leveling_demo.py) - Complete example
+- [RESOURCE_LEVELING_IMPLEMENTATION_SUMMARY.md](../reports/RESOURCE_LEVELING_IMPLEMENTATION_SUMMARY.md) - Technical details
+- [resource_leveling_demo.py](../../examples/resource_leveling_demo.py) - Complete example
 
 ---
 

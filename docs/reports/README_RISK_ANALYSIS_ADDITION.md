@@ -120,17 +120,17 @@ risk_scores = analyzer.prioritize_activity_risks()
 
 ### Risk Analysis Documentation
 
-- **User Guide**: [`docs/RISK_ANALYSIS_USER_GUIDE.md`](docs/RISK_ANALYSIS_USER_GUIDE.md) - Complete feature documentation with worked examples
-- **Quick Reference**: [`docs/RISK_ANALYSIS_QUICK_REFERENCE.md`](docs/RISK_ANALYSIS_QUICK_REFERENCE.md) - Formula reference and parameter guidelines
-- **GUI Guide**: [`docs/RISK_GUI_IMPLEMENTATION.md`](docs/RISK_GUI_IMPLEMENTATION.md) - GUI architecture and usage patterns
-- **CLI Guide**: [`docs/RISK_CLI_GUIDE.md`](docs/RISK_CLI_GUIDE.md) - Command-line interface complete reference
+- **User Guide**: [`docs/RISK_ANALYSIS_USER_GUIDE.md`](../guides/RISK_ANALYSIS_USER_GUIDE.md) - Complete feature documentation with worked examples
+- **Quick Reference**: [`docs/RISK_ANALYSIS_QUICK_REFERENCE.md`](../guides/RISK_ANALYSIS_QUICK_REFERENCE.md) - Formula reference and parameter guidelines
+- **GUI Guide**: [`docs/RISK_GUI_IMPLEMENTATION.md`](RISK_GUI_IMPLEMENTATION.md) - GUI architecture and usage patterns
+- **CLI Guide**: [`docs/RISK_CLI_GUIDE.md`](../guides/RISK_CLI_GUIDE.md) - Command-line interface complete reference
 - **Demo Scripts**:
   - `risk_analysis_demo.py` - Core algorithm demonstrations
   - `risk_gui_demo.py` - Interactive GUI tour
 
 ### Example Projects
 
-Risk analysis examples available in [`assets/risk_examples/`](assets/risk_examples/):
+Risk analysis examples available in [`assets/risk_examples/`](../../assets/risk_examples/):
 
 - `delay_analysis_simple.csv` - Basic delay risk assessment
 - `contingency_planning.csv` - Buffer estimation examples
@@ -298,8 +298,8 @@ Risk Analysis module implementation based on:
 
 ### Risk Analysis Resources
 
-- **Documentation**: Complete guides in [`docs/`](docs/) directory
-- **Examples**: Sample projects in [`assets/risk_examples/`](assets/risk_examples/)
+- **Documentation**: Complete guides in [`docs/`](../) directory
+- **Examples**: Sample projects in [`assets/risk_examples/`](../../assets/risk_examples/)
 - **Demo Scripts**: Interactive demonstrations in project root
 - **Issue Tracker**: Report bugs or request features via GitHub Issues
 - **Discussions**: Q&A and feature discussions via GitHub Discussions

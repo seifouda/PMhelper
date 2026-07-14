@@ -16,7 +16,7 @@ Fixed three critical GUI errors that prevented the Cost Optimization module from
 
 ### Error 1: Missing `project_duration` Attribute
 
-**Location:** [src/pmhelper/core/cost_optimization.py](src/pmhelper/core/cost_optimization.py#L140)
+**Location:** [src/pmhelper/core/cost_optimization.py](../../src/pmhelper/core/cost_optimization.py#L140)
 
 **Problem:** The code attempted to access `self.cpm.project_duration`, but `CPMAnalyzer` does not have this attribute. The project duration must be calculated dynamically from the graph nodes.
 
@@ -37,7 +37,7 @@ normal_duration = max([self.cpm.G.nodes[node].get('EF', 0)
 
 ### Error 2: ResourceProfile Not Subscriptable
 
-**Location:** [src/pmhelper/gui/tabs/optimization_tab.py](src/pmhelper/gui/tabs/optimization_tab.py#L423-L434)
+**Location:** [src/pmhelper/gui/tabs/optimization_tab.py](../../src/pmhelper/gui/tabs/optimization_tab.py#L423-L434)
 
 **Problem:** The GUI code treated `ResourceProfile` objects as dictionaries (`prof_orig['time']`), but they are objects with a `.profile` dictionary attribute and a `.to_dataframe()` method.
 
@@ -66,7 +66,7 @@ else:
 
 ### Error 3: Cost Report KeyError
 
-**Location:** [src/pmhelper/core/cost_visualizations.py](src/pmhelper/core/cost_visualizations.py#L99-L121)
+**Location:** [src/pmhelper/core/cost_visualizations.py](../../src/pmhelper/core/cost_visualizations.py#L99-L121)
 
 **Problem:** The cost report generation function accessed dictionary keys without checking if they exist, causing `KeyError` exceptions when generating reports.
 
@@ -124,12 +124,12 @@ text += f"  Total Moment: {result.get('original_moment', 0):.1f}\n"
 
 ## Files Modified
 
-### 1. [src/pmhelper/core/cost_optimization.py](src/pmhelper/core/cost_optimization.py)
+### 1. [src/pmhelper/core/cost_optimization.py](../../src/pmhelper/core/cost_optimization.py)
 
 - **Lines 140-142**: Calculate `project_duration` from graph nodes instead of accessing non-existent attribute
 - **Impact**: Fixes time-cost optimization functionality
 
-### 2. [src/pmhelper/gui/tabs/optimization_tab.py](src/pmhelper/gui/tabs/optimization_tab.py)
+### 2. [src/pmhelper/gui/tabs/optimization_tab.py](../../src/pmhelper/gui/tabs/optimization_tab.py)
 
 - **Lines 428-455**: Handle `ResourceProfile` objects correctly in plotting
   - Try `.to_dataframe()` method first
@@ -141,7 +141,7 @@ text += f"  Total Moment: {result.get('original_moment', 0):.1f}\n"
 - **Lines 394-397**: Add method name to result for display
 - **Lines 405-415**: Use `improvement_pct` and `iterations` in completion message
 
-### 3. [src/pmhelper/core/cost_visualizations.py](src/pmhelper/core/cost_visualizations.py)
+### 3. [src/pmhelper/core/cost_visualizations.py](../../src/pmhelper/core/cost_visualizations.py)
 
 - **Lines 99-102**: Use `.get()` for safe dictionary access with defaults
 - **Lines 104-121**: Extract all result values with safe defaults to prevent KeyError
@@ -151,7 +151,7 @@ text += f"  Total Moment: {result.get('original_moment', 0):.1f}\n"
 
 ### Verification Script
 
-Created [test_optimization_fixes.py](test_optimization_fixes.py) to verify all fixes:
+Created [test_optimization_fixes.py](../../tests/test_optimization_fixes.py) to verify all fixes:
 
 ```bash
 $ python test_optimization_fixes.py

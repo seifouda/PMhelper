@@ -329,7 +329,7 @@ MultiObjectiveOptimizer(objective_functions: Dict[str, Callable])
 
 ## Examples
 
-See [multi_objective_demo.py](../multi_objective_demo.py) for a comprehensive demonstration including:
+See [multi_objective_demo.py](../../examples/multi_objective_demo.py) for a comprehensive demonstration including:
 
 - NPV optimization with 11% improvement
 - Discount rate sensitivity analysis (5% to 20%)
