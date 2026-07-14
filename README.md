@@ -1,6 +1,6 @@
 # PMHelper - Professional Project Management Analysis Tool
 
-[![CI/CD](https://github.com/seifkhelifi/PMHelper/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/seifkhelifi/PMHelper/actions/workflows/ci-cd.yml)
+[![CI/CD](https://github.com/seifouda/PMhelper/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/seifouda/PMhelper/actions/workflows/ci-cd.yml)
 [![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://badge.fury.io/py/pmhelper.svg)](https://badge.fury.io/py/pmhelper)
@@ -87,11 +87,11 @@ For development or to access the latest features:
 git clone https://github.com/seifouda/PMhelper.git
 cd PMhelper
 
-# Install dependencies
-pip install -r config/requirements.txt
-
-# Install in development mode
+# Install the package with all runtime dependencies (editable mode)
 pip install -e .
+
+# For development (adds pytest, linters); for a Postgres deploy add [postgres]
+pip install -e ".[dev]"
 ```
 
 ## Prerequisites
@@ -134,7 +134,7 @@ PMHelper provides powerful command-line interfaces for automation and batch proc
 pmhelper-cpm project_data.csv --output results.json
 
 # PERT Analysis
-pmhelper-pert project_data.csv --confidence 0.95 --simulation 1000
+pmhelper-pert project_data.csv --confidence 0.95 --simulations 1000
 
 # Get help for any command
 pmhelper --help
@@ -172,31 +172,7 @@ C,5,7,10,A
 D,3,4,6,"B,C"
 ```
 
-- **Research Project**: Academic research with probabilistic milestone analysis
-
-## � Input Data Formats
-
-### Basic Project Data (CSV)
-
-```csv
-Activity,Duration,Dependencies,Cost,Resource_Type,Resource_Required
-A,5,,1000,Engineers,2
-B,3,A,800,Engineers,1
-C,4,A,1200,Designers,2
-D,6,"B,C",2000,Engineers,3
-```
-
-### PERT Analysis (Three-Point Estimates)
-
-```csv
-Activity,Optimistic,Most_Likely,Pessimistic,Dependencies
-Design,2,4,8,
-Develop,5,8,15,Design
-Test,3,5,10,Develop
-Deploy,1,2,4,"Test"
-```
-
-### Resource Constraints
+### Resource Constraints (optional columns)
 
 ```csv
 Resource_Type,Available_Quantity,Cost_Per_Unit,Max_Allocation
@@ -215,19 +191,15 @@ Equipment,2,500,3
 
 ### GUI Framework (`src/pmhelper/gui/`)
 
-- **`main_window.py`**: Primary application interface
-- **`tabs/`**: Specialized analysis interfaces (Input, Results, Network, Gantt, Probability)
+- **`main_window_edu.py`**: Educational edition — the shipped app (`python -m pmhelper.edu_main`)
+- **`main_window.py`**: Legacy v1 interface (`python launch_app.py`)
+- **`tabs/`**: Specialized analysis interfaces (Input, Results, Network, Gantt, Probability, …)
 
 ### Utilities (`src/pmhelper/utils/`)
 
 - **`calculations.py`**: Mathematical and statistical functions
 - **`visualizations.py`**: Chart generation and plotting
 - **`file_handlers.py`**: Data import/export management
-
-### Extensions (`src/pmhelper/extensions/`)
-
-- **`enhanced_crashing.py`**: Advanced schedule compression algorithms
-- **`resource_optimization.py`**: Multi-resource constraint solving
 
 ## 🔧 Advanced Usage
 
@@ -268,36 +240,61 @@ print("Critical path(s):", critical_paths)
 For complete, runnable examples (cost optimization, risk, resource leveling,
 multi-objective), see the [`examples/`](examples/) directory.
 
+## 📁 Project Structure
+
+```
+PMhelper/
+├── src/pmhelper/        # The package: core/ (pure calc engine), gui/, server/, cli/, utils/
+├── web/                 # Angular web frontend
+├── tests/               # Automated pytest suite  (manual_tests/ = interactive GUI/legacy)
+├── examples/            # Runnable demo scripts
+├── packaging/           # Build & deploy scripts (PyInstaller/cx_Freeze) + specs — see its README
+├── scripts/             # Dev helper scripts (test runner, demo data generator)
+├── docs/                # Documentation — see docs/README.md for the index
+│   ├── guides/  reference/  plans/  reports/  deployment/  releases/  sample_project/
+├── assets/  templates/  data/   # Example inputs, project/charter templates, sample data
+├── archive/             # Retired prototypes and legacy entry points
+├── outputs/             # Generated charts/reports (gitignored)
+├── .claude/skills/      # Learning skills for this project
+├── pyproject.toml       # Package metadata + all runtime dependencies (source of truth)
+├── requirements.txt     # Pinned dependency manifest for Docker/Render deploys
+├── launch_app.py        # Legacy desktop entry (Edu app: python -m pmhelper.edu_main)
+└── Dockerfile  docker-compose.yml  render.yaml   # Containerization & deploy config
+```
+
 ## 📚 Documentation
 
 ### Complete Documentation Suite
 
-- **[📖 User Guide](docs/USER_GUIDE.md)**: Step-by-step usage instructions
-- **[🔧 Technical Documentation](docs/TECHNICAL.md)**: Architecture and implementation details
-- **[🔌 API Reference](docs/API.md)**: Complete developer reference
-- **[🏗️ Build Guide](docs/BUILD.md)**: Executable creation and distribution
+- **[📚 Documentation index](docs/README.md)**: All guides, references, plans, and reports
+- **[🔧 Server architecture](docs/guides/SERVER_ARCHITECTURE.md)**: Backend design and implementation
+- **[🔌 CLI & API guide](docs/guides/SELECTION_CLI_API_GUIDE.md)**: Command-line and API usage
+- **[🏗️ Build & packaging](packaging/README.md)**: Building the executable and deploying
 - **[📝 Changelog](CHANGELOG.md)**: Version history and release notes
 
 ### Quick Reference
 
-- **Sample Projects**: Located in `assets/samples/`
-- **Configuration**: Settings in `config/`
-- **Templates**: Project templates in `data/templates/`
+- **Sample projects**: `data/sample_project/`; example input files in `assets/`
+- **Runnable examples**: `examples/`
+- **Project & charter templates**: `templates/` and `data/charters/`
 
 ## 🧪 Testing & Quality Assurance
 
-### Test Coverage: 95%+
+### Comprehensive automated test suite (1300+ tests)
 
 ```bash
-# Run complete test suite
-python -m pytest tests/
+# Run the full suite (coverage is configured in pyproject.toml)
+python -m pytest
 
-# Generate coverage report
+# Run a specific area
+python -m pytest tests/test_evm_calculations_edu.py
+
+# HTML coverage report
 python -m pytest --cov=src/pmhelper --cov-report=html
-
-# Run performance benchmarks
-python tests/performance/benchmark_suite.py
 ```
+
+> Interactive GUI and legacy tests live in `manual_tests/` and are excluded from
+> the automated run.
 
 ### Continuous Integration
 
@@ -413,7 +410,7 @@ Some antivirus software, including Windows Defender, may flag PMHelper.exe as su
   author={PMHelper Development Team},
   year={2024},
   version={1.0},
-  url={https://github.com/yourusername/PMhelper}
+  url={https://github.com/seifouda/PMhelper}
 }
 ```
 
@@ -477,12 +474,9 @@ python -m pytest
 # Run tests with coverage report
 python -m pytest --cov=pmhelper --cov-report=html
 
-# Run specific test categories
-python -m pytest tests/unit/        # Unit tests
-python -m pytest tests/integration/ # Integration tests
-
-# Run performance benchmarks
-python -m pytest tests/performance/ --benchmark-only
+# Run a specific area (tests are organized by module)
+python -m pytest tests/test_evm_calculations_edu.py
+python -m pytest tests/server/       # API / database / integration tests
 ```
 
 ## Contributing
@@ -493,7 +487,7 @@ We welcome contributions from the community! Here's how to get started:
 
 ```bash
 # Fork and clone the repository
-git clone https://github.com/yourusername/PMhelper.git
+git clone https://github.com/seifouda/PMhelper.git
 cd PMhelper
 
 # Create a virtual environment
