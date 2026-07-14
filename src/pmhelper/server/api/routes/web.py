@@ -645,7 +645,7 @@ class TelemetryError(BaseModel):
 
 
 @router.post("/telemetry/error", status_code=204)
-async def telemetry_error(payload: TelemetryError) -> None:
+async def telemetry_error(payload: TelemetryError):  # no return annotation: '-> None' trips FastAPI's 204 body assert
     """Receive client-side error telemetry (fire-and-forget sink)."""
     logger.warning(
         "Client error: %s | url=%s | ts=%s",

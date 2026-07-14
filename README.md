@@ -118,8 +118,11 @@ pmhelper-gui
 # If using standalone executable
 # Run PMHelper.exe from the extracted folder
 
-# If running from source
-python src/main.py
+# If running from source (educational edition — the shipped app)
+python -m pmhelper.edu_main
+
+# Legacy v1 desktop app
+python launch_app.py
 ```
 
 ### Command Line Usage
@@ -232,34 +235,38 @@ Equipment,2,500,3
 
 ```bash
 # CPM Analysis
-python -m pmhelper.cli.cpm --input project.csv --output results.json
+python -m pmhelper.cli.cpm_cli --input project.csv --output results.json
 
 # PERT with confidence intervals
-python -m pmhelper.cli.pert --input data.csv --confidence 0.95 --simulations 10000
+python -m pmhelper.cli.pert_cli --input data.csv --confidence 0.95 --simulations 10000
 
-# Project crashing optimization
-python -m pmhelper.cli.crash --input project.csv --target-duration 30 --max-cost 50000
+# Optimization, risk, and selection CLIs (run with --help for options)
+python -m pmhelper.cli.optimization_cli --help
+python -m pmhelper.cli.risk_cli --help
+python -m pmhelper.cli.selection_cli --help
 ```
 
 ### Programmatic API
 
 ```python
-from pmhelper.core import CPMAnalyzer, PERTAnalyzer
-from pmhelper.utils import load_project_data
+from pmhelper.core import CPMAnalyzer
 
-# Load and analyze project
-data = load_project_data("project.csv")
-analyzer = CPMAnalyzer(data)
+# Activities: list of dicts with id, duration, and comma-separated predecessors
+activities = [
+    {"id": "A", "duration": 3, "predecessors": ""},
+    {"id": "B", "duration": 4, "predecessors": "A"},
+    {"id": "C", "duration": 2, "predecessors": "A"},
+    {"id": "D", "duration": 1, "predecessors": "B,C"},
+]
 
-# Get critical path and project duration
-critical_path = analyzer.get_critical_path()
-duration = analyzer.get_project_duration()
-slack_times = analyzer.calculate_slack()
+analyzer = CPMAnalyzer()
+network_graph, critical_paths, all_nodes = analyzer.analyze(activities)
 
-# Generate reports
-report = analyzer.generate_report()
-analyzer.export_gantt_chart("gantt.png")
+print("Critical path(s):", critical_paths)
 ```
+
+For complete, runnable examples (cost optimization, risk, resource leveling,
+multi-objective), see the [`examples/`](examples/) directory.
 
 ## 📚 Documentation
 
@@ -308,8 +315,8 @@ python tests/performance/benchmark_suite.py
 git clone https://github.com/seifouda/PMhelper.git
 cd PMhelper
 
-# Install development dependencies
-pip install -r config/requirements-dev.txt
+# Install development dependencies (pytest, coverage, linters)
+pip install -e ".[dev]"
 
 # Install pre-commit hooks
 pre-commit install

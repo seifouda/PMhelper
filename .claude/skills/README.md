@@ -5,6 +5,16 @@ skill by its name (e.g. `/understand-this-codebase`), or just describe your task
 the matching skill will be used. Each skill is grounded in real PMHelper file paths
 and commands.
 
+## Working ethos (applies to every skill): be suggestive
+Don't just execute the literal request — **help make it better.** While doing any
+task, keep an eye out for improvements and *say something*: a cleaner approach, a
+bug or gap nearby, a missing test, a simpler design, a naming or structure fix. Offer
+them as concrete suggestions with the trade-offs, recommend one, and let the user
+decide. A good suggestion the user can decline is more valuable than silently doing
+only what was asked. When a suggestion is small, safe, and clearly right, just do it
+and mention it; when it's bigger or uncertain, propose it and ask (see
+[[capture-patterns]] and the "Check your assumptions" notes in the skills).
+
 ## Learn the project
 - **understand-this-codebase** — the map: layers, where logic lives, how GUI/server/web/CLI/core fit together. *Start here.*
 - **pm-concepts-explained** — each PM concept (CPM, PERT, EVM, AHP, risk, WBS…) → its source module.

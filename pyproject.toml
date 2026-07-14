@@ -69,7 +69,7 @@ full = [
 "Documentation" = "https://github.com/seifouda/PMhelper/blob/main/README.md"
 
 [project.scripts]
-pmhelper = "pmhelper.cli.cmp_cli:main"
+pmhelper = "pmhelper.cli.cpm_cli:main"
 pmhelper-cpm = "pmhelper.cli.cpm_cli:main"  
 pmhelper-pert = "pmhelper.cli.pert_cli:main"
 

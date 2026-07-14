@@ -527,7 +527,7 @@ class EVMTabEdu:
 
     def _apply_student_input(self):
         """Build a minimal EVM project from manually entered EV/PV/AC/BAC."""
-        from pmhelper.core.evm_model_edu import EVMProject, EVMPeriod
+        from pmhelper.core.evm_models_edu import EVMProject, EVMPeriod
         try:
             ev = float(self._si_vars["ev"].get() or 0)
             pv = float(self._si_vars["pv"].get() or 0)

@@ -27,9 +27,12 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# PyInstaller
+# PyInstaller (ignore generated ones, but KEEP the tracked build inputs)
 *.manifest
 *.spec
+!pmhelper_edu.spec
+!pmhelper_edu_production.spec
+!pmhelper_edu.manifest
 
 # Installer logs
 pip-log.txt

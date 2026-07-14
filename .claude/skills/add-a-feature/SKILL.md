@@ -45,6 +45,13 @@ the event loop.
 - Follow [[git-workflow]] — branch, small commits, push.
 - If you invented a reusable pattern, capture it: [[capture-patterns]].
 
+## Suggest improvements as you go
+While building the feature, look one step beyond the request: a nearby function that
+could be reused, a missing edge case, a test gap, a clearer name, duplicated logic
+worth extracting. Raise it — small safe wins, just do them and mention it; bigger or
+uncertain ones, propose with trade-offs and let the user choose. Leaving the code a
+little better than you found it is part of the job.
+
 ## Check your assumptions
 If anything about where a piece should live is unclear, **ask** rather than guess —
 a misplaced calculation breaks the pure-core contract that the server and web rely on.
