@@ -34,6 +34,16 @@ classifiers = [
 keywords = ["project management", "cpm", "pert", "critical path", "scheduling", "gantt", "network analysis"]
 requires-python = ">=3.8"
 dependencies = [
+    # Web server / API
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "python-multipart>=0.0.6",
+    "slowapi>=0.1.9",
+    "sqlalchemy>=2.0.0",
+    "aiosqlite>=0.19.0",
+    "pydantic>=2.0.0",
+    "python-dotenv>=1.0.0",
+    # Core analysis
     "numpy>=1.21.0",
     "pandas>=1.3.0",
     "scipy>=1.7.0",
@@ -42,10 +52,24 @@ dependencies = [
     "plotly>=5.0.0",
     "tabulate>=0.8.9",
     "openpyxl>=3.0.7",
+    # Optimization / project selection
+    "pulp>=2.7.0",
+    "numpy-financial>=1.0.0",
+    # Desktop GUI
     "tksheet>=6.0.0",
+    "customtkinter>=5.2.0",
+    "reportlab>=4.0.0",
+    "Pillow>=10.0.0",
+    "python-dateutil>=2.8.0",
+    "jsonschema>=4.19.0",
+    # Interactive network visualization
+    "pyvis>=0.3.1",
 ]
 
 [project.optional-dependencies]
+# PostgreSQL driver — only needed for a Postgres deploy (e.g. Render); local/desktop
+# use the bundled SQLite driver (aiosqlite).
+postgres = ["asyncpg>=0.29.0"]
 dev = [
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",

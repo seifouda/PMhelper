@@ -21,9 +21,13 @@ import sys
 block_cipher = None  # No bytecode encryption — encrypted .pyc triggers AV heuristics
 
 # ─── Paths ───────────────────────────────────────────────────────────────────
-SRC_DIR = os.path.join('src', 'pmhelper')
+# Anchored to the repo root. This spec lives in packaging/, and PyInstaller resolves
+# spec-relative paths against the spec's directory (SPECPATH), so derive the repo root
+# from it rather than relying on the current working directory.
+ROOT = os.path.dirname(os.path.abspath(SPECPATH))
+SRC_DIR = os.path.join(ROOT, 'src', 'pmhelper')
 DEMOS_DIR = os.path.join(SRC_DIR, 'demos_edu')
-ASSETS_DIR = 'assets'
+ASSETS_DIR = os.path.join(ROOT, 'assets')
 
 # Icon: use generated .ico if it exists, else None (build script creates it)
 ICON_PATH = os.path.join(ASSETS_DIR, 'pmhelper_edu.ico')
@@ -58,7 +62,7 @@ if os.path.isdir(ASSETS_DIR):
 # ─── Analysis ────────────────────────────────────────────────────────────────
 a = Analysis(
     [os.path.join(SRC_DIR, 'edu_main.py')],
-    pathex=['src'],
+    pathex=[os.path.join(ROOT, 'src')],
     binaries=scipy_binaries,
     datas=datas_list,
     hiddenimports=[

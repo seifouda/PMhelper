@@ -12,8 +12,9 @@ import os
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-# Read requirements
-with open("config/requirements.txt", "r", encoding="utf-8") as fh:
+# Read requirements (pyproject.toml is the source of truth for `pip install`; this
+# is only used if setup.py is invoked directly)
+with open("requirements.txt", "r", encoding="utf-8") as fh:
     requirements = [
         line.strip() 
         for line in fh.read().splitlines() 

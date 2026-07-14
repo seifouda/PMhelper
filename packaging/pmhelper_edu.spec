@@ -10,13 +10,16 @@ import sys
 
 block_cipher = None
 
-# Paths
-SRC_DIR = os.path.join('src', 'pmhelper')
+# Paths — anchored to the repo root. This spec lives in packaging/, and PyInstaller
+# resolves spec-relative paths against the spec's directory (SPECPATH), so derive the
+# repo root from it rather than relying on the current working directory.
+ROOT = os.path.dirname(os.path.abspath(SPECPATH))
+SRC_DIR = os.path.join(ROOT, 'src', 'pmhelper')
 DEMOS_DIR = os.path.join(SRC_DIR, 'demos_edu')
 
 a = Analysis(
     [os.path.join(SRC_DIR, 'edu_main.py')],
-    pathex=['src'],
+    pathex=[os.path.join(ROOT, 'src')],
     binaries=[],
     datas=[
         (DEMOS_DIR, os.path.join('pmhelper', 'demos_edu')),
