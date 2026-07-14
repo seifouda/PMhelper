@@ -315,8 +315,8 @@ docker build -t pmhelper:latest .
 # Run Docker container
 docker-compose up
 
-# Deploy to production
-.\deploy_production.ps1
+# Deploy to production (scripts live in packaging/)
+.\packaging\deploy_production.ps1
 ```
 
 ## Next Steps

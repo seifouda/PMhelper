@@ -13,16 +13,20 @@
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 
+# This script lives in packaging\. Run from the repo root so spec-relative paths
+# (src\, assets\, dist\) resolve, while build inputs are found next to this script.
+Set-Location (Split-Path $PSScriptRoot -Parent)
+
 # --- Configuration ---
 $AppName       = 'PMhelper_Edu'
-$SpecFile      = 'pmhelper_edu_production.spec'
+$SpecFile      = Join-Path $PSScriptRoot 'pmhelper_edu_production.spec'
 $Version       = '1.0.0'
 $BuildDir      = "build\$AppName"
 $DistDir       = "dist\$AppName"
-$IconScript    = 'create_icon.py'
+$IconScript    = Join-Path $PSScriptRoot 'create_icon.py'
 $IconOutput    = 'assets\pmhelper_edu.ico'
-$ManifestFile  = 'pmhelper_edu.manifest'
-$VersionFile   = 'version_info.rc'
+$ManifestFile  = Join-Path $PSScriptRoot 'pmhelper_edu.manifest'
+$VersionFile   = Join-Path $PSScriptRoot 'version_info.rc'
 
 Write-Host ''
 Write-Host '================================================================' -ForegroundColor Cyan

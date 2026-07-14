@@ -4,6 +4,10 @@
 
 Write-Host "=== PMhelper Edu Build ===" -ForegroundColor Cyan
 
+# This script lives in packaging\. Run from the repo root so the spec's src\/assets\
+# paths resolve.
+Set-Location (Split-Path $PSScriptRoot -Parent)
+
 # Check PyInstaller
 $pyinstaller = Get-Command pyinstaller -ErrorAction SilentlyContinue
 if (-not $pyinstaller) {
@@ -21,7 +25,7 @@ if (Test-Path "dist\PMhelper_Edu") {
 
 # Build
 Write-Host "Building..." -ForegroundColor Green
-pyinstaller pmhelper_edu.spec --noconfirm
+pyinstaller (Join-Path $PSScriptRoot 'pmhelper_edu.spec') --noconfirm
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "`nBuild successful!" -ForegroundColor Green

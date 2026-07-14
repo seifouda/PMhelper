@@ -30,13 +30,15 @@ ICON_PATH = os.path.join(ASSETS_DIR, 'pmhelper_edu.ico')
 if not os.path.isfile(ICON_PATH):
     ICON_PATH = None
 
-# Manifest: embedded into .exe for Windows compatibility + DPI + no-elevation
-MANIFEST_PATH = 'pmhelper_edu.manifest'
+# Manifest: embedded into .exe for Windows compatibility + DPI + no-elevation.
+# This spec lives in packaging/; SPECPATH is its directory, so find sibling build
+# inputs there regardless of the current working directory.
+MANIFEST_PATH = os.path.join(SPECPATH, 'pmhelper_edu.manifest')
 if not os.path.isfile(MANIFEST_PATH):
     MANIFEST_PATH = None
 
 # Version info: embeds metadata into .exe Properties -> Details tab
-VERSION_FILE = 'version_info.rc'
+VERSION_FILE = os.path.join(SPECPATH, 'version_info.rc')
 if not os.path.isfile(VERSION_FILE):
     VERSION_FILE = None
 

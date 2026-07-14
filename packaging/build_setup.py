@@ -4,10 +4,15 @@ cx_Freeze setup script for PMHelper
 Creates a Windows executable with all dependencies and assets included.
 """
 
-# Add src to sys.path so pmhelper can be found
+# Add src to sys.path so pmhelper can be found.
+# This script lives in packaging/, so anchor everything to the repo root and run
+# from there — keeps the CWD-relative include_files / executable paths valid no
+# matter where the script is invoked from (e.g. CI runs `python packaging/build_setup.py`).
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+os.chdir(ROOT)
+sys.path.insert(0, os.path.join(ROOT, "src"))
 from cx_Freeze import setup, Executable
 import shutil
 from matplotlib import get_data_path

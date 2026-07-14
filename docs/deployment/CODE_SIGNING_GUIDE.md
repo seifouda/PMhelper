@@ -200,8 +200,8 @@ After building and optionally signing:
 ## Quick Reference: Full Build + Sign Workflow
 
 ```powershell
-# 1. Build
-.\build_production.ps1
+# 1. Build (build scripts live in packaging/)
+.\packaging\build_production.ps1
 
 # 2. Sign (with self-signed cert — replace password/path as needed)
 $signtool = (Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" -Recurse |

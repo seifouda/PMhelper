@@ -1,6 +1,9 @@
 # Production deployment script for PMHelper (Windows)
 $ErrorActionPreference = "Stop"
 
+# This script lives in packaging\. Operate from the repo root.
+Set-Location (Split-Path $PSScriptRoot -Parent)
+
 Write-Host "🚀 Starting production deployment..." -ForegroundColor Cyan
 
 # 1. Check branch
