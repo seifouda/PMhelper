@@ -195,7 +195,7 @@ To report issues or provide feedback:
 
 ## License & Legal
 
-PMHelper is released under the [MIT License](LICENSE), ensuring free use for both educational and commercial purposes.
+PMHelper is released under the [MIT License](../../LICENSE), ensuring free use for both educational and commercial purposes.
 
 ---
 

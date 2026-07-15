@@ -32,11 +32,17 @@ tests/server/
 
 ### Prerequisites
 
-The server tests require optional dependencies. Install them with:
+FastAPI, SQLAlchemy and friends are **core** dependencies now, so a plain install
+already covers the server itself. You only need the test extra:
 
 ```bash
-pip install -e .[server,test]
+pip install -e ".[test]"
 ```
+
+There is no `server` extra — the available extras are `postgres`, `dev`, `test`,
+and `full`. `.[test]` brings in `pytest-asyncio`, which these tests require: the
+fixtures here are async, and without it every test errors with
+`AttributeError: 'async_generator' object has no attribute 'get'`.
 
 ### Run All Server Tests
 
@@ -86,34 +92,39 @@ pytest tests/server/ --cov=pmhelper.server --cov-report=html -v
 
 ## Test Markers
 
-Tests are marked with the following categories:
+Five markers are registered in `conftest.py` (`unit`, `integration`, `api`,
+`database`, `slow`), but only two are ever **applied** — `pytest_collection_modifyitems`
+adds them by file path:
 
-- `@pytest.mark.unit`: Unit tests
-- `@pytest.mark.integration`: Integration tests
-- `@pytest.mark.api`: API endpoint tests
-- `@pytest.mark.database`: Database-related tests
-- `@pytest.mark.slow`: Long-running tests
+| Marker | Applied to | Selects anything today? |
+|---|---|---|
+| `integration` | files with `integration` in the path | ✅ yes |
+| `api` | files with `test_api` in the path | ✅ yes |
+| `database` | files with `test_database` in the path | ❌ no — that module currently skips at import |
+| `unit` | *nothing* — no test declares it | ❌ no |
+| `slow` | *nothing* — no test declares it | ❌ no |
 
 ### Running by Markers
 
 ```bash
-# Run only unit tests
-pytest -m unit -v
+# Integration tests
+pytest tests/server/ -m integration -v
 
-# Run only integration tests
-pytest -m integration -v
-
-# Skip slow tests
-pytest -m "not slow" -v
+# API endpoint tests
+pytest tests/server/ -m api -v
 ```
 
-## Graceful Degradation
+`pytest -m unit` and `pytest -m "not slow"` are **not useful here**: nothing carries
+those markers, so the first selects zero tests and the second is a no-op. Don't
+read a green `-m unit` run as "the unit tests passed".
 
-Tests automatically detect if server components are available:
+## Skips are not "graceful degradation"
 
-- If FastAPI dependencies are missing, server tests are skipped
-- If SQLAlchemy components are missing, database tests are skipped
-- Individual test files handle import errors gracefully
+This suite used to advertise that it degrades gracefully when FastAPI or SQLAlchemy
+are missing. Treat any skip with suspicion instead: **FastAPI and SQLAlchemy are
+installed**, so a module-level skip here almost always means the test file imports a
+symbol the server no longer exports — real drift, hidden behind a skip that looks
+routine. If a module skips, read the ImportError before believing it's optional.
 
 ## Test Data
 
@@ -159,13 +170,23 @@ pytest tests/server/ -v -s --tb=long
 
 ## Test Coverage
 
-Target test coverage areas:
+These were the *intended* coverage areas. Three of the five do not currently run —
+they skip at import because they reference symbols the server no longer exports.
+The ticks below are aspiration, not evidence:
 
-- ✅ **Configuration**: Environment variables, defaults, validation
-- ✅ **Database Models**: CRUD operations, relationships, constraints
-- ✅ **Analysis Service**: Job processing, error handling, concurrency
-- ✅ **API Endpoints**: Request/response handling, validation, error cases
-- ✅ **Integration**: End-to-end workflows, performance, edge cases
+| Area | File | State |
+|---|---|---|
+| **API Endpoints** — request/response, validation, errors | `test_api_endpoints.py` | ✅ running |
+| **Integration** — end-to-end workflows, performance, edge cases | `test_integration.py` | ✅ running |
+| **Configuration** — env vars, defaults, validation | `test_config.py` | ⚠️ skips — imports `ServerConfig`; the class is `Config` |
+| **Database Models** — CRUD, relationships, constraints | `test_database.py` | ⚠️ skips — imports `AnalysisJobModel`; the model is `AnalysisJob` |
+| **Analysis Service** — job processing, errors, concurrency | `test_analysis_service.py` | ⚠️ skips — imports `AnalysisJob` from the service module, which only exports `AnalysisService` |
+
+Re-measure rather than trusting this table — it is a snapshot:
+
+```bash
+pytest tests/server/ -q --no-cov --tb=no
+```
 
 ## Contributing
 

@@ -192,7 +192,7 @@
 ## Additional Resources
 
 - **Full Documentation**: See `EXAMPLE_FILES_IMPLEMENTATION.md`
-- **Test Script**: Run `python test_examples.py` to verify all examples
+- **Test Script**: Run `python manual_tests/test_examples.py` to verify all examples
 - **Model Reference**: See `src/pmhelper/core/models.py` for data structure
 - **File Format**: See example files in `assets/examples/` for format details
 
@@ -202,7 +202,7 @@ If examples don't work as expected:
 
 1. Check that PMHelper is up to date
 2. Verify example files haven't been modified
-3. Run test script: `python test_examples.py`
+3. Run test script: `python manual_tests/test_examples.py`
 4. Check console output for error messages
 5. Report issues with specific file name and error message
 

@@ -28,6 +28,7 @@ from pmhelper.core.cost_visualizations import (
 from pmhelper.core.cost_optimization import IndirectCostModel, TimeCostOptimizer
 from pmhelper.core.cpm_analyzer import CPMAnalyzer
 from pmhelper.utils.file_handlers import FileHandler
+import matplotlib.pyplot as plt
 import argparse
 import sys
 import json
@@ -104,21 +105,25 @@ def optimize_time_cost(args):
     if args.output:
         base_path = args.output
 
-        # Save visualization
+        # Save visualization. plot_time_cost_curve returns a Figure and takes
+        # no save_path — the caller saves it.
         print("Generating visualization...")
-        fig = plot_time_cost_curve(
-            curve_data, result, save_path=f"{base_path}_curve.png")
-        print(f"✓ Saved: {base_path}_curve.png")
+        fig = plot_time_cost_curve(curve_data, result)
+        fig.savefig(f"{base_path}_curve.png", dpi=150, bbox_inches="tight")
+        plt.close(fig)
+        print(f"[OK] Saved: {base_path}_curve.png")
 
-        # Save report
-        with open(f"{base_path}_report.txt", 'w') as f:
+        # Save report. encoding='utf-8' is required: the report contains
+        # non-ASCII glyphs and the Windows default (cp1252) cannot encode them.
+        with open(f"{base_path}_report.txt", 'w', encoding='utf-8') as f:
             f.write(report)
-        print(f"✓ Saved: {base_path}_report.txt")
+        print(f"[OK] Saved: {base_path}_report.txt")
 
-        # Export data
-        export_optimization_results(result, curve_data, base_path,
-                                    formats=['csv', 'json'])
-        print(f"✓ Saved: {base_path}.csv, {base_path}.json")
+        # Export data. Signature is (curve_data, optimal_point, filepath,
+        # format) and handles one format per call.
+        export_optimization_results(curve_data, result, f"{base_path}.csv", 'csv')
+        export_optimization_results(curve_data, result, f"{base_path}.json", 'json')
+        print(f"[OK] Saved: {base_path}.csv, {base_path}.json")
 
     print("\nOptimization complete!")
 
@@ -163,34 +168,44 @@ def optimize_resources(args):
     print("\n" + "=" * 60)
     print("RESULTS")
     print("=" * 60)
-    print(f"Method: {result['method']}")
+    moves_made = sum(
+        1 for act_id, start in result['leveled_schedule'].items()
+        if start != result['original_schedule'].get(act_id))
+
+    print(f"Method: {args.method}")
     print("\nOriginal Schedule:")
-    print(f"  Peak Usage: {result['original_peak']:.1f}")
+    print(f"  Peak Usage: {result['peak_usage_original']:.1f}")
     print(f"  Total Moment: {result['original_moment']:.1f}")
-    print(f"  Average Usage: {result['original_avg']:.1f}")
     print("\nLeveled Schedule:")
-    print(f"  Peak Usage: {result['leveled_peak']:.1f}")
+    print(f"  Peak Usage: {result['peak_usage_leveled']:.1f}")
     print(f"  Total Moment: {result['leveled_moment']:.1f}")
-    print(f"  Average Usage: {result['leveled_avg']:.1f}")
-    print(f"\nImprovement: {result['improvement']:.2f}%")
-    print(f"Moves Made: {result['moves_made']}")
+    print(f"\nImprovement: {result['improvement_pct']:.2f}%")
+    print(f"Moves Made: {moves_made}")
+    print(f"Iterations: {result['iterations']}")
+    print(f"Feasible: {result['feasible']}")
     print("=" * 60 + "\n")
 
     # Save outputs
     if args.output:
         base_path = args.output
 
-        # Generate visualization
+        # Generate visualization. plot_resource_profile takes the two profiles
+        # and returns a Figure; it has no save_path.
         print("Generating visualization...")
         fig = plot_resource_profile(
-            result, save_path=f"{base_path}_profile.png")
-        print(f"✓ Saved: {base_path}_profile.png")
+            result['original_profile'].to_dataframe(),
+            result['leveled_profile'].to_dataframe(),
+            resource_limit,
+            args.method)
+        fig.savefig(f"{base_path}_profile.png", dpi=150, bbox_inches="tight")
+        plt.close(fig)
+        print(f"[OK] Saved: {base_path}_profile.png")
 
         # Generate report
-        report = generate_leveling_report(result)
+        report = generate_leveling_report(result, args.method)
         with open(f"{base_path}_report.txt", 'w', encoding='utf-8') as f:
             f.write(report)
-        print(f"✓ Saved: {base_path}_report.txt")
+        print(f"[OK] Saved: {base_path}_report.txt")
 
         # Export schedule
         if 'leveled_schedule' in result:
@@ -199,7 +214,7 @@ def optimize_resources(args):
                 'start_time': time
             } for act, time in result['leveled_schedule'].items()]
             FileHandler.save_csv(schedule_data, f"{base_path}_schedule.csv")
-            print(f"✓ Saved: {base_path}_schedule.csv")
+            print(f"[OK] Saved: {base_path}_schedule.csv")
 
     print("\nLeveling complete!")
 
@@ -259,10 +274,12 @@ def optimize_npv(args):
     if result['moved_activities']:
         print(f"\nActivities Repositioned: {len(result['moved_activities'])}")
         for move in result['moved_activities']:
+            # ASCII "->": U+2192 raises UnicodeEncodeError on the default
+            # cp1252 Windows console. (U+2022 bullet is in cp1252, so it stays.)
             print(
                 f"  • {
                     move['id']}: {
-                    move['original_start']} → {
+                    move['original_start']} -> {
                     move['optimal_start']}")
 
     print("=" * 60 + "\n")
@@ -282,11 +299,11 @@ def optimize_npv(args):
             fig = plot_npv_sensitivity(
                 sensitivity_df, save_path=f"{
                     args.output}_sensitivity.png")
-            print(f"✓ Saved: {args.output}_sensitivity.png")
+            print(f"[OK] Saved: {args.output}_sensitivity.png")
 
             sensitivity_df.to_csv(
                 f"{args.output}_sensitivity.csv", index=False)
-            print(f"✓ Saved: {args.output}_sensitivity.csv")
+            print(f"[OK] Saved: {args.output}_sensitivity.csv")
 
     # Save outputs
     if args.output:
@@ -296,13 +313,13 @@ def optimize_npv(args):
             'start_time': time
         } for act, time in result['optimal_schedule'].items()]
         FileHandler.save_csv(schedule_data, f"{args.output}_schedule.csv")
-        print(f"✓ Saved: {args.output}_schedule.csv")
+        print(f"[OK] Saved: {args.output}_schedule.csv")
 
         # Save cash flow schedule
         cf_schedule = optimizer.get_cash_flow_schedule(
             result['optimal_schedule'])
         cf_schedule.to_csv(f"{args.output}_cashflows.csv", index=False)
-        print(f"✓ Saved: {args.output}_cashflows.csv")
+        print(f"[OK] Saved: {args.output}_cashflows.csv")
 
     print("\nNPV optimization complete!")
 
@@ -393,20 +410,20 @@ def optimize_pareto(args):
                 minimize_obj1=True, minimize_obj2=True,
                 save_path=f"{base_path}_pareto.png"
             )
-            print(f"✓ Saved: {base_path}_pareto.png")
+            print(f"[OK] Saved: {base_path}_pareto.png")
 
         # Generate report
         report = generate_multi_objective_report(
             optimizer, pareto_df, objectives_list,
             save_path=f"{base_path}_report.txt"
         )
-        print(f"✓ Saved: {base_path}_report.txt")
+        print(f"[OK] Saved: {base_path}_report.txt")
 
         # Export Pareto solutions
         pareto_schedules = [sol.schedule for sol in optimizer.pareto_frontier]
         export_pareto_solutions(pareto_df, pareto_schedules, base_path,
                                 formats=['csv', 'json'])
-        print(f"✓ Saved: {base_path}.csv, {base_path}.json")
+        print(f"[OK] Saved: {base_path}.csv, {base_path}.json")
 
     print("\nPareto optimization complete!")
 
@@ -440,6 +457,7 @@ Examples:
         'time-cost', help='Time-cost trade-off optimization')
     tc_parser.add_argument(
         '--input',
+        dest='input_file',
         required=True,
         help='Input project file (CSV/Excel)')
     tc_parser.add_argument('--indirect', dest='indirect_costs', required=True,

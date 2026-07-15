@@ -610,7 +610,7 @@ fig.savefig('construction_leveling.png')
 For issues or questions:
 
 - GitHub Issues: https://github.com/seifouda/PMhelper/issues
-- See `resource_leveling_demo.py` for working examples
+- See `examples/resource_leveling_demo.py` for working examples
 
 ---
 

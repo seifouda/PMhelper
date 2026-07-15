@@ -63,8 +63,13 @@ class Step:
     formula: str
     result: float
 ```
-Real one: the `Step` dataclass in `core/step_generators_edu.py`. This project uses
-`@dataclass` with **manual validation** (no pydantic in core — see `DECISIONS.md`).
+Real one: the `Step` dataclass in `core/step_generators_edu.py`. The **Edu domain
+models** use `@dataclass` with **manual validation** — that's the recorded choice
+in `DECISIONS.md`, so follow it for new Edu code.
+
+Pydantic still appears elsewhere on purpose: `core/models.py` (project-selection
+models) and the server's `api/models/schemas.py` use it for request/response
+validation. So "dataclass" is the Edu convention, not a repo-wide ban.
 
 ## How to actually learn it
 Open a `core/*_edu.py` file, pick one function, and in a Python shell:

@@ -47,13 +47,27 @@ interpretation — ready-made **worked-example appendices**.
 `docs/reports/` is your evidence base: `COMPREHENSIVE_TESTING_REPORT.md`,
 `FINAL_TEST_SUMMARY.md`, `TECHNICAL_REPORT_v1.0.0.md`, `VALIDATION_ENHANCEMENT.md`,
 per-feature implementation summaries, and phase completion reports. Reproducibility:
-~1288 automated tests in `tests/` with coverage; smoke checklist in
+~1,350 automated tests in `tests/` with coverage; smoke checklist in
 `docs/reports/UI_SMOKE_TEST_CHECKLIST_EDU.md`.
 
+> **Re-count before you publish** — the suite grows:
+> `pytest --collect-only -q --no-cov | tail -1`. Never cite a test count you
+> haven't just measured; a stale number in a reproducibility section is exactly
+> the kind of claim a reviewer will check.
+
 ### 6. Discussion / Limitations / Future work
-Be honest: some docs are aspirational vs. the code (e.g. `CALCULATIONS_MIGRATION.md`
-is still a plan); the legacy vs. Edu split; entry-point typo. Future work: web
-feature parity, cloud deployment (already staged in the architecture doc).
+Be honest, and verify each limitation against the code before you write it — this
+section is where unverified repo folklore tends to get laundered into citable
+claims. Real, verified ones as of this writing:
+- Some docs are aspirational vs. the code (`CALCULATIONS_MIGRATION.md` is still a
+  plan; `src/pmhelper/calculations.py` is a stub, not the facade its name implies).
+- The legacy vs. Edu split, and that the `pmhelper-gui` console script still
+  launches the **legacy** window while the Edu app is the shipped product.
+- `tests/server/` was written against an older server API and largely does not run,
+  so the headline test count is not uniformly load-bearing.
+
+Future work: web feature parity, cloud deployment (already staged in the
+architecture doc).
 
 ## Writing hygiene
 - **Verify every claim against the code before citing it** — don't repeat README

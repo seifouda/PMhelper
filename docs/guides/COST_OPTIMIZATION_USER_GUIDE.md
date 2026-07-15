@@ -196,219 +196,202 @@ Recommended Balanced Solution (#8):
 
 ## Part 2: CLI User Guide
 
-All CLI commands follow this pattern:
+Every command takes its project file via **`--input`** (not positionally), and
+each writes its outputs under the base path given by `--output`.
 
 ```bash
-python -m pmhelper.cli.optimization_cli <command> <project_file> [options]
+python -m pmhelper.cli.optimization_cli <command> --input <project_file> [options]
+```
+
+Available commands: `time-cost`, `resources`, `npv`, `pareto`.
+Run `--help` on any of them to see its exact flags:
+
+```bash
+python -m pmhelper.cli.optimization_cli --help
+python -m pmhelper.cli.optimization_cli time-cost --help
 ```
 
 ### Command 1: time-cost
 
-**Purpose:** Generate time-cost optimization curve and find optimal duration.
+**Purpose:** Generate a time-cost optimization curve and find the optimal duration.
 
-#### Basic Usage
+#### Usage
 
 ```bash
-python -m pmhelper.cli.optimization_cli time-cost project.csv \
-    --indirect-cost 2000 \
+python -m pmhelper.cli.optimization_cli time-cost \
+    --input project.csv \
+    --indirect indirect_costs.json \
     --output timecost_results
 ```
 
-#### Advanced Usage
-
-```bash
-python -m pmhelper.cli.optimization_cli time-cost project.csv \
-    --facilities 500 \
-    --equipment 300 \
-    --utilities 200 \
-    --overhead 1000 \
-    --output detailed_timecost \
-    --format json
-```
-
 #### Options
 
 ```
-positional arguments:
-  project_file          Path to project CSV file
-
 options:
-  --indirect-cost NUM   Total indirect cost per period (simplified)
-  --facilities NUM      Facilities cost per period
-  --equipment NUM       Equipment cost per period
-  --utilities NUM       Utilities cost per period
-  --overhead NUM        Overhead cost per period
-  --output PREFIX       Output file prefix (default: 'timecost')
-  --format {csv,json}   Output format (default: 'csv')
+  --input INPUT         Input project file (CSV/Excel)   [required]
+  --indirect INDIRECT   Indirect costs JSON file         [required]
+  --output OUTPUT       Output base path
 ```
 
-**Note:** Use either `--indirect-cost` OR the breakdown (facilities/equipment/utilities/overhead), not both.
+`--indirect` is a **path to a JSON file**, not a number. The file maps cost
+categories to their **daily rate**:
+
+```json
+{
+  "facilities": 200.0,
+  "equipment": 150.0,
+  "utilities": 50.0,
+  "overhead": 100.0
+}
+```
+
+The category names are free-form — they are summed into a single daily indirect
+rate — so a simplified model is just `{"indirect": 500.0}`.
 
 #### Output Files
 
-1. **{prefix}\_curve.csv** (or .json)
+With `--output timecost_results`:
 
-   ```csv
-   duration,direct_cost,indirect_cost,total_cost
-   10,35000,20000,55000
-   11,33500,22000,55500
-   12,32000,24000,56000
-   ...
-   ```
+| File | Contents |
+|---|---|
+| `timecost_results_curve.png` | Direct / indirect / total cost curves with the optimum marked |
+| `timecost_results_report.txt` | Text summary of the optimisation |
+| `timecost_results.csv` | Curve data |
+| `timecost_results.json` | Curve data + optimal point |
 
-2. **{prefix}\_curve.png**
-   - Time-cost curve visualization
-   - Optimal point marked with red dot
+---
 
 ### Command 2: resources
 
-**Purpose:** Perform resource leveling to smooth resource usage.
+**Purpose:** Level resource usage across the schedule.
 
-#### Basic Usage
+#### Usage
 
 ```bash
-python -m pmhelper.cli.optimization_cli resources project.csv \
+# Unconstrained (minimise the resource moment)
+python -m pmhelper.cli.optimization_cli resources \
+    --input project.csv \
     --method minimum_moment \
-    --output leveled
-```
+    --output leveling_results
 
-#### Constrained Usage
-
-```bash
-python -m pmhelper.cli.optimization_cli resources project.csv \
+# Constrained to a resource limit
+python -m pmhelper.cli.optimization_cli resources \
+    --input project.csv \
     --method burgess \
-    --limit 6 \
-    --output constrained
+    --limit 8 \
+    --output leveling_constrained
 ```
 
 #### Options
 
 ```
-positional arguments:
-  project_file          Path to project CSV file
-
 options:
-  --method {minimum_moment,burgess}
-                        Leveling algorithm (default: minimum_moment)
-  --limit NUM           Maximum resources per period (optional)
-  --output PREFIX       Output file prefix (default: 'resources')
+  --input INPUT                     Input project file (CSV/Excel)   [required]
+  --method {minimum_moment,burgess} Leveling method
+  --limit LIMIT                     Resource limit (optional)
+  --output OUTPUT                   Output base path
 ```
+
+Your project file needs a `resource_demand` column for this command to be
+meaningful (see Part 4).
 
 #### Output Files
 
-1. **{prefix}\_schedule.csv**
+| File | Contents |
+|---|---|
+| `{base}_profile.png` | Before/after resource histograms |
+| `{base}_report.txt` | Peak usage, moment, improvement %, and which activities moved |
+| `{base}_schedule.csv` | The leveled start time per activity |
 
-   ```csv
-   activity,start,duration,resources
-   A,0,5,"Worker:2;Equipment:1"
-   B,5,3,"Worker:3"
-   C,7,4,"Worker:1;Equipment:2"
-   ...
-   ```
-
-2. **{prefix}\_profile.png**
-   - Before and after resource profiles
-   - Side-by-side comparison charts
+---
 
 ### Command 3: npv
 
-**Purpose:** Optimize schedule for maximum Net Present Value.
+**Purpose:** Maximise project NPV by scheduling cash flows.
 
-#### Basic Usage
-
-```bash
-python -m pmhelper.cli.optimization_cli npv project.csv \
-    --discount-rate 0.1 \
-    --output npv_opt
-```
-
-#### With Sensitivity Analysis
+#### Usage
 
 ```bash
-python -m pmhelper.cli.optimization_cli npv project.csv \
+python -m pmhelper.cli.optimization_cli npv \
+    --input project.csv \
+    --cash-flows cash_flows.json \
     --discount-rate 0.1 \
+    --output npv_results
+
+# With sensitivity analysis across discount rates
+python -m pmhelper.cli.optimization_cli npv \
+    --input project.csv \
+    --cash-flows cash_flows.json \
     --sensitivity \
-    --output npv_sensitivity
+    --output npv_results
 ```
 
 #### Options
 
 ```
-positional arguments:
-  project_file          Path to project CSV file
-
 options:
-  --discount-rate RATE  Annual discount rate (default: 0.1)
-  --sensitivity         Perform sensitivity analysis
-  --output PREFIX       Output file prefix (default: 'npv')
+  --input INPUT                  Input project file (CSV/Excel)   [required]
+  --cash-flows CASH_FLOWS        Cash flows JSON file             [required]
+  --discount-rate DISCOUNT_RATE  Discount rate (default: 0.10)
+  --sensitivity                  Run sensitivity analysis
+  --output OUTPUT                Output base path
+```
+
+`--cash-flows` is a **required** JSON file mapping each activity id to its cash
+flow:
+
+```json
+{
+  "A": 5000.0,
+  "B": -2000.0,
+  "C": 8000.0
+}
 ```
 
 #### Output Files
 
-1. **{prefix}\_schedule.csv** - Optimized schedule
-2. **{prefix}\_cashflow.csv** - Period-by-period cash flows
-   ```csv
-   period,cost,discounted_cost
-   0,-10000,-10000.00
-   1,-5000,-4545.45
-   2,-3000,-2479.34
-   ...
-   ```
-3. **{prefix}\_analysis.png** (if --sensitivity) - NPV vs. discount rate curves
+| File | Contents |
+|---|---|
+| `{base}_schedule.csv` | NPV-optimal start times |
+| `{base}_cashflows.csv` | Discounted cash flows per activity |
+| `{base}_sensitivity.csv` / `.png` | Only with `--sensitivity` |
+
+---
 
 ### Command 4: pareto
 
-**Purpose:** Generate Pareto frontier for multi-objective optimization.
+**Purpose:** Multi-objective optimisation — find the Pareto frontier.
 
-#### Basic Usage (2 objectives)
+#### Usage
 
 ```bash
-python -m pmhelper.cli.optimization_cli pareto project.csv \
-    --objectives duration cost \
+python -m pmhelper.cli.optimization_cli pareto \
+    --input project.csv \
+    --objectives duration,cost \
     --samples 100 \
-    --output pareto
-```
-
-#### Advanced Usage (3 objectives)
-
-```bash
-python -m pmhelper.cli.optimization_cli pareto project.csv \
-    --objectives duration cost npv \
-    --discount-rate 0.1 \
-    --samples 200 \
-    --output pareto_3d
+    --output pareto_results
 ```
 
 #### Options
 
 ```
-positional arguments:
-  project_file          Path to project CSV file
-
 options:
-  --objectives OBJ [OBJ ...]
-                        Objectives: duration, cost, npv (min 2)
-  --discount-rate RATE  Discount rate for NPV (required if npv in objectives)
-  --samples NUM         Number of solutions to generate (default: 100)
-  --output PREFIX       Output file prefix (default: 'pareto')
+  --input INPUT            Input project file (CSV/Excel)   [required]
+  --objectives OBJECTIVES  Comma-separated objectives        [required]
+  --samples SAMPLES        Number of candidate schedules (default: 100)
+  --output OUTPUT          Output base path
 ```
+
+`--objectives` takes **one comma-separated string** — `duration,cost` — not
+space-separated values. There is no `--discount-rate` on this command.
 
 #### Output Files
 
-1. **{prefix}\_solutions.csv**
-
-   ```csv
-   solution,duration,cost,npv,pareto_optimal
-   1,10,52000,180000,True
-   2,11,49500,187000,True
-   3,12,48000,190000,False
-   ...
-   ```
-
-2. **{prefix}\_frontier.png**
-   - 2D scatter plot (if 2 objectives)
-   - 3D scatter plot (if 3 objectives)
-   - Pareto-optimal solutions highlighted in red
+| File | Contents |
+|---|---|
+| `{base}_pareto.png` | The Pareto frontier plot |
+| `{base}_report.txt` | Text summary of the non-dominated solutions |
+| `{base}.csv` / `{base}.json` | The solution set |
 
 ---
 
@@ -698,7 +681,7 @@ The Cost Optimization module provides three powerful tools:
 
 All features are available via **GUI** (user-friendly), **CLI** (automation), and **API** (integration).
 
-For examples, see the `examples/` folder. For technical details, see `docs/COST_OPTIMIZATION_GUIDE.md`.
+For examples, see the `examples/` folder. For technical details, see `docs/guides/COST_OPTIMIZATION_GUIDE.md`.
 
 ---
 

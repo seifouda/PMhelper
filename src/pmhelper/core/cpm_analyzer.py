@@ -574,9 +574,11 @@ class CPMAnalyzer:
             total_crash_cost += cheapest_activity['crash_cost']
             crash_counts[activity_id] += 1  # Track this crash
 
+            # ASCII "->": U+2192 raises UnicodeEncodeError on the default
+            # cp1252 Windows console, which aborts the whole crash run.
             print(
                 f"  Crashing {activity_id}: {
-                    cheapest_activity['duration']} → {
+                    cheapest_activity['duration']} -> {
                     crashed_G.nodes[activity_id]['duration']} (Cost: {
                     cheapest_activity['crash_cost']})")
 
@@ -596,7 +598,7 @@ class CPMAnalyzer:
             new_duration = max([crashed_G.nodes[node]['EF']
                                for node in crashed_G.nodes()])
             print(
-                f"  New project duration: {current_duration} → {new_duration}")
+                f"  New project duration: {current_duration} -> {new_duration}")
             current_duration = new_duration
 
             # CRITICAL FIX: Uniformly advance time by 1 unit

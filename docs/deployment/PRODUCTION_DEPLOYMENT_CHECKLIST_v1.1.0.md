@@ -53,7 +53,7 @@
   - Prioritization: 85ms ✅
   - Full report: 580ms ✅
 - [ ] **Memory leak testing**: 1000-iteration stress test
-  - Run `python tests/stress_test_risk.py` ⏳
+  - Run `python tests/stress_test_risk.py` ⏳ — **script not in the repo; never written**
 - [x] **Edge case testing**: All handled
   - Zero variance ✅
   - Negative floats ✅
@@ -134,7 +134,8 @@ pytest tests/ -v --cov=src/pmhelper --cov-report=html
 # Target: >90% for risk module
 
 # Run stress tests
-python tests/stress_test_risk.py
+# NOTE: tests/stress_test_risk.py does not exist in the repo.
+# python tests/stress_test_risk.py
 
 # Run security scan
 pip-audit
@@ -152,8 +153,8 @@ pylint src/pmhelper/cli/risk_cli.py
 
 ```bash
 # Verify all docs exist
-ls docs/RISK_*.md
-ls risk_*_demo.py
+ls docs/guides/RISK_*.md docs/reports/RISK_*.md
+ls examples/risk_*_demo.py
 ls assets/risk_examples/*.csv
 
 # Check internal links
@@ -281,7 +282,7 @@ cd docs-site/
 git pull
 
 # Copy new documentation
-cp ../docs/RISK_*.md content/docs/
+cp ../docs/guides/RISK_*.md content/docs/
 
 # Update navigation
 # Edit site config to include Risk Analysis section
@@ -315,7 +316,7 @@ python -m pmhelper.gui.main_window
 python -m pmhelper.cli.risk_cli delay -i assets/risk_examples/delay_analysis_simple.csv -c 15 -p 1000
 
 # Try demos
-python risk_analysis_demo.py
+python examples/risk_analysis_demo.py
 ```
 
 **Exit Criteria**: All features work in fresh clone
@@ -361,7 +362,7 @@ We're excited to announce PMHelper v1.1.0, featuring a comprehensive Risk Analys
 
 🔗 Resources:
 - Release Notes: RELEASE_NOTES_v1.1.0.md
-- User Guide: docs/RISK_ANALYSIS_USER_GUIDE.md
+- User Guide: docs/guides/RISK_ANALYSIS_USER_GUIDE.md
 - GitHub Release: https://github.com/YOUR_ORG/PMhelper/releases/tag/v1.1.0
 
 Upgrade today: `git pull origin main`

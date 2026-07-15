@@ -73,13 +73,15 @@ postgres = ["asyncpg>=0.29.0"]
 dev = [
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",
-    "black>=21.0.0", 
+    "pytest-asyncio>=0.21.0",
+    "black>=21.0.0",
     "flake8>=3.9.0",
     "mypy>=0.910",
 ]
 test = [
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",
+    "pytest-asyncio>=0.21.0",
     "pytest-mock>=3.6.0",
 ]
 full = [
@@ -130,6 +132,9 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+# "auto" so the server suite's async fixtures resolve without each one needing
+# @pytest_asyncio.fixture; they are declared with plain @pytest.fixture.
+asyncio_mode = "auto"
 addopts = [
     "-v",
     "--tb=short",

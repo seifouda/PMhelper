@@ -762,11 +762,11 @@ if success:
 
 ## Support and Resources
 
-- **User Guide**: `docs/RISK_ANALYSIS_USER_GUIDE.md`
-- **Quick Reference**: `docs/RISK_ANALYSIS_QUICK_REFERENCE.md`
-- **GUI Guide**: `docs/RISK_GUI_IMPLEMENTATION.md`
+- **User Guide**: `docs/guides/RISK_ANALYSIS_USER_GUIDE.md`
+- **Quick Reference**: `docs/guides/RISK_ANALYSIS_QUICK_REFERENCE.md`
+- **GUI Guide**: `docs/reports/RISK_GUI_IMPLEMENTATION.md`
 - **Sample Data**: `assets/risk_examples/`
-- **Demo Script**: `risk_analysis_demo.py`
+- **Demo Script**: `examples/risk_analysis_demo.py`
 
 ---
 

@@ -94,7 +94,7 @@ Created 8 example files for CLI testing:
 
 ### 5. Documentation
 
-✅ **File:** `docs/SELECTION_CLI_API_GUIDE.md` (600+ lines)
+✅ **File:** `docs/guides/SELECTION_CLI_API_GUIDE.md` (600+ lines)
 
 **Contents:**
 
@@ -229,7 +229,7 @@ selection.py (FastAPI Router)
 | `cli/selection_cli.py`            | 720        | CLI commands           |
 | `server/api/routes/selection.py`  | 686        | REST API routes        |
 | `tests/test_selection_api.py`     | 370        | API test suite         |
-| `docs/SELECTION_CLI_API_GUIDE.md` | 600+       | Complete documentation |
+| `docs/guides/SELECTION_CLI_API_GUIDE.md` | 600+       | Complete documentation |
 | **Total**                         | **2,376+** | Phase 3 deliverables   |
 
 ---

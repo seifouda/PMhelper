@@ -488,10 +488,10 @@ Thanks to:
 
 ### Documentation
 
-- **User Guide**: `docs/RISK_ANALYSIS_USER_GUIDE.md`
-- **Quick Reference**: `docs/RISK_ANALYSIS_QUICK_REFERENCE.md`
-- **GUI Guide**: `docs/RISK_GUI_IMPLEMENTATION.md`
-- **CLI Guide**: `docs/RISK_CLI_GUIDE.md`
+- **User Guide**: `docs/guides/RISK_ANALYSIS_USER_GUIDE.md`
+- **Quick Reference**: `docs/guides/RISK_ANALYSIS_QUICK_REFERENCE.md`
+- **GUI Guide**: `docs/reports/RISK_GUI_IMPLEMENTATION.md`
+- **CLI Guide**: `docs/guides/RISK_CLI_GUIDE.md`
 
 ### Examples
 

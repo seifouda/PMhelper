@@ -73,7 +73,7 @@ python risk_gui_demo.py
 
 ### 4. Documentation
 
-#### `docs/RISK_GUI_IMPLEMENTATION.md` (2,500+ lines)
+#### `docs/reports/RISK_GUI_IMPLEMENTATION.md` (2,500+ lines)
 
 Comprehensive implementation guide covering:
 

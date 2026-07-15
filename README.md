@@ -8,11 +8,40 @@
 
 A comprehensive, production-ready project management analysis desktop application implementing Critical Path Method (CPM), Program Evaluation Review Technique (PERT), and advanced scheduling optimization algorithms. Perfect for project managers, students, and researchers who need powerful scheduling analysis tools.
 
+> **New here or returning after a while?** See **[CHANGES.md](CHANGES.md)** for
+> what changed most recently — including several real bugs that were fixed in
+> the server, CLI, and educational GUI, verified end-to-end rather than just
+> read. `docs/README.md` is the full documentation index.
+
 ## Overview
 
 PMHelper provides professional-grade project management analysis capabilities through both a graphical user interface and command-line tools. The application supports deterministic and probabilistic scheduling analysis, resource optimization, and advanced visualization features.
 
 PMHelper is available via PyPI for easy installation (`pip install pmhelper`), as a standalone Windows executable, or can be run from source code. Choose the installation method that best fits your workflow and technical requirements.
+
+### Architecture at a glance
+
+Five surfaces share one pure calculation engine — nothing in `core/` depends on
+any of the layers above it:
+
+```mermaid
+flowchart TD
+    Core["core/ — pure Python calc engine<br/>CPM · PERT · EVM · risk · resource leveling<br/>cost/NPV optimization · selection (AHP)"]
+
+    GUI["Tkinter GUI<br/>python -m pmhelper.edu_main"]
+    CLI["CLIs<br/>cpm_cli · pert_cli · optimization_cli<br/>risk_cli · selection_cli"]
+    Server["FastAPI server<br/>server/main.py"]
+    Web["Angular web app<br/>web/"]
+
+    GUI --> Core
+    CLI --> Core
+    Server --> Core
+    Web -- "REST + WebSocket" --> Server
+```
+
+See [`docs/guides/SERVER_ARCHITECTURE.md`](docs/guides/SERVER_ARCHITECTURE.md)
+for the server's internal design, and the **Project Structure** section below
+for where everything lives on disk.
 
 ## Key Features
 
@@ -59,7 +88,10 @@ pip install pmhelper
 After installation, launch with:
 
 ```bash
-# Launch the GUI application
+# Launch the Educational edition — the shipped app
+python -m pmhelper.edu_main
+
+# Launch the legacy v1 interface
 pmhelper-gui
 
 # Use command-line tools
@@ -67,6 +99,11 @@ pmhelper --help
 pmhelper-cpm --help
 pmhelper-pert --help
 ```
+
+> **Note:** the `pmhelper-gui` console script currently launches the **legacy v1**
+> window (`pmhelper.gui.main_window`), not the Educational edition. Use
+> `python -m pmhelper.edu_main` for the Edu app until an entry point is added
+> for it.
 
 ### Option 2: Standalone Windows Executable
 
@@ -112,14 +149,14 @@ Before installing PMHelper, ensure you have:
 After installation, launch the GUI application:
 
 ```bash
-# If installed via PyPI
+# Educational edition — the shipped app (works installed or from source)
+python -m pmhelper.edu_main
+
+# Legacy v1 interface, if installed via PyPI
 pmhelper-gui
 
 # If using standalone executable
 # Run PMHelper.exe from the extracted folder
-
-# If running from source (educational edition — the shipped app)
-python -m pmhelper.edu_main
 
 # Legacy v1 desktop app
 python launch_app.py
@@ -129,17 +166,30 @@ python launch_app.py
 
 PMHelper provides powerful command-line interfaces for automation and batch processing:
 
+Each CLI takes a **subcommand** first, and the input file is **positional**:
+
 ```bash
-# CPM Analysis
-pmhelper-cpm project_data.csv --output results.json
+# Generate a sample input file to start from
+pmhelper-cpm sample project_data.csv
 
-# PERT Analysis
-pmhelper-pert project_data.csv --confidence 0.95 --simulations 1000
+# CPM analysis
+pmhelper-cpm analyze project_data.csv -o results.json
 
-# Get help for any command
-pmhelper --help
+# CPM crashing — compress the schedule to a target duration (both positional)
+pmhelper-cpm crash project_data.csv 15 -o crashed.json
+
+# PERT needs its own three-point input (optimistic/most_likely/pessimistic),
+# so generate a PERT sample rather than reusing the CPM one
+pmhelper-pert sample pert_data.csv
+pmhelper-pert analyze pert_data.csv -o pert_results.json
+
+# PERT probability of finishing within given durations
+pmhelper-pert probability pert_data.csv -d 20 25 30
+
+# Get help — including per-subcommand
 pmhelper-cpm --help
-pmhelper-pert --help
+pmhelper-cpm analyze --help
+pmhelper-pert probability --help
 ```
 
 ### Sample Project Analysis
@@ -215,11 +265,11 @@ Equipment,2,500,3
 ### Command Line Interface
 
 ```bash
-# CPM Analysis
-python -m pmhelper.cli.cpm_cli --input project.csv --output results.json
+# CPM Analysis (module form of pmhelper-cpm)
+python -m pmhelper.cli.cpm_cli analyze project.csv -o results.json
 
-# PERT with confidence intervals
-python -m pmhelper.cli.pert_cli --input data.csv --confidence 0.95 --simulations 10000
+# PERT probability analysis
+python -m pmhelper.cli.pert_cli probability data.csv -d 20 25 30
 
 # Optimization, risk, and selection CLIs (run with --help for options)
 python -m pmhelper.cli.optimization_cli --help
@@ -241,9 +291,12 @@ activities = [
 ]
 
 analyzer = CPMAnalyzer()
-network_graph, critical_paths, all_nodes = analyzer.analyze(activities)
+network_graph, critical_paths, critical_activities = analyzer.analyze(activities)
 
 print("Critical path(s):", critical_paths)
+# critical_activities lists only the activities on a critical path
+# (plus the START/END sentinels) — not every node in the network.
+print("Critical activities:", critical_activities)
 ```
 
 For complete, runnable examples (cost optimization, risk, resource leveling,
@@ -255,7 +308,8 @@ multi-objective), see the [`examples/`](examples/) directory.
 PMhelper/
 ├── src/pmhelper/        # The package: core/ (pure calc engine), gui/, server/, cli/, utils/
 ├── web/                 # Angular web frontend
-├── tests/               # Automated pytest suite  (manual_tests/ = interactive GUI/legacy)
+├── tests/               # Automated pytest suite (what `pytest` runs)
+├── manual_tests/        # Interactive GUI/demo scripts — excluded from the automated run
 ├── examples/            # Runnable demo scripts
 ├── packaging/           # Build & deploy scripts (PyInstaller/cx_Freeze) + specs — see its README
 ├── scripts/             # Dev helper scripts (test runner, demo data generator)
@@ -266,8 +320,10 @@ PMhelper/
 ├── outputs/             # Generated charts/reports (gitignored)
 ├── .claude/skills/      # Learning skills for this project
 ├── pyproject.toml       # Package metadata + all runtime dependencies (source of truth)
+├── setup.py             # Legacy shim; pyproject.toml takes precedence for installs
 ├── requirements.txt     # Pinned dependency manifest for Docker/Render deploys
 ├── launch_app.py        # Legacy desktop entry (Edu app: python -m pmhelper.edu_main)
+├── DECISIONS.md         # Recorded design decisions (why, not what)
 └── Dockerfile  docker-compose.yml  render.yaml   # Containerization & deploy config
 ```
 
@@ -279,6 +335,7 @@ PMhelper/
 - **[🔧 Server architecture](docs/guides/SERVER_ARCHITECTURE.md)**: Backend design and implementation
 - **[🔌 CLI & API guide](docs/guides/SELECTION_CLI_API_GUIDE.md)**: Command-line and API usage
 - **[🏗️ Build & packaging](packaging/README.md)**: Building the executable and deploying
+- **[🆕 Recent changes](CHANGES.md)**: What changed most recently, in detail (bug fixes, verification results, known issues)
 - **[📝 Changelog](CHANGELOG.md)**: Version history and release notes
 
 ### Quick Reference
@@ -307,10 +364,14 @@ python -m pytest --cov=src/pmhelper --cov-report=html
 
 ### Continuous Integration
 
-- ✅ Automated testing on Windows, macOS, Linux
-- ✅ Code quality analysis (pylint, black, mypy)
-- ✅ Security scanning (bandit, safety)
-- ✅ Performance regression testing
+`.github/workflows/ci-cd.yml` runs:
+
+- ✅ Automated testing on Windows, macOS, Linux (Python 3.8–3.12)
+- ✅ Code quality analysis (black, flake8, mypy)
+- ✅ Angular lint, build, and test for the `web/` app
+- ✅ Package + executable builds, PyPI/GitHub release, Render deploy
+
+Not currently in CI: security scanning and performance regression testing.
 
 ## 🤝 Contributing
 
@@ -327,9 +388,6 @@ source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
 # Install with development dependencies (pytest, coverage, linters)
 pip install -e ".[dev]"
-
-# Install pre-commit hooks
-pre-commit install
 
 # Launch the app
 python -m pmhelper.edu_main

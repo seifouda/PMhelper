@@ -10,7 +10,7 @@ services:
       - ./data:/app/data
       - ./src:/app/src
     environment:
-      - DATABASE_URL=sqlite:///data/pmhelper.db
+      - DATABASE_URL=sqlite+aiosqlite:///data/pmhelper.db
       - DEBUG=true
       - ENVIRONMENT=development
     restart: unless-stopped

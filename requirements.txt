@@ -29,6 +29,7 @@ reportlab>=4.0.0
 Pillow>=10.0.0
 python-dateutil>=2.8.0
 jsonschema>=4.19.0
+tksheet>=6.0.0          # Spreadsheet-style grid used by the RCPS tab
 
 # Interactive network visualization
 pyvis>=0.3.1

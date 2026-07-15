@@ -6,17 +6,23 @@ This document outlines the architecture decisions and design for the PMHelper se
 
 ## Architecture Type: **Monolithic with Separation of Concerns**
 
+```mermaid
+flowchart TD
+    subgraph Monolith["Single Server (server/main.py) — one FastAPI app"]
+        MW["Middleware<br/>request logging · CORS · rate limiting"]
+        Routers["Routers<br/>projects · analysis · selection · web · calculations"]
+        WS["WebSocket<br/>/ws/calculate"]
+        Static["Static files<br/>serves the built Angular app"]
+    end
+
+    Client["Angular web app / any REST client"] -->|REST + WebSocket| Monolith
+    Monolith --> Core["core/ — pure calculation engine"]
+    Monolith --> DB[("SQLite<br/>async SQLAlchemy")]
 ```
-┌─────────────────────────────────────────────┐
-│         Single Server (Monolithic)          │
-├─────────────────────────────────────────────┤
-│  FastAPI Backend (Python Calculations)      │
-│  + Serve Angular Static Files               │
-│  + WebSocket Support (native)               │
-│  + SQLite Database                          │
-│  + REST API Endpoints                       │
-└─────────────────────────────────────────────┘
-```
+
+> `server/api/main.py` — a second, parallel FastAPI app that used to exist — was
+> merged into `server/main.py` above (see `CHANGES.md`). There is now exactly
+> one app; every router mounts on it.
 
 ## Requirements Analysis
 
@@ -175,16 +181,30 @@ autoflush=False         # Reduce automatic DB operations
 
 ### REST Endpoints
 
-```
-POST /api/calculations/calculate
-- Input: JSON with calculation parameters
-- Output: Calculation result with metadata
-- Use Case: One-time calculations with database storage
+The list below was captured directly from the running app
+(`app.openapi()["paths"]` — plain `app.routes` under-reports, since included
+routers nest and don't flatten). 35 routes, grouped by router:
 
-GET /health
-- Health check endpoint
-- Returns server status
-```
+- **Calculations (legacy path):** `POST /api/calculations/calculate`,
+  `GET /api/calculations/health`
+- **Background analysis jobs:** `POST /api/analyze/{cpm,pert,rcps}`,
+  `GET /api/jobs`, `GET /api/jobs/{job_id}/status`,
+  `GET /api/jobs/{job_id}/results`
+- **Projects (CRUD):** `GET/POST /api/projects`, `GET /api/projects/{id}`,
+  `GET /api/projects/{id}/activities`, `GET /api/projects/{id}/analysis-jobs`
+- **Selection:** `POST /api/selection/{ahp,linear-scoring,benefit-cost,portfolio}`,
+  `GET /api/selection/methods`, `GET /api/selection/health`
+- **Web app (`/api/web/*`, used by the Angular frontend):**
+  `POST /api/web/analysis/{cpm,pert,rcps,evm,monte-carlo,crashing,risk}`,
+  `POST /api/web/analysis/steps/{cpm,pert,evm}`,
+  `POST /api/web/import/csv`, `GET /api/web/samples`,
+  `GET /api/web/samples/{sample_id}`, `POST /api/web/telemetry/error`
+- **Meta:** `GET /`, `GET /health`, `GET /api/version`
+
+> **The SPA catch-all route (`@app.get("/{full_path:path}")`) must stay
+> registered last.** FastAPI matches routes in registration order — anything
+> included after it is silently swallowed and returns `index.html` instead of
+> 404ing or reaching your new endpoint.
 
 ### WebSocket Endpoints
 

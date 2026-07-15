@@ -335,7 +335,7 @@ class RiskCLI:
                     df[(df['risk_score'] >= 0.3) & (df['risk_score'] < 0.6)])
                 low_risk = len(df[df['risk_score'] < 0.3])
 
-                print(f"High Risk (≥0.6): {high_risk}")
+                print(f"High Risk (>=0.6): {high_risk}")
                 print(f"Medium Risk (0.3-0.6): {medium_risk}")
                 print(f"Low Risk (<0.3): {low_risk}")
 

@@ -38,7 +38,7 @@ Complete CLI implementation with:
 
 ### 2. Documentation
 
-#### `docs/RISK_CLI_GUIDE.md` (1,400+ lines)
+#### `docs/guides/RISK_CLI_GUIDE.md` (1,400+ lines)
 
 Comprehensive CLI documentation covering:
 

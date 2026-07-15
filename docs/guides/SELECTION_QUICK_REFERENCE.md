@@ -180,7 +180,7 @@ Project B,150000,60000
 
 ## Resources
 
-- **Full Documentation**: `docs/SELECTION_CLI_API_GUIDE.md`
+- **Full Documentation**: `docs/guides/SELECTION_CLI_API_GUIDE.md`
 - **Swagger UI**: http://localhost:8000/docs
 - **Examples**: `assets/examples/cli/`
 - **Tests**: `tests/test_selection_api.py`

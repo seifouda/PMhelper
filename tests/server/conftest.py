@@ -6,8 +6,10 @@ Configuration and fixtures for PMHelper server testing.
 
 import pytest
 import asyncio
+import logging
 import tempfile
 import os
+from contextlib import contextmanager
 from pathlib import Path
 
 # Configure test environment
@@ -31,25 +33,31 @@ def event_loop():
     loop.close()
 
 
+@contextmanager
+def _temp_database_url():
+    """Point config at a throwaway SQLite file for the duration of a test.
+
+    ``Config`` exposes no public setter — ``get_database_url()`` reads the
+    private ``_database_url``, so overriding that is the only seam available.
+    """
+    with tempfile.TemporaryDirectory() as temp_dir:
+        original_url = config._database_url
+        db_path = Path(temp_dir) / "pmhelper_test.db"
+        config._database_url = f"sqlite+aiosqlite:///{db_path}"
+        try:
+            yield config._database_url
+        finally:
+            config._database_url = original_url
+
+
 @pytest.fixture
 def temp_database():
     """Create a temporary database for testing."""
     if not SERVER_COMPONENTS_AVAILABLE:
         pytest.skip("Server components not available")
-    
-    with tempfile.TemporaryDirectory() as temp_dir:
-        # Set temporary database path
-        original_db_dir = config.DATABASE_DIR
-        original_db_url = config.DATABASE_URL
-        
-        config.DATABASE_DIR = Path(temp_dir)
-        config.DATABASE_URL = f"sqlite+aiosqlite:///{config.DATABASE_DIR / config.DATABASE_FILE}"
-        
-        yield config.DATABASE_URL
-        
-        # Restore original config
-        config.DATABASE_DIR = original_db_dir
-        config.DATABASE_URL = original_db_url
+
+    with _temp_database_url() as db_url:
+        yield db_url
 
 
 @pytest.fixture
@@ -57,26 +65,13 @@ async def initialized_database():
     """Initialize a temporary database for testing."""
     if not SERVER_COMPONENTS_AVAILABLE:
         pytest.skip("Server components not available")
-    
-    with tempfile.TemporaryDirectory() as temp_dir:
-        # Configure temporary database
-        original_db_dir = config.DATABASE_DIR
-        original_db_url = config.DATABASE_URL
-        
-        config.DATABASE_DIR = Path(temp_dir)
-        config.DATABASE_URL = f"sqlite+aiosqlite:///{config.DATABASE_DIR / config.DATABASE_FILE}"
-        
-        # Initialize database
+
+    with _temp_database_url() as db_url:
         await init_database()
-        
-        yield config.DATABASE_URL
-        
-        # Cleanup
-        await close_database()
-        
-        # Restore original config
-        config.DATABASE_DIR = original_db_dir
-        config.DATABASE_URL = original_db_url
+        try:
+            yield db_url
+        finally:
+            await close_database()
 
 
 # Test data fixtures
@@ -277,12 +272,16 @@ def sample_project_complex():
 
 # Test markers
 def pytest_configure(config):
-    """Configure pytest markers."""
+    """Configure pytest markers and quiet noisy loggers."""
     config.addinivalue_line("markers", "integration: marks tests as integration tests")
     config.addinivalue_line("markers", "unit: marks tests as unit tests")
     config.addinivalue_line("markers", "slow: marks tests as slow running")
     config.addinivalue_line("markers", "database: marks tests that require database")
     config.addinivalue_line("markers", "api: marks tests for API endpoints")
+
+    logging.getLogger("pmhelper.server").setLevel(logging.WARNING)
+    logging.getLogger("sqlalchemy").setLevel(logging.WARNING)
+    logging.getLogger("uvicorn").setLevel(logging.WARNING)
 
 
 # Skip configuration
@@ -303,13 +302,3 @@ def pytest_collection_modifyitems(config, items):
         if not SERVER_COMPONENTS_AVAILABLE:
             if any(marker in str(item.fspath) for marker in ["server", "api", "database", "integration"]):
                 item.add_marker(pytest.mark.skip(reason="Server components not available"))
-
-
-# Logging configuration for tests
-import logging
-
-def pytest_configure():
-    """Configure logging for tests."""
-    logging.getLogger("pmhelper.server").setLevel(logging.WARNING)
-    logging.getLogger("sqlalchemy").setLevel(logging.WARNING)
-    logging.getLogger("uvicorn").setLevel(logging.WARNING)

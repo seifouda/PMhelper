@@ -129,7 +129,7 @@
 
 ## ✅ Documentation (COMPLETE)
 
-### User Guide (`docs/RISK_ANALYSIS_USER_GUIDE.md`)
+### User Guide (`docs/guides/RISK_ANALYSIS_USER_GUIDE.md`)
 
 - [x] Overview and features
 - [x] Complete code examples for all 4 capabilities
@@ -141,7 +141,7 @@
 - [x] Sample datasets documentation
 - [x] **Length: ~500 lines**
 
-### Quick Reference (`docs/RISK_ANALYSIS_QUICK_REFERENCE.md`)
+### Quick Reference (`docs/guides/RISK_ANALYSIS_QUICK_REFERENCE.md`)
 
 - [x] 30-second quick start
 - [x] Core functions with examples

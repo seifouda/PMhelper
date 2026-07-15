@@ -334,7 +334,7 @@ pytest tests/test_risk_core.py --cov=src.pmhelper.core.risk_analysis --cov-repor
 Run the demonstration:
 
 ```bash
-python risk_analysis_demo.py
+python examples/risk_analysis_demo.py
 ```
 
 ## Technical Notes
@@ -395,7 +395,7 @@ python risk_analysis_demo.py
 For questions or issues:
 
 - Review sample datasets in `assets/risk_examples/`
-- Run demo script: `python risk_analysis_demo.py`
+- Run demo script: `python examples/risk_analysis_demo.py`
 - Check test examples: `tests/test_risk_core.py`
 
 ---

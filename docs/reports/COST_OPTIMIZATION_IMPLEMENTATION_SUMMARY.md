@@ -54,7 +54,7 @@ Successfully implemented Phase 1 of the Cost Optimization Module as outlined in 
    - Generates all visualizations and reports
    - Educational code examples
 
-6. **`docs/COST_OPTIMIZATION_GUIDE.md`** (Comprehensive user guide)
+6. **`docs/guides/COST_OPTIMIZATION_GUIDE.md`** (Comprehensive user guide)
    - Complete API reference
    - Quick start examples
    - Troubleshooting guide

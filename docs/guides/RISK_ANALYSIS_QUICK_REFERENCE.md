@@ -146,8 +146,8 @@ for activity in plan['high_priority'][:5]:  # Top 5
 ```
 src/pmhelper/core/risk_analysis.py     # Core module
 tests/test_risk_core.py                # Tests
-docs/RISK_ANALYSIS_USER_GUIDE.md      # Full guide
-risk_analysis_demo.py                  # Demo script
+docs/guides/RISK_ANALYSIS_USER_GUIDE.md      # Full guide
+examples/risk_analysis_demo.py         # Demo script
 assets/risk_examples/*.csv             # Sample data
 ```
 
@@ -164,7 +164,7 @@ pytest tests/test_risk_core.py --cov=src.pmhelper.core.risk_analysis
 pytest tests/test_risk_integration.py -v
 
 # Demo
-python risk_analysis_demo.py
+python examples/risk_analysis_demo.py
 ```
 
 ## Troubleshooting

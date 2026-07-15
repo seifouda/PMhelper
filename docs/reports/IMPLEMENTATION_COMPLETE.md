@@ -184,10 +184,10 @@ The PMHelper Risk Analysis Module has been **successfully implemented and is rea
 
 **Files Created**:
 
-- `docs/RISK_ANALYSIS_USER_GUIDE.md` (2,900 lines)
-- `docs/RISK_ANALYSIS_QUICK_REFERENCE.md` (700 lines)
-- `docs/RISK_GUI_IMPLEMENTATION.md` (2,400 lines)
-- `docs/RISK_CLI_GUIDE.md` (1,400 lines)
+- `docs/guides/RISK_ANALYSIS_USER_GUIDE.md` (2,900 lines)
+- `docs/guides/RISK_ANALYSIS_QUICK_REFERENCE.md` (700 lines)
+- `docs/reports/RISK_GUI_IMPLEMENTATION.md` (2,400 lines)
+- `docs/guides/RISK_CLI_GUIDE.md` (1,400 lines)
 - `README_RISK_ANALYSIS_ADDITION.md` (600 lines)
 - `RELEASE_NOTES_v1.1.0.md` (complete)
 - `PRODUCTION_DEPLOYMENT_CHECKLIST_v1.1.0.md` (complete)
@@ -382,25 +382,25 @@ The PMHelper Risk Analysis Module has been **successfully implemented and is rea
 
 ### Documentation (8,000+ lines)
 
-1. **docs/RISK_ANALYSIS_USER_GUIDE.md** (2,900 lines)
+1. **docs/guides/RISK_ANALYSIS_USER_GUIDE.md** (2,900 lines)
 
    - Complete feature documentation
    - Worked examples
    - Troubleshooting
 
-2. **docs/RISK_ANALYSIS_QUICK_REFERENCE.md** (700 lines)
+2. **docs/guides/RISK_ANALYSIS_QUICK_REFERENCE.md** (700 lines)
 
    - Formula reference
    - Parameter guidelines
    - Quick lookup
 
-3. **docs/RISK_GUI_IMPLEMENTATION.md** (2,400 lines)
+3. **docs/reports/RISK_GUI_IMPLEMENTATION.md** (2,400 lines)
 
    - Architecture documentation
    - Implementation details
    - Testing procedures
 
-4. **docs/RISK_CLI_GUIDE.md** (1,400 lines)
+4. **docs/guides/RISK_CLI_GUIDE.md** (1,400 lines)
 
    - Complete command reference
    - Usage examples

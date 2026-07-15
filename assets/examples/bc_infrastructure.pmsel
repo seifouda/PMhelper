@@ -1,0 +1,78 @@
+{
+  "version": "1.0",
+  "id": "bc_infrastructure_001",
+  "name": "Infrastructure Projects B/C Analysis",
+  "description": "Benefit-to-Cost analysis of 3 mutually exclusive infrastructure projects. This example demonstrates incremental B/C analysis with capital recovery calculations.",
+  "method": "benefit_cost",
+  "created_at": "2024-01-15T10:00:00",
+  "updated_at": "2024-01-15T10:00:00",
+  "metadata": {
+    "author": "PMHelper Team",
+    "category": "Infrastructure",
+    "difficulty": "Intermediate",
+    "expected_results": {
+      "marr": 0.12,
+      "analysis_type": "mutually_exclusive",
+      "optimal_project": "Project C",
+      "bc_ratios": {
+        "Project A": 1.065,
+        "Project B": 1.089,
+        "Project C": 1.136
+      },
+      "incremental_analysis": [
+        {
+          "comparison": "Do Nothing vs Project A",
+          "incremental_bc": 1.065,
+          "decision": "Accept Project A"
+        },
+        {
+          "comparison": "Project A vs Project B",
+          "incremental_bc": 0.947,
+          "decision": "Reject Project B, keep Project A"
+        },
+        {
+          "comparison": "Project A vs Project C",
+          "incremental_bc": 1.039,
+          "decision": "Accept Project C (optimal)"
+        }
+      ],
+      "notes": "Project C is optimal with B/C ratio of 1.136. Although Project B has higher individual B/C than A (1.089 > 1.065), the incremental analysis shows the extra investment in B is not justified (incremental B/C = 0.947 < 1.0). Project C's incremental B/C of 1.039 makes it worth the additional investment over Project A."
+    }
+  },
+  "marr": 0.12,
+  "projects": [
+    {
+      "name": "Project A",
+      "description": "Bridge upgrade with 10-year life",
+      "cost": 100000,
+      "benefit": 25000,
+      "life": 10,
+      "initial_cost": 100000,
+      "annual_om": 3000,
+      "salvage": 10000,
+      "id": "proj_001"
+    },
+    {
+      "name": "Project B",
+      "description": "New road construction with 10-year life",
+      "cost": 150000,
+      "benefit": 35000,
+      "life": 10,
+      "initial_cost": 150000,
+      "annual_om": 5000,
+      "salvage": 15000,
+      "id": "proj_002"
+    },
+    {
+      "name": "Project C",
+      "description": "Highway expansion with 10-year life",
+      "cost": 200000,
+      "benefit": 48000,
+      "life": 10,
+      "initial_cost": 200000,
+      "annual_om": 8000,
+      "salvage": 20000,
+      "id": "proj_003"
+    }
+  ]
+}

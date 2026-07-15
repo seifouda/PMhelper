@@ -720,8 +720,8 @@ python risk_gui_demo.py
 
 **Step 5: Read Documentation**
 
-- Review [`docs/RISK_ANALYSIS_USER_GUIDE.md`](../guides/RISK_ANALYSIS_USER_GUIDE.md)
-- Check [`docs/RISK_CLI_GUIDE.md`](../guides/RISK_CLI_GUIDE.md) for CLI usage
+- Review [`docs/guides/RISK_ANALYSIS_USER_GUIDE.md`](../guides/RISK_ANALYSIS_USER_GUIDE.md)
+- Check [`docs/guides/RISK_CLI_GUIDE.md`](../guides/RISK_CLI_GUIDE.md) for CLI usage
 
 ---
 
@@ -891,7 +891,7 @@ Submit feedback via GitHub Issues or Discussions.
 
 PMHelper v1.1.0 is released under the same license as v1.0.0.
 
-See [LICENSE](LICENSE) file for details.
+See [LICENSE](../../LICENSE) file for details.
 
 ---
 

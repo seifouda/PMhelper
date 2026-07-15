@@ -1,5 +1,16 @@
 # PMHelper Server - CORRECTED Implementation Plan for AI Agent
 
+> ### 📜 Historical design document — not a description of the current code
+>
+> This is a **plan**: it records what was *intended* at the time it was written,
+> not what was built. Module and test paths named here (e.g. `evm_tab.py`,
+> `monte_carlo.py`, `core/evm_engine.py`) may never have existed, may have shipped
+> under different names, or may live elsewhere after the repo reorganisation.
+>
+> **Don't read it as current state, and don't "fix" it to match the code** — that
+> would destroy the record of what was intended. For where things actually are,
+> see [`README.md`](../../README.md) and [`docs/README.md`](../README.md).
+
 > **Version 2.0** - Simplified, pragmatic, and production-ready based on critical review feedback  
 > **📄 See Also**: [`CRITICAL_FIXES_APPLIED.md`](../reports/CRITICAL_FIXES_APPLIED.md) for detailed explanation of all corrections
 

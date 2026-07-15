@@ -33,7 +33,7 @@ PMhelper/
 │       └── websockets/
 │           └── calculation_ws.py
 │
-├── frontend/                    # Angular app
+├── web/                        # Angular app
 ├── data/                        # Runtime data
 ├── docker-compose.yml
 └── Dockerfile
@@ -516,7 +516,7 @@ async def health_check():
 
 
 # Serve Angular static files (production only)
-angular_dist = os.path.join(os.path.dirname(__file__), "../../../frontend/dist")
+angular_dist = os.path.join(os.path.dirname(__file__), "../../../web/dist/pmhelper-edu-web")
 if os.path.exists(angular_dist):
     app.mount("/", StaticFiles(directory=angular_dist, html=True), name="angular")
     logger.info(f"✅ Serving Angular app from {angular_dist}")
@@ -685,13 +685,13 @@ docker-compose down
 ### 9.1 Install Dependencies
 
 ```bash
-cd frontend
+cd web
 npm install
 ```
 
 ### 9.2 Create WebSocket Service
 
-**File**: `frontend/src/app/services/calculation.service.ts`
+**File**: `web/src/app/services/calculation.service.ts`
 
 ```typescript
 import { Injectable } from "@angular/core";

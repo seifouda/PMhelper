@@ -35,10 +35,21 @@ Edit the relevant `src/pmhelper/cli/<x>_cli.py`; keep it a thin wrapper that par
 args and calls `core/`. Support `--output` for text/JSON/CSV like the others.
 
 ## Adding an API endpoint
-Add a route under `src/pmhelper/server/api/` and a schema in
-`server/api/models/schemas.py`; call into `calculations.py`/`core`. CPU-bound calc
-should run in a thread-pool executor (see `calculate_pm_value_async`), not block
-the event loop.
+Add a router module under `src/pmhelper/server/api/routes/` and a schema in
+`server/api/models/schemas.py`, then mount it in `server/main.py` (the single
+FastAPI app). Call into `core/` directly — `api/routes/web.py` is the model to
+copy. **Don't route it through `src/pmhelper/calculations.py`**: that is a
+placeholder stub, not the calc engine (see [[understand-this-codebase]]).
+
+CPU-bound calc should run in a thread-pool executor rather than blocking the event
+loop (`run_in_executor`).
+
+Two traps in `server/main.py`:
+- The SPA catch-all `@app.get("/{full_path:path}")` matches in registration order
+  and **swallows anything mounted after it** — your `include_router` must go
+  above it, or the route silently returns `index.html` instead of 404ing.
+- `web.py`'s endpoints are rate-limited via `app.state.limiter`. Tests that hit
+  them repeatedly get 429; set `limiter.enabled = False` in the test.
 
 ## Before you finish
 - Run [[run-tests]] — the suite must still collect and your new tests pass.

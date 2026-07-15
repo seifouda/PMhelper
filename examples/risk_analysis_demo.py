@@ -9,6 +9,14 @@ This script demonstrates all four risk analysis capabilities:
 4. Activity Risk Prioritization
 """
 
+import sys
+
+# The default Windows console is cp1252 and raises UnicodeEncodeError on the
+# box-drawing and check-mark glyphs this demo prints. Force UTF-8 so it runs
+# on a stock Windows terminal as documented.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 import pandas as pd
 from pmhelper.core.pert_analyzer import PERTAnalyzer
 

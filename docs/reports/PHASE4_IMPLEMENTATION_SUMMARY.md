@@ -238,7 +238,7 @@ TestBackendIntegration:              4/4 passed
 
 ### 4. Documentation (Week 16)
 
-#### File: `docs/COST_OPTIMIZATION_USER_GUIDE.md` (560 lines)
+#### File: `docs/guides/COST_OPTIMIZATION_USER_GUIDE.md` (560 lines)
 
 **Contents:**
 

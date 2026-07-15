@@ -94,7 +94,7 @@ Created 3 CSV files with realistic PERT data:
 
 ### 5. Documentation
 
-#### ✅ User Guide (`docs/RISK_ANALYSIS_USER_GUIDE.md`)
+#### ✅ User Guide (`docs/guides/RISK_ANALYSIS_USER_GUIDE.md`)
 
 - Complete feature documentation
 - Code examples for each capability
@@ -258,7 +258,7 @@ Successfully integrated with existing modules:
 | Sample Data 1     | `assets/risk_examples/delay_analysis_simple.csv` | ✅ Complete |
 | Sample Data 2     | `assets/risk_examples/contingency_planning.csv`  | ✅ Complete |
 | Sample Data 3     | `assets/risk_examples/variance_reduction.csv`    | ✅ Complete |
-| User Guide        | `docs/RISK_ANALYSIS_USER_GUIDE.md`               | ✅ Complete |
+| User Guide        | `docs/guides/RISK_ANALYSIS_USER_GUIDE.md`               | ✅ Complete |
 | Demo Script       | `risk_analysis_demo.py`                          | ✅ Complete |
 
 ## 🎉 Success Criteria Met

@@ -1,0 +1,115 @@
+{
+  "version": "1.0",
+  "id": "ahp_example_simple",
+  "name": "Simple AHP - 3 Criteria",
+  "description": "Simplified AHP example with only 3 criteria for learning the method. Based on classic lecture example.",
+  "method": "ahp",
+  "created_at": "2024-01-15T10:00:00",
+  "updated_at": "2024-01-15T10:00:00",
+  "metadata": {
+    "author": "PMHelper Team",
+    "category": "Tutorial",
+    "difficulty": "Beginner",
+    "expected_results": {
+      "consistency_ratio": 0.08,
+      "criterion_weights": {
+        "Cost": 0.54,
+        "Quality": 0.3,
+        "Speed": 0.16
+      },
+      "notes": "This is the classic 3-criteria example from many PM textbooks. Cost is most important (54%), followed by Quality (30%) and Speed (16%). The CR of 0.08 is well below the 0.10 threshold, indicating excellent consistency."
+    }
+  },
+  "criteria": [
+    {
+      "name": "Cost",
+      "direction": "minimize",
+      "weight": 0.0,
+      "description": "Total project cost"
+    },
+    {
+      "name": "Quality",
+      "direction": "maximize",
+      "weight": 0.0,
+      "description": "Deliverable quality"
+    },
+    {
+      "name": "Speed",
+      "direction": "maximize",
+      "weight": 0.0,
+      "description": "Time to completion"
+    }
+  ],
+  "ahp_matrix": {
+    "criteria": [
+      "Cost",
+      "Quality",
+      "Speed"
+    ],
+    "comparisons": {
+      "Cost": {
+        "Quality": 3.0,
+        "Speed": 5.0
+      },
+      "Quality": {
+        "Speed": 2.0
+      }
+    },
+    "notes": "Cost vs Quality = 3 (Cost is moderately more important), Cost vs Speed = 5 (Cost is strongly more important), Quality vs Speed = 2 (Quality is slightly more important).",
+    "matrix": [
+      [
+        1.0,
+        3.0,
+        5.0
+      ],
+      [
+        0.3333333333333333,
+        1.0,
+        2.0
+      ],
+      [
+        0.2,
+        0.5,
+        1.0
+      ]
+    ]
+  },
+  "alternatives": [
+    {
+      "name": "Alternative A",
+      "scores": {
+        "Cost": 3.0,
+        "Quality": 9.0,
+        "Speed": 5.0
+      },
+      "id": "alt_001",
+      "metadata": {
+        "description": "High cost, high quality option"
+      }
+    },
+    {
+      "name": "Alternative B",
+      "scores": {
+        "Cost": 7.0,
+        "Quality": 6.0,
+        "Speed": 7.0
+      },
+      "id": "alt_002",
+      "metadata": {
+        "description": "Balanced option"
+      }
+    },
+    {
+      "name": "Alternative C",
+      "scores": {
+        "Cost": 9.0,
+        "Quality": 4.0,
+        "Speed": 8.0
+      },
+      "id": "alt_003",
+      "metadata": {
+        "description": "Low cost, lower quality option"
+      }
+    }
+  ]
+}

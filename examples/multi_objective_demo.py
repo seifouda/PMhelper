@@ -15,6 +15,10 @@ Version: 1.1.0
 """
 
 import sys
+
+# cp1252 Windows consoles cannot encode the box-drawing glyphs below.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 import os
 import pandas as pd
 import numpy as np

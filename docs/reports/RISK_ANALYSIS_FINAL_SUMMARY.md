@@ -164,7 +164,7 @@ The Risk Analysis Module for PMHelper has been successfully implemented, providi
 
 **Documentation**:
 
-- `docs/RISK_GUI_IMPLEMENTATION.md` (2,500+ lines)
+- `docs/reports/RISK_GUI_IMPLEMENTATION.md` (2,500+ lines)
 - `risk_gui_demo.py` (300 lines)
 
 **Testing**: Manual testing complete, all features functional
@@ -223,7 +223,7 @@ The Risk Analysis Module for PMHelper has been successfully implemented, providi
 
 **Documentation**:
 
-- `docs/RISK_CLI_GUIDE.md` (1,400+ lines)
+- `docs/guides/RISK_CLI_GUIDE.md` (1,400+ lines)
 - Quick start guide
 - Complete command reference
 - Common workflows
@@ -1059,10 +1059,10 @@ The Risk Analysis Module for PMHelper has been successfully implemented with all
 
 **Documentation**:
 
-- docs/RISK_ANALYSIS_USER_GUIDE.md (500 lines)
-- docs/RISK_ANALYSIS_QUICK_REFERENCE.md (200 lines)
-- docs/RISK_GUI_IMPLEMENTATION.md (2,500 lines)
-- docs/RISK_CLI_GUIDE.md (1,400 lines)
+- docs/guides/RISK_ANALYSIS_USER_GUIDE.md (500 lines)
+- docs/guides/RISK_ANALYSIS_QUICK_REFERENCE.md (200 lines)
+- docs/reports/RISK_GUI_IMPLEMENTATION.md (2,500 lines)
+- docs/guides/RISK_CLI_GUIDE.md (1,400 lines)
 
 **Demo Scripts**:
 

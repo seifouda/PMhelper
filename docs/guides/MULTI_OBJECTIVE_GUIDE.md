@@ -198,7 +198,7 @@ Convert CPM analysis results to cash flow activities:
 
 ```python
 from pmhelper.core.npv_optimization import activities_from_cpm_with_cashflows
-from pmhelper.analysis.cpm_analyzer import CPMAnalyzer
+from pmhelper.core.cpm_analyzer import CPMAnalyzer
 
 # Perform CPM analysis
 cpm = CPMAnalyzer()

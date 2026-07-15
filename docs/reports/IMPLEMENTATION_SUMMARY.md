@@ -195,7 +195,7 @@ git push origin production
 ## 📚 Documentation
 
 - Main deployment guide: `README_DEPLOYMENT.md`
-- Implementation plan: `docs/AGENT_IMPLEMENTATION_PLAN.md`
+- Implementation plan: `docs/plans/AGENT_IMPLEMENTATION_PLAN.md`
 - API docs available at: `/api/docs` (when DEBUG=true)
 
 ---

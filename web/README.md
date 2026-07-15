@@ -1,27 +1,66 @@
-# PmhelperEduWeb
+# PMHelper Edu — web frontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.9.
+The Angular frontend for PMHelper Edu (`pmhelper-edu-web`), generated with
+[Angular CLI](https://github.com/angular/angular-cli) 18.2.9 and styled with
+Tailwind.
+
+It is a **client for the FastAPI backend** — it calls `/api/web/*` and does no
+analysis of its own. Start the API before using the app, or every request fails:
+
+```bash
+# from the repo root, in a separate terminal
+uvicorn pmhelper.server.main:app --reload      # http://localhost:8000
+```
+
+In production the same FastAPI app serves the built bundle, so the frontend and
+API share an origin.
 
 ## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+```bash
+npm install
+npm start          # ng serve -> http://localhost:4200
+```
 
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+The app reloads automatically when you change a source file.
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+```bash
+npm run build      # ng build
+npm run watch      # rebuild on change (development configuration)
+```
 
-## Running unit tests
+Artifacts are written to `dist/pmhelper-edu-web/`.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Tests
 
-## Running end-to-end tests
+```bash
+npm test           # unit tests via Karma
+npm run lint       # ng lint
+```
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+### End-to-end (Cypress)
+
+Cypress is **already installed and configured** (`cypress/`, `cypress.config.ts`) —
+you don't need to add an e2e package:
+
+```bash
+npm run e2e        # cypress run  (headless)
+npm run e2e:open   # cypress open (interactive)
+```
+
+Use those scripts, **not `ng e2e`** — there is no `e2e` target in `angular.json`,
+so the Angular CLI can't run them.
+
+## Code scaffolding
+
+```bash
+ng generate component component-name
+# also: directive | pipe | service | class | guard | interface | enum | module
+```
 
 ## Further help
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+`ng help`, or the
+[Angular CLI Overview and Command Reference](https://angular.dev/tools/cli).

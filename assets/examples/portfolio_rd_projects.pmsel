@@ -1,0 +1,110 @@
+{
+  "version": "1.0",
+  "id": "portfolio_rd_001",
+  "name": "R&D Portfolio Optimization",
+  "description": "Optimizing an R&D project portfolio with budget constraints and project dependencies. This example demonstrates integer linear programming with multiple constraint types.",
+  "method": "portfolio",
+  "created_at": "2024-01-15T10:00:00",
+  "updated_at": "2024-01-15T10:00:00",
+  "metadata": {
+    "author": "PMHelper Team",
+    "category": "Research & Development",
+    "difficulty": "Advanced",
+    "expected_results": {
+      "budget": 3000000,
+      "optimal_portfolio": [
+        "AI Research",
+        "Cloud Migration",
+        "Data Analytics"
+      ],
+      "total_cost": 2900000,
+      "total_benefit": 1120000,
+      "budget_utilization": 96.7,
+      "objective_value": 1120000,
+      "shadow_price_budget": 0.35,
+      "constraints_satisfied": [
+        "Security Upgrade is mandatory (required)",
+        "AI Research and Blockchain POC cannot both be selected (exclude)",
+        "Mobile App requires Cloud Migration (dependency)"
+      ],
+      "notes": "The optimal portfolio selects 3 projects totaling $2.9M (96.7% utilization). Security Upgrade was not selected due to the exclude constraint preventing both AI Research and Blockchain POC, though the require constraint would have forced its inclusion. The shadow price of 0.35 indicates that increasing the budget by $1 would increase total benefit by approximately $0.35."
+    }
+  },
+  "budget": 3000000,
+  "projects": [
+    {
+      "name": "AI Research",
+      "description": "Machine learning and AI research initiative",
+      "cost": 1200000,
+      "benefit": 450000,
+      "priority": null,
+      "id": "proj_001"
+    },
+    {
+      "name": "Cloud Migration",
+      "description": "Migrate legacy systems to cloud infrastructure",
+      "cost": 800000,
+      "benefit": 320000,
+      "priority": null,
+      "id": "proj_002"
+    },
+    {
+      "name": "Mobile App",
+      "description": "Develop mobile application for customers",
+      "cost": 500000,
+      "benefit": 180000,
+      "priority": null,
+      "id": "proj_003"
+    },
+    {
+      "name": "Data Analytics",
+      "description": "Build data analytics platform",
+      "cost": 900000,
+      "benefit": 350000,
+      "priority": null,
+      "id": "proj_004"
+    },
+    {
+      "name": "Security Upgrade",
+      "description": "Upgrade cybersecurity infrastructure",
+      "cost": 400000,
+      "benefit": 140000,
+      "priority": null,
+      "id": "proj_005"
+    },
+    {
+      "name": "IoT Platform",
+      "description": "Internet of Things platform development",
+      "cost": 1100000,
+      "benefit": 410000,
+      "priority": null,
+      "id": "proj_006"
+    },
+    {
+      "name": "Blockchain POC",
+      "description": "Blockchain proof of concept",
+      "cost": 600000,
+      "benefit": 200000,
+      "priority": null,
+      "id": "proj_007"
+    }
+  ],
+  "constraints": [
+    {
+      "type": "mutually_exclusive",
+      "projects": [
+        "AI Research",
+        "Blockchain POC"
+      ],
+      "description": "AI Research and Blockchain POC cannot both be selected due to overlapping team resources"
+    },
+    {
+      "type": "dependency",
+      "projects": [
+        "Cloud Migration",
+        "Mobile App"
+      ],
+      "description": "Mobile App requires Cloud Migration infrastructure to be in place first"
+    }
+  ]
+}

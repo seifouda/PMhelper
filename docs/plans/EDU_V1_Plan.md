@@ -1,5 +1,16 @@
 # PMhelper Edu — V1 Implementation Plan
 
+> ### 📜 Historical design document — not a description of the current code
+>
+> This is a **plan**: it records what was *intended* at the time it was written,
+> not what was built. Module and test paths named here (e.g. `evm_tab.py`,
+> `monte_carlo.py`, `core/evm_engine.py`) may never have existed, may have shipped
+> under different names, or may live elsewhere after the repo reorganisation.
+>
+> **Don't read it as current state, and don't "fix" it to match the code** — that
+> would destroy the record of what was intended. For where things actually are,
+> see [`README.md`](../../README.md) and [`docs/README.md`](../README.md).
+
 > **Scope:** All ~50 V1 features from `FEATURES_LIST_EDU.md`
 > **Approach:** 1 developer + AI agent assistance
 > **Estimated Calendar Time:** ~21 weeks (parallelism in Phases 2+3 recovers ~2 weeks; ~1 week buffer in Phase 4; Phase 8 adds ~2 weeks)

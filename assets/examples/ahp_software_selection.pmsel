@@ -1,0 +1,157 @@
+{
+  "version": "1.0",
+  "id": "ahp_software_selection_001",
+  "name": "Software Platform Selection",
+  "description": "Selecting a software platform using AHP with 4 criteria and 3 alternatives. This example demonstrates proper pairwise comparisons and consistency checking.",
+  "method": "ahp",
+  "created_at": "2024-01-15T10:00:00",
+  "updated_at": "2024-01-15T10:00:00",
+  "metadata": {
+    "author": "PMHelper Team",
+    "category": "Software Selection",
+    "difficulty": "Beginner",
+    "expected_results": {
+      "consistency_ratio": 0.0115,
+      "criterion_weights": {
+        "Cost": 0.0959,
+        "Quality": 0.2772,
+        "Speed": 0.161,
+        "Support": 0.4659
+      },
+      "ranking": [
+        {
+          "rank": 1,
+          "alternative": "Software B",
+          "score": 7.721
+        },
+        {
+          "rank": 2,
+          "alternative": "Software A",
+          "score": 7.127
+        },
+        {
+          "rank": 3,
+          "alternative": "Software C",
+          "score": 6.997
+        }
+      ],
+      "notes": "Support is the most important criterion (46.59%), followed by Quality (27.72%). The consistency ratio of 0.0115 indicates excellent consistency in the pairwise comparisons."
+    }
+  },
+  "criteria": [
+    {
+      "name": "Cost",
+      "direction": "minimize",
+      "weight": 0.0,
+      "description": "Total cost of ownership including licensing and maintenance"
+    },
+    {
+      "name": "Quality",
+      "direction": "maximize",
+      "weight": 0.0,
+      "description": "Software quality including features, reliability, and performance"
+    },
+    {
+      "name": "Speed",
+      "direction": "maximize",
+      "weight": 0.0,
+      "description": "Processing speed and responsiveness"
+    },
+    {
+      "name": "Support",
+      "direction": "maximize",
+      "weight": 0.0,
+      "description": "Vendor support quality and availability"
+    }
+  ],
+  "ahp_matrix": {
+    "criteria": [
+      "Cost",
+      "Quality",
+      "Speed",
+      "Support"
+    ],
+    "matrix": [
+      [
+        1.0,
+        0.333,
+        0.5,
+        0.25
+      ],
+      [
+        3.0,
+        1.0,
+        2.0,
+        0.5
+      ],
+      [
+        2.0,
+        0.5,
+        1.0,
+        0.333
+      ],
+      [
+        4.0,
+        2.0,
+        3.0,
+        1.0
+      ]
+    ],
+    "comparisons": {
+      "Cost": {
+        "Quality": 0.333,
+        "Speed": 0.5,
+        "Support": 0.25
+      },
+      "Quality": {
+        "Speed": 2.0,
+        "Support": 0.5
+      },
+      "Speed": {
+        "Support": 0.333
+      }
+    },
+    "notes": "Pairwise comparisons on Saaty's 1-9 scale"
+  },
+  "alternatives": [
+    {
+      "id": "alt_001",
+      "name": "Software A",
+      "scores": {
+        "Cost": 8.5,
+        "Quality": 7.2,
+        "Speed": 8.0,
+        "Support": 6.5
+      },
+      "metadata": {
+        "description": "Enterprise solution with comprehensive features"
+      }
+    },
+    {
+      "id": "alt_002",
+      "name": "Software B",
+      "scores": {
+        "Cost": 7.0,
+        "Quality": 8.5,
+        "Speed": 6.0,
+        "Support": 8.0
+      },
+      "metadata": {
+        "description": "Cloud-based platform with excellent support"
+      }
+    },
+    {
+      "id": "alt_003",
+      "name": "Software C",
+      "scores": {
+        "Cost": 6.5,
+        "Quality": 6.0,
+        "Speed": 9.0,
+        "Support": 7.0
+      },
+      "metadata": {
+        "description": "Fast and lightweight solution"
+      }
+    }
+  ]
+}

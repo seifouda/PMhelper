@@ -83,33 +83,39 @@
 ```
 PMhelper/
 ├── src/pmhelper/
-│   ├── core/                      # 🎯 Business Logic (Independent)
-│   │   ├── calculator.py          # Pure calculation logic
-│   │   ├── models.py              # Domain models
-│   │   └── services.py            # Business orchestration
+│   ├── core/                      # 🎯 Business Logic (pure, no UI/IO)
+│   │   ├── cpm_analyzer.py        # CPM engine
+│   │   ├── pert_analyzer.py       # PERT engine
+│   │   ├── models.py              # Selection domain models (pydantic)
+│   │   └── ...                    # one module per PM domain
+│   │
+│   ├── calculations.py            # ⚠️ placeholder stub — NOT the calc engine
 │   │
 │   └── server/                    # 🌐 Server Infrastructure
-│       ├── main.py                # FastAPI app entry
+│       ├── main.py                # FastAPI app entry (the single app)
 │       ├── config.py              # Configuration
 │       ├── api/
-│       │   └── calculations.py    # REST endpoints
+│       │   ├── routes/            # REST endpoints (web, calculations,
+│       │   │                      #   projects, analysis, selection)
+│       │   └── models/schemas.py  # Request/response schemas
 │       ├── database/
-│       │   ├── connection.py      # ✅ Optimized for old laptop
+│       │   ├── connection.py      # Engine + session (SQLite timeout lives here)
 │       │   └── models.py          # SQLAlchemy models
+│       ├── services/              # Orchestration (analysis_service.py …)
 │       └── websockets/
 │           └── calculation_ws.py  # Real-time handler
 │
-├── frontend/                      # Angular application
+├── web/                           # Angular application
 │   ├── src/
-│   └── dist/                      # Built files (served by FastAPI)
+│   └── dist/pmhelper-edu-web/     # Built files (served by FastAPI)
 │
 ├── data/
 │   └── pmhelper.db               # SQLite database
 │
 ├── docs/
-│   ├── SERVER_ARCHITECTURE.md     # This document's full version
-│   ├── IMPLEMENTATION_GUIDE.md    # Step-by-step guide
-│   └── DATABASE_OPTIMIZATIONS.md  # DB config details
+│   ├── guides/SERVER_ARCHITECTURE.md   # This document's full version
+│   ├── guides/IMPLEMENTATION_GUIDE.md  # Step-by-step guide
+│   └── reports/DATABASE_OPTIMIZATIONS.md  # DB config details
 │
 ├── docker-compose.yml             # Container setup
 ├── Dockerfile                     # Container definition
@@ -120,14 +126,21 @@ PMhelper/
 
 ## Implementation Checklist
 
+> **Historical.** This checklist described an intended layout that the code took a
+> different route to. The work exists, under different names — the unchecked boxes
+> below are not outstanding work. Kept for context; see the tree above for reality.
+
 ### ✅ Phase 1: Core Setup
 
-- [x] Database connection optimized
-- [ ] Create core calculation logic (`core/calculator.py`)
-- [ ] Create service layer (`core/services.py`)
-- [ ] Create REST API endpoints (`server/api/calculations.py`)
-- [ ] Create WebSocket handler (`server/websockets/calculation_ws.py`)
-- [ ] Update main.py with all components
+- [x] Database connection optimized (`server/database/connection.py`)
+- [x] Core calculation logic — landed as `core/<domain>_analyzer.py` /
+      `core/<domain>_edu.py`, not a single `core/calculator.py`
+- [x] Service layer — landed as `server/services/analysis_service.py`,
+      not `core/services.py`
+- [x] REST API endpoints — landed under `server/api/routes/`,
+      not `server/api/calculations.py`
+- [x] WebSocket handler (`server/websockets/calculation_ws.py`)
+- [x] `server/main.py` wires all of it together
 
 ### 🔄 Phase 2: Docker & Deployment
 
@@ -329,8 +342,8 @@ uvicorn pmhelper.server.main:app --reload
 # Run tests
 pytest
 
-# Test specific calculation
-python -c "from pmhelper.core.calculator import Calculator; import asyncio; asyncio.run(Calculator().calculate(...))"
+# Smoke-test the calc engine directly
+python -c "from pmhelper.core.cpm_analyzer import CPMAnalyzer; g,cp,ca = CPMAnalyzer().analyze([{'id':'A','duration':3,'predecessors':''},{'id':'B','duration':4,'predecessors':'A'}]); print('critical path:', cp)"
 ```
 
 ### Docker

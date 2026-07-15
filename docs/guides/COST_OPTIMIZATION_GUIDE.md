@@ -141,7 +141,7 @@ export_optimization_results(curve, result, 'results.xlsx', format='excel')
 A complete demonstration is available:
 
 ```bash
-python cost_optimization_demo.py
+python examples/cost_optimization_demo.py
 ```
 
 This will:
@@ -362,7 +362,7 @@ For issues or questions:
 
 - GitHub Issues: https://github.com/seifouda/PMhelper/issues
 - Documentation: See `/docs` folder
-- Examples: See `cost_optimization_demo.py`
+- Examples: See `examples/cost_optimization_demo.py`
 
 ## Version History
 

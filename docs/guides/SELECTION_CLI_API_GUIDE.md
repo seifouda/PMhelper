@@ -317,7 +317,7 @@ The PMHelper Selection API provides REST endpoints for all selection methods.
 python -m pmhelper.server.main
 
 # Or use uvicorn directly
-uvicorn pmhelper.server.api.main:app --reload --port 8000
+uvicorn pmhelper.server.main:app --reload --port 8000
 ```
 
 The API will be available at: **http://localhost:8000**

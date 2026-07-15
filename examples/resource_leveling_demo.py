@@ -10,6 +10,14 @@ Shows how to:
 5. Generate reports
 """
 
+import sys
+
+# The default Windows console is cp1252 and raises UnicodeEncodeError on the
+# box-drawing and check-mark glyphs this demo prints. Force UTF-8 so it runs
+# on a stock Windows terminal as documented.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from pmhelper.core.resource_leveling import (

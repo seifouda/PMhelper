@@ -1,0 +1,119 @@
+{
+  "version": "1.0",
+  "id": "linear_scoring_example_001",
+  "name": "Vendor Selection",
+  "description": "Evaluating 4 vendors using Linear Scoring with weighted criteria. This example demonstrates normalization for both maximize and minimize criteria.",
+  "method": "linear_scoring",
+  "created_at": "2024-01-15T10:00:00",
+  "updated_at": "2024-01-15T10:00:00",
+  "metadata": {
+    "author": "PMHelper Team",
+    "category": "Procurement",
+    "difficulty": "Beginner",
+    "expected_results": {
+      "ranking": [
+        {
+          "rank": 1,
+          "alternative": "Vendor D",
+          "total_score": 5.933
+        },
+        {
+          "rank": 2,
+          "alternative": "Vendor A",
+          "total_score": 5.237
+        },
+        {
+          "rank": 3,
+          "alternative": "Vendor B",
+          "total_score": 4.467
+        },
+        {
+          "rank": 4,
+          "alternative": "Vendor C",
+          "total_score": 3.8
+        }
+      ],
+      "notes": "Vendor D ranks first due to excellent reliability (95) and ease of use (90), despite moderate performance (80) and cost (7100). The normalization converts all criteria to 1-9 scale: maximize criteria use S = 1 + ((X - X_min)/(X_max - X_min)) * 8, minimize criteria use S = 1 + ((X_max - X)/(X_max - X_min)) * 8."
+    }
+  },
+  "criteria": [
+    {
+      "name": "Performance",
+      "direction": "maximize",
+      "weight": 0.35,
+      "description": "System performance and throughput"
+    },
+    {
+      "name": "Cost",
+      "direction": "minimize",
+      "weight": 0.25,
+      "description": "Total annual cost"
+    },
+    {
+      "name": "Reliability",
+      "direction": "maximize",
+      "weight": 0.25,
+      "description": "System uptime and reliability score"
+    },
+    {
+      "name": "Ease_of_Use",
+      "direction": "maximize",
+      "weight": 0.15,
+      "description": "User satisfaction and ease of use rating"
+    }
+  ],
+  "alternatives": [
+    {
+      "name": "Vendor A",
+      "scores": {
+        "Performance": 85,
+        "Cost": 7500,
+        "Reliability": 92,
+        "Ease_of_Use": 78
+      },
+      "id": "alt_001",
+      "metadata": {
+        "description": "High-performance solution with premium cost"
+      }
+    },
+    {
+      "name": "Vendor B",
+      "scores": {
+        "Performance": 78,
+        "Cost": 6200,
+        "Reliability": 88,
+        "Ease_of_Use": 85
+      },
+      "id": "alt_002",
+      "metadata": {
+        "description": "Cost-effective option with good ease of use"
+      }
+    },
+    {
+      "name": "Vendor C",
+      "scores": {
+        "Performance": 92,
+        "Cost": 8900,
+        "Reliability": 85,
+        "Ease_of_Use": 72
+      },
+      "id": "alt_003",
+      "metadata": {
+        "description": "Top performance but highest cost"
+      }
+    },
+    {
+      "name": "Vendor D",
+      "scores": {
+        "Performance": 80,
+        "Cost": 7100,
+        "Reliability": 95,
+        "Ease_of_Use": 90
+      },
+      "id": "alt_004",
+      "metadata": {
+        "description": "Balanced solution with excellent reliability"
+      }
+    }
+  ]
+}

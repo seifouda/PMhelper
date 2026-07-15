@@ -230,7 +230,7 @@ Files Generated:
 
 ## Documentation
 
-### User Guide (`docs/MULTI_OBJECTIVE_GUIDE.md`)
+### User Guide (`docs/guides/MULTI_OBJECTIVE_GUIDE.md`)
 
 **Sections:**
 
@@ -473,7 +473,7 @@ Total schedules = ∏(float_i + 1) for non-critical activities
 
 ### Documentation:
 
-7. `docs/MULTI_OBJECTIVE_GUIDE.md` (385 lines)
+7. `docs/guides/MULTI_OBJECTIVE_GUIDE.md` (385 lines)
 8. `MULTI_OBJECTIVE_IMPLEMENTATION_SUMMARY.md` (this file)
 
 **Total:** 8 new files, 3,006 lines of code

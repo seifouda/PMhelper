@@ -120,10 +120,10 @@ risk_scores = analyzer.prioritize_activity_risks()
 
 ### Risk Analysis Documentation
 
-- **User Guide**: [`docs/RISK_ANALYSIS_USER_GUIDE.md`](../guides/RISK_ANALYSIS_USER_GUIDE.md) - Complete feature documentation with worked examples
-- **Quick Reference**: [`docs/RISK_ANALYSIS_QUICK_REFERENCE.md`](../guides/RISK_ANALYSIS_QUICK_REFERENCE.md) - Formula reference and parameter guidelines
-- **GUI Guide**: [`docs/RISK_GUI_IMPLEMENTATION.md`](RISK_GUI_IMPLEMENTATION.md) - GUI architecture and usage patterns
-- **CLI Guide**: [`docs/RISK_CLI_GUIDE.md`](../guides/RISK_CLI_GUIDE.md) - Command-line interface complete reference
+- **User Guide**: [`docs/guides/RISK_ANALYSIS_USER_GUIDE.md`](../guides/RISK_ANALYSIS_USER_GUIDE.md) - Complete feature documentation with worked examples
+- **Quick Reference**: [`docs/guides/RISK_ANALYSIS_QUICK_REFERENCE.md`](../guides/RISK_ANALYSIS_QUICK_REFERENCE.md) - Formula reference and parameter guidelines
+- **GUI Guide**: [`docs/reports/RISK_GUI_IMPLEMENTATION.md`](RISK_GUI_IMPLEMENTATION.md) - GUI architecture and usage patterns
+- **CLI Guide**: [`docs/guides/RISK_CLI_GUIDE.md`](../guides/RISK_CLI_GUIDE.md) - Command-line interface complete reference
 - **Demo Scripts**:
   - `risk_analysis_demo.py` - Core algorithm demonstrations
   - `risk_gui_demo.py` - Interactive GUI tour

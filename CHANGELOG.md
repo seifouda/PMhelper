@@ -65,7 +65,6 @@ This is the first public release of PMHelper, a comprehensive project management
 #### Architecture
 
 - **Modular Design**: Separate core analysis engines, GUI components, and utilities
-- **Plugin Architecture**: Extensible framework for additional analysis methods
 - **Error Recovery**: Graceful handling of invalid inputs and edge cases
 - **Performance Optimized**: Efficient algorithms for large project analysis
 
@@ -119,13 +118,32 @@ This is the initial release, so no migration is required. For users upgrading fr
 
 ## [Unreleased]
 
+### Built but not yet cut as a release
+
+These are in the tree on `EDU_PROD` and were previously listed below as "planned":
+
+- **Educational edition (PMHelper Edu)** — the app the project now ships
+  (`python -m pmhelper.edu_main`). A 10-lecture guided workflow with worked
+  solutions: WBS, CPM/AOA, three-point/PERT, probability, crashing, RCPS,
+  resource leveling, EVM, Monte Carlo, risk, RACI, SWOT/PESTEL, charter, and
+  project selection. Note the `pmhelper-gui` console script still launches the
+  legacy v1 window.
+- **Web Interface** — Angular app in `web/`, served by the FastAPI app.
+- **API Integration** — REST API under `src/pmhelper/server/` (`/api/web/*`,
+  `/api/calculations/*`, `/api/projects/*`, `/api/analyze/*`, `/api/selection/*`)
+  plus a WebSocket endpoint.
+- **Risk analysis, cost optimization, multi-objective/Pareto, NPV, and project
+  selection (AHP, linear scoring, benefit-cost, portfolio)** — with CLIs
+  (`risk_cli`, `optimization_cli`, `selection_cli`) and user guides in `docs/guides/`.
+
+See `docs/releases/RELEASE_NOTES_v1.1.0.md`, which describes v1.1.0 as a release
+candidate.
+
 ### Planned Features
 
 #### Version 1.1.0 (Next Minor Release)
 
-- **Web Interface**: Browser-based version for remote access
 - **Enhanced Reporting**: Export to PowerPoint and Word formats
-- **API Integration**: REST API for external tool integration
 - **Performance Improvements**: Faster loading for large projects
 
 #### Version 2.0.0 (Next Major Release)
@@ -137,8 +155,8 @@ This is the initial release, so no migration is required. For users upgrading fr
 
 ### Development Roadmap
 
-- **Q1 2026**: Web interface and enhanced reporting
-- **Q2 2026**: API development and integrations
+- ~~**Q1 2026**: Web interface~~ — built (`web/`); enhanced reporting still open
+- ~~**Q2 2026**: API development and integrations~~ — built (`src/pmhelper/server/`)
 - **Q3 2026**: Machine learning features
 - **Q4 2026**: Mobile applications and collaboration tools
 
