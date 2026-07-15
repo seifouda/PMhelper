@@ -201,7 +201,7 @@ class ProbabilityTabEdu:
 
         # Worked Solution button (UG only)
         self._pert_worked_btn = ttk.Button(
-            left, text="📝 Show Worked Solution",
+            left, text="📊 Show All Calculations",
             command=self._show_pert_worked_solution)
         self._pert_worked_btn.pack(fill=tk.X, padx=4, pady=(6, 4))
 

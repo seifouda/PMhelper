@@ -20,9 +20,11 @@ from pmhelper.gui.widgets.sortable_treeview import enhance_treeview
 class WBSTabEdu:
     """WBS tab with Canvas diagram and tree-list editor."""
 
-    def __init__(self, parent, state):
+    def __init__(self, parent, state, main_window=None):
         self.parent = parent
         self.state = state
+        self.main_window = main_window
+        self._mode = "UG"
         self.frame = ttk.Frame(parent)
 
         if not hasattr(self.state, 'wbs_tree') or self.state.wbs_tree is None:
@@ -199,7 +201,10 @@ class WBSTabEdu:
             side=tk.LEFT,
             padx=8,
             fill=tk.Y)
-        self._cost_toggle_btn = ttk.Button(toolbar, text="💰 Show Costs",
+        # The cost column is built visible (width=60), so the button must
+        # offer the *next* action — Hide. It read "Show" while the column
+        # was already showing, inverting the label on first paint.
+        self._cost_toggle_btn = ttk.Button(toolbar, text="💰 Hide Costs",
                                            command=self._toggle_cost_column)
         self._cost_toggle_btn.pack(side=tk.LEFT, padx=2)
         self._cost_visible = True
@@ -209,6 +214,18 @@ class WBSTabEdu:
             text="Load Costs from Estimation",
             command=self._load_costs_from_estimation)
         self._load_costs_btn.pack(side=tk.LEFT, padx=2)
+
+        self._estimate_btn = ttk.Button(
+            toolbar,
+            text="➡ Estimate from WBS",
+            command=self._estimate_from_wbs)
+        self._estimate_btn.pack(side=tk.LEFT, padx=2)
+
+        # 11.8: flat table view toggle (UG-only)
+        self._table_toggle_btn = ttk.Button(toolbar, text="📋 Table View",
+                                            command=self._toggle_table_view)
+        self._table_toggle_btn.pack(side=tk.LEFT, padx=2)
+        self._flat_view = False
 
         # Main area: PanedWindow with tree list (left) + canvas (right)
         pane = ttk.PanedWindow(self.frame, orient=tk.HORIZONTAL)
@@ -317,8 +334,27 @@ class WBSTabEdu:
     def _refresh_tree_list(self, tree: WBSTree):
         """Refresh the left-hand Treeview list."""
         self._tree_view.delete(*self._tree_view.get_children())
-        # Insert nodes recursively
-        self._insert_tree_children(tree, "", "")
+        if getattr(self, "_flat_view", False):
+            self._insert_flat_rows(tree)
+        else:
+            self._insert_tree_children(tree, "", "")
+
+    def _insert_flat_rows(self, tree: WBSTree):
+        """11.8: one row per node, no nesting — sortable via enhance_treeview."""
+        for node in sorted(tree.nodes, key=lambda n: n.wbs_code):
+            self._tree_view.insert(
+                "", tk.END,
+                iid=node.id,
+                text="",
+                values=(
+                    node.wbs_code,
+                    node.name,
+                    f"{node.duration:.0f}",
+                    f"${node.cost:,.0f}",
+                    f"{node.progress:.0f}%",
+                    node.status.value,
+                ),
+            )
 
     def _insert_tree_children(
             self,
@@ -677,8 +713,38 @@ class WBSTabEdu:
     # ------------------------------------------------------------------
 
     def set_mode(self, mode: str):
-        """Toggle UG/PG mode."""
+        """Toggle UG/PG mode.
+
+        The cost display (11.7) and flat table view (11.8) are UG-only
+        educational aids; hide their toggles in PG.
+        """
         self._mode = mode.upper()
+        for btn in (getattr(self, "_cost_toggle_btn", None),
+                    getattr(self, "_table_toggle_btn", None)):
+            if btn is None:
+                continue
+            if self._mode == "UG":
+                btn.pack(side=tk.LEFT, padx=2)
+            else:
+                btn.pack_forget()
+        # Leaving PG returns to the hierarchical view; the flat table is
+        # a UG aid and shouldn't persist into a mode that can't toggle it.
+        if self._mode != "UG" and getattr(self, "_flat_view", False):
+            self._flat_view = False
+            self._table_toggle_btn.configure(text="📋 Table View")
+            self._tree_view.configure(show="tree headings")
+            self._refresh_all()
+
+    def _toggle_table_view(self):
+        """11.8: switch the node list between hierarchical and flat table."""
+        self._flat_view = not self._flat_view
+        if self._flat_view:
+            self._tree_view.configure(show="headings")
+            self._table_toggle_btn.configure(text="🌳 Tree View")
+        else:
+            self._tree_view.configure(show="tree headings")
+            self._table_toggle_btn.configure(text="📋 Table View")
+        self._refresh_all()
 
     def _toggle_cost_column(self):
         """Show/hide the cost column."""
@@ -698,6 +764,35 @@ class WBSTabEdu:
         self._cost_toggle_btn.configure(
             state="normal" if has_costs else "disabled")
 
+    def _estimate_from_wbs(self):
+        """11.9: send WBS leaf costs to Cost Estimation → Bottom-Up."""
+        tree = self.state.wbs_tree
+        leaves = [(n.name, n.cost) for n in tree.nodes
+                  if n.cost > 0 and not tree.get_children(n.id)]
+        if not leaves:
+            messagebox.showinfo(
+                "Estimate from WBS",
+                "No leaf nodes have a cost set.\n"
+                "Add costs to the work packages first.")
+            return
+        mw = getattr(self, 'main_window', None)
+        ce_tab = getattr(mw, 'tabs', {}).get('cost_estimation') if mw else None
+        if ce_tab is None:
+            messagebox.showinfo("Estimate from WBS",
+                                "Cost Estimation tab not available.")
+            return
+        ce_tab.load_bottom_up_from_wbs(leaves)
+        nb = getattr(mw, 'active_notebook', None)
+        if nb is not None and hasattr(nb, 'select_tab'):
+            try:
+                nb.select_tab(ce_tab.frame)
+            except Exception:
+                pass  # populated regardless; user can switch manually
+        messagebox.showinfo(
+            "Estimate from WBS",
+            f"Loaded {len(leaves)} work package(s) into "
+            "Cost Estimation → Bottom-Up.")
+
     def _load_costs_from_estimation(self):
         """Load cost estimates from the Cost Estimation tab into WBS leaf nodes."""
         mw = getattr(self, 'main_window', None)
@@ -706,54 +801,26 @@ class WBSTabEdu:
                                 "Main window reference not available.")
             return
         # Find the cost estimation tab
-        ce_tab = None
-        for tab in getattr(mw, '_tabs', {}).values():
-            if hasattr(tab, '_results') and hasattr(tab, '_mode'):
-                ce_tab = tab
-                break
-        if ce_tab is None or not ce_tab._results:
+        ce_tab = getattr(mw, 'tabs', {}).get('cost_estimation')
+        if ce_tab is None or not getattr(ce_tab, '_results', None):
             messagebox.showinfo(
                 "Load Costs",
                 "No cost estimation results found.\n"
                 "Run a cost estimation first.")
             return
-        # Pick the first result that has per-item data
+        # CostEstimateResult exposes per-item costs as `breakdown`:
+        # a list of (label, value) pairs. Match labels to WBS leaf names.
         tree = self.state.wbs_tree
+        tree._save_undo()
         loaded = 0
-        for key, result in ce_tab._results.items():
-            items = getattr(
-                result,
-                'items',
-                None) or getattr(
-                result,
-                'line_items',
-                [])
-            if not items:
-                continue
-            for item in items:
-                name = getattr(
-                    item,
-                    'name',
-                    '') or item.get(
-                    'name',
-                    '') if isinstance(
-                    item,
-                    dict) else ''
-                cost = getattr(
-                    item,
-                    'total',
-                    0) or (
-                    item.get(
-                        'total',
-                        0) if isinstance(
-                        item,
-                        dict) else 0)
-                if not name or not cost:
+        for _key, result in ce_tab._results.items():
+            for label, value in getattr(result, 'breakdown', []) or []:
+                if not label or not value:
                     continue
-                # Match by name to WBS leaf nodes
                 for node in tree.nodes:
-                    if node.name.lower() == name.lower() and not tree.get_children(node.id):
-                        node.cost = float(cost)
+                    if (node.name.strip().lower() == str(label).strip().lower()
+                            and not tree.get_children(node.id)):
+                        node.cost = float(value)
                         loaded += 1
                         break
         if loaded:

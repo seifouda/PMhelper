@@ -74,6 +74,8 @@ class FinancialTabEdu:
 
     def set_mode(self, mode: str):
         self._mode = mode.upper()
+        for sub in (self._fin, self._fs):
+            sub.set_mode(self._mode)
 
     def on_tab_selected(self):
         pass
@@ -97,6 +99,7 @@ class _FinancialCalcSubTab:
         self.state = state
         self._result = None
         self._inputs = None
+        self._worked_btn = None
         self._render_mode_var = tk.StringVar(value="matplotlib")
 
         self.frame = ttk.Frame(parent)
@@ -162,8 +165,9 @@ class _FinancialCalcSubTab:
         # Bottom: edu bar
         edu_bar = ttk.Frame(content_frame)
         edu_bar.pack(fill=tk.X, pady=(2, 2))
-        ttk.Button(edu_bar, text="📖 Show Worked Solution",
-                   command=self._show_worked_solution).pack(side=tk.LEFT)
+        self._worked_btn = ttk.Button(edu_bar, text="📊 Show All Calculations",
+                                      command=self._show_worked_solution)
+        self._worked_btn.pack(side=tk.LEFT)
 
         # Practice frame (below content, hidden initially)
         self._practice_frame = ttk.LabelFrame(
@@ -704,6 +708,15 @@ class _FinancialCalcSubTab:
         self._prac_npv_status.set("✓ Revealed")
         self._prac_feedback.set("Answers revealed.")
 
+    def set_mode(self, mode: str):
+        """Show the all-calculations button only in UG mode."""
+        if self._worked_btn is None:
+            return
+        if mode.upper() == "UG":
+            self._worked_btn.pack(side=tk.LEFT)
+        else:
+            self._worked_btn.pack_forget()
+
     def get_figures(self) -> list:
         if HAS_MATPLOTLIB and self._fig is not None:
             return [self._fig]
@@ -766,6 +779,7 @@ class _FactorScoringSubTab:
         self.parent = parent
         self.state = state
         self._result = None
+        self._worked_btn = None
         self._render_mode_var = tk.StringVar(value="matplotlib")
 
         self.frame = ttk.Frame(parent)
@@ -848,8 +862,9 @@ class _FactorScoringSubTab:
         # Edu bar
         edu_bar = ttk.Frame(content_frame)
         edu_bar.pack(fill=tk.X, pady=(2, 2))
-        ttk.Button(edu_bar, text="📖 Show Worked Solution",
-                   command=self._show_worked_solution).pack(side=tk.LEFT)
+        self._worked_btn = ttk.Button(edu_bar, text="📊 Show All Calculations",
+                                      command=self._show_worked_solution)
+        self._worked_btn.pack(side=tk.LEFT)
 
         # Practice frame
         self._practice_frame = ttk.LabelFrame(
@@ -1433,6 +1448,15 @@ class _FactorScoringSubTab:
             self._prac_answer_vars[pname].set(f"{correct:.4f}")
             self._prac_status_vars[pname].set("✓ Revealed")
         self._prac_feedback.set("Answers revealed.")
+
+    def set_mode(self, mode: str):
+        """Show the all-calculations button only in UG mode."""
+        if self._worked_btn is None:
+            return
+        if mode.upper() == "UG":
+            self._worked_btn.pack(side=tk.LEFT)
+        else:
+            self._worked_btn.pack_forget()
 
     def get_figures(self) -> list:
         if HAS_MATPLOTLIB and self._fig is not None:

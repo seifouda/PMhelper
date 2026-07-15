@@ -151,12 +151,11 @@ class RiskTabEdu:
             fill=tk.Y)
         ttk.Button(toolbar, text="📖 Theory",
                    command=self._show_theory).pack(side=tk.LEFT, padx=2)
-        ttk.Button(
+        self._worked_btn = ttk.Button(
             toolbar,
-            text="📖 Show Worked Solution",
-            command=self._show_worked_solution).pack(
-            side=tk.LEFT,
-            padx=2)
+            text="📊 Show All Calculations",
+            command=self._show_worked_solution)
+        self._worked_btn.pack(side=tk.LEFT, padx=2)
 
         # Treeview with horizontal scrollbar
         tree_frame = ttk.Frame(self._register_frame)
@@ -1718,6 +1717,12 @@ class RiskTabEdu:
     def set_mode(self, mode: str):
         """Adjust UI for UG/PG mode."""
         self._mode = mode
+        # Show all-calculations button only in UG mode
+        if getattr(self, "_worked_btn", None) is not None:
+            if mode.upper() == "UG":
+                self._worked_btn.pack(side=tk.LEFT, padx=2)
+            else:
+                self._worked_btn.pack_forget()
 
     def get_figures(self):
         """Return list of (name, Figure) for batch export."""

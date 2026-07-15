@@ -173,10 +173,11 @@ class ThreePointTabEdu:
         # ── Educational bar ──────────────────────────────────────
         edu_bar = ttk.Frame(self._content_frame)
         edu_bar.pack(fill=tk.X, pady=(2, 2))
-        ttk.Button(
-            edu_bar, text="📖 Show Worked Solution",
+        self._worked_btn = ttk.Button(
+            edu_bar, text="📊 Show All Calculations",
             command=self._show_worked_solution,
-        ).pack(side=tk.LEFT)
+        )
+        self._worked_btn.pack(side=tk.LEFT)
 
         # ── Z-Score Table section (collapsible) ─────────────────
         self._build_ztable_section()
@@ -1129,6 +1130,12 @@ class ThreePointTabEdu:
 
     def set_mode(self, mode: str):
         self._mode = mode.upper()
+        # Show all-calculations button only in UG mode
+        if hasattr(self, "_worked_btn"):
+            if self._mode == "UG":
+                self._worked_btn.pack(side=tk.LEFT)
+            else:
+                self._worked_btn.pack_forget()
 
     def on_tab_selected(self):
         """Called when this tab gains focus — no-op unless auto-refresh needed."""

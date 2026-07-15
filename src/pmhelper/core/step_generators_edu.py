@@ -613,10 +613,49 @@ def generate_cpm_steps(
     return [_step_to_dict(s) for s in forward + backward]
 
 
-def generate_pert_steps(results: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Wrapper for the web API — returns serialised PERT steps."""
-    raw = pert_steps(results)
-    return [_step_to_dict(s) for s in raw]
+def generate_pert_steps(graph: Any, critical_paths: Any,
+                        analyzer: Any = None) -> List[Dict[str, Any]]:
+    """Wrapper for the web API — returns serialised PERT steps.
+
+    Takes ``PERTAnalyzer.analyze()``'s outputs and assembles the
+    ``results_data`` dict that :func:`pert_steps` expects.
+
+    This previously took ``analyze()``'s return value and passed it
+    straight to ``pert_steps``, which calls ``.get()`` on it — but
+    ``analyze()`` returns a **3-tuple**, not a dict, so every call raised
+    ``AttributeError``. Mirrors :func:`generate_cpm_steps`, which already
+    took the unpacked form.
+    """
+    critical_path = list(critical_paths[0]) if critical_paths else []
+
+    activities: List[Dict[str, Any]] = []
+    max_ef = 0.0
+    for nid, nd in graph.nodes(data=True):
+        max_ef = max(max_ef, nd.get("EF", 0) or 0)
+        if nid in ("START", "END"):
+            continue
+        activities.append({
+            "id": nid,
+            "optimistic": nd.get("optimistic"),
+            "most_likely": nd.get("most_likely"),
+            "pessimistic": nd.get("pessimistic"),
+            # Nodes carry `expected_time`; pert_steps accepts either name.
+            "expected_duration": nd.get("expected_duration",
+                                        nd.get("expected_time")),
+            "variance": nd.get("variance"),
+        })
+
+    results_data: Dict[str, Any] = {
+        "graph": graph,
+        "activities": activities,
+        "critical_path": critical_path,
+        # PERTAnalyzer exposes project_variance/project_std but has no
+        # expected_duration attribute — the project duration is max(EF).
+        "expected_duration": getattr(analyzer, "expected_duration", max_ef),
+        "project_variance": getattr(analyzer, "project_variance", 0),
+        "standard_deviation": getattr(analyzer, "project_std", 0),
+    }
+    return [_step_to_dict(s) for s in pert_steps(results_data)]
 
 
 def generate_evm_steps(bac: float, pv: float, ev: float,

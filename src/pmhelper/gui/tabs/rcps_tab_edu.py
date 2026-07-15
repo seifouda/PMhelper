@@ -810,14 +810,11 @@ class RCPSTabEdu:
             padx=4,
             pady=4)
 
-        ttk.Button(
+        self._lev_worked_btn = ttk.Button(
             ctrl,
-            text="📖 Worked Solution",
-            command=self._show_leveling_worked_solution).grid(
-            row=0,
-            column=8,
-            padx=4,
-            pady=4)
+            text="📊 Show All Calculations",
+            command=self._show_leveling_worked_solution)
+        self._lev_worked_btn.grid(row=0, column=8, padx=4, pady=4)
 
         self._lev_status_var = tk.StringVar(
             value="Ready — load a demo or run analysis first.")
@@ -1427,6 +1424,12 @@ class RCPSTabEdu:
     def set_mode(self, mode: str):
         """PG-only tab."""
         self._mode = mode
+        # Show all-calculations button only in UG mode
+        if getattr(self, "_lev_worked_btn", None) is not None:
+            if mode.upper() == "UG":
+                self._lev_worked_btn.grid()
+            else:
+                self._lev_worked_btn.grid_remove()
 
     def get_figures(self):
         """Return list of (name, Figure) for batch export."""

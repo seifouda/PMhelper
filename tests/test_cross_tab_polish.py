@@ -182,6 +182,168 @@ class TestWBSCostFeatures:
         tab._update_cost_toggle_state()
         tab._cost_toggle_btn.configure.assert_called_with(state="normal")
 
+    # ── 11.8: flat table view ────────────────────────────────────
+
+    def test_toggle_table_view_switches_show_mode(self, wbs_tab):
+        tab, _ = wbs_tab
+        tab._flat_view = False
+        tab._table_toggle_btn = MagicMock()
+        tab._refresh_all = MagicMock()
+
+        tab._toggle_table_view()
+        assert tab._flat_view is True
+        tab._tree_view.configure.assert_called_with(show="headings")
+
+        tab._toggle_table_view()
+        assert tab._flat_view is False
+        tab._tree_view.configure.assert_called_with(show="tree headings")
+
+    def test_flat_rows_are_not_nested(self, wbs_tab):
+        """Every row parents to "" — that's what makes the table flat."""
+        tab, tree = wbs_tab
+        tab._insert_flat_rows(tree)
+        parents = [c.args[0] for c in tab._tree_view.insert.call_args_list]
+        assert parents == [""] * len(tree.nodes)
+        assert tab._tree_view.insert.call_count == len(tree.nodes)
+
+    # ── 11.9: WBS → Cost Estimation ──────────────────────────────
+
+    def test_estimate_from_wbs_sends_only_costed_leaves(self, wbs_tab):
+        """Root has cost but is not a leaf; zero-cost leaves are excluded."""
+        tab, tree = wbs_tab
+        ce_tab = MagicMock()
+        mw = MagicMock()
+        mw.tabs = {"cost_estimation": ce_tab}
+        tab.main_window = mw
+
+        with patch("pmhelper.gui.tabs.wbs_tab_edu.messagebox"):
+            tab._estimate_from_wbs()
+
+        ce_tab.load_bottom_up_from_wbs.assert_called_once()
+        sent = ce_tab.load_bottom_up_from_wbs.call_args.args[0]
+        # Only "Phase 1" (leaf, cost=400). Root "Project" has cost but children.
+        assert sent == [("Phase 1", 400)]
+
+    def test_estimate_from_wbs_no_costs_does_not_call_tab(self, wbs_tab):
+        tab, tree = wbs_tab
+        for n in tree.nodes:
+            n.cost = 0
+        ce_tab = MagicMock()
+        mw = MagicMock()
+        mw.tabs = {"cost_estimation": ce_tab}
+        tab.main_window = mw
+
+        with patch("pmhelper.gui.tabs.wbs_tab_edu.messagebox"):
+            tab._estimate_from_wbs()
+
+        ce_tab.load_bottom_up_from_wbs.assert_not_called()
+
+
+# ════════════════════════════════════════════════════════════════════
+#  11.6 — crashing cost-slope semantics
+# ════════════════════════════════════════════════════════════════════
+
+class TestCrashingCostSlope:
+    """This codebase stores `crash_cost` as a **rate** — cost per period
+    crashed (`project_crashing_core.py`: `cost = crash_cost * crash_amount`;
+    the dataclass field is `crash_cost_per_unit`). The textbook derivation
+    `(CC - NC) / (ND - CD)` assumes **totals**. Feeding a rate through it
+    yields a slope-of-a-slope, i.e. wrong numbers in the worked solution.
+    `cost_slope` lets a rate-based caller pass the slope directly."""
+
+    def _first_activity_step(self, steps):
+        return steps[0].children[0]
+
+    def test_given_slope_is_shown_verbatim(self):
+        from pmhelper.core.crashing_step_generator import crashing_steps
+        acts = [{"id": "A", "normal_duration": 10, "crash_duration": 6,
+                 "normal_cost": 100, "crash_cost": 250, "cost_slope": 250}]
+        sub = self._first_activity_step(crashing_steps(acts))
+        assert "250.00 per period" in sub.result
+        # Must NOT derive (250-100)/4 = 37.50
+        assert "37.50" not in sub.result
+
+    def test_totals_still_derive_textbook_slope(self):
+        from pmhelper.core.crashing_step_generator import crashing_steps
+        acts = [{"id": "B", "normal_duration": 10, "crash_duration": 6,
+                 "normal_cost": 8000, "crash_cost": 12000}]
+        sub = self._first_activity_step(crashing_steps(acts))
+        assert "1,000.00 per period" in sub.result  # (12000-8000)/4
+
+    def test_uncrashable_activity_reported(self):
+        from pmhelper.core.crashing_step_generator import crashing_steps
+        acts = [{"id": "C", "normal_duration": 5, "crash_duration": 5,
+                 "normal_cost": 100, "crash_cost": 200, "cost_slope": 200}]
+        sub = self._first_activity_step(crashing_steps(acts))
+        assert "Cannot be crashed" in sub.result
+
+
+# ════════════════════════════════════════════════════════════════════
+#  11.9 — Cost Estimation → WBS contract
+# ════════════════════════════════════════════════════════════════════
+
+class TestCostEstimateBreakdownContract:
+    """`_load_costs_from_estimation` matches WBS leaves against
+    `CostEstimateResult.breakdown`. It previously read `.items` /
+    `.line_items`, which have never existed on that dataclass — so the
+    load silently matched nothing. Lock the real shape down."""
+
+    def test_breakdown_is_label_cost_pairs(self):
+        from pmhelper.core.cost_estimation import (
+            WorkPackage, BottomUpEstimator)
+        wps = [
+            WorkPackage(name="Design", labour_cost=5000, overhead_pct=0),
+            WorkPackage(name="Testing", labour_cost=4000,
+                        material_cost=500, overhead_pct=0),
+        ]
+        res = BottomUpEstimator().estimate(wps)
+        assert res.breakdown == [("Design", 5000.0), ("Testing", 4500.0)]
+
+    def test_result_has_no_items_attribute(self):
+        """Guards the regression: if someone reintroduces `.items`,
+        the two shapes must not silently diverge again."""
+        from pmhelper.core.cost_estimation import CostEstimateResult
+        r = CostEstimateResult(total_cost=0.0)
+        assert not hasattr(r, "items")
+        assert not hasattr(r, "line_items")
+        assert hasattr(r, "breakdown")
+
+
+# ════════════════════════════════════════════════════════════════════
+#  11.6 — "Show All Calculations" label consistency
+# ════════════════════════════════════════════════════════════════════
+
+class TestCalculationsButtonLabel:
+    """The button drifted into four different labels across tabs because
+    nothing pinned it. Pin it."""
+
+    LABEL = "\U0001f4ca Show All Calculations"
+    TABS = [
+        "evm_tab_edu", "probability_tab_edu", "three_point_tab_edu",
+        "financial_tab_edu", "raci_tab_edu", "cost_estimation_tab_edu",
+        "risk_tab_edu", "rcps_tab_edu", "crashing_tab_gui",
+    ]
+
+    def _source(self, mod):
+        import pathlib
+        import pmhelper.gui.tabs as tabs_pkg
+        p = pathlib.Path(tabs_pkg.__file__).parent / f"{mod}.py"
+        return p.read_text(encoding="utf-8")
+
+    @pytest.mark.parametrize("mod", TABS)
+    def test_tab_uses_canonical_label(self, mod):
+        assert self.LABEL in self._source(mod), (
+            f"{mod} does not use the canonical calculations-button label")
+
+    @pytest.mark.parametrize("mod", TABS)
+    def test_tab_has_no_legacy_label(self, mod):
+        src = self._source(mod)
+        for legacy in ("\U0001f4dd Worked Solution",
+                       "\U0001f4dd Show Worked Solution",
+                       "\U0001f4d6 Show Worked Solution"):
+            assert f'text="{legacy}"' not in src, (
+                f"{mod} still wires the legacy label {legacy!r}")
+
 
 # ════════════════════════════════════════════════════════════════════
 #  SWOT Plotly Bubble Import

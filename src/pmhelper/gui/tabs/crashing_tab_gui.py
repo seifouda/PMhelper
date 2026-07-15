@@ -167,6 +167,8 @@ class CrashingTabGUIManager:
             return
 
         # 4. Display results and update visualization
+        self.last_result = result
+        self.last_analyzer = base_analyzer
         self.display_results(result)
         self.update_visualization(result)
 
@@ -708,6 +710,73 @@ class CrashingTabGUIManager:
                 f"Failed to export results:\n{
                     str(e)}")
 
+    def set_mode(self, mode):
+        """Show the all-calculations button only in UG mode."""
+        self._mode = mode.upper()
+        if self._worked_btn is None:
+            return
+        if self._mode == "UG":
+            self._worked_btn.pack(side=tk.LEFT, padx=2)
+        else:
+            self._worked_btn.pack_forget()
+
+    def show_all_calculations(self):
+        """Open a WorkedSolutionWindow for the last crashing run."""
+        if self.last_result is None or self.last_analyzer is None:
+            messagebox.showinfo("Show All Calculations",
+                                "Run crashing analysis first.")
+            return
+        try:
+            from pmhelper.core.crashing_step_generator import (
+                crashing_steps, crashing_theory_steps)
+            from pmhelper.gui.widgets.worked_solution_window import (
+                WorkedSolutionWindow)
+
+            result = self.last_result
+            activities = []
+            for act in getattr(self.last_analyzer, "activities", []):
+                nd = act.get("duration", 0)
+                cd = act.get("min_duration", nd)
+                # The engine treats crash_cost as a per-period rate
+                # (cost = crash_cost * crash_amount), i.e. it *is* the
+                # cost slope. Pass it as such rather than letting the
+                # generator derive a slope from a rate.
+                activities.append({
+                    "id": act.get("id", "?"),
+                    "name": act.get("activity", act.get("id", "?")),
+                    "normal_duration": nd,
+                    "crash_duration": cd,
+                    "normal_cost": act.get("normal_cost", 0),
+                    "crash_cost": act.get("crash_cost", 0),
+                    "cost_slope": act.get("crash_cost", 0),
+                })
+
+            crash_log = []
+            for entry in getattr(result, "crash_log", []) or []:
+                days = entry.get("crash_amount", 0)
+                cost = entry.get("cost", 0)
+                crash_log.append({
+                    "step": entry.get("iteration", "?"),
+                    "activity": entry.get("activity", "?"),
+                    "cost_slope": (cost / days) if days else 0,
+                    "days_crashed": days,
+                    "new_duration": entry.get("current_project_duration", "?"),
+                    "total_cost": (
+                        entry.get("total_crash_cost", 0)
+                        + entry.get("total_normal_cost_accumulated", 0)),
+                })
+
+            steps = (crashing_theory_steps()
+                     + crashing_steps(
+                         activities,
+                         crash_log=crash_log,
+                         target_duration=getattr(
+                             result, "target_duration", None)))
+            WorkedSolutionWindow(
+                self.tab, "Project Crashing — All Calculations", steps)
+        except Exception as exc:
+            messagebox.showerror("Show All Calculations", str(exc))
+
     def clear_results(self):
         """
         Clear all displayed results and reset the UI.
@@ -721,6 +790,8 @@ class CrashingTabGUIManager:
             widget.destroy()
 
         # Reset step navigation
+        self.last_result = None
+        self.last_analyzer = None
         self.step_graphs = []
         self.current_step = 0
         self.total_steps = 0
@@ -918,6 +989,10 @@ class CrashingTabGUIManager:
         self.rcps_engine = None
         self.current_results = []
         self.comparison_window = None
+        self.last_result = None
+        self.last_analyzer = None
+        self._mode = "UG"
+        self._worked_btn = None
         if _PLOTLY_EMBED:
             self._render_mode_var = tk.StringVar(value="matplotlib")
         # Build the interface when the manager is initialized
@@ -1056,6 +1131,13 @@ class CrashingTabGUIManager:
         right_buttons_frame = ttk.Frame(params_frame)
         right_buttons_frame.grid(row=0, column=14, padx=0, pady=2, sticky="e")
 
+        self._worked_btn = ttk.Button(
+            right_buttons_frame,
+            text="📊 Show All Calculations",
+            command=self.show_all_calculations
+        )
+        self._worked_btn.pack(side=tk.LEFT, padx=2)
+
         ttk.Button(
             right_buttons_frame,
             text="Export Results",
@@ -1169,6 +1251,12 @@ class CrashingTabGUIManager:
         self.step_select_spinbox.pack(side=tk.LEFT, padx=2)
         ttk.Button(
             nav_frame,
+            text="\U0001f50d Open Interactive",
+            command=self.open_step_interactive).pack(
+            side=tk.LEFT,
+            padx=6)
+        ttk.Button(
+            nav_frame,
             text="Show All Steps",
             command=self.show_all_steps_grid).pack(
             side=tk.RIGHT,
@@ -1253,6 +1341,34 @@ class CrashingTabGUIManager:
 
     def show_first_step(self):
         self.show_step(0)
+
+    def open_step_interactive(self):
+        """11.5: open the current crash step's network in the browser."""
+        if not self.step_graphs:
+            messagebox.showinfo("Open Interactive", "Run crashing analysis first.")
+            return
+        try:
+            from pmhelper.utils.interactive_charts import open_chart_in_browser
+            from pmhelper.utils.plotly_charts import plotly_crashing_network
+
+            idx = min(self.current_step, len(self.step_graphs) - 1)
+            step_num, activity, new_duration, g_step = self.step_graphs[idx]
+            label = f"Step {step_num} — {activity}"
+            critical = {
+                n for n in g_step.nodes
+                if g_step.nodes[n].get("float", 1) == 0
+                and n not in ("START", "END")
+            }
+            fig = plotly_crashing_network(
+                g_step, step_label=label, critical_activities=critical)
+            if fig is None:
+                messagebox.showinfo(
+                    "Open Interactive",
+                    "Plotly is not available — install plotly to use this view.")
+                return
+            open_chart_in_browser(fig, f"Crashing — {label}")
+        except Exception as exc:
+            messagebox.showerror("Open Interactive", str(exc))
 
     def show_previous_step(self):
         if self.current_step > 0:

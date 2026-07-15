@@ -72,7 +72,15 @@ def crashing_steps(
     ----------
     activities : list of dict
         Each dict has keys: ``id``, ``name``, ``normal_duration``,
-        ``crash_duration``, ``normal_cost``, ``crash_cost``.
+        ``crash_duration``, ``normal_cost``, ``crash_cost``, where the
+        costs are *totals* at the normal and fully-crashed durations, so
+        the slope is derived as ``(CC - NC) / (ND - CD)``.
+
+        Callers whose model stores the slope directly (a cost *rate* per
+        period crashed, as the crashing engine does) should instead pass
+        a ``cost_slope`` key. When present it is shown as a given value
+        and no derivation is attempted — deriving it from a rate would
+        print a slope-of-a-slope.
     crash_log : list of dict, optional
         Sequence of crash decisions. Each entry:
         ``{"step": int, "activity": str, "cost_slope": float,
@@ -94,8 +102,17 @@ def crashing_steps(
         cd = act.get("crash_duration", 0)
         nc = act.get("normal_cost", 0)
         cc = act.get("crash_cost", 0)
+        given_slope = act.get("cost_slope")
         max_crash = nd - cd
-        if max_crash > 0:
+        if max_crash > 0 and given_slope is not None:
+            slope_children.append(Step(
+                title=f"Activity {aid}",
+                formula="Cost Slope = cost per period crashed (given)",
+                substitution=f"= {given_slope:,.2f} per period",
+                result=f"= {given_slope:,.2f} per period",
+                interpretation=f"Can crash by up to {max_crash} period(s).",
+            ))
+        elif max_crash > 0:
             slope = (cc - nc) / max_crash
             slope_children.append(Step(
                 title=f"Activity {aid}",

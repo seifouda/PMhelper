@@ -309,7 +309,7 @@ class MainWindowEdu:
         self._charter_tab = CharterTab(l4_nb, self)
         l4_nb.add(self._charter_tab, text="Charter")
 
-        self._wbs_tab = WBSTabEdu(l4_nb, self.state)
+        self._wbs_tab = WBSTabEdu(l4_nb, self.state, self)
         l4_nb.add(self._wbs_tab.frame, text="WBS")
 
         self._risk_tab = RiskTabEdu(l4_nb, self.state)
@@ -446,6 +446,7 @@ class MainWindowEdu:
             "cost_estimation": self._cost_est_tab,
             "rcps": self._rcps_tab,
             "rcps_crashing": self._rcps_crashing_tab,
+            "crashing": self.crashing_tab,
             "evm": self._evm_tab,
             "dashboard": self._dashboard_tab,
         }
@@ -580,7 +581,7 @@ class MainWindowEdu:
         strat_nb.add(p_org.frame, text="PM Role & Org")
         p_charter = CharterTab(strat_nb, self)
         strat_nb.add(p_charter, text="Charter")
-        p_wbs = WBSTabEdu(strat_nb, self.state)
+        p_wbs = WBSTabEdu(strat_nb, self.state, self)
         strat_nb.add(p_wbs.frame, text="WBS")
         p_raci = RACITabEdu(strat_nb, self.state, main_window=self)
         strat_nb.add(p_raci.frame, text="Responsibility Matrix")
@@ -651,6 +652,7 @@ class MainWindowEdu:
             "cost_estimation": p_cost_est,
             "rcps": p_rcps,
             "rcps_crashing": p_rcps_crash,
+            "crashing": p_crashing,
             "evm": p_evm,
             "dashboard": p_dash,
         }

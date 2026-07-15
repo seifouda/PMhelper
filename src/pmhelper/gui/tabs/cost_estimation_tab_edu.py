@@ -109,6 +109,8 @@ class CostEstimationTabEdu:
 
     def set_mode(self, mode: str):
         self._mode = mode.upper()
+        for panel in getattr(self, "_panels", {}).values():
+            panel.set_mode(self._mode)
 
     def on_tab_selected(self):
         pass
@@ -174,6 +176,15 @@ class CostEstimationTabEdu:
         self._active_key = key
         self._show_panel(key)
 
+    # ── WBS → Cost Estimation link (11.9) ────────────────────────
+
+    def load_bottom_up_from_wbs(self, items) -> None:
+        """Populate Bottom-Up from WBS leaf ``(name, cost)`` pairs and show it."""
+        self._panels["bottom_up"].load_work_packages(items)
+        self._active_key = "bottom_up"
+        self._method_combo.current(self._METHOD_KEYS.index("bottom_up"))
+        self._show_panel("bottom_up")
+
     def _show_panel(self, key: str):
         for k, panel in self._panels.items():
             panel.frame.lower()
@@ -226,6 +237,7 @@ class _MethodPanel:
         self.owner = owner
         self.method_key = method_key
         self._try_mode = False
+        self._worked_btn = None
 
         self.frame = ttk.Frame(parent)
         lf = ttk.LabelFrame(self.frame, text=title)
@@ -275,18 +287,24 @@ class _MethodPanel:
             padx=(
                 0,
                 6))
-        ttk.Button(
+        self._worked_btn = ttk.Button(
             parent,
-            text="📖 Worked Solution",
-            command=self._show_worked_solution).pack(
-            side=tk.LEFT,
-            padx=(
-                0,
-                6))
+            text="📊 Show All Calculations",
+            command=self._show_worked_solution)
+        self._worked_btn.pack(side=tk.LEFT, padx=(0, 6))
         self._try_var = tk.BooleanVar(value=False)
         ttk.Checkbutton(parent, text="🎓 Try It Yourself",
                         variable=self._try_var,
                         command=self._toggle_practice).pack(side=tk.RIGHT)
+
+    def set_mode(self, mode: str):
+        """Show the all-calculations button only in UG mode."""
+        if self._worked_btn is None:
+            return
+        if mode.upper() == "UG":
+            self._worked_btn.pack(side=tk.LEFT, padx=(0, 6))
+        else:
+            self._worked_btn.pack_forget()
 
     def _build_content(self, parent: ttk.Frame):
         """Subclass implements input + results."""
@@ -613,6 +631,21 @@ class _BottomUpPanel(_MethodPanel):
             ("Testing", "4000", "0", "500", "10"),
         ]:
             self._add_wp_row(name, l, m, e, o)
+
+    def load_work_packages(self, items):
+        """Replace all rows with ``(name, cost)`` pairs (WBS → Bottom-Up).
+
+        The WBS already carries a per-leaf total, so the cost lands in
+        Labour and overhead is zeroed — adding the default 10% on top
+        would silently inflate a figure the user already reconciled.
+        """
+        for child in self._wp_scroll.winfo_children():
+            child.destroy()
+        self._wp_rows = []
+        for name, cost in items:
+            self._add_wp_row(name, f"{float(cost):g}", "0", "0", "0")
+        if not self._wp_rows:
+            self._add_wp_row()
 
     def _add_wp_row(self, name="", labour="0", material="0",
                     equipment="0", overhead="10"):

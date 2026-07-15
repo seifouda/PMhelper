@@ -129,7 +129,7 @@ class EVMTabEdu:
                    command=self._recalculate).pack(side=tk.LEFT, padx=(0, 10))
 
         self._evm_worked_btn = ttk.Button(
-            ctrl, text="📝 Worked Solution",
+            ctrl, text="📊 Show All Calculations",
             command=self._show_evm_worked_solution)
         self._evm_worked_btn.pack(side=tk.LEFT, padx=(0, 10))
 

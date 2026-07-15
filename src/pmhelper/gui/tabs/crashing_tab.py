@@ -16,3 +16,6 @@ class CrashingTab(ttk.Frame):
         # All controls, analysis, and visualization are handled by
         # CrashingTabGUIManager
         self.gui_manager = CrashingTabGUIManager(self, main_window)
+
+    def set_mode(self, mode):
+        self.gui_manager.set_mode(mode)

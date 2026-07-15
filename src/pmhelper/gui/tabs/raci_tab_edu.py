@@ -109,6 +109,8 @@ class RACITabEdu:
 
     def set_mode(self, mode: str):
         self._mode = mode.upper()
+        for sub in (self._task_sub, self._deliv_sub):
+            sub.set_mode(self._mode)
 
     def on_tab_selected(self):
         """Reload grid from state when a new matrix object has been assigned."""
@@ -191,6 +193,15 @@ class _RACISubTab:
             if v:
                 m.set_cell(r_idx, c_idx, v)
         return m
+
+    def set_mode(self, mode: str) -> None:
+        """Show the all-calculations button only in UG mode."""
+        if getattr(self, "_worked_btn", None) is None:
+            return
+        if mode.upper() == "UG":
+            self._worked_btn.pack(side=tk.LEFT)
+        else:
+            self._worked_btn.pack_forget()
 
     def load_matrix(self, matrix: RACIMatrix) -> None:
         """Rebuild the grid to display *matrix*."""
@@ -318,8 +329,9 @@ class _RACISubTab:
         # Edu bar
         edu_bar = ttk.Frame(self._inner_frame)
         edu_bar.pack(fill=tk.X, padx=6, pady=(2, 2))
-        ttk.Button(edu_bar, text="📖 Show Worked Solution",
-                   command=self._show_worked_solution).pack(side=tk.LEFT)
+        self._worked_btn = ttk.Button(edu_bar, text="📊 Show All Calculations",
+                                      command=self._show_worked_solution)
+        self._worked_btn.pack(side=tk.LEFT)
 
         # Summary stats
         self._summary_var = tk.StringVar()
