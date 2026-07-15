@@ -88,10 +88,14 @@ class MockCPMAnalyzer:
         import networkx as nx
         G = nx.DiGraph()
         
-        # Add activities with cost and duration data
-        G.add_node('A', duration=4, min_duration=3, normal_cost=1000, crash_cost=1200)
-        G.add_node('B', duration=6, min_duration=4, normal_cost=1500, crash_cost=2000)
-        G.add_node('C', duration=3, min_duration=2, normal_cost=800, crash_cost=1000)
+        # Add activities with cost and duration data. EF (early finish) is required —
+        # TimeCostOptimizer.generate_curve() derives normal_duration from max(EF);
+        # without it every node defaults to EF=0, so normal_duration is 0 and the
+        # crash loop immediately goes negative (ValueError). Modeled as a simple
+        # A -> B -> C chain (matches critical_activities below).
+        G.add_node('A', duration=4, min_duration=3, normal_cost=1000, crash_cost=1200, EF=4)
+        G.add_node('B', duration=6, min_duration=4, normal_cost=1500, crash_cost=2000, EF=10)
+        G.add_node('C', duration=3, min_duration=2, normal_cost=800, crash_cost=1000, EF=13)
         G.add_node('Start')
         G.add_node('End')
         
