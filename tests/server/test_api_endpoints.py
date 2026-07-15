@@ -13,39 +13,38 @@ import tempfile
 import os
 from pathlib import Path
 
-# Import the FastAPI app
-try:
-    from pmhelper.server.api.main import app
-    from pmhelper.server.config import config
-    from pmhelper.server.database.connection import init_database, close_database
-    SERVER_AVAILABLE = True
-except ImportError as e:
-    SERVER_AVAILABLE = False
-    pytest.skip(f"Server components not available: {e}", allow_module_level=True)
+# Imported at module scope on purpose. This used to sit in a try/except
+# ImportError + module-level pytest.skip, which silently disabled the whole
+# file for months while it imported names the server no longer had.
+from pmhelper.server.main import app
+from pmhelper.server.config import config
+from pmhelper.server.database.connection import (
+    db_manager, init_database, close_database,
+)
 
 
 @pytest.fixture
 async def client():
-    """Create test client with temporary database."""
-    if not SERVER_AVAILABLE:
-        pytest.skip("Server components not available")
-    
-    # Create temporary database for testing
+    """Create a test client backed by a throwaway database."""
     with tempfile.TemporaryDirectory() as temp_dir:
-        config.DATABASE_DIR = Path(temp_dir)
-        config.DATABASE_URL = f"sqlite+aiosqlite:///{config.DATABASE_DIR / config.DATABASE_FILE}"
-        
-        # Initialize test database
+        db_path = Path(temp_dir) / "test.db"
+
+        # Config has no DATABASE_URL attribute; the engine reads
+        # get_database_url(), which returns _database_url when set.
+        original_url = config._database_url
+        config._database_url = f"sqlite+aiosqlite:///{db_path}"
+
+        # db_manager is a module-level singleton guarded by _initialized, so
+        # without closing first it would keep an engine from an earlier test.
+        await close_database()
         await init_database()
-        
-        # Create test client
-        client = TestClient(app)
-        
+
         try:
-            yield client
+            yield TestClient(app)
         finally:
-            # Cleanup
             await close_database()
+            config._database_url = original_url
+            db_manager._initialized = False
 
 
 @pytest.fixture
@@ -257,7 +256,9 @@ class TestAnalysisEndpoints:
             "activities": []  # Empty activities should fail
         }
         
-        response = client.post("/api/analyze/cmp", json=invalid_data)
+        # NB: this used to POST to "/api/analyze/cmp" (typo), so it asserted
+        # validation behaviour while only ever exercising a 404.
+        response = client.post("/api/analyze/cpm", json=invalid_data)
         # Should fail validation
         assert response.status_code in [400, 422]
 
@@ -290,17 +291,33 @@ class TestJobManagement:
         response = client.get(f"/api/jobs/{fake_uuid}/status")
         assert response.status_code == 404
     
-    def test_job_results_not_ready(self, client, sample_cpm_activities):
-        """Test getting results for incomplete job."""
-        # Submit analysis
-        analysis_data = {"activities": sample_cpm_activities}
-        response = client.post("/api/analyze/cpm", json=analysis_data)
-        job_id = response.json()["job_id"]
-        
-        # Try to get results immediately (should not be ready)
+    def test_job_results_not_ready(self, client):
+        """Fetching results for a job that hasn't completed returns 409.
+
+        This used to POST an analysis and immediately GET its results,
+        assuming the job would still be running. FastAPI's BackgroundTasks
+        run synchronously under TestClient, so the job was always already
+        COMPLETED and the endpoint correctly returned 200 -- the test could
+        never exercise the 409 path. Insert a pending job directly instead.
+        """
+        import asyncio
+        from pmhelper.server.database.connection import db_manager
+        from pmhelper.server.database.models import AnalysisJob
+
+        async def _insert_pending_job():
+            async with db_manager.get_session() as session:
+                job = AnalysisJob(analysis_type="cpm", status="pending",
+                                  input_data={"activities": []})
+                session.add(job)
+                await session.flush()
+                return str(job.job_id)
+
+        job_id = asyncio.get_event_loop().run_until_complete(
+            _insert_pending_job())
+
         response = client.get(f"/api/jobs/{job_id}/results")
-        # Should return conflict status since job is not completed
         assert response.status_code == 409
+        assert "not completed" in response.json()["detail"]
 
 
 if __name__ == "__main__":

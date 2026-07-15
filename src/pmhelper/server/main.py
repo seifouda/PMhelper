@@ -7,16 +7,19 @@ Serves the Angular Edu web app from /static and the API from /api/*.
 
 from fastapi import FastAPI, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Any, Dict
 import logging
+import time
 
 from .database.connection import init_database, close_database
 from .api.routes.web import router as web_router, limiter
+from .api.routes import projects, analysis, selection
 from .websockets.calculation_ws import handle_calculation_websocket
 from .config import config
 
@@ -85,10 +88,56 @@ if config.DEBUG:
         allow_headers=["*"],
     )
 
-# Include API routers
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    """Log all incoming requests and their latency."""
+    start_time = time.time()
+    logger.info(f"Request: {request.method} {request.url}")
+
+    response = await call_next(request)
+
+    process_time = time.time() - start_time
+    logger.info(f"Response: {response.status_code} - {process_time:.3f}s")
+    return response
+
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    """Return a structured 500 rather than a bare stack trace."""
+    logger.error(f"Unhandled exception for {request.method} {request.url}: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "Internal Server Error",
+            "message": "An unexpected error occurred. Please try again later.",
+            "detail": str(exc) if config.DEBUG else None,
+        },
+    )
+
+
+# Include API routers.
+# These MUST stay above the SPA catch-all registered further down: FastAPI
+# matches in registration order, so any route added after "/{full_path:path}"
+# would silently return index.html instead of its handler.
 if calculations_router is not None:
     app.include_router(calculations_router)
 app.include_router(web_router)
+app.include_router(projects.router, prefix="/api", tags=["Projects"])
+app.include_router(analysis.router, prefix="/api", tags=["Analysis"])
+app.include_router(selection.router, prefix="/api", tags=["Selection"])
+
+
+@app.get("/api/version", tags=["General"])
+async def api_version() -> Dict[str, Any]:
+    """Get API version information."""
+    return {
+        "api_version": "1.0.0",
+        "pmhelper_version": "1.0.0",
+        "supported_analyses": [
+            "cpm", "pert", "rcps",
+            "ahp", "linear_scoring", "benefit_cost", "portfolio",
+        ],
+    }
 
 
 # WebSocket endpoint
@@ -106,7 +155,15 @@ async def health_check():
         "status": "healthy",
         "service": "pmhelper",
         "version": "1.0.0",
-        "environment": config.ENVIRONMENT
+        "environment": config.ENVIRONMENT,
+        # "timestamp"/"server" carried over from the merged api/main.py app so
+        # consumers of its /health contract keep working.
+        "timestamp": time.time(),
+        "server": {
+            "host": config.HOST,
+            "port": config.PORT,
+            "debug": config.DEBUG,
+        },
     }
 
 
@@ -127,7 +184,21 @@ if STATIC_DIR.is_dir():
 else:
     @app.get("/")
     async def root():
-        return {"message": "PMHelper API", "docs": "/api/docs"}
+        # Only registered when there's no Angular build to serve. Mirrors the
+        # API-info payload from the merged api/main.py app.
+        return {
+            "message": "PMHelper API",
+            "version": "1.0.0",
+            "docs": "/api/docs",
+            "endpoints": {
+                "web": "/api/web",
+                "projects": "/api/projects",
+                "analysis": "/api/analyze",
+                "selection": "/api/selection",
+                "jobs": "/api/jobs",
+                "health": "/health",
+            },
+        }
 
 
 if __name__ == "__main__":

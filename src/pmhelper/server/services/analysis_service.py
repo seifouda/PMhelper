@@ -202,35 +202,43 @@ class AnalysisService:
             graph, critical_paths, critical_activities = analyzer.analyze(
                 formatted_activities)
 
-            # Convert results to JSON-serializable format
+            # CPMAnalyzer labels nodes ES/EF/LS/LF/float and keys them by
+            # activity id; it emits no 'latest_finish'/'activity_id'. Reading
+            # those older names yielded an empty list here, so max() raised
+            # "max() iterable argument is empty" on every job, and the activity
+            # loop never matched a single node.
+            activity_nodes = [
+                node for node in graph.nodes() if node not in ("START", "END")
+            ]
+
             results = {
                 'analysis_type': 'cpm',
-                'project_duration': max([graph.nodes[node].get('latest_finish', 0)
-                                         for node in graph.nodes() if 'latest_finish' in graph.nodes[node]]),
+                'project_duration': max(
+                    (graph.nodes[node].get('EF', 0) for node in activity_nodes),
+                    default=0,
+                ),
                 'critical_path': critical_paths[0] if critical_paths else [],
-                'critical_activities': critical_activities,
+                'critical_activities': list(critical_activities),
                 'activities': []
             }
 
             # Extract activity results
-            for node in graph.nodes():
+            for node in activity_nodes:
                 node_data = graph.nodes[node]
-                if 'activity_id' in node_data:
-                    activity_result = {
-                        'id': node_data.get('activity_id'),
-                        'name': node_data.get('name', ''),
-                        'duration': node_data.get('duration', 0),
-                        'earliest_start': node_data.get('earliest_start', 0),
-                        'earliest_finish': node_data.get('earliest_finish', 0),
-                        'latest_start': node_data.get('latest_start', 0),
-                        'latest_finish': node_data.get('latest_finish', 0),
-                        'total_float': node_data.get('total_float', 0),
-                        'free_float': node_data.get('free_float', 0),
-                        'is_critical': node_data.get('activity_id') in critical_activities,
-                        'resource': node_data.get('resource', ''),
-                        'cost': node_data.get('cost', 0)
-                    }
-                    results['activities'].append(activity_result)
+                results['activities'].append({
+                    'id': node,
+                    'name': node_data.get('activity', node),
+                    'duration': node_data.get('duration', 0),
+                    'earliest_start': node_data.get('ES', 0),
+                    'earliest_finish': node_data.get('EF', 0),
+                    'latest_start': node_data.get('LS', 0),
+                    'latest_finish': node_data.get('LF', 0),
+                    'total_float': node_data.get('float', 0),
+                    'free_float': node_data.get('free_float', 0),
+                    'is_critical': node in critical_activities,
+                    'resource': node_data.get('resource_demand', 0),
+                    'cost': node_data.get('normal_cost', 0),
+                })
 
             return results
 
@@ -253,95 +261,74 @@ class AnalysisService:
             # analyzer
             formatted_activities = []
             for activity in activities_data:
-                # Calculate expected time and variance
-                optimistic = activity.get(
-                    'optimistic_duration', activity['duration'] * 0.8)
-                most_likely = activity.get(
-                    'most_likely_duration', activity['duration'])
-                pessimistic = activity.get(
-                    'pessimistic_duration', activity['duration'] * 1.2)
+                # The schema requires these, so there is nothing to default.
+                optimistic = activity['optimistic_duration']
+                most_likely = activity['most_likely_duration']
+                pessimistic = activity['pessimistic_duration']
 
-                expected_time = (
-                    optimistic + 4 * most_likely + pessimistic) / 6
-                variance = ((pessimistic - optimistic) / 6) ** 2
-
+                # PERTAnalyzer reads 'optimistic'/'most_likely'/'pessimistic'
+                # and derives TE and variance itself.
                 formatted_activity = {
                     'id': activity['id'],
+                    'activity': activity['name'],
                     'name': activity['name'],
-                    'duration': expected_time,  # Use expected time as duration
-                    'optimistic_time': optimistic,
-                    'most_likely_time': most_likely,
-                    'pessimistic_time': pessimistic,
-                    'expected_time': expected_time,
-                    'variance': variance,
+                    'optimistic': optimistic,
+                    'most_likely': most_likely,
+                    'pessimistic': pessimistic,
                     'predecessors': activity['predecessors'],
-                    'resource': 'Default'
                 }
                 formatted_activities.append(formatted_activity)
 
-            # Run the analysis using expected times
-            graph, critical_paths, critical_activities, project_stats = analyzer.analyze_with_uncertainty(
+            # analyze() returns the same 3-tuple CPMAnalyzer does. This used to
+            # call analyze_with_uncertainty(), which has never existed on
+            # PERTAnalyzer, so every PERT job died with AttributeError.
+            graph, critical_paths, critical_activities = analyzer.analyze(
                 formatted_activities)
 
-            # Calculate probability if target duration provided
-            probability = None
-            if target_duration and project_stats:
-                project_mean = project_stats.get('mean_duration', 0)
-                project_variance = project_stats.get('variance', 0)
-                if project_variance > 0:
-                    z_score = (target_duration - project_mean) / \
-                        (project_variance ** 0.5)
-                    # Use scipy if available, otherwise simple approximation
-                    try:
-                        from scipy.stats import norm
-                        probability = norm.cdf(z_score)
-                    except ImportError:
-                        # Simple approximation for normal CDF
-                        import math
-                        probability = 0.5 * \
-                            (1 + math.erf(z_score / math.sqrt(2)))
+            stats = analyzer.get_project_statistics() or {}
 
-            # Format results
+            probability = None
+            if target_duration:
+                probability = analyzer.calculate_completion_probability(
+                    target_duration)
+
+            project_variance = stats.get('variance', 0)
             results = {
                 'analysis_type': 'pert',
-                'project_duration_expected': project_stats.get(
-                    'mean_duration',
-                    0) if project_stats else 0,
-                'project_variance': project_stats.get(
-                    'variance',
-                    0) if project_stats else 0,
-                'project_standard_deviation': (
-                    project_stats.get(
-                        'variance',
-                        0) ** 0.5) if project_stats else 0,
+                'project_duration_expected': stats.get('expected_duration', 0),
+                'project_variance': project_variance,
+                'project_standard_deviation': stats.get('std_deviation', 0),
                 'critical_path': critical_paths[0] if critical_paths else [],
-                'critical_activities': critical_activities,
+                'critical_activities': list(critical_activities),
                 'target_duration': target_duration,
                 'completion_probability': probability,
                 'confidence_level': confidence_level,
                 'activities': []}
 
-            # Extract activity results
+            # Extract activity results. Nodes are keyed by activity id and
+            # carry ES/EF/LS/LF/float — not the earliest_start/activity_id
+            # names this used to look for (which matched nothing).
             for node in graph.nodes():
+                if node in ("START", "END"):
+                    continue
                 node_data = graph.nodes[node]
-                if 'activity_id' in node_data:
-                    activity_result = {
-                        'id': node_data.get('activity_id'),
-                        'name': node_data.get('name', ''),
-                        'optimistic_duration': node_data.get('optimistic_time', 0),
-                        'most_likely_duration': node_data.get('most_likely_time', 0),
-                        'pessimistic_duration': node_data.get('pessimistic_time', 0),
-                        'expected_duration': node_data.get('expected_time', 0),
-                        'variance': node_data.get('variance', 0),
-                        'standard_deviation': (node_data.get('variance', 0) ** 0.5),
-                        'earliest_start': node_data.get('earliest_start', 0),
-                        'earliest_finish': node_data.get('earliest_finish', 0),
-                        'latest_start': node_data.get('latest_start', 0),
-                        'latest_finish': node_data.get('latest_finish', 0),
-                        'total_float': node_data.get('total_float', 0),
-                        'is_critical': node_data.get('activity_id') in critical_activities
-                    }
-                    results['activities'].append(activity_result)
+                variance = node_data.get('variance', 0) or 0
+                results['activities'].append({
+                    'id': node,
+                    'name': node_data.get('activity', node),
+                    'optimistic_duration': node_data.get('optimistic', 0),
+                    'most_likely_duration': node_data.get('most_likely', 0),
+                    'pessimistic_duration': node_data.get('pessimistic', 0),
+                    'expected_duration': node_data.get('expected_time', 0),
+                    'variance': variance,
+                    'standard_deviation': round(variance ** 0.5, 4),
+                    'earliest_start': node_data.get('ES', 0),
+                    'earliest_finish': node_data.get('EF', 0),
+                    'latest_start': node_data.get('LS', 0),
+                    'latest_finish': node_data.get('LF', 0),
+                    'total_float': node_data.get('float', 0),
+                    'is_critical': node in critical_activities,
+                })
 
             return results
 
@@ -382,11 +369,17 @@ class AnalysisService:
             # Note: This is a simplified RCPS implementation
             # The full RCPS would require more complex resource scheduling
 
+            # Same phantom-attribute bug as _run_cpm_analysis: the analyzer
+            # emits EF, not 'latest_finish', so this max() saw an empty list.
             results = {
                 'analysis_type': 'rcps',
                 'resource_limits': resource_limits,
-                'project_duration': max([base_graph.nodes[node].get('latest_finish', 0)
-                                         for node in base_graph.nodes() if 'latest_finish' in base_graph.nodes[node]]),
+                'project_duration': max(
+                    (base_graph.nodes[node].get('EF', 0)
+                     for node in base_graph.nodes()
+                     if node not in ("START", "END")),
+                    default=0,
+                ),
                 'resource_utilization': {},
                 'activities': []
             }

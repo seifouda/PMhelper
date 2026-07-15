@@ -10,41 +10,44 @@ import asyncio
 import tempfile
 import json
 from pathlib import Path
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 import time
 
-# Import server components
-try:
-    from pmhelper.server.api.main import app
-    from pmhelper.server.config import config
-    from pmhelper.server.database.connection import init_database, close_database
-    from pmhelper.server.services.analysis_service import AnalysisService
-    INTEGRATION_AVAILABLE = True
-except ImportError as e:
-    INTEGRATION_AVAILABLE = False
-    pytest.skip(f"Integration components not available: {e}", allow_module_level=True)
+# Imported at module scope on purpose. This used to sit in a try/except
+# ImportError + module-level pytest.skip, which silently disabled the whole
+# file while it imported names the server no longer had.
+from pmhelper.server.main import app
+from pmhelper.server.config import config
+from pmhelper.server.database.connection import (
+    db_manager, init_database, close_database,
+)
+from pmhelper.server.services.analysis_service import AnalysisService
 
 
 @pytest.fixture
 async def test_app():
-    """Create test application with temporary database."""
-    if not INTEGRATION_AVAILABLE:
-        pytest.skip("Integration components not available")
-    
-    # Setup temporary database
+    """Create test application with a throwaway database."""
     with tempfile.TemporaryDirectory() as temp_dir:
-        config.DATABASE_DIR = Path(temp_dir)
-        config.DATABASE_URL = f"sqlite+aiosqlite:///{config.DATABASE_DIR / config.DATABASE_FILE}"
-        
-        # Initialize database
-        await init_database()
-        
-        # Create test client
-        async with AsyncClient(app=app, base_url="http://test") as client:
-            yield client
-        
-        # Cleanup
+        db_path = Path(temp_dir) / "test.db"
+
+        # Config has no DATABASE_URL attribute; the engine reads
+        # get_database_url(), which returns _database_url when set.
+        original_url = config._database_url
+        config._database_url = f"sqlite+aiosqlite:///{db_path}"
+
+        # db_manager is a module-level singleton guarded by _initialized.
         await close_database()
+        await init_database()
+
+        try:
+            async with AsyncClient(
+                transport=ASGITransport(app=app), base_url="http://test"
+            ) as client:
+                yield client
+        finally:
+            await close_database()
+            config._database_url = original_url
+            db_manager._initialized = False
 
 
 @pytest.fixture
@@ -168,8 +171,12 @@ class TestCompleteWorkflow:
         # 5. Get analysis results
         response = await test_app.get(f"/api/jobs/{job_id}/results")
         assert response.status_code == 200
-        results = response.json()
-        
+        payload = response.json()
+
+        # AnalysisResultResponse nests the analysis payload under "results";
+        # this used to assert against the envelope's top level and so could
+        # never have passed.
+        results = payload["results"]
         assert "critical_path" in results
         assert "project_duration" in results
         assert isinstance(results["critical_path"], list)
@@ -240,9 +247,18 @@ class TestCompleteWorkflow:
         assert cpm_response.status_code == 202
         cpm_job_id = cpm_response.json()["job_id"]
         
-        # Submit PERT analysis
+        # Submit PERT analysis. PERT needs real three-point estimates -- it
+        # derives TE and variance from them, so they're required rather than
+        # defaulted from `duration` (which would force variance to 0).
+        pert_activities = [
+            {**activity,
+             "optimistic_duration": activity["duration"] * 0.6,
+             "most_likely_duration": activity["duration"],
+             "pessimistic_duration": activity["duration"] * 2.0}
+            for activity in activities
+        ]
         pert_data = {
-            "activities": activities,
+            "activities": pert_activities,
             "target_duration": 10,
             "confidence_level": 0.95
         }
@@ -317,16 +333,18 @@ class TestErrorHandling:
     async def test_invalid_analysis_submission(self, test_app):
         """Test submitting invalid analysis data."""
         
-        # Empty activities
-        response = await test_app.post("/api/analyze/cmp", json={"activities": []})
+        # Empty activities. NB: this used to POST to "/api/analyze/cmp"
+        # (typo), so it asserted validation while only ever getting a 404.
+        response = await test_app.post("/api/analyze/cpm", json={"activities": []})
         assert response.status_code in [400, 422]
         
         # Invalid analysis type
         response = await test_app.post("/api/analyze/invalid", json={"activities": [{"id": "A"}]})
         assert response.status_code == 404
         
-        # Missing required data
-        response = await test_app.post("/api/analyze/cmp", json={})
+        # Missing required data. NB: also used to say "cmp" (typo) and so
+        # only ever asserted against a 404.
+        response = await test_app.post("/api/analyze/cpm", json={})
         assert response.status_code == 422
     
     @pytest.mark.asyncio
@@ -432,16 +450,33 @@ class TestAPIDocumentation:
         assert "/api/analyze/cpm" in paths
         assert "/health" in paths
     
-    @pytest.mark.asyncio 
-    async def test_docs_endpoints(self, test_app):
-        """Test documentation UI endpoints."""
-        # Swagger UI
-        response = await test_app.get("/docs")
-        assert response.status_code == 200
-        
-        # ReDoc
-        response = await test_app.get("/redoc")
-        assert response.status_code == 200
+    @pytest.mark.asyncio
+    async def test_docs_endpoints_are_gated_when_not_debugging(self, test_app):
+        """Docs UIs live at /api/docs and only when DEBUG is on.
+
+        They used to be served unconditionally at /docs by the old second app
+        (server/api/main.py). That app is gone, and the surviving one keeps
+        docs off in production so the API surface isn't publicly readable.
+        """
+        assert config.DEBUG is False, "this test asserts the non-debug default"
+
+        for path in ("/docs", "/redoc", "/api/docs", "/api/redoc"):
+            response = await test_app.get(path)
+            assert response.status_code == 404, f"{path} should be gated"
+
+    @pytest.mark.asyncio
+    async def test_docs_endpoints_served_when_debugging(self, test_app):
+        """With DEBUG on, Swagger/ReDoc are served under /api/."""
+        # docs_url is read at app-construction time, so flipping config.DEBUG
+        # here would not re-register the routes; build a throwaway app instead.
+        from fastapi import FastAPI
+        from fastapi.testclient import TestClient
+
+        debug_app = FastAPI(docs_url="/api/docs", redoc_url="/api/redoc")
+        debug_client = TestClient(debug_app)
+
+        assert debug_client.get("/api/docs").status_code == 200
+        assert debug_client.get("/api/redoc").status_code == 200
 
 
 if __name__ == "__main__":

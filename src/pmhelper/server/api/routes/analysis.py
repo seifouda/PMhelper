@@ -16,7 +16,7 @@ from ..models.schemas import (
     CPMAnalysisRequest, PERTAnalysisRequest, RCPSAnalysisRequest,
     AnalysisJobResponse, AnalysisResultResponse, JobListResponse
 )
-from ...database.connection import get_db_session
+from ...database.connection import db_manager, get_db_session
 from ...database.models import AnalysisJob
 from ...services.analysis_service import analysis_service
 from ...services.project_service import ProjectService
@@ -91,7 +91,9 @@ async def update_job_status(db: AsyncSession,
 
 async def run_analysis_background(job_id: str, analysis_type: AnalysisType):
     """Background task to run analysis and update job status."""
-    async with get_db_session() as db:
+    # get_db_session() is a FastAPI dependency (a bare async generator) and has
+    # no __aenter__; db_manager.get_session() is the context-manager form.
+    async with db_manager.get_session() as db:
         try:
             # Mark job as running
             await update_job_status(db, job_id, JobStatus.RUNNING)

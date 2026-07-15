@@ -10,6 +10,7 @@ from __future__ import annotations
 import io
 import json
 import logging
+import math
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -17,6 +18,13 @@ from fastapi import APIRouter, HTTPException, Request, UploadFile, File
 from pydantic import BaseModel, Field
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+
+# Imported at module scope (not lazily inside the handlers) so a missing or
+# renamed symbol breaks server startup instead of surfacing as a runtime 500.
+from pmhelper.core.evm_calculations_edu import compute_all_kpis
+from pmhelper.core.evm_models_edu import EVMPeriod, EVMProject, EVMTask
+from pmhelper.core.monte_carlo_edu import MCInputs, run_simulation
+from pmhelper.core.pert_analyzer import PERTAnalyzer
 
 logger = logging.getLogger(__name__)
 
@@ -114,47 +122,60 @@ class PERTRequest(BaseModel):
 @limiter.limit("30/minute")
 async def run_pert(request: Request, req: PERTRequest) -> Dict[str, Any]:
     """Run PERT 3-point estimation and probability analysis."""
-    try:
-        from pmhelper.core.pert_analyzer import PERTAnalyzer
+    if not req.activities:
+        raise HTTPException(
+            status_code=400, detail="PERT requires at least one activity")
 
+    try:
         data = [a.model_dump() for a in req.activities]
         analyzer = PERTAnalyzer()
-        results = analyzer.analyze(data)
+        # analyze() returns (graph, critical_paths, critical_activities) --
+        # the same 3-tuple CPMAnalyzer returns. This used to treat it as a
+        # dict, so every request raised AttributeError and 500'd.
+        G, critical_paths, critical_activities = analyzer.analyze(data)
 
         node_rows = []
-        for item in results.get("activities", []):
+        for node_id in G.nodes():
+            if node_id in ("START", "END"):
+                continue
+            nd = G.nodes[node_id]
+            variance = nd.get("variance", 0) or 0
             node_rows.append(
                 {
-                    "id": item["id"],
-                    "activity": item.get("activity", item["id"]),
-                    "optimistic": item.get("optimistic", 0),
-                    "most_likely": item.get("most_likely", 0),
-                    "pessimistic": item.get("pessimistic", 0),
-                    "expected_time": item.get("expected_time", 0),
-                    "variance": item.get("variance", 0),
-                    "std_dev": item.get("std_dev", 0),
+                    "id": node_id,
+                    "activity": nd.get("activity", node_id),
+                    "optimistic": nd.get("optimistic", 0),
+                    "most_likely": nd.get("most_likely", 0),
+                    "pessimistic": nd.get("pessimistic", 0),
+                    "expected_time": nd.get("expected_time", 0),
+                    "variance": variance,
+                    "std_dev": round(math.sqrt(variance), 4),
+                    "ES": nd.get("ES", 0),
+                    "EF": nd.get("EF", 0),
+                    "LS": nd.get("LS", 0),
+                    "LF": nd.get("LF", 0),
+                    "total_float": nd.get("float", 0),
+                    "is_critical": node_id in critical_activities,
                 }
             )
 
+        stats = analyzer.get_project_statistics() or {}
         response: Dict[str, Any] = {
             "nodes": node_rows,
-            "project_expected_duration": results.get("project_duration", 0),
-            "project_variance": results.get("project_variance", 0),
-            "project_std_dev": results.get("project_std_dev", 0),
+            "project_expected_duration": stats.get("expected_duration", 0),
+            "project_variance": stats.get("variance", 0),
+            "project_std_dev": stats.get("std_deviation", 0),
+            "critical_paths": critical_paths,
+            "critical_activities": list(critical_activities),
         }
 
         if req.target_duration is not None:
-            prob = results.get("probability_on_time", None)
-            response["probability_on_time"] = prob
+            response["probability_on_time"] = (
+                analyzer.calculate_completion_probability(req.target_duration))
 
         return response
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.exception("PERT analysis failed")
-        raise HTTPException(
-            status_code=500,
-            detail=f"PERT analysis failed: {e}")
 
 
 # ── Crashing ────────────────────────────────────────────────────────────
@@ -245,35 +266,39 @@ class EVMRequest(BaseModel):
 @limiter.limit("30/minute")
 async def run_evm(request: Request, req: EVMRequest) -> Dict[str, Any]:
     """Compute EVM KPIs from period data."""
+    proj_data = req.project
+    if not proj_data.periods:
+        raise HTTPException(
+            status_code=400, detail="EVM requires at least one period")
+
     try:
-        from pmhelper.core.evm_calculations_edu import EVMCalculator
+        periods = [
+            EVMPeriod(**p.model_dump())
+            for p in sorted(proj_data.periods, key=lambda p: p.index)
+        ]
 
-        proj_data = req.project
-        periods = [p.model_dump() for p in proj_data.periods]
-        tasks = [t.model_dump() for t in proj_data.tasks]
+        # Use the last period if no current_period_index given.
+        idx = (req.current_period_index
+               if req.current_period_index is not None else len(periods) - 1)
+        idx = max(0, min(idx, len(periods) - 1))
 
-        # Use the last period if no current_period_index given
-        idx = req.current_period_index if req.current_period_index is not None else len(
-            periods) - 1
-        idx = min(idx, len(periods) - 1)
-        period = periods[idx]
+        # compute_all_kpis reads the *last* period, so truncate to the
+        # requested one rather than passing the full history.
+        project = EVMProject(
+            project_name=proj_data.project_name,
+            bac=proj_data.bac,
+            currency_symbol=proj_data.currency_symbol,
+            periods=periods[:idx + 1],
+            tasks=[EVMTask(**t.model_dump()) for t in proj_data.tasks],
+            # Honour the BAC the client sent instead of recomputing it from
+            # task budgets, which the request may not include at all.
+            bac_auto_compute=False,
+        )
 
-        pv = period["pv_cumulative"]
-        ev = period["ev_cumulative"]
-        ac = period["ac_cumulative"]
-        bac = proj_data.bac
-
-        calc = EVMCalculator(bac=bac, pv=pv, ev=ev, ac=ac)
-        kpis = calc.compute_all()
-
+        kpis = compute_all_kpis(project)
         return {"kpis": kpis, "period_index": idx}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.exception("EVM analysis failed")
-        raise HTTPException(
-            status_code=500,
-            detail=f"EVM analysis failed: {e}")
 
 
 # ── Risk ────────────────────────────────────────────────────────────────
@@ -313,46 +338,53 @@ async def run_risk(request: Request, req: RiskRequest) -> Dict[str, Any]:
 # ── Monte Carlo ─────────────────────────────────────────────────────────
 
 
+class MCTaskBudgetIn(BaseModel):
+    """Per-activity budget driving Monte Carlo cost sampling.
+
+    ``task_id`` matches an activity id; activities with no entry here
+    contribute no cost.
+    """
+    task_id: str
+    budget: float = Field(default=0.0, ge=0)
+
+
 class MCRequest(BaseModel):
     activities: List[ActivityIn]
     n_trials: int = Field(default=5000, ge=100, le=50000)
     seed: Optional[int] = None
     cost_min_factor: float = 0.8
     cost_max_factor: float = 1.2
+    # Cost sampling is skipped unless budgets are supplied; p_cost_within_bac
+    # is only meaningful when bac > 0.
+    bac: float = Field(default=0.0, ge=0)
+    task_budgets: List[MCTaskBudgetIn] = []
 
 
 @router.post("/analysis/monte-carlo")
 @limiter.limit("5/minute")
 async def run_monte_carlo(request: Request, req: MCRequest) -> Dict[str, Any]:
     """Run Monte Carlo simulation (requires O/M/P estimates or will use duration as mode)."""
-    try:
-        from pmhelper.core.monte_carlo_edu import MonteCarloSimulator
+    if not req.activities:
+        raise HTTPException(
+            status_code=400,
+            detail="Monte Carlo requires at least one activity")
 
-        data = [a.model_dump() for a in req.activities]
-        simulator = MonteCarloSimulator(
-            activities_data=data,
+    try:
+        inputs = MCInputs(
+            cpm_activities=[a.model_dump() for a in req.activities],
+            evm_tasks=req.task_budgets,
+            risks=[],
+            bac=req.bac,
             n_trials=req.n_trials,
             seed=req.seed,
             cost_min_factor=req.cost_min_factor,
             cost_max_factor=req.cost_max_factor,
         )
-        result = simulator.run()
 
-        return {
-            "durations": result.get("durations", []),
-            "costs": result.get("costs", []),
-            "cp_frequencies": result.get("cp_frequencies", {}),
-            "p50_duration": result.get("p50_duration", 0),
-            "p80_duration": result.get("p80_duration", 0),
-            "p90_duration": result.get("p90_duration", 0),
-            "p_cost_within_bac": result.get("p_cost_within_bac", 0),
-            "n_trials": req.n_trials,
-        }
+        # to_serializable() converts the ndarray trial series to plain lists.
+        return run_simulation(inputs).to_serializable()
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.exception("Monte Carlo simulation failed")
-        raise HTTPException(status_code=500, detail=f"Monte Carlo failed: {e}")
 
 
 # ── RCPS ────────────────────────────────────────────────────────────────
@@ -427,8 +459,8 @@ async def get_pert_steps(
 
         data = [a.model_dump() for a in req.activities]
         analyzer = PERTAnalyzer()
-        results = analyzer.analyze(data)
-        steps = generate_pert_steps(results)
+        graph, critical_paths, _critical_activities = analyzer.analyze(data)
+        steps = generate_pert_steps(graph, critical_paths, analyzer)
         return steps
     except Exception as e:
         logger.exception("PERT steps generation failed")

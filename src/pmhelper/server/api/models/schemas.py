@@ -56,13 +56,23 @@ class CPMActivity(ActivityBase):
 
 
 class PERTActivity(ActivityBase):
-    """Activity model for PERT analysis."""
-    optimistic_duration: Optional[float] = Field(
-        None, description="Optimistic duration estimate", ge=0)
-    pessimistic_duration: Optional[float] = Field(
-        None, description="Pessimistic duration estimate", ge=0)
-    most_likely_duration: Optional[float] = Field(
-        None, description="Most likely duration estimate", ge=0)
+    """Activity model for PERT analysis.
+
+    The three-point estimates are required: PERT derives both
+    TE = (O + 4M + P) / 6 and Var = ((P - O) / 6)^2 from them, so without
+    them there is no PERT — only CPM. They were optional, which let a request
+    validate, get accepted with a 202, and then die in the background with
+    "unsupported operand type(s) for *: 'int' and 'NoneType'". Defaulting them
+    from `duration` was rejected deliberately: it would force O = M = P, making
+    every variance 0 and P(on time) always 1.0 — a confident-looking answer
+    that models no uncertainty at all, which is the opposite of the lesson.
+    """
+    optimistic_duration: float = Field(
+        ..., description="Optimistic duration estimate", ge=0)
+    pessimistic_duration: float = Field(
+        ..., description="Pessimistic duration estimate", ge=0)
+    most_likely_duration: float = Field(
+        ..., description="Most likely duration estimate", ge=0)
 
     @validator('pessimistic_duration')
     def pessimistic_valid(cls, v, values):
@@ -139,7 +149,11 @@ class ProjectList(BaseModel):
 # Analysis request models
 class CPMAnalysisRequest(BaseModel):
     """Schema for CPM analysis request."""
+    # min_length=1: an empty list used to validate cleanly, get accepted with a
+    # 202, and then fail in the background task — a client error reported as a
+    # dead job.
     activities: List[CPMActivity] = Field(...,
+                                          min_length=1,
                                           description="List of activities for CPM analysis")
     project_id: Optional[str] = Field(
         None, description="Optional project ID to associate with analysis")
@@ -150,6 +164,7 @@ class CPMAnalysisRequest(BaseModel):
 class PERTAnalysisRequest(BaseModel):
     """Schema for PERT analysis request."""
     activities: List[PERTActivity] = Field(...,
+                                           min_length=1,
                                            description="List of activities for PERT analysis")
     project_id: Optional[str] = Field(
         None, description="Optional project ID to associate with analysis")
@@ -164,6 +179,7 @@ class PERTAnalysisRequest(BaseModel):
 class RCPSAnalysisRequest(BaseModel):
     """Schema for RCPS analysis request."""
     activities: List[RCPSActivity] = Field(...,
+                                           min_length=1,
                                            description="List of activities for RCPS analysis")
     resource_limits: Dict[str,
                           float] = Field(...,

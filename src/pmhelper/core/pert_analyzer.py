@@ -267,12 +267,21 @@ class PERTAnalyzer:
             expected_time_ceil = math.ceil(expected_time)
             variance_rounded = round(variance, 3)
 
-            # Process predecessors (comma-separated list)
-            predecessors = []
-            if row.get('predecessors') and str(row['predecessors']).strip():
+            # Process predecessors. CSV rows carry a comma-separated string
+            # ("A,B"); callers passing dicts (API/GUI) carry a real list.
+            # str() on a list yields "['A', 'B']", which matches no node id, so
+            # treating both alike silently dropped every edge and produced a
+            # fully-parallel network instead of an error.
+            raw_predecessors = row.get('predecessors')
+            if isinstance(raw_predecessors, (list, tuple, set)):
                 predecessors = [
-                    p.strip() for p in str(
-                        row['predecessors']).split(',') if p.strip()]
+                    str(p).strip() for p in raw_predecessors if str(p).strip()]
+            elif raw_predecessors and str(raw_predecessors).strip():
+                predecessors = [
+                    p.strip() for p in str(raw_predecessors).split(',')
+                    if p.strip()]
+            else:
+                predecessors = []
 
             # Get activity name (optional)
             activity_name = row.get('activity', '').strip()

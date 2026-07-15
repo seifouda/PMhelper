@@ -14,7 +14,7 @@ import logging
 
 from ..database.models import Project, AnalysisJob
 from ..api.models.schemas import ProjectCreate, ProjectUpdate
-from ..database.connection import get_db_session
+from ..database.connection import db_manager
 
 logger = logging.getLogger(__name__)
 
@@ -345,13 +345,15 @@ class ProjectService:
 # Convenience functions
 async def create_project(project_data: ProjectCreate) -> Project:
     """Create a project using dependency injection."""
-    async with get_db_session() as db:
+    # get_db_session() is the FastAPI dependency (a bare async generator) and
+    # has no __aenter__; db_manager.get_session() is the context-manager form.
+    async with db_manager.get_session() as db:
         return await ProjectService.create_project(db, project_data)
 
 
 async def get_project(project_id: str) -> Optional[Project]:
     """Get a project using dependency injection."""
-    async with get_db_session() as db:
+    async with db_manager.get_session() as db:
         return await ProjectService.get_project(db, project_id)
 
 

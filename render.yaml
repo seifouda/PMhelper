@@ -4,7 +4,7 @@ services:
     name: pmhelper-edu
     runtime: docker
     plan: free
-    branch: feat/web-v1
+    branch: EDU_PROD
     dockerfilePath: ./Dockerfile
     envVars:
       - key: DEBUG

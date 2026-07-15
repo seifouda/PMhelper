@@ -17,7 +17,7 @@ from typing import Optional, Callable
 try:
     import uvicorn
     from ..server.config import config
-    from ..server.api.main import app
+    from ..server.main import app
     SERVER_AVAILABLE = True
 except ImportError as e:
     SERVER_AVAILABLE = False

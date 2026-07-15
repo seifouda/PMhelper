@@ -60,8 +60,12 @@ class Config:
         return f"http://{host}:{self.PORT}"
 
     def get_docs_url(self) -> str:
-        """Get the API documentation URL."""
-        return f"{self.get_server_url()}/docs"
+        """Get the API documentation URL.
+
+        The app serves Swagger at /api/docs, and only when DEBUG is on, so
+        this URL is a dead link otherwise.
+        """
+        return f"{self.get_server_url()}/api/docs"
 
     def is_network_mode(self) -> bool:
         """Check if server is configured for network access."""
